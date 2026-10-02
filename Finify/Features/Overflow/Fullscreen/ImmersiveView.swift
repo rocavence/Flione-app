@@ -23,12 +23,14 @@ struct ImmersiveView: View {
                         .animation(Motion.respecting(reduceMotion, Motion.artwork), value: app.player.isPlaying)
                     VStack(spacing: Spacing.s16) {
                         VStack(spacing: Spacing.s4) {
+                            // 字級隨封面尺寸縮放，大螢幕上才不會顯得過小
                             Text(track?.name ?? "Nothing playing")
-                                .finifyFont(.title)
+                                .font(.system(size: max(28, side * 0.055), weight: .semibold))
+                                .tracking(-0.02 * max(28, side * 0.055))
                                 .foregroundStyle(FinifyColor.Overflow.ink)
                                 .lineLimit(1)
                             Text([track?.artistName, track?.albumName].compactMap { $0 }.joined(separator: " — "))
-                                .finifyFont(.body)
+                                .font(.system(size: max(13, side * 0.026)))
                                 .foregroundStyle(FinifyColor.Overflow.muted)
                                 .lineLimit(1)
                         }

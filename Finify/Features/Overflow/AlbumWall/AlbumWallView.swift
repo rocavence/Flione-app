@@ -197,6 +197,8 @@ final class WallItem: NSCollectionViewItem {
     private let artwork = CALayer()
     /// 陰影畫在獨立 layer，artwork 本身保持裁切
     private let shadowLayer = CALayer()
+    /// 沒有封面時顯示專輯名
+    private let titleLayer = CATextLayer()
     private var task: Task<Void, Never>?
     private var albumID: String?
     private var isPlaying = false
@@ -218,8 +220,14 @@ final class WallItem: NSCollectionViewItem {
         shadowLayer.shadowColor = NSColor.black.cgColor
         shadowLayer.shadowOffset = CGSize(width: 0, height: -10)
         shadowLayer.opacity = 0
+        titleLayer.isWrapped = true
+        titleLayer.truncationMode = .end
+        titleLayer.alignmentMode = .left
+        titleLayer.foregroundColor = NSColor(white: 0.85, alpha: 1).cgColor
+        titleLayer.contentsScale = 2
         view.layer?.addSublayer(shadowLayer)
         view.layer?.addSublayer(artwork)
+        artwork.addSublayer(titleLayer)
         view.layer?.masksToBounds = false
         self.view = view
     }
@@ -229,6 +237,10 @@ final class WallItem: NSCollectionViewItem {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         artwork.frame = view.bounds
+        let inset = max(6, view.bounds.width * 0.07)
+        titleLayer.frame = view.bounds.insetBy(dx: inset, dy: inset)
+        titleLayer.fontSize = max(9, view.bounds.width * 0.085)
+        titleLayer.font = NSFont.systemFont(ofSize: titleLayer.fontSize, weight: .semibold)
         shadowLayer.frame = view.bounds
         shadowLayer.shadowPath = CGPath(rect: view.bounds.insetBy(dx: 2, dy: 2), transform: nil)
         CATransaction.commit()
@@ -257,9 +269,12 @@ final class WallItem: NSCollectionViewItem {
     private func loadArtwork() {
         guard let album else { return }
         let pixels = Int(side * (view.window?.backingScaleFactor ?? 2))
+        titleLayer.string = nil
         guard let ref = album.artwork, let images else {
             artwork.contents = nil
-            artwork.backgroundColor = NSColor(white: 0.12, alpha: 1).cgColor
+            artwork.backgroundColor = NSColor(white: 0.14, alpha: 1).cgColor
+            titleLayer.contentsScale = view.window?.backingScaleFactor ?? 2
+            titleLayer.string = "\(album.name)\n\(album.artistName)"
             return
         }
         if let hit = images.cached(ref, pixelSize: pixels) {

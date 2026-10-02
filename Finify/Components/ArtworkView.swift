@@ -14,6 +14,9 @@ struct ArtworkView: View {
     var elevation: Elevation = .standard
     /// hover 時微幅上浮
     var interactive = false
+    /// 沒有封面時顯示的文字（專輯名、藝人）
+    var fallbackTitle: String?
+    var fallbackSubtitle: String?
 
     @Environment(AppEnvironment.self) private var app
     @Environment(\.displayScale) private var displayScale
@@ -80,6 +83,28 @@ struct ArtworkView: View {
             Image(decorative: blur, scale: 1)
                 .resizable()
                 .interpolation(.medium)
+        } else if artwork == nil, let fallbackTitle {
+            // 沒有封面：以文字排版的封面代替
+            GeometryReader { geo in
+                let scale = geo.size.width / 200
+                VStack(alignment: .leading, spacing: 4 * scale) {
+                    Spacer(minLength: 0)
+                    Text(fallbackTitle)
+                        .font(.system(size: max(9, 17 * scale), weight: .semibold))
+                        .tracking(-0.3 * scale)
+                        .lineLimit(3)
+                        .foregroundStyle(FinifyColor.ink.opacity(0.85))
+                    if let fallbackSubtitle, geo.size.width > 64 {
+                        Text(fallbackSubtitle)
+                            .font(.system(size: max(8, 12 * scale)))
+                            .lineLimit(1)
+                            .foregroundStyle(FinifyColor.muted)
+                    }
+                }
+                .padding(12 * scale)
+                .frame(width: geo.size.width, height: geo.size.height, alignment: .bottomLeading)
+                .background(LinearGradient(colors: [FinifyColor.surface, FinifyColor.hairline], startPoint: .topLeading, endPoint: .bottomTrailing))
+            }
         } else {
             ZStack {
                 FinifyColor.surface

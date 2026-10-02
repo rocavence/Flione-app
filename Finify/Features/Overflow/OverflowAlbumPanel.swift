@@ -9,7 +9,7 @@ struct OverflowAlbumPanel: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: Spacing.s40) {
-            ArtworkView(artwork: album.artwork, elevation: .playing)
+            ArtworkView(artwork: album.artwork, elevation: .playing, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
                 .frame(width: 360, height: 360)
             VStack(alignment: .leading, spacing: Spacing.s16) {
                 HStack(alignment: .top) {

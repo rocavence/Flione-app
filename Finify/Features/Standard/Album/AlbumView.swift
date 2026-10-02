@@ -36,7 +36,7 @@ struct AlbumView: View {
 
     private var header: some View {
         HStack(alignment: .bottom, spacing: Spacing.s32) {
-            ArtworkView(artwork: album.artwork, elevation: .playing)
+            ArtworkView(artwork: album.artwork, elevation: .playing, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
                 .frame(width: 232, height: 232)
             VStack(alignment: .leading, spacing: Spacing.s12) {
                 Text("Album")
@@ -103,7 +103,7 @@ struct AlbumView: View {
                         .padding(.bottom, Spacing.s4)
                     }
                     ForEach(discs[disc] ?? []) { track in
-                        TrackRow(track: track, number: track.trackNumber, onPlay: {
+                        TrackRow(track: track, number: track.trackNumber, showsArtist: track.artistName != album.artistName, onPlay: {
                             app.player.play(tracks, startAt: tracks.firstIndex(of: track) ?? 0)
                         }, onOpenArtist: { router.openArtist(id: track.artistID, name: track.artistName) })
                     }

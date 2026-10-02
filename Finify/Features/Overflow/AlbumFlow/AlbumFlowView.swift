@@ -10,6 +10,8 @@ struct AlbumFlowView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var centerID: String?
+    /// 使用者手動移動過後，不再自動跳到正在播放的專輯
+    @State private var userMoved = false
     @FocusState private var focused: Bool
 
     private let side: CGFloat = 340
@@ -43,15 +45,21 @@ struct AlbumFlowView: View {
             }
         }
         .onAppear {
-            centerID = playingAlbumID.flatMap { id in albums.first { $0.id == id }?.id } ?? albums.first?.id
+            centerOnPlaying()
             focused = true
         }
+        .onChange(of: playingAlbumID) { if !userMoved { centerOnPlaying() } }
+        .onChange(of: albums.count) { if !userMoved { centerOnPlaying() } }
     }
 
     private var centered: Album? { albums.first { $0.id == centerID } }
 
+    private func centerOnPlaying() {
+        centerID = playingAlbumID.flatMap { id in albums.first { $0.id == id }?.id } ?? centerID ?? albums.first?.id
+    }
+
     private func cover(_ album: Album) -> some View {
-        ArtworkView(artwork: album.artwork, elevation: album.id == playingAlbumID ? .playing : .standard)
+        ArtworkView(artwork: album.artwork, elevation: album.id == playingAlbumID ? .playing : .standard, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
             .frame(width: side, height: side)
             .scrollTransition(axis: .horizontal) { content, phase in
                 content
@@ -62,7 +70,7 @@ struct AlbumFlowView: View {
             }
             .zIndex(album.id == centerID ? 1 : 0)
             .onTapGesture {
-                if album.id == centerID { onOpen(album) } else { withAnimation(Motion.artwork) { centerID = album.id } }
+                if album.id == centerID { onOpen(album) } else { userMoved = true; withAnimation(Motion.artwork) { centerID = album.id } }
             }
             .accessibilityLabel("\(album.name), \(album.artistName)")
             .accessibilityAddTraits(.isButton)
@@ -95,6 +103,7 @@ struct AlbumFlowView: View {
     private func step(_ delta: Int) {
         guard let index = albums.firstIndex(where: { $0.id == centerID }) else { return }
         let next = min(max(0, index + delta), albums.count - 1)
+        userMoved = true
         withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { centerID = albums[next].id }
     }
 }

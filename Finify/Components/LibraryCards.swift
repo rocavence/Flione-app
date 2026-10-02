@@ -14,7 +14,7 @@ struct AlbumCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s8) {
-            ArtworkView(artwork: album.artwork, elevation: isPlaying ? .playing : .standard, interactive: true)
+            ArtworkView(artwork: album.artwork, elevation: isPlaying ? .playing : .standard, interactive: true, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
                 .overlay(alignment: .bottomTrailing) {
                     FinifyIconButton(icon: isPlaying && app.player.isPlaying ? .pause : .play, label: "Play \(album.name)", size: .standard, prominent: true) {
                         if isPlaying { app.player.togglePlayPause() } else { onPlay() }
@@ -78,6 +78,8 @@ struct TrackRow: View {
     var number: Int?
     var showsArtwork = false
     var showsAlbum = false
+    /// 專輯頁中，曲目藝人與專輯藝人相同時不重複顯示
+    var showsArtist = true
     let onPlay: () -> Void
     var onOpenAlbum: (() -> Void)?
     var onOpenArtist: (() -> Void)?
@@ -117,10 +119,12 @@ struct TrackRow: View {
                     .finifyFont(.body)
                     .foregroundStyle(isCurrent ? FinifyColor.accent : FinifyColor.ink)
                     .lineLimit(1)
-                Text(track.artistName)
-                    .finifyFont(.caption)
-                    .foregroundStyle(FinifyColor.muted)
-                    .lineLimit(1)
+                if showsArtist {
+                    Text(track.artistName)
+                        .finifyFont(.caption)
+                        .foregroundStyle(FinifyColor.muted)
+                        .lineLimit(1)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -139,7 +143,7 @@ struct TrackRow: View {
                 .frame(width: 48, alignment: .trailing)
         }
         .padding(.horizontal, Spacing.s12)
-        .frame(height: showsArtwork ? 52 : 44)
+        .frame(height: showsArtwork ? 52 : (showsArtist ? 44 : 36))
         .background(hovering ? FinifyColor.surface : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
