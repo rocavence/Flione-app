@@ -8,6 +8,15 @@ final class PlaylistStore {
     /// 編輯失敗時給使用者看的訊息
     var failureMessage: String?
     @ObservationIgnored private var repository: (any MusicRepository)?
+    /// Jellyfin 建立 playlist 後會在背景再存一次；建立後太快寫入會被蓋掉（實測），所以等一下
+    @ObservationIgnored private var createdAt: [String: Date] = [:]
+    private static let settleDelay: TimeInterval = 1.5
+
+    private func waitUntilSettled(_ playlistID: String) async {
+        guard let created = createdAt[playlistID] else { return }
+        let remaining = Self.settleDelay - Date().timeIntervalSince(created)
+        if remaining > 0 { try? await Task.sleep(for: .seconds(remaining)) }
+    }
 
     func attach(repository: any MusicRepository) {
         self.repository = repository
@@ -30,6 +39,7 @@ final class PlaylistStore {
         guard let repository else { return nil }
         do {
             let id = try await repository.createPlaylist(name: name, trackIDs: tracks.map(\.id))
+            createdAt[id] = Date()
             let playlist = Playlist(id: id, name: name, trackCount: tracks.count, duration: tracks.reduce(0) { $0 + $1.duration }, artwork: nil)
             playlists.append(playlist)
             playlists.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -43,6 +53,7 @@ final class PlaylistStore {
     /// 加到 playlist 結尾
     func add(_ tracks: [Track], to playlist: Playlist) async {
         guard let repository else { return }
+        await waitUntilSettled(playlist.id)
         do {
             let current = try await repository.playlistTracks(playlist.id)
             let name = (try? await repository.playlist(id: playlist.id).name) ?? playlist.name
@@ -56,6 +67,7 @@ final class PlaylistStore {
     /// 以完整狀態儲存（改名、移除、排序）
     func save(_ playlist: Playlist, name: String, tracks: [Track]) async -> Bool {
         guard let repository else { return false }
+        await waitUntilSettled(playlist.id)
         do {
             try await repository.updatePlaylist(playlist.id, name: name, trackIDs: tracks.map(\.id))
             if let index = playlists.firstIndex(where: { $0.id == playlist.id }) {

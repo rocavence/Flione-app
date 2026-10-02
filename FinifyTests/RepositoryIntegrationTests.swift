@@ -67,6 +67,8 @@ final class RepositoryIntegrationTests: XCTestCase {
 
         let id = try await repository.createPlaylist(name: "Finify Test (temporary)", trackIDs: [t[0], t[1]])
         defer { Task { try? await repository.deletePlaylist(id) } }
+        // Jellyfin 建立後會在背景再存一次，太快更新會被蓋掉（PlaylistStore 也會等待）
+        try await Task.sleep(for: .seconds(1.5))
 
         // 改名＋加入＋排序一次完成
         try await repository.updatePlaylist(id, name: "Finify Test (renamed)", trackIDs: [t[2], t[0], t[1]])
