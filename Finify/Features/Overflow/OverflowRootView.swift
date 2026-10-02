@@ -87,7 +87,8 @@ struct OverflowRootView: View {
                             onQueue: queue,
                             extraMenu: wallMenu,
                             scrollToPlayingToken: scrollToPlaying,
-                            acceptsKeyboard: openAlbum == nil && !app.isSearchPresented
+                            acceptsKeyboard: openAlbum == nil && !app.isSearchPresented,
+                            typeToSelectByTitle: sort == .title
                         )
                     case .recent:
                         switch recentAlbums {

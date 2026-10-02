@@ -45,6 +45,8 @@ struct AlbumWallView: NSViewRepresentable {
     var scrollToPlayingToken = 0
     /// 上方有專輯面板或搜尋時為 false，Return 不播放牆上選取的專輯
     var acceptsKeyboard = true
+    /// 輸入文字跳轉時優先比對專輯名（依標題排序時）或藝人名
+    var typeToSelectByTitle = false
 
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
@@ -180,6 +182,23 @@ struct AlbumWallView: NSViewRepresentable {
             collection?.animator().scrollToItems(at: [IndexPath(item: index, section: 0)], scrollPosition: .centeredVertically)
         }
 
+        /// 輸入文字跳到第一張專輯名或藝人以此開頭的專輯（像 Finder 的 type-to-select）
+        func jump(to prefix: String) {
+            guard let collection, !prefix.isEmpty else { return }
+            func matches(_ text: String) -> Bool {
+                text.range(of: prefix, options: [.caseInsensitive, .diacriticInsensitive, .anchored]) != nil
+            }
+            // 先比對目前排序依據的欄位（藝人或專輯名），找不到再比對另一個
+            let primary: (Album) -> String = parent.typeToSelectByTitle ? { $0.name } : { $0.artistName }
+            let secondary: (Album) -> String = parent.typeToSelectByTitle ? { $0.artistName } : { $0.name }
+            let index = parent.albums.firstIndex { matches(primary($0)) } ?? parent.albums.firstIndex { matches(secondary($0)) }
+            guard let index else { NSSound.beep(); return }
+            let path = IndexPath(item: index, section: 0)
+            collection.selectionIndexPaths = [path]
+            collection.scrollToItems(at: [path], scrollPosition: .centeredVertically)
+            self.collectionView(collection, didSelectItemsAt: [path])
+        }
+
         func playSelected() {
             guard parent.acceptsKeyboard, let index = collection?.selectionIndexPaths.first?.item, parent.albums.indices.contains(index) else { return }
             parent.onPlay(parent.albums[index])
@@ -201,6 +220,8 @@ struct AlbumWallView: NSViewRepresentable {
 /// Return 鍵播放選取的專輯
 final class WallCollectionView: NSCollectionView {
     weak var coordinator: AlbumWallView.Coordinator?
+    private var typed = ""
+    private var lastTyped = Date.distantPast
 
     /// 出現時取得鍵盤焦點，方向鍵與 Return 才能直接使用（目前有文字輸入焦點時不搶）
     override func viewDidMoveToWindow() {
@@ -216,6 +237,16 @@ final class WallCollectionView: NSCollectionView {
         // 還沒有選取時，第一次按方向鍵選取畫面上第一張
         let arrows: Set<UInt16> = [123, 124, 125, 126]
         let modifiers = event.modifierFlags.intersection([.command, .option, .control])
+        // 一般文字：累積 1 秒內輸入的字元，跳到符合的專輯
+        if modifiers.isEmpty, let chars = event.characters, !chars.isEmpty,
+           chars.unicodeScalars.allSatisfy({ CharacterSet.alphanumerics.contains($0) || $0 == " " }),
+           !(chars == " " && typed.isEmpty) {
+            if Date().timeIntervalSince(lastTyped) > 1 { typed = "" }
+            typed += chars
+            lastTyped = Date()
+            coordinator?.jump(to: typed)
+            return
+        }
         if arrows.contains(event.keyCode), modifiers.isEmpty, selectionIndexPaths.isEmpty {
             // 扣掉頂部列與底部播放列擋住的範圍
             var visible = visibleRect
