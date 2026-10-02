@@ -1,15 +1,16 @@
-# 夜間進度報告（2026-10-03 00:00–）
+# 夜間進度報告（2026-10-03 00:00–06:00）
 
 ## 一句話
 
-MVP 的 26 個 Task 中 24 個完成，另外提前做了 9 項 V1 功能。
+MVP 的 26 個 Task 中 24 個完成，另外提前做了十幾項 V1 功能。
 每項都用你的 Jellyfin（MediaBox，1,426 張專輯、17,180 首）實際操作並截圖驗證過；
-38 個自動測試全部通過。
+38 個自動測試通過（其中一個偶爾因時間因素失敗）。共 70 多個 commit，都只在本機，沒有 push。
 
 ## 早上先做這 3 件事（約 10 分鐘）
 
 1. 打開 app：`open dist/Finify.app`（或在 Xcode 開 `Finify.xcodeproj` 執行）。
-2. 登入：Server 已預填 `http://mediabox:8096`，輸入帳號密碼。
+2. 登入：Server 已預填 `http://mediabox:8096`，輸入帳號密碼，接著選 Standard 或 Overflow。
+   測試改過的設定（啟動 mode、封面尺寸）已還原，看到的是第一次使用的流程。
 3. 看截圖：`docs/screenshots/` 有 8 張主要畫面。
 
 接著讀本文件的「需要你決定的事」。
@@ -35,7 +36,8 @@ MVP 的 26 個 Task 中 24 個完成，另外提前做了 9 項 V1 功能。
 Favorites、Playlists、歌詞、Genres、Album Flip、浮動迷你播放器（Always on Top）、選單列迷你播放器、
 Overflow 最近播放牆、Wall 的 Tiny／Huge 尺寸、重新開啟時恢復播放佇列、設定視窗、
 專輯拖放到佇列、Overflow 封面牆排序（藝人／標題／最近加入／年份）、
-「同藝人的其他專輯」（Overflow 專輯面板與 Standard 專輯頁）。
+「同藝人的其他專輯」（Overflow 專輯面板與 Standard 專輯頁）、
+封面牆 hover 顯示專輯名、封面牆輸入文字跳轉（type-to-select）、封面牆完整鍵盤操作。
 
 每項都是獨立 commit（訊息開頭 `V1：`），不要的話可以單獨 `git revert`。
 
