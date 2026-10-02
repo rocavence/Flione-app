@@ -21,6 +21,11 @@ protocol MusicRepository: Sendable {
     func reportPlaybackStarted(_ track: Track) async
     func reportPlaybackStopped(_ track: Track, position: TimeInterval) async
 
+    func genres() async throws -> [Genre]
+    func albums(inGenre genreID: String) async throws -> [Album]
+    /// 隨機挑選該類型的曲目
+    func randomTracks(inGenre genreID: String, limit: Int) async throws -> [Track]
+
     func playlists() async throws -> [Playlist]
     func playlistTracks(_ playlistID: String) async throws -> [Track]
     func playlist(id: String) async throws -> Playlist
@@ -207,6 +212,35 @@ final class JellyfinRepository: MusicRepository {
             URLQueryItem(name: "static", value: "true"),
             URLQueryItem(name: "ApiKey", value: session.accessToken),
         ])
+    }
+
+    // MARK: - Genres
+
+    func genres() async throws -> [Genre] {
+        let response: ItemsResponse = try await client.get("/MusicGenres", query: [
+            URLQueryItem(name: "UserId", value: session.userID),
+            URLQueryItem(name: "SortBy", value: "SortName"),
+            URLQueryItem(name: "EnableTotalRecordCount", value: "false"),
+        ])
+        return response.items.map { $0.toGenre() }
+    }
+
+    func albums(inGenre genreID: String) async throws -> [Album] {
+        try await items([
+            "IncludeItemTypes": "MusicAlbum",
+            "GenreIds": genreID,
+            "SortBy": "AlbumArtist,SortName",
+            "Fields": Self.albumFields,
+        ]).items.map { $0.toAlbum() }
+    }
+
+    func randomTracks(inGenre genreID: String, limit: Int) async throws -> [Track] {
+        try await items([
+            "IncludeItemTypes": "Audio",
+            "GenreIds": genreID,
+            "SortBy": "Random",
+            "Limit": "\(limit)",
+        ]).items.map { $0.toTrack() }
     }
 
     // MARK: - Playlists

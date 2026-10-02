@@ -4,6 +4,7 @@ enum LibrarySection: String, CaseIterable {
     case albums = "Albums"
     case artists = "Artists"
     case songs = "Songs"
+    case genres = "Genres"
     case playlists = "Playlists"
     case favorites = "Favorites"
 }
@@ -69,6 +70,7 @@ struct LibraryView: View {
                 case .artists: artists
                 case .songs: SongsList()
                 case .playlists: playlistGrid
+                case .genres: GenreGrid()
                 case .favorites: FavoriteSongs()
                 }
             }
@@ -222,5 +224,37 @@ private struct FavoriteSongs: View {
     private func load() async {
         guard let repository = app.repository else { return }
         do { tracks = .loaded(try await repository.favoriteTracks()) } catch { tracks = .failed }
+    }
+}
+
+/// 類型格線
+private struct GenreGrid: View {
+    @Environment(AppEnvironment.self) private var app
+    @Environment(StandardRouter.self) private var router
+    @State private var genres: Loadable<[Genre]> = .loading
+
+    var body: some View {
+        Group {
+            switch genres {
+            case .loading:
+                ScrollView { AlbumGrid(albums: nil).padding(.horizontal, Spacing.s32) }
+            case .failed:
+                MessageState(title: "Can't load genres.", message: "Check your connection to the music server.", icon: .wifiOff,
+                             primary: ("Retry", { Task { await load() } }))
+                Spacer()
+            case .loaded(let list):
+                CollectionGrid(items: list, captionHeight: 28) { genre in
+                    GenreCard(genre: genre) { router.open(.genre(genre)) }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .environment(app)
+                }
+            }
+        }
+        .task { if case .loading = genres { await load() } }
+    }
+
+    private func load() async {
+        guard let repository = app.repository else { return }
+        do { genres = .loaded(try await repository.genres()) } catch { genres = .failed }
     }
 }

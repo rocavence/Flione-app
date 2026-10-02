@@ -59,6 +59,7 @@ struct StandardRootView: View {
                     case .album(let album): AlbumView(album: album)
                     case .artist(let id, let name): ArtistView(artistID: id, name: name)
                     case .playlist(let playlist): PlaylistView(playlist: playlist)
+                    case .genre(let genre): GenreView(genre: genre)
                     }
                 }
                 .id(route)

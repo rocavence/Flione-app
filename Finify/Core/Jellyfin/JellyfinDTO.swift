@@ -105,6 +105,10 @@ struct BaseItemDTO: Decodable, Sendable {
         )
     }
 
+    func toGenre() -> Genre {
+        Genre(id: id, name: name ?? "Unknown", artwork: primaryArtwork)
+    }
+
     func toPlaylist() -> Playlist {
         Playlist(id: id, name: name ?? "Untitled Playlist", trackCount: childCount ?? 0,
                  duration: Double(runTimeTicks ?? 0) / 10_000_000, artwork: primaryArtwork)

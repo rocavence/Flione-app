@@ -40,6 +40,12 @@ struct Track: Identifiable, Hashable, Sendable, Codable {
     var playlistItemID: String? = nil
 }
 
+struct Genre: Identifiable, Hashable, Sendable, Codable {
+    let id: String
+    let name: String
+    let artwork: ArtworkRef?
+}
+
 struct Playlist: Identifiable, Hashable, Sendable, Codable {
     let id: String
     let name: String

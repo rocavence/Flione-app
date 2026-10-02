@@ -9,6 +9,7 @@ enum StandardRoute: Hashable, Sendable {
     case album(Album)
     case artist(id: String, name: String)
     case playlist(Playlist)
+    case genre(Genre)
 }
 
 /// Standard mode 的導覽狀態。tab 根畫面常駐（保留捲動位置），詳細頁疊在上面。

@@ -209,3 +209,22 @@ struct PlaylistCard: View {
         .accessibilityAction(.default, onOpen)
     }
 }
+
+/// 類型卡片
+struct GenreCard: View {
+    let genre: Genre
+    let onOpen: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.s8) {
+            ArtworkView(artwork: genre.artwork, interactive: true, fallbackTitle: genre.name)
+            Text(genre.name).finifyFont(.subheading).foregroundStyle(FinifyColor.ink).lineLimit(1)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onOpen)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(genre.name), genre")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction(.default, onOpen)
+    }
+}
