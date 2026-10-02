@@ -131,13 +131,13 @@ struct OverflowRootView: View {
             if layout == .wall {
                 HStack(spacing: 2) {
                     FinifyIconButton(icon: .minus, label: "Smaller albums", size: .compact) { stepDensity(-1) }
-                        .disabled(density.wrappedValue == .small)
+                        .disabled(density.wrappedValue == WallDensity.allCases.first)
                     Text(density.wrappedValue.label)
                         .finifyFont(.caption)
                         .foregroundStyle(FinifyColor.Overflow.muted)
                         .frame(width: 52)
                     FinifyIconButton(icon: .plus, label: "Larger albums", size: .compact) { stepDensity(1) }
-                        .disabled(density.wrappedValue == .large)
+                        .disabled(density.wrappedValue == WallDensity.allCases.last)
                 }
                 .help("Pinch to resize")
             }

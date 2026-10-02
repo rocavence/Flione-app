@@ -2,21 +2,25 @@ import AppKit
 import SwiftUI
 
 enum WallDensity: Int, CaseIterable, Sendable {
-    case small, medium, large
+    case tiny, small, medium, large, huge
 
     var side: CGFloat {
         switch self {
+        case .tiny: 64
         case .small: 96
         case .medium: 148
         case .large: 220
+        case .huge: 320
         }
     }
 
     var label: String {
         switch self {
+        case .tiny: "Tiny"
         case .small: "Small"
         case .medium: "Medium"
         case .large: "Large"
+        case .huge: "Huge"
         }
     }
 
@@ -145,7 +149,7 @@ struct AlbumWallView: NSViewRepresentable {
                 isPinching = true
                 pinchStartSide = currentSide
             case .changed:
-                let side = min(WallDensity.large.side * 1.2, max(WallDensity.small.side * 0.8, pinchStartSide * (1 + gesture.magnification)))
+                let side = min(WallDensity.huge.side * 1.15, max(WallDensity.tiny.side * 0.85, pinchStartSide * (1 + gesture.magnification)))
                 applySize(side, animated: false)
             default:
                 isPinching = false
