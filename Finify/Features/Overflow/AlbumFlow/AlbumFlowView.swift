@@ -2,11 +2,10 @@ import AppKit
 import SwiftUI
 
 /// Album Flow：Cover Flow 式橫向瀏覽。中間的專輯最大、最亮，兩側以透視角度排開。
-/// 操作：trackpad 橫滑、滑鼠滾輪、← → 鍵；Return 播放；點中間的封面打開專輯。
+/// 操作：trackpad 橫滑、滑鼠滾輪、← → 鍵；Return 播放；點中間的封面翻面看曲目（Album Flip）。
 struct AlbumFlowView: View {
     let albums: [Album]
     let playingAlbumID: String?
-    let onOpen: (Album) -> Void
     let onPlay: (Album) -> Void
     /// 上方有搜尋、佇列、專輯面板時為 false，滾輪交給那些面板
     var isActive = true
@@ -15,6 +14,8 @@ struct AlbumFlowView: View {
     @State private var centerID: String?
     /// 使用者手動移動過後，不再自動跳到正在播放的專輯
     @State private var userMoved = false
+    /// 翻到背面的專輯；移到別張時自動翻回
+    @State private var flippedID: String?
     @State private var wheelMonitor: Any?
     /// monitor 的 closure 只在安裝時捕捉一次 view，用 reference 讀取最新的 isActive
     @State private var activeState = ActiveState()
@@ -63,6 +64,7 @@ struct AlbumFlowView: View {
         }
         .onChange(of: playingAlbumID) { if !userMoved { centerOnPlaying() } }
         .onChange(of: isActive, initial: true) { activeState.value = isActive }
+        .onChange(of: centerID) { flippedID = nil }
         .onChange(of: albums.count) { if !userMoved { centerOnPlaying() } }
     }
 
@@ -74,8 +76,8 @@ struct AlbumFlowView: View {
 
     private func cover(_ album: Album) -> some View {
         let reduceMotion = reduceMotion
-        return ArtworkView(artwork: album.artwork, elevation: album.id == playingAlbumID ? .playing : .standard, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
-            .frame(width: side, height: side)
+        return AlbumFlipCard(album: album, isFlipped: flippedID == album.id, side: side,
+                             elevation: album.id == playingAlbumID ? .playing : .standard)
             .scrollTransition(axis: .horizontal) { content, phase in
                 content
                     .rotation3DEffect(.degrees(reduceMotion ? 0 : phase.value * -58), axis: (x: 0, y: 1, z: 0), perspective: 0.45)
@@ -85,9 +87,16 @@ struct AlbumFlowView: View {
             }
             .zIndex(album.id == centerID ? 1 : 0)
             .onTapGesture {
-                if album.id == centerID { onOpen(album) } else { userMoved = true; withAnimation(Motion.artwork) { centerID = album.id } }
+                // 點中間的封面翻面看曲目；點旁邊的封面移到中間
+                if album.id == centerID {
+                    flippedID = flippedID == album.id ? nil : album.id
+                } else {
+                    userMoved = true
+                    withAnimation(Motion.artwork) { centerID = album.id }
+                }
             }
             .accessibilityLabel("\(album.name), \(album.artistName)")
+            .accessibilityHint(album.id == centerID ? "Flip to see tracks" : "Move to center")
             .accessibilityAddTraits(.isButton)
     }
 
@@ -104,7 +113,9 @@ struct AlbumFlowView: View {
                     .foregroundStyle(FinifyColor.Overflow.muted)
                 HStack(spacing: Spacing.s8) {
                     FinifyButton(title: "Play", icon: .play, kind: .primary) { onPlay(album) }
-                    FinifyButton(title: "Open", icon: .cd) { onOpen(album) }
+                    FinifyButton(title: flippedID == album.id ? "Cover" : "Tracks", icon: .cd) {
+                        flippedID = flippedID == album.id ? nil : album.id
+                    }
                 }
                 .padding(.top, Spacing.s8)
             }
