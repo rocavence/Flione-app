@@ -4,6 +4,8 @@ import SwiftUI
 enum OverflowLayout: String, CaseIterable {
     case wall = "Wall"
     case flow = "Flow"
+    /// 最近播放的專輯牆
+    case recent = "Recent"
 }
 
 /// Overflow mode：讓音樂庫成為畫面本身。完整的 App mode，可瀏覽、搜尋、播放、排佇列，不需離開。
@@ -15,6 +17,7 @@ struct OverflowRootView: View {
     @State private var openAlbum: Album?
     @State private var immersive = false
     @State private var scrollToPlaying = 0
+    @State private var recentAlbums: [Album] = []
 
     private var density: Binding<WallDensity> {
         Binding { WallDensity(rawValue: densityRaw) ?? .medium } set: { densityRaw = $0.rawValue }
@@ -39,6 +42,11 @@ struct OverflowRootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
         .task { await app.library.refreshIfNeeded() }
+        // 最近播放：切到 Recent 或換曲時更新
+        .task(id: layout == .recent ? (playingAlbumID ?? "") + "recent" : "") {
+            guard layout == .recent, let repository = app.repository else { return }
+            if let albums = try? await repository.recentlyPlayed(limit: 120) { recentAlbums = albums }
+        }
         #if DEBUG || BENCHMARK
         .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }, immersive: enterImmersive) }
         #endif
@@ -70,6 +78,21 @@ struct OverflowRootView: View {
                             onQueue: queue,
                             scrollToPlayingToken: scrollToPlaying
                         )
+                    case .recent:
+                        if recentAlbums.isEmpty {
+                            MessageState(title: "Nothing played yet.", message: "Albums you play will fill this wall.", icon: .history)
+                        } else {
+                            // 最近播放通常只有幾十張，固定用大尺寸，畫面才不會空
+                            AlbumWallView(
+                                albums: recentAlbums,
+                                density: .constant(.large),
+                                playingAlbumID: playingAlbumID,
+                                images: app.images,
+                                onOpen: { openAlbum = $0 },
+                                onPlay: play,
+                                onQueue: queue
+                            )
+                        }
                     case .flow:
                         AlbumFlowView(albums: app.library.albums, playingAlbumID: playingAlbumID, onPlay: play,
                                       isActive: openAlbum == nil && !app.isSearchPresented && !app.isQueuePresented)
