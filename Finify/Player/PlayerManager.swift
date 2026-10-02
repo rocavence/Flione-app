@@ -3,6 +3,15 @@ import Observation
 
 /// 播放引擎（D01：AVQueuePlayer）。
 /// AVQueuePlayer 只放「目前」與「下一首」兩個 item，讓下一首預先緩衝以達成無縫換曲；佇列邏輯在 `PlayQueue`。
+/// 關閉 app 時的播放狀態，下次啟動時恢復（暫停在原位置）
+struct PlaybackSnapshot: Codable {
+    let owner: String
+    let tracks: [Track]
+    let index: Int
+    let position: TimeInterval
+    let repeatMode: String
+}
+
 struct PlayerNotice: Identifiable, Equatable {
     let id = UUID()
     let message: String
@@ -69,6 +78,23 @@ final class PlayerManager {
         self.repository = repository
     }
 
+    // MARK: - 播放狀態保存與恢復
+
+    func snapshot(owner: String) -> PlaybackSnapshot? {
+        guard !queue.isEmpty else { return nil }
+        let mode = switch queue.repeatMode { case .off: "off"; case .all: "all"; case .one: "one" }
+        return PlaybackSnapshot(owner: owner, tracks: queue.tracks, index: queue.index, position: currentTime, repeatMode: mode)
+    }
+
+    /// 恢復佇列並停在上次的位置，不自動播放
+    func restore(_ snapshot: PlaybackSnapshot) {
+        guard queue.isEmpty, !snapshot.tracks.isEmpty else { return }
+        queue = PlayQueue(tracks: snapshot.tracks, startAt: snapshot.index)
+        queue.repeatMode = switch snapshot.repeatMode { case "all": .all; case "one": .one; default: .off }
+        rebuildPlayer(announce: false)
+        if snapshot.position > 1 { seek(to: snapshot.position) }
+    }
+
     // MARK: - 控制
 
     func play(_ tracks: [Track], startAt index: Int = 0, shuffled: Bool = false) {
@@ -88,6 +114,8 @@ final class PlayerManager {
         guard currentTrack != nil else { return }
         // 佇列已播完時，從目前曲目重新開始
         if player.currentItem == nil { rebuildPlayer() }
+        // 恢復的佇列第一次按播放時才回報
+        if reportedTrack == nil { trackStarted() }
         player.play()
     }
 
@@ -174,8 +202,8 @@ final class PlayerManager {
         return item
     }
 
-    /// 清空並以目前曲目＋下一首重建
-    private func rebuildPlayer() {
+    /// 清空並以目前曲目＋下一首重建。`announce` 為 false 時（恢復上次狀態）不回報開始播放
+    private func rebuildPlayer(announce: Bool = true) {
         player.removeAllItems()
         itemEntries.removeAll()
         currentTime = 0
@@ -185,7 +213,7 @@ final class PlayerManager {
         activeItem = ObjectIdentifier(item)
         player.insert(item, after: nil)
         appendNextItem()
-        trackStarted()
+        if announce { trackStarted() } else { observeFailure(of: item) }
     }
 
     private var nextEntry: QueueEntry? {

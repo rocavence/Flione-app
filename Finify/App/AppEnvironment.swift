@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 import Network
 import Observation
 
@@ -53,6 +53,7 @@ final class AppEnvironment {
     @ObservationIgnored private let pathMonitor = NWPathMonitor()
     @ObservationIgnored private var wasOffline = false
     @ObservationIgnored private var expiryObserver: NSObjectProtocol?
+    @ObservationIgnored private var terminateObserver: NSObjectProtocol?
     private static let modeKey = "FinifyMode"
     private static let rememberKey = "FinifyRememberMode"
 
@@ -72,6 +73,15 @@ final class AppEnvironment {
             Task { @MainActor in self?.networkChanged(online: path.status == .satisfied) }
         }
         pathMonitor.start(queue: .global(qos: .utility))
+        terminateObserver = NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.savePlayback() }
+        }
+        Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(10))
+                self?.savePlayback()
+            }
+        }
     }
 
     private func networkChanged(online: Bool) {
@@ -104,11 +114,37 @@ final class AppEnvironment {
     func signOut(reason: String? = nil) {
         signOutReason = reason
         player.stop()
+        try? FileManager.default.removeItem(at: playbackFile)
         sessionStore.clear()
         session = nil
         repository = nil
         images = nil
         library.reset()
+    }
+
+    // MARK: - 播放狀態保存
+
+    private var playbackFile: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("app.finify.Finify/playback.json")
+    }
+
+    private var sessionOwner: String? { session.map { $0.serverURL.absoluteString + "|" + $0.userID } }
+
+    /// 每 10 秒與關閉 app 時保存；只恢復同一個 server 與使用者的狀態
+    func savePlayback() {
+        guard let owner = sessionOwner else { return }
+        guard let snapshot = player.snapshot(owner: owner) else {
+            try? FileManager.default.removeItem(at: playbackFile)
+            return
+        }
+        if let data = try? JSONEncoder().encode(snapshot) { try? data.write(to: playbackFile, options: .atomic) }
+    }
+
+    private func restorePlayback() {
+        guard let owner = sessionOwner, let data = try? Data(contentsOf: playbackFile),
+              let snapshot = try? JSONDecoder().decode(PlaybackSnapshot.self, from: data), snapshot.owner == owner else { return }
+        player.restore(snapshot)
     }
 
     private func activate(_ session: JellyfinSession) {
@@ -119,5 +155,6 @@ final class AppEnvironment {
         images = ImagePipeline { ref, size in repository.artworkURL(ref, maxPixelSize: size) }
         player.attach(repository: repository)
         library.attach(repository: repository, serverID: session.serverURL.absoluteString + session.userID)
+        restorePlayback()
     }
 }
