@@ -45,7 +45,12 @@ struct ImmersiveView: View {
                             .monospacedDigit()
                             .foregroundStyle(FinifyColor.Overflow.muted)
                             .frame(width: min(560, geo.size.width * 0.6))
-                            PlaybackControls(size: .emphasis)
+                            HStack(spacing: Spacing.s24) {
+                                PlaybackControls(size: .emphasis)
+                                FinifyIconButton(icon: .playlist, label: "Queue", size: .primary, isActive: app.isQueuePresented) {
+                                    app.isQueuePresented.toggle()
+                                }
+                            }
                         }
                         .opacity(controlsVisible ? 1 : 0)
                     }
@@ -53,6 +58,16 @@ struct ImmersiveView: View {
                     Spacer()
                 }
                 .padding(Spacing.s48)
+
+                if app.isQueuePresented {
+                    HStack {
+                        Spacer()
+                        OverflowQueue(onOpenAlbum: { _ in })
+                            .padding(.vertical, Spacing.s80)
+                            .padding(.trailing, Spacing.s32)
+                    }
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
 
                 VStack {
                     HStack {
@@ -67,6 +82,7 @@ struct ImmersiveView: View {
         }
         .environment(\.overflowStyle, true)
         .animation(Motion.respecting(reduceMotion, Motion.controlsFade), value: controlsVisible)
+        .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
         .onContinuousHover { phase in
             if case .active = phase {
                 lastMove = .now
@@ -76,7 +92,7 @@ struct ImmersiveView: View {
         .task {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(500))
-                if autoHide, controlsVisible, Date().timeIntervalSince(lastMove) > 2.5, app.player.isPlaying {
+                if autoHide, !app.isQueuePresented, controlsVisible, Date().timeIntervalSince(lastMove) > 2.5, app.player.isPlaying {
                     controlsVisible = false
                     NSCursor.setHiddenUntilMouseMoves(true)
                 }

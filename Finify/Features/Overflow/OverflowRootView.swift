@@ -37,6 +37,7 @@ struct OverflowRootView: View {
         .environment(\.colorScheme, .dark)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: immersive)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
+        .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
         .task { await app.library.refreshIfNeeded() }
         #if DEBUG || BENCHMARK
         .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }, immersive: enterImmersive) }
@@ -89,6 +90,17 @@ struct OverflowRootView: View {
                 OverflowAlbumPanel(album: album) { openAlbum = nil }
                     .transition(.scale(scale: 0.96).combined(with: .opacity))
                     .onExitCommand { openAlbum = nil }
+            }
+
+            if app.isQueuePresented {
+                HStack {
+                    Spacer()
+                    OverflowQueue(onOpenAlbum: { id in openAlbum = app.library.albums.first { $0.id == id } })
+                        .padding(.top, 60)
+                        .padding(.bottom, 108)
+                        .padding(.trailing, Spacing.s16)
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
             }
 
             if app.isSearchPresented {
@@ -238,6 +250,7 @@ private struct NowPlayingPill: View {
                     ProgressBar(value: app.player.progress) { app.player.seek(to: $0 * app.player.duration) }
                         .frame(width: 300)
                 }
+                FinifyIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) { app.isQueuePresented.toggle() }
                 VolumeControl()
             }
             .padding(.horizontal, Spacing.s16)
@@ -248,5 +261,20 @@ private struct NowPlayingPill: View {
             .padding(.bottom, Spacing.s24)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+    }
+}
+
+/// Overflow 中的播放佇列：與 Standard 相同內容，浮在封面牆上方的深色面板
+struct OverflowQueue: View {
+    let onOpenAlbum: (String?) -> Void
+
+    var body: some View {
+        QueuePanel(onOpenAlbum: onOpenAlbum)
+            .frame(width: 360)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+            .overlay { RoundedRectangle(cornerRadius: Radius.large, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
+            .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 40, y: 16))
+            // 佇列內的元件使用一般深色配色，不是 Overflow 的半透明樣式
+            .environment(\.overflowStyle, false)
     }
 }
