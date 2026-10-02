@@ -48,6 +48,15 @@ struct RootView: View {
             }
         }
         .transition(.opacity)
+        .overlay(alignment: .bottom) {
+            if let notice = app.player.notice {
+                Toast(message: notice.message) { app.player.dismissNotice() }
+                    .id(notice.id)
+                    .padding(.bottom, 104)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.player.notice)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.mode)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.session)
         .ignoresSafeArea()

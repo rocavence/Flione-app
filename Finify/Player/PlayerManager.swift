@@ -3,6 +3,11 @@ import Observation
 
 /// 播放引擎（D01：AVQueuePlayer）。
 /// AVQueuePlayer 只放「目前」與「下一首」兩個 item，讓下一首預先緩衝以達成無縫換曲；佇列邏輯在 `PlayQueue`。
+struct PlayerNotice: Identifiable, Equatable {
+    let id = UUID()
+    let message: String
+}
+
 @MainActor @Observable
 final class PlayerManager {
     private(set) var queue = PlayQueue()
@@ -10,8 +15,8 @@ final class PlayerManager {
     private(set) var isBuffering = false
     private(set) var currentTime: TimeInterval = 0
     private(set) var duration: TimeInterval = 0
-    /// 播放失敗時給使用者看的訊息
-    private(set) var errorMessage: String?
+    /// 播放失敗時給使用者看的訊息（顯示為 toast）
+    private(set) var notice: PlayerNotice?
     /// 音量記在 UserDefaults（UI 偏好，不是敏感資料）
     var volume: Float = UserDefaults.standard.object(forKey: "FinifyVolume") as? Float ?? 0.8 {
         didSet {
@@ -170,7 +175,6 @@ final class PlayerManager {
     private func rebuildPlayer() {
         player.removeAllItems()
         itemPositions.removeAll()
-        errorMessage = nil
         currentTime = 0
         duration = currentTrack?.duration ?? 0
         guard let track = currentTrack, let item = makeItem(track, position: queue.index) else { return }
@@ -218,12 +222,24 @@ final class PlayerManager {
         trackStarted()
     }
 
+    /// 曲目無法播放時：提示使用者並跳到下一首，不讓播放停在原地
     private func observeFailure(of item: AVPlayerItem) {
         statusObservation = item.observe(\.status, options: [.new]) { [weak self] item, _ in
             guard item.status == .failed else { return }
-            Task { @MainActor in self?.errorMessage = "This track can't be played right now." }
+            Task { @MainActor in self?.trackFailed() }
         }
     }
+
+    private func trackFailed() {
+        guard let track = currentTrack else { return }
+        let hasNext = queue.nextIndex(automatic: false) != nil
+        notice = PlayerNotice(message: hasNext
+            ? "Couldn't play “\(track.name)”. Skipping to the next song."
+            : "Couldn't play “\(track.name)”. Check that your music server is reachable.")
+        if hasNext { next() }
+    }
+
+    func dismissNotice() { notice = nil }
 
     private func tick(_ time: CMTime) {
         guard time.isValid, time.seconds.isFinite else { return }

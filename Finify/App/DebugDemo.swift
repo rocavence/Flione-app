@@ -20,7 +20,13 @@ enum DebugDemo {
             for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
         }
         if let name = defaults.string(forKey: "FinifyDemoPlay"), let album = find(name, in: app),
-           let tracks = try? await app.repository?.tracks(inAlbum: album.id) {
+           var tracks = try? await app.repository?.tracks(inAlbum: album.id) {
+            // -FinifyDemoBrokenFirst YES：最前面插入不存在的曲目，驗證播放失敗的處理
+            if defaults.bool(forKey: "FinifyDemoBrokenFirst"), let first = tracks.first {
+                tracks.insert(Track(id: "does-not-exist", name: "Missing Song", albumID: first.albumID, albumName: first.albumName,
+                                    artistName: first.artistName, artistID: first.artistID, trackNumber: 0, discNumber: 1,
+                                    duration: 100, container: "mp3", artwork: first.artwork), at: 0)
+            }
             app.player.play(tracks)
             // -FinifyDemoSeekToEnd <秒>：跳到第一首結尾前 N 秒，用來驗證自動換曲
             let seconds = defaults.double(forKey: "FinifyDemoSeekToEnd")
