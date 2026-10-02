@@ -70,8 +70,12 @@ final class PlayerManager {
     }
 
     #if DEBUG || BENCHMARK
-    /// 測試時靜音，但不改動使用者記住的音量
-    func muteForTesting() { player.volume = 0 }
+    /// 測試時靜音，但不改動使用者記住的音量；也不回報播放，避免測試弄亂 Jellyfin 的播放紀錄
+    func muteForTesting() {
+        player.volume = 0
+        reportsPlayback = false
+    }
+    @ObservationIgnored private var reportsPlayback = true
     /// 無縫播放量測用
     var debugQueuePlayer: AVQueuePlayer { player }
     #endif
@@ -343,6 +347,9 @@ final class PlayerManager {
         reportedTrack = track
         onTrackChange?(track)
         if let item = player.currentItem { observeFailure(of: item) }
+        #if DEBUG || BENCHMARK
+        guard reportsPlayback else { return }
+        #endif
         Task { await repository?.reportPlaybackStarted(track) }
     }
 
@@ -350,6 +357,9 @@ final class PlayerManager {
         guard let track = reportedTrack else { return }
         let position = reportedPosition
         reportedTrack = nil
+        #if DEBUG || BENCHMARK
+        guard reportsPlayback else { return }
+        #endif
         Task { await repository?.reportPlaybackStopped(track, position: position) }
     }
 }
