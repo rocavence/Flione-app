@@ -248,6 +248,9 @@ final class WallItem: NSCollectionViewItem {
     private let shadowLayer = CALayer()
     /// 沒有封面時顯示專輯名
     private let titleLayer = CATextLayer()
+    /// hover 時在封面下方顯示專輯與藝人
+    private let captionGradient = CAGradientLayer()
+    private let captionLayer = CATextLayer()
     private var task: Task<Void, Never>?
     private var albumID: String?
     private var isPlaying = false
@@ -274,9 +277,17 @@ final class WallItem: NSCollectionViewItem {
         titleLayer.alignmentMode = .left
         titleLayer.foregroundColor = NSColor(white: 0.85, alpha: 1).cgColor
         titleLayer.contentsScale = 2
+        captionGradient.colors = [NSColor.black.withAlphaComponent(0).cgColor, NSColor.black.withAlphaComponent(0.85).cgColor]
+        captionGradient.opacity = 0
+        captionLayer.isWrapped = true
+        captionLayer.truncationMode = .end
+        captionLayer.foregroundColor = NSColor.white.cgColor
+        captionLayer.contentsScale = 2
         view.layer?.addSublayer(shadowLayer)
         view.layer?.addSublayer(artwork)
         artwork.addSublayer(titleLayer)
+        artwork.addSublayer(captionGradient)
+        captionGradient.addSublayer(captionLayer)
         view.layer?.masksToBounds = false
         self.view = view
     }
@@ -290,6 +301,11 @@ final class WallItem: NSCollectionViewItem {
         titleLayer.frame = view.bounds.insetBy(dx: inset, dy: inset)
         titleLayer.fontSize = max(9, view.bounds.width * 0.085)
         titleLayer.font = NSFont.systemFont(ofSize: titleLayer.fontSize, weight: .semibold)
+        let captionHeight = max(36, view.bounds.height * 0.42)
+        captionGradient.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: captionHeight)
+        captionLayer.fontSize = max(10, min(14, view.bounds.width * 0.075))
+        captionLayer.font = NSFont.systemFont(ofSize: captionLayer.fontSize, weight: .semibold)
+        captionLayer.frame = CGRect(x: inset, y: inset * 0.6, width: view.bounds.width - inset * 2, height: captionLayer.fontSize * 2.8)
         shadowLayer.frame = view.bounds
         shadowLayer.shadowPath = CGPath(rect: view.bounds.insetBy(dx: 2, dy: 2), transform: nil)
         CATransaction.commit()
@@ -304,6 +320,10 @@ final class WallItem: NSCollectionViewItem {
         view.setAccessibilityElement(true)
         view.setAccessibilityRole(.button)
         view.setAccessibilityLabel("\(album.name), \(album.artistName)")
+        view.toolTip = "\(album.name) — \(album.artistName)"
+        let caption = NSMutableAttributedString(string: album.name, attributes: [.font: NSFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: NSColor.white])
+        caption.append(NSAttributedString(string: "\n" + album.artistName, attributes: [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.white.withAlphaComponent(0.7)]))
+        captionLayer.string = caption
         loadArtwork()
         setPlaying(isPlaying, anyPlaying: anyPlaying, animated: false)
     }
@@ -374,6 +394,8 @@ final class WallItem: NSCollectionViewItem {
         layer.sublayerTransform = transform
         layer.zPosition = isPlaying ? 20 : (hovering ? 10 : 0)
         shadowLayer.opacity = isPlaying || hovering ? 1 : 0
+        // 小尺寸（Tiny／Small）封面太小，不顯示文字，只靠 tooltip
+        captionGradient.opacity = hovering && bounds.width >= 120 && titleLayer.string == nil ? 1 : 0
         shadowLayer.shadowOpacity = isPlaying ? 0.7 : 0.5
         shadowLayer.shadowRadius = isPlaying ? 24 : 12
         artwork.opacity = anyPlaying && !isPlaying && !hovering ? 0.82 : 1
