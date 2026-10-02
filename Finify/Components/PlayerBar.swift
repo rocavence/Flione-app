@@ -18,6 +18,7 @@ struct PlayerBar: View {
                     Text(player.currentTime.formattedDuration)
                         .frame(width: 44, alignment: .trailing)
                     ProgressBar(value: player.progress) { player.seek(to: $0 * player.duration) }
+                        .accessibilityLabel("Playback position")
                     Text(player.duration.formattedDuration)
                         .frame(width: 44, alignment: .leading)
                 }

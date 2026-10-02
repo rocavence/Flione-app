@@ -124,12 +124,11 @@ struct ProgressBar: View {
             .animation(Motion.micro, value: hovering)
         }
         .frame(height: 14)
-        .accessibilityElement()
-        .accessibilityLabel("Playback position")
-        .accessibilityValue("\(Int(value * 100)) percent")
-        .accessibilityAdjustableAction { direction in
-            let step = direction == .increment ? 0.05 : -0.05
-            onSeek?(max(0, min(1, value + step)))
+        // 對 VoiceOver 呈現為標準滑桿，可用上下鍵調整
+        .accessibilityRepresentation {
+            Slider(value: Binding(get: { value }, set: { onSeek?($0) }), in: 0...1)
+                .accessibilityLabel("Playback position")
+                .accessibilityValue("\(Int(value * 100)) percent")
         }
     }
 }
