@@ -157,11 +157,16 @@ final class JellyfinClient: Sendable {
     }
 
     /// Jellyfin 的日期有 7 位小數秒，ISO8601DateFormatter 不支援，先截到 3 位
+    /// ISO8601DateFormatter 的解析是 thread-safe 的，但型別沒有標成 Sendable
+    nonisolated(unsafe) private static let withFraction: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+    nonisolated(unsafe) private static let plain = ISO8601DateFormatter()
+
     static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        let withFraction = ISO8601DateFormatter()
-        withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let plain = ISO8601DateFormatter()
         decoder.dateDecodingStrategy = .custom { decoder in
             let raw = try decoder.singleValueContainer().decode(String.self)
             var value = raw
@@ -170,7 +175,7 @@ final class JellyfinClient: Sendable {
                 let rest = raw[raw.index(after: dot)...].dropFirst(fraction.count)
                 value = String(raw[..<dot]) + "." + fraction.prefix(3) + rest
             }
-            if let date = withFraction.date(from: value) ?? plain.date(from: value) { return date }
+            if let date = JellyfinClient.withFraction.date(from: value) ?? JellyfinClient.plain.date(from: value) { return date }
             throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "bad date \(raw)"))
         }
         return decoder

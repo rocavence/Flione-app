@@ -73,7 +73,8 @@ struct AlbumFlowView: View {
     }
 
     private func cover(_ album: Album) -> some View {
-        ArtworkView(artwork: album.artwork, elevation: album.id == playingAlbumID ? .playing : .standard, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
+        let reduceMotion = reduceMotion
+        return ArtworkView(artwork: album.artwork, elevation: album.id == playingAlbumID ? .playing : .standard, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
             .frame(width: side, height: side)
             .scrollTransition(axis: .horizontal) { content, phase in
                 content
