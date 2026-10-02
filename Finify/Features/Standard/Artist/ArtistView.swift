@@ -36,7 +36,7 @@ struct ArtistView: View {
     }
 
     private var firstAlbumArtwork: ArtworkRef? {
-        if case .loaded(let albums) = model.albums { return albums.first?.artwork }
+        if case .loaded(let albums) = model.albums { return albums.first { $0.artwork != nil }?.artwork }
         return nil
     }
 

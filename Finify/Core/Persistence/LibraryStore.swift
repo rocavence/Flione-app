@@ -11,8 +11,25 @@ enum LoadState: Equatable {
 /// Album Wall、Library、Album Flow 共用這份資料。
 @MainActor @Observable
 final class LibraryStore {
-    private(set) var albums: [Album] = []
+    private(set) var albums: [Album] = [] {
+        didSet { rebuildArtistArtwork() }
+    }
     private(set) var artists: [Artist] = []
+    /// 藝人沒有照片時，用他的專輯封面代替
+    @ObservationIgnored private var albumArtworkByArtist: [String: ArtworkRef] = [:]
+
+    func artwork(for artist: Artist) -> ArtworkRef? {
+        artist.artwork ?? albumArtworkByArtist[artist.id]
+    }
+
+    private func rebuildArtistArtwork() {
+        var map: [String: ArtworkRef] = [:]
+        for album in albums {
+            guard let id = album.artistID, let artwork = album.artwork, map[id] == nil else { continue }
+            map[id] = artwork
+        }
+        albumArtworkByArtist = map
+    }
     private(set) var state: LoadState = .idle
 
     @ObservationIgnored private var repository: (any MusicRepository)?

@@ -152,7 +152,7 @@ struct SearchPalette: View {
         HStack(spacing: Spacing.s12) {
             switch item {
             case .artist(let artist):
-                ArtworkView(artwork: artist.artwork, cornerRadius: 999, elevation: .none).frame(width: 36, height: 36)
+                ArtworkView(artwork: app.library.artwork(for: artist), cornerRadius: 999, elevation: .none).frame(width: 36, height: 36)
                 text(artist.name, "Artist")
             case .album(let album):
                 ArtworkView(artwork: album.artwork, elevation: .none).frame(width: 36, height: 36)

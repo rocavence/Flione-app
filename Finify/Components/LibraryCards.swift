@@ -54,11 +54,12 @@ struct AlbumCard: View {
 struct ArtistCard: View {
     let artist: Artist
     let onOpen: () -> Void
+    @Environment(AppEnvironment.self) private var app
     @State private var hovering = false
 
     var body: some View {
         VStack(spacing: Spacing.s8) {
-            ArtworkView(artwork: artist.artwork, cornerRadius: 999, interactive: true)
+            ArtworkView(artwork: app.library.artwork(for: artist), cornerRadius: 999, interactive: true, fallbackTitle: artist.name)
             Text(artist.name)
                 .finifyFont(.subheading)
                 .foregroundStyle(FinifyColor.ink)

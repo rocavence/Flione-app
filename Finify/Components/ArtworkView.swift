@@ -87,12 +87,15 @@ struct ArtworkView: View {
             // 沒有封面：以文字排版的封面代替
             GeometryReader { geo in
                 let scale = geo.size.width / 200
-                VStack(alignment: .leading, spacing: 4 * scale) {
-                    Spacer(minLength: 0)
+                // 圓形（藝人）時置中，避免文字被圓角裁掉
+                let circular = cornerRadius >= geo.size.width / 2
+                VStack(alignment: circular ? .center : .leading, spacing: 4 * scale) {
+                    if !circular { Spacer(minLength: 0) }
                     Text(fallbackTitle)
                         .font(.system(size: max(9, 17 * scale), weight: .semibold))
                         .tracking(-0.3 * scale)
                         .lineLimit(3)
+                        .multilineTextAlignment(circular ? .center : .leading)
                         .foregroundStyle(FinifyColor.ink.opacity(0.85))
                     if let fallbackSubtitle, geo.size.width > 64 {
                         Text(fallbackSubtitle)
@@ -101,8 +104,8 @@ struct ArtworkView: View {
                             .foregroundStyle(FinifyColor.muted)
                     }
                 }
-                .padding(12 * scale)
-                .frame(width: geo.size.width, height: geo.size.height, alignment: .bottomLeading)
+                .padding((circular ? 28 : 12) * scale)
+                .frame(width: geo.size.width, height: geo.size.height, alignment: circular ? .center : .bottomLeading)
                 .background(LinearGradient(colors: [FinifyColor.surface, FinifyColor.hairline], startPoint: .topLeading, endPoint: .bottomTrailing))
             }
         } else {
