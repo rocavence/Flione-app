@@ -1293,7 +1293,7 @@ Platform Expansion
 | Spike | 驗證問題 | 結果影響 |
 | ----- | -------- | -------- |
 | S1 Reicon → Asset Catalog ✅ | Reicon 沒有 Swift 套件，SVG 能否轉成 template image 並支援 Outline / Filled | 可行：`scripts/reicon/generate.py` 產生向量 template image，16–32px 渲染正常 |
-| S2 AVPlayer gapless | Jellyfin FLAC 串流在 AVQueuePlayer 換曲是否有間隙 | libmpv 是否提前到 MVP |
+| S2 AVPlayer gapless ✅ | Jellyfin FLAC 串流在 AVQueuePlayer 換曲是否有間隙 | 採用 `AVQueuePlayer`，libmpv 不提前；見 `docs/spikes/S2-gapless.md` |
 | S3 Album Wall 10k ✅ | 10,000 格 + pinch 換密度能否維持 60fps、記憶體有上限 | 採用 `NSCollectionView`；見 `docs/spikes/S3-album-wall.md` |
 
 測試環境：實際 Jellyfin library 約 1,700 張專輯；S3 以假資料補到 10,000。
