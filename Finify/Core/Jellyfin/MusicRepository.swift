@@ -1,0 +1,204 @@
+import Foundation
+
+/// View / ViewModel 取得音樂資料的唯一入口。
+protocol MusicRepository: Sendable {
+    func allAlbums() async throws -> [Album]
+    func recentlyAdded(limit: Int) async throws -> [Album]
+    func recentlyPlayed(limit: Int) async throws -> [Album]
+    func quickPicks(limit: Int) async throws -> [Album]
+    func allArtists() async throws -> [Artist]
+    func artist(id: String) async throws -> Artist
+    func albums(byArtist artistID: String) async throws -> [Album]
+    func popularTracks(byArtist artistID: String, limit: Int) async throws -> [Track]
+    func album(id: String) async throws -> Album
+    func tracks(inAlbum albumID: String) async throws -> [Track]
+    func songs(offset: Int, limit: Int) async throws -> (tracks: [Track], total: Int)
+    func search(_ query: String) async throws -> SearchResults
+
+    func artworkURL(_ ref: ArtworkRef, maxPixelSize: Int) -> URL
+    func streamURL(for track: Track) -> URL
+
+    func reportPlaybackStarted(_ track: Track) async
+    func reportPlaybackStopped(_ track: Track, position: TimeInterval) async
+}
+
+final class JellyfinRepository: MusicRepository {
+    private let client: JellyfinClient
+    private let session: JellyfinSession
+
+    init(session: JellyfinSession, urlSession: URLSession = .shared) {
+        self.session = session
+        self.client = JellyfinClient(serverURL: session.serverURL, accessToken: session.accessToken, urlSession: urlSession)
+    }
+
+    private var userPath: String { "/Users/\(session.userID)/Items" }
+
+    private func items(_ query: [String: String]) async throws -> ItemsResponse {
+        var base = ["Recursive": "true", "EnableTotalRecordCount": "true"]
+        base.merge(query) { $1 }
+        return try await client.get(userPath, query: base.map { URLQueryItem(name: $0.key, value: $0.value) })
+    }
+
+    private static let albumFields = "DateCreated,ProductionYear"
+    private static let trackFields = "ProductionYear"
+
+    func allAlbums() async throws -> [Album] {
+        try await items([
+            "IncludeItemTypes": "MusicAlbum",
+            "SortBy": "AlbumArtist,SortName",
+            "Fields": Self.albumFields,
+            "EnableTotalRecordCount": "false",
+        ]).items.map { $0.toAlbum() }
+    }
+
+    func recentlyAdded(limit: Int) async throws -> [Album] {
+        try await items([
+            "IncludeItemTypes": "MusicAlbum",
+            "SortBy": "DateCreated",
+            "SortOrder": "Descending",
+            "Limit": "\(limit)",
+            "Fields": Self.albumFields,
+        ]).items.map { $0.toAlbum() }
+    }
+
+    /// Jellyfin 只記錄曲目的播放時間；取最近播放的曲目，再依序收斂成不重複的專輯
+    func recentlyPlayed(limit: Int) async throws -> [Album] {
+        let played = try await items([
+            "IncludeItemTypes": "Audio",
+            "SortBy": "DatePlayed",
+            "SortOrder": "Descending",
+            "Filters": "IsPlayed",
+            "Limit": "\(limit * 6)",
+        ]).items
+        var seen = Set<String>()
+        let albumIDs = played.compactMap(\.albumID).filter { seen.insert($0).inserted }.prefix(limit)
+        guard !albumIDs.isEmpty else { return [] }
+        let albums = try await items([
+            "Ids": albumIDs.joined(separator: ","),
+            "Fields": Self.albumFields,
+        ]).items.map { $0.toAlbum() }
+        let byID = Dictionary(albums.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        return albumIDs.compactMap { byID[$0] }
+    }
+
+    func quickPicks(limit: Int) async throws -> [Album] {
+        try await items([
+            "IncludeItemTypes": "MusicAlbum",
+            "SortBy": "Random",
+            "Limit": "\(limit)",
+            "Fields": Self.albumFields,
+        ]).items.map { $0.toAlbum() }
+    }
+
+    func allArtists() async throws -> [Artist] {
+        let response: ItemsResponse = try await client.get("/Artists/AlbumArtists", query: [
+            URLQueryItem(name: "UserId", value: session.userID),
+            URLQueryItem(name: "SortBy", value: "SortName"),
+            URLQueryItem(name: "EnableTotalRecordCount", value: "false"),
+        ])
+        return response.items.map { $0.toArtist() }
+    }
+
+    func artist(id: String) async throws -> Artist {
+        let dto: BaseItemDTO = try await client.get("\(userPath)/\(id)")
+        return dto.toArtist()
+    }
+
+    func albums(byArtist artistID: String) async throws -> [Album] {
+        try await items([
+            "IncludeItemTypes": "MusicAlbum",
+            "AlbumArtistIds": artistID,
+            "SortBy": "ProductionYear,SortName",
+            "SortOrder": "Descending",
+            "Fields": Self.albumFields,
+        ]).items.map { $0.toAlbum() }
+    }
+
+    func popularTracks(byArtist artistID: String, limit: Int) async throws -> [Track] {
+        try await items([
+            "IncludeItemTypes": "Audio",
+            "ArtistIds": artistID,
+            "SortBy": "PlayCount,SortName",
+            "SortOrder": "Descending",
+            "Limit": "\(limit)",
+        ]).items.map { $0.toTrack() }
+    }
+
+    func album(id: String) async throws -> Album {
+        let dto: BaseItemDTO = try await client.get("\(userPath)/\(id)")
+        return dto.toAlbum()
+    }
+
+    func tracks(inAlbum albumID: String) async throws -> [Track] {
+        try await items([
+            "ParentId": albumID,
+            "IncludeItemTypes": "Audio",
+            "SortBy": "ParentIndexNumber,IndexNumber,SortName",
+        ]).items.map { $0.toTrack() }
+    }
+
+    func songs(offset: Int, limit: Int) async throws -> (tracks: [Track], total: Int) {
+        let response = try await items([
+            "IncludeItemTypes": "Audio",
+            "SortBy": "SortName",
+            "StartIndex": "\(offset)",
+            "Limit": "\(limit)",
+        ])
+        return (response.items.map { $0.toTrack() }, response.totalRecordCount ?? 0)
+    }
+
+    func search(_ query: String) async throws -> SearchResults {
+        let term = query.trimmingCharacters(in: .whitespaces)
+        guard !term.isEmpty else { return SearchResults() }
+        async let artists: ItemsResponse = client.get("/Artists/AlbumArtists", query: [
+            URLQueryItem(name: "UserId", value: session.userID),
+            URLQueryItem(name: "SearchTerm", value: term),
+            URLQueryItem(name: "Limit", value: "6"),
+        ])
+        async let albums = items(["IncludeItemTypes": "MusicAlbum", "SearchTerm": term, "Limit": "8", "Fields": Self.albumFields])
+        async let tracks = items(["IncludeItemTypes": "Audio", "SearchTerm": term, "Limit": "12"])
+        var results = try await SearchResults(
+            artists: artists.items.map { $0.toArtist() },
+            albums: albums.items.map { $0.toAlbum() },
+            tracks: tracks.items.map { $0.toTrack() }
+        )
+        // Jellyfin 的專輯搜尋只比對專輯名稱。搜尋藝人名時，補上最相符藝人的專輯
+        if let topArtist = results.artists.first, results.albums.count < 8 {
+            let known = Set(results.albums.map(\.id))
+            let byArtist = try await self.albums(byArtist: topArtist.id).filter { !known.contains($0.id) }
+            results.albums += byArtist.prefix(8 - results.albums.count)
+        }
+        return results
+    }
+
+    func artworkURL(_ ref: ArtworkRef, maxPixelSize: Int) -> URL {
+        client.url("/Items/\(ref.itemID)/Images/Primary", query: [
+            URLQueryItem(name: "tag", value: ref.tag),
+            URLQueryItem(name: "maxWidth", value: "\(maxPixelSize)"),
+            URLQueryItem(name: "maxHeight", value: "\(maxPixelSize)"),
+            URLQueryItem(name: "quality", value: "90"),
+        ])
+    }
+
+    /// 原始檔直接串流，不轉檔。AVPlayer 無法帶 header，token 放 query。見 S2。
+    func streamURL(for track: Track) -> URL {
+        let ext = track.container.map { ".\($0)" } ?? ""
+        return client.url("/Audio/\(track.id)/stream\(ext)", query: [
+            URLQueryItem(name: "static", value: "true"),
+            URLQueryItem(name: "ApiKey", value: session.accessToken),
+        ])
+    }
+
+    /// 回報播放狀態，讓 Jellyfin 記錄「最近播放」。失敗不影響播放，所以不拋錯。
+    func reportPlaybackStarted(_ track: Track) async {
+        try? await client.post("/Sessions/Playing", json: [
+            "ItemId": track.id, "PositionTicks": 0, "PlayMethod": "DirectStream", "CanSeek": true,
+        ])
+    }
+
+    func reportPlaybackStopped(_ track: Track, position: TimeInterval) async {
+        try? await client.post("/Sessions/Playing/Stopped", json: [
+            "ItemId": track.id, "PositionTicks": Int64(position * 10_000_000),
+        ])
+    }
+}

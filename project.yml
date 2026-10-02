@@ -13,6 +13,15 @@ settings:
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
+schemes:
+  Finify:
+    build:
+      targets:
+        Finify: all
+        FinifyTests: [test]
+    test:
+      targets:
+        - FinifyTests
 targets:
   Finify:
     type: application
@@ -27,6 +36,17 @@ targets:
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
         CODE_SIGN_IDENTITY: "-"
         ENABLE_HARDENED_RUNTIME: YES
+  FinifyTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - FinifyTests
+    dependencies:
+      - target: Finify
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_IDENTITY: "-"
   # 技術驗證用，不隨 app 出貨
   AlbumWallSpike:
     type: application

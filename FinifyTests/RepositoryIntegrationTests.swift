@@ -1,0 +1,54 @@
+import XCTest
+@testable import Finify
+
+/// 對真實 Jellyfin server 的整合測試。沒有 `.secrets/` 時自動略過。
+final class RepositoryIntegrationTests: XCTestCase {
+    private var repository: JellyfinRepository!
+
+    override func setUpWithError() throws {
+        let secrets = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent(".secrets")
+        guard let session = DevelopmentSessionStore(directory: secrets).load() else {
+            throw XCTSkip("沒有 .secrets/，略過整合測試")
+        }
+        repository = JellyfinRepository(session: session)
+    }
+
+    func testLoadsAlbumsAndTracks() async throws {
+        let albums = try await repository.allAlbums()
+        XCTAssertGreaterThan(albums.count, 100)
+        let dsotm = try XCTUnwrap(albums.first { $0.name == "The Dark Side of the Moon" })
+        XCTAssertEqual(dsotm.artistName, "Pink Floyd")
+        let tracks = try await repository.tracks(inAlbum: dsotm.id)
+        XCTAssertEqual(tracks.first?.name, "Speak to Me/Breathe")
+        XCTAssertEqual(tracks.count, 9)
+    }
+
+    func testSearchGroupsResults() async throws {
+        let results = try await repository.search("Radiohead")
+        XCTAssertFalse(results.albums.isEmpty)
+        XCTAssertTrue(results.albums.contains { $0.name == "OK Computer" })
+    }
+
+    func testHomeShelves() async throws {
+        let repository = repository!
+        let a = try await repository.recentlyAdded(limit: 12)
+        let p = try await repository.quickPicks(limit: 12)
+        XCTAssertEqual(a.count, 12)
+        XCTAssertEqual(p.count, 12)
+    }
+
+    func testArtistPage() async throws {
+        let artists = try await repository.allArtists()
+        let floyd = try XCTUnwrap(artists.first { $0.name == "Pink Floyd" })
+        let albums = try await repository.albums(byArtist: floyd.id)
+        XCTAssertTrue(albums.contains { $0.name == "The Dark Side of the Moon" })
+        let popular = try await repository.popularTracks(byArtist: floyd.id, limit: 5)
+        XCTAssertFalse(popular.isEmpty)
+    }
+
+    func testDiscoverBareHostname() async throws {
+        let (url, info) = try await JellyfinClient.discover("mediabox")
+        XCTAssertEqual(url.absoluteString, "http://mediabox:8096")
+        XCTAssertNotNil(info.serverName)
+    }
+}
