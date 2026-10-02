@@ -8,6 +8,11 @@ final class FavoritesStore {
     /// 切換失敗時給使用者看的訊息
     var failureMessage: String?
     @ObservationIgnored private var repository: (any MusicRepository)?
+    /// 每個項目最後送到 server 的狀態，以及進行中的寫入。連點時只送最終狀態
+    @ObservationIgnored private var serverState: [String: Bool] = [:]
+    @ObservationIgnored private var writing: Set<String> = []
+    /// 每次寫入成功後遞增，Favorites 頁據此重新載入
+    private(set) var revision = 0
 
     func attach(repository: any MusicRepository) {
         self.repository = repository
@@ -22,17 +27,30 @@ final class FavoritesStore {
 
     func contains(_ id: String) -> Bool { ids.contains(id) }
 
-    func toggle(_ id: String) {
-        guard let repository else { return }
-        let newValue = !ids.contains(id)
-        if newValue { ids.insert(id) } else { ids.remove(id) }
-        Task {
+    /// 把畫面上的狀態寫到 server；寫入期間使用者又切換時，完成後再送一次
+    private func sync(_ id: String, repository: any MusicRepository) async {
+        defer { writing.remove(id) }
+        while serverState[id] != ids.contains(id) {
+            let target = ids.contains(id)
             do {
-                try await repository.setFavorite(id, newValue)
+                try await repository.setFavorite(id, target)
+                serverState[id] = target
+                revision += 1
             } catch {
-                if newValue { ids.remove(id) } else { ids.insert(id) }
+                // 還原成 server 上的狀態
+                if serverState[id] == true { ids.insert(id) } else { ids.remove(id) }
                 failureMessage = "Couldn't update your favorites. Check your connection to the music server."
+                return
             }
         }
+    }
+
+    func toggle(_ id: String) {
+        guard let repository else { return }
+        if serverState[id] == nil { serverState[id] = ids.contains(id) }
+        if ids.contains(id) { ids.remove(id) } else { ids.insert(id) }
+        guard !writing.contains(id) else { return }
+        writing.insert(id)
+        Task { await sync(id, repository: repository) }
     }
 }

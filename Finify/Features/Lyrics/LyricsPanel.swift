@@ -82,6 +82,13 @@ struct LyricsPanel: View {
     private func load(_ track: Track?) async {
         guard let track, let repository = app.repository else { return }
         lyrics = .loading
-        do { lyrics = .loaded(try await repository.lyrics(for: track.id)) } catch { lyrics = .failed }
+        do {
+            let result = try await repository.lyrics(for: track.id)
+            guard !Task.isCancelled else { return }
+            lyrics = .loaded(result)
+        } catch {
+            guard !Task.isCancelled else { return }
+            lyrics = .failed
+        }
     }
 }

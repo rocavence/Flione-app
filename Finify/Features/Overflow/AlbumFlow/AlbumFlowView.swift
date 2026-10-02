@@ -20,7 +20,11 @@ struct AlbumFlowView: View {
     /// monitor 的 closure 只在安裝時捕捉一次 view，用 reference 讀取最新的 isActive
     @State private var activeState = ActiveState()
 
-    private final class ActiveState { var value = true }
+    private final class ActiveState {
+        var value = true
+        var albums: [Album] = []
+        weak var window: NSWindow?
+    }
     @FocusState private var focused: Bool
 
     private let side: CGFloat = 340
@@ -64,6 +68,8 @@ struct AlbumFlowView: View {
         }
         .onChange(of: playingAlbumID) { if !userMoved { centerOnPlaying() } }
         .onChange(of: isActive, initial: true) { activeState.value = isActive }
+        .onChange(of: albums.map(\.id), initial: true) { activeState.albums = albums }
+        .background(FlowWindowReader { activeState.window = $0 })
         .onChange(of: centerID) { flippedID = nil }
         .onChange(of: albums.count) { if !userMoved { centerOnPlaying() } }
     }
@@ -135,17 +141,40 @@ struct AlbumFlowView: View {
         guard wheelMonitor == nil else { return }
         let active = activeState
         wheelMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
-            guard active.value, !event.hasPreciseScrollingDeltas, abs(event.scrollingDeltaY) > abs(event.scrollingDeltaX),
+            guard active.value, event.window === active.window, !event.hasPreciseScrollingDeltas, abs(event.scrollingDeltaY) > abs(event.scrollingDeltaX),
                   event.scrollingDeltaY != 0 else { return event }
-            step(event.scrollingDeltaY > 0 ? -1 : 1)
+            step(event.scrollingDeltaY > 0 ? -1 : 1, in: active.albums)
             return nil
         }
     }
 
-    private func step(_ delta: Int) {
+    /// `list` 讓滾輪 monitor 傳入最新的專輯清單（monitor 只在安裝時捕捉一次 view）
+    private func step(_ delta: Int, in list: [Album]? = nil) {
+        let albums = list ?? self.albums
         guard let index = albums.firstIndex(where: { $0.id == centerID }) else { return }
         let next = min(max(0, index + delta), albums.count - 1)
         userMoved = true
         withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { centerID = albums[next].id }
+    }
+}
+
+/// 取得 Flow 所在的視窗，讓滾輪 monitor 只處理這個視窗的事件
+private struct FlowWindowReader: NSViewRepresentable {
+    let onWindow: (NSWindow?) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = Reporter()
+        view.onWindow = onWindow
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+
+    private final class Reporter: NSView {
+        var onWindow: ((NSWindow?) -> Void)?
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            onWindow?(window)
+        }
     }
 }

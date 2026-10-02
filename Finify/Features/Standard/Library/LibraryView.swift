@@ -201,10 +201,12 @@ private struct FavoriteSongs: View {
                 MessageState(title: "Can't load your favorites.", message: "Check your connection to the music server.", icon: .wifiOff,
                              primary: ("Retry", { Task { await load() } }))
                 Spacer()
-            case .loaded(let list) where list.isEmpty:
+            case .loaded(let all) where all.allSatisfy({ !app.favorites.contains($0.id) }):
                 MessageState(title: "No favorites yet.", message: "Tap the heart next to a song and it will show up here.", icon: .heart)
                 Spacer()
-            case .loaded(let list):
+            case .loaded(let all):
+                // 先依本機狀態過濾，取消喜愛的歌曲立即消失；server 寫入完成後再重新載入
+                let list = all.filter { app.favorites.contains($0.id) }
                 ScrollView {
                     LazyVStack(spacing: 2) {
                         ForEach(Array(list.enumerated()), id: \.element.id) { index, track in
@@ -218,7 +220,7 @@ private struct FavoriteSongs: View {
                 }
             }
         }
-        .task(id: app.favorites.ids.count) { await load() }
+        .task(id: app.favorites.revision) { await load() }
     }
 
     private func load() async {

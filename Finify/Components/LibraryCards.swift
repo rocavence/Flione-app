@@ -100,6 +100,8 @@ struct TrackRow: View {
     let onPlay: () -> Void
     var onOpenAlbum: (() -> Void)?
     var onOpenArtist: (() -> Void)?
+    /// 頁面專屬的右鍵選單項目（例如 playlist 頁的「Remove from Playlist」）
+    var extraMenu: [(title: String, action: () -> Void)] = []
 
     @Environment(AppEnvironment.self) private var app
     @State private var hovering = false
@@ -153,8 +155,9 @@ struct TrackRow: View {
                     .frame(maxWidth: 240, alignment: .leading)
             }
 
+            // 0.001 而不是 0：完全透明的 view 會被移出點擊與 VoiceOver
             FavoriteButton(itemID: track.id, name: track.name)
-                .opacity(hovering || app.favorites.contains(track.id) ? 1 : 0)
+                .opacity(hovering || app.favorites.contains(track.id) ? 1 : 0.001)
             Text(track.duration.formattedDuration)
                 .finifyFont(.caption)
                 .monospacedDigit()
@@ -173,6 +176,10 @@ struct TrackRow: View {
             Button("Add to Queue") { app.player.addToQueue([track]) }
             Button(app.favorites.contains(track.id) ? "Remove from Favorites" : "Add to Favorites") { app.favorites.toggle(track.id) }
             AddToPlaylistMenu { [track] }
+            if !extraMenu.isEmpty {
+                Divider()
+                ForEach(Array(extraMenu.enumerated()), id: \.offset) { _, item in Button(item.title, action: item.action) }
+            }
             if let onOpenAlbum { Divider(); Button("Go to Album", action: onOpenAlbum) }
             if let onOpenArtist { Button("Go to Artist", action: onOpenArtist) }
         }

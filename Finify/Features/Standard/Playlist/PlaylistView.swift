@@ -11,6 +11,7 @@ struct PlaylistView: View {
     @State private var draftName = ""
     @State private var isConfirmingDelete = false
     @State private var dragging: Int?
+    @State private var pendingCommit: Task<Void, Never>?
 
     var body: some View {
         ScrollView {
@@ -25,6 +26,7 @@ struct PlaylistView: View {
             name = playlist.name
             await load()
         }
+        .onChange(of: app.playlists.revision(of: playlist.id)) { Task { await load() } }
         .alert("Rename Playlist", isPresented: $isRenaming) {
             TextField("Playlist name", text: $draftName)
             Button("Rename") { rename(to: draftName) }
@@ -85,16 +87,14 @@ struct PlaylistView: View {
                 ForEach(Array(list.enumerated()), id: \.offset) { index, track in
                     TrackRow(track: track, number: index + 1, showsArtwork: true, showsAlbum: true, onPlay: {
                         app.player.play(list, startAt: index)
-                    }, onOpenArtist: { router.openArtist(id: track.artistID, name: track.artistName) })
+                    }, onOpenArtist: { router.openArtist(id: track.artistID, name: track.artistName) },
+                       extraMenu: [("Remove from Playlist", { remove(at: index) })])
                     .opacity(dragging == index ? 0.4 : 1)
                     .onDrag {
                         dragging = index
                         return NSItemProvider(object: String(index) as NSString)
                     }
                     .onDrop(of: [.text], delegate: PlaylistDropDelegate(target: index, dragging: $dragging, move: move, commit: commit))
-                    .contextMenu {
-                        Button("Remove from Playlist") { remove(at: index) }
-                    }
                     .accessibilityAction(named: "Remove from Playlist") { remove(at: index) }
                 }
             }
@@ -103,7 +103,14 @@ struct PlaylistView: View {
 
     private func load() async {
         guard let repository = app.repository else { return }
-        do { tracks = .loaded(try await repository.playlistTracks(playlist.id)) } catch { tracks = .failed }
+        do {
+            let result = try await repository.playlistTracks(playlist.id)
+            guard !Task.isCancelled else { return }
+            tracks = .loaded(result)
+        } catch {
+            guard !Task.isCancelled else { return }
+            tracks = .failed
+        }
     }
 
     /// 拖曳中即時移動（只改畫面）
@@ -112,10 +119,19 @@ struct PlaylistView: View {
         guard list.indices.contains(from), list.indices.contains(to) else { return }
         list.move(fromOffsets: [from], toOffset: to > from ? to + 1 : to)
         withAnimation(Motion.micro) { tracks = .loaded(list) }
+        pendingCommit?.cancel()
+        pendingCommit = Task {
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled else { return }
+            dragging = nil
+            commit()
+        }
     }
 
     /// 放開時才寫回 server
     private func commit() {
+        pendingCommit?.cancel()
+        pendingCommit = nil
         let list = self.list
         Task { _ = await app.playlists.save(playlist, name: name, tracks: list) }
     }

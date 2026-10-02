@@ -43,7 +43,8 @@ struct FloatingPlayerView: View {
             }
             .padding(Spacing.s12)
             .background(LinearGradient(colors: [.clear, .black.opacity(0.85)], startPoint: .top, endPoint: .bottom))
-            .opacity(hovering || track == nil ? 1 : 0)
+            // 0.001 而不是 0：VoiceOver 與鍵盤使用者不會觸發 hover，控制項仍要可用
+            .opacity(hovering || track == nil ? 1 : 0.001)
         }
         .environment(\.overflowStyle, true)
         .environment(\.colorScheme, .dark)

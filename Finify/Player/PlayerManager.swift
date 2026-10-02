@@ -92,8 +92,19 @@ final class PlayerManager {
         queue = PlayQueue(tracks: snapshot.tracks, startAt: snapshot.index)
         queue.repeatMode = switch snapshot.repeatMode { case "all": .all; case "one": .one; default: .off }
         rebuildPlayer(announce: false)
-        if snapshot.position > 1 { seek(to: snapshot.position) }
+        guard snapshot.position > 1, let item = player.currentItem else { return }
+        currentTime = snapshot.position
+        // HTTP 串流在 item 準備好之前 seek 可能被忽略
+        restoreObservation = item.observe(\.status, options: [.initial, .new]) { [weak self] item, _ in
+            guard item.status == .readyToPlay else { return }
+            Task { @MainActor in
+                self?.seek(to: snapshot.position)
+                self?.restoreObservation = nil
+            }
+        }
     }
+
+    @ObservationIgnored private var restoreObservation: NSKeyValueObservation?
 
     // MARK: - 控制
 
@@ -285,7 +296,8 @@ final class PlayerManager {
     private func trackFailed() {
         guard let track = currentTrack else { return }
         consecutiveFailures += 1
-        let canSkip = queue.nextIndex(automatic: false) != nil && consecutiveFailures < queue.entries.count
+        // 恢復的佇列尚未按下播放（reportedTrack == nil）時不自動跳歌，避免啟動就開始播放
+        let canSkip = reportedTrack != nil && queue.nextIndex(automatic: false) != nil && consecutiveFailures < queue.entries.count
         notice = PlayerNotice(message: canSkip
             ? "Couldn't play “\(track.name)”. Skipping to the next song."
             : "Couldn't play “\(track.name)”. Check that your music server is reachable.")

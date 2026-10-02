@@ -11,9 +11,13 @@ struct AlbumFlipCard: View {
 
     var body: some View {
         if reduceMotion {
+            // 背面會載入曲目，沒翻面時不要建立
             ZStack {
-                front.opacity(isFlipped ? 0 : 1)
-                AlbumBack(album: album, side: side).opacity(isFlipped ? 1 : 0)
+                if isFlipped {
+                    AlbumBack(album: album, side: side).transition(.opacity)
+                } else {
+                    front.transition(.opacity)
+                }
             }
             .animation(.easeInOut(duration: 0.2), value: isFlipped)
         } else {

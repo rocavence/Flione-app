@@ -17,7 +17,7 @@ struct OverflowRootView: View {
     @State private var openAlbum: Album?
     @State private var immersive = false
     @State private var scrollToPlaying = 0
-    @State private var recentAlbums: [Album] = []
+    @State private var recentAlbums: Loadable<[Album]> = .loading
 
     private var density: Binding<WallDensity> {
         Binding { WallDensity(rawValue: densityRaw) ?? .medium } set: { densityRaw = $0.rawValue }
@@ -39,13 +39,17 @@ struct OverflowRootView: View {
         .environment(\.overflowStyle, true)
         .environment(\.colorScheme, .dark)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: immersive)
+        .onChange(of: immersive, initial: true) { app.isImmersive = immersive }
+        .onDisappear { app.isImmersive = false }
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
         .task { await app.library.refreshIfNeeded() }
         // 最近播放：切到 Recent 或換曲時更新
         .task(id: layout == .recent ? (playingAlbumID ?? "") + "recent" : "") {
             guard layout == .recent, let repository = app.repository else { return }
-            if let albums = try? await repository.recentlyPlayed(limit: 120) { recentAlbums = albums }
+            do { recentAlbums = .loaded(try await repository.recentlyPlayed(limit: 120)) } catch {
+                if case .loading = recentAlbums { recentAlbums = .failed }
+            }
         }
         #if DEBUG || BENCHMARK
         .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }, immersive: enterImmersive) }
@@ -79,12 +83,17 @@ struct OverflowRootView: View {
                             scrollToPlayingToken: scrollToPlaying
                         )
                     case .recent:
-                        if recentAlbums.isEmpty {
+                        switch recentAlbums {
+                        case .loading:
+                            Color.clear
+                        case .failed:
+                            MessageState(title: "Can't load recently played.", message: "Check your connection to the music server.", icon: .wifiOff)
+                        case .loaded(let list) where list.isEmpty:
                             MessageState(title: "Nothing played yet.", message: "Albums you play will fill this wall.", icon: .history)
-                        } else {
+                        case .loaded(let list):
                             // 最近播放通常只有幾十張，固定用大尺寸，畫面才不會空
                             AlbumWallView(
-                                albums: recentAlbums,
+                                albums: list,
                                 density: .constant(.large),
                                 playingAlbumID: playingAlbumID,
                                 images: app.images,

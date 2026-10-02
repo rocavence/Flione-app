@@ -50,6 +50,8 @@ final class AppEnvironment {
     }
 
     var isFullscreenRequested = false
+    /// Overflow 的 Fullscreen 播放器是否開著
+    var isImmersive = false
     var isQueuePresented = false {
         didSet { if isQueuePresented { isLyricsPresented = false } }
     }
@@ -63,6 +65,7 @@ final class AppEnvironment {
     @ObservationIgnored private var wasOffline = false
     @ObservationIgnored private var expiryObserver: NSObjectProtocol?
     @ObservationIgnored private var terminateObserver: NSObjectProtocol?
+    @ObservationIgnored private var lastSavedPlayback: Data?
     private static let modeKey = "FinifyMode"
     private static let rememberKey = "FinifyRememberMode"
 
@@ -149,7 +152,9 @@ final class AppEnvironment {
             try? FileManager.default.removeItem(at: playbackFile)
             return
         }
-        if let data = try? JSONEncoder().encode(snapshot) { try? data.write(to: playbackFile, options: .atomic) }
+        guard let data = try? JSONEncoder().encode(snapshot), data != lastSavedPlayback else { return }
+        try? data.write(to: playbackFile, options: .atomic)
+        lastSavedPlayback = data
     }
 
     private func restorePlayback() {
