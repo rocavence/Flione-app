@@ -1,0 +1,8 @@
+# Xcode 專案由 XcodeGen 從 project.yml 產生
+*.xcodeproj/
+*.xcworkspace/
+DerivedData/
+build/
+xcuserdata/
+
+.DS_Store
