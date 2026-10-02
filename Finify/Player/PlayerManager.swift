@@ -72,6 +72,8 @@ final class PlayerManager {
     #if DEBUG || BENCHMARK
     /// 測試時靜音，但不改動使用者記住的音量
     func muteForTesting() { player.volume = 0 }
+    /// 無縫播放量測用
+    var debugQueuePlayer: AVQueuePlayer { player }
     #endif
 
     func attach(repository: any MusicRepository) {

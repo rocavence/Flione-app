@@ -1,5 +1,6 @@
 #if DEBUG || BENCHMARK
 import AppKit
+import AVFoundation
 
 /// 開發用：以啟動參數把 app 帶到指定狀態，方便無人值守時截圖驗證。Release build 不包含。
 ///
@@ -15,6 +16,11 @@ enum DebugDemo {
 
     static func run(app: AppEnvironment, openAlbum: @escaping (Album) -> Void, immersive: (() -> Void)? = nil) async {
         if defaults.bool(forKey: "FinifyMuted") { app.player.muteForTesting() }
+        if defaults.string(forKey: "FinifyGaplessProbe") != nil {
+            for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
+            await gaplessProbe(app: app)
+            return
+        }
         let wantsLibrary = ["FinifyDemoPlay", "FinifyDemoOpen"].contains { defaults.string(forKey: $0) != nil }
         if wantsLibrary {
             for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
@@ -47,6 +53,45 @@ enum DebugDemo {
             try? await Task.sleep(for: .seconds(1))
             immersive?()
         }
+    }
+
+    /// -FinifyGaplessProbe <輸出檔>：在真正的 PlayerManager 上量測換曲停頓（與 S2 時鐘法相同）
+    /// 依序播放 -FinifyDemoPlay 指定專輯的每一個換曲：跳到該曲結尾前 3 秒，量測換到下一首時多出來的時間
+    static func gaplessProbe(app: AppEnvironment) async {
+        guard let path = defaults.string(forKey: "FinifyGaplessProbe"),
+              let name = defaults.string(forKey: "FinifyDemoPlay"), let album = find(name, in: app),
+              let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
+        let player = app.player.debugQueuePlayer
+        var lines: [String] = []
+        for index in 0..<min(tracks.count - 1, 8) {
+            app.player.play(tracks, startAt: index)
+            app.player.muteForTesting()
+            // 等目前曲目與預載的下一首都就緒（實際使用時下一首有整首歌的時間緩衝）
+            for _ in 0..<200 {
+                let items = player.items()
+                if items.count >= 2, items.allSatisfy({ $0.status == .readyToPlay }), items[1].isPlaybackLikelyToKeepUp { break }
+                try? await Task.sleep(for: .milliseconds(50))
+            }
+            let duration = player.currentItem?.duration.seconds ?? tracks[index].duration
+            await player.seek(to: CMTime(seconds: duration - 3, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero)
+            let first = player.currentItem
+            var samples: [(wall: Double, changed: Bool, t: Double)] = []
+            let end = CACurrentMediaTime() + 6
+            while CACurrentMediaTime() < end {
+                samples.append((CACurrentMediaTime(), player.currentItem !== first, player.currentTime().seconds))
+                try? await Task.sleep(for: .milliseconds(5))
+            }
+            var gap = "n/a"
+            if let lastA = samples.last(where: { !$0.changed }), let firstB = samples.first(where: { $0.changed && $0.t >= 0.5 }) {
+                let wall = firstB.wall - lastA.wall
+                let media = (duration - lastA.t) + firstB.t
+                gap = String(format: "%.1f", (wall - media) * 1000)
+            }
+            lines.append("\(index + 1)→\(index + 2) \(tracks[index].container ?? "?")→\(tracks[index + 1].container ?? "?") gapMs=\(gap)")
+        }
+        app.player.pause()
+        try? lines.joined(separator: "\n").write(toFile: path, atomically: true, encoding: .utf8)
+        NSApp.terminate(nil)
     }
 
     private static func dump(_ view: NSView, depth: Int) {

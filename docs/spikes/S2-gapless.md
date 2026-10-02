@@ -70,3 +70,16 @@ Library 實際格式分布（17,180 首）：AAC / ALAC（m4a）64.3%、MP3 35.6
 * 不在播放路徑上使用 `MTAudioProcessingTap`。
 * 串流使用 Jellyfin 原始檔：`/Audio/{id}/stream.{container}?static=true`，不轉檔。
 * Jellyfin 12 驗證需使用 `Authorization: MediaBrowser ...` header；`X-Emby-Authorization` 已無效。
+
+## 正式 app 實測（2026-10-03）
+
+在 Finify Release build 的 `PlayerManager` 上用同樣的時鐘法量測（`-FinifyGaplessProbe`），下一首已預載完成。播放全程靜音。
+
+| 專輯 | 同格式換曲 | 跨格式換曲 |
+| ---- | ---------- | ---------- |
+| The Dark Side of the Moon（8 次） | 7 次，0–0.9 ms | MP3 → AAC：101 ms |
+| Disco Kandi The Mix（8 次） | 8 次，0 ms | — |
+| Live aus Berlin（8 次） | 6 次，0–0.6 ms | MP3 → AAC：85 ms、AAC → MP3：92 ms |
+
+結論與 spike 一致：同格式無縫；格式改變時約 0.1 秒停頓，推測是 AVFoundation 重新設定解碼器。
+你的 library 中混用格式的專輯不多（大多整張同格式），若要消除這個停頓，需要改用自行解碼的 AVAudioEngine 播放器。
