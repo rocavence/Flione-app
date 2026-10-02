@@ -71,7 +71,8 @@ struct OverflowRootView: View {
                             scrollToPlayingToken: scrollToPlaying
                         )
                     case .flow:
-                        AlbumFlowView(albums: app.library.albums, playingAlbumID: playingAlbumID, onOpen: { openAlbum = $0 }, onPlay: play)
+                        AlbumFlowView(albums: app.library.albums, playingAlbumID: playingAlbumID, onOpen: { openAlbum = $0 }, onPlay: play,
+                                      isActive: openAlbum == nil && !app.isSearchPresented && !app.isQueuePresented)
                     }
                 }
             }

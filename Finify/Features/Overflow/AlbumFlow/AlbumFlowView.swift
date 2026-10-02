@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Album Flow：Cover Flow 式橫向瀏覽。中間的專輯最大、最亮，兩側以透視角度排開。
@@ -7,11 +8,18 @@ struct AlbumFlowView: View {
     let playingAlbumID: String?
     let onOpen: (Album) -> Void
     let onPlay: (Album) -> Void
+    /// 上方有搜尋、佇列、專輯面板時為 false，滾輪交給那些面板
+    var isActive = true
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var centerID: String?
     /// 使用者手動移動過後，不再自動跳到正在播放的專輯
     @State private var userMoved = false
+    @State private var wheelMonitor: Any?
+    /// monitor 的 closure 只在安裝時捕捉一次 view，用 reference 讀取最新的 isActive
+    @State private var activeState = ActiveState()
+
+    private final class ActiveState { var value = true }
     @FocusState private var focused: Bool
 
     private let side: CGFloat = 340
@@ -47,8 +55,14 @@ struct AlbumFlowView: View {
         .onAppear {
             centerOnPlaying()
             focused = true
+            installWheelMonitor()
+        }
+        .onDisappear {
+            if let wheelMonitor { NSEvent.removeMonitor(wheelMonitor) }
+            wheelMonitor = nil
         }
         .onChange(of: playingAlbumID) { if !userMoved { centerOnPlaying() } }
+        .onChange(of: isActive, initial: true) { activeState.value = isActive }
         .onChange(of: albums.count) { if !userMoved { centerOnPlaying() } }
     }
 
@@ -97,6 +111,19 @@ struct AlbumFlowView: View {
             .id(album.id)
             .transition(.opacity)
             .animation(Motion.ui, value: centerID)
+        }
+    }
+
+    /// 一般滑鼠的滾輪是垂直方向，橫向 ScrollView 收不到；每一格滾輪移動一張專輯。
+    /// 觸控板（精確捲動）維持原生的橫向滑動。
+    private func installWheelMonitor() {
+        guard wheelMonitor == nil else { return }
+        let active = activeState
+        wheelMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
+            guard active.value, !event.hasPreciseScrollingDeltas, abs(event.scrollingDeltaY) > abs(event.scrollingDeltaX),
+                  event.scrollingDeltaY != 0 else { return event }
+            step(event.scrollingDeltaY > 0 ? -1 : 1)
+            return nil
         }
     }
 
