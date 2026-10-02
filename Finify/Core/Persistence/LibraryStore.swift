@@ -33,6 +33,8 @@ final class LibraryStore {
     private(set) var state: LoadState = .idle
 
     @ObservationIgnored private var repository: (any MusicRepository)?
+    /// 每次 attach / reset 遞增；refresh 完成時若已換帳號就丟棄結果
+    @ObservationIgnored private var generation = 0
     @ObservationIgnored private var snapshotURL: URL?
 
     private struct Snapshot: Codable {
@@ -41,6 +43,8 @@ final class LibraryStore {
     }
 
     func attach(repository: any MusicRepository, serverID: String) {
+        generation += 1
+        state = .idle
         self.repository = repository
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("app.finify.Finify", isDirectory: true)
@@ -55,6 +59,7 @@ final class LibraryStore {
     }
 
     func reset() {
+        generation += 1
         albums = []
         artists = []
         state = .idle
@@ -63,18 +68,22 @@ final class LibraryStore {
 
     func refresh() async {
         guard let repository, state != .loading else { return }
+        let started = generation
+        let url = snapshotURL
         state = .loading
         do {
             async let albums = repository.allAlbums()
             async let artists = repository.allArtists()
             let (a, r) = try await (albums, artists)
+            guard started == generation else { return }
             self.albums = a
             self.artists = r
             state = .loaded
-            if let url = snapshotURL, let data = try? JSONEncoder().encode(Snapshot(albums: a, artists: r)) {
+            if let url, let data = try? JSONEncoder().encode(Snapshot(albums: a, artists: r)) {
                 try? data.write(to: url, options: .atomic)
             }
         } catch {
+            guard started == generation else { return }
             state = .failed
         }
     }

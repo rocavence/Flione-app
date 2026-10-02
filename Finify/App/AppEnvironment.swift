@@ -89,7 +89,7 @@ final class AppEnvironment {
 
     func signOut(reason: String? = nil) {
         signOutReason = reason
-        player.pause()
+        player.stop()
         sessionStore.clear()
         session = nil
         repository = nil

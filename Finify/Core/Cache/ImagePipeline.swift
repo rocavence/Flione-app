@@ -52,14 +52,14 @@ final class ImagePipeline: @unchecked Sendable {
         let task: Task<CGImage?, Never> = lock.withLock {
             if let existing = inFlight[key] { return existing }
             let task = Task.detached(priority: .userInitiated) { [self] in
-                await self.load(ref, bucket: bucket, key: key)
+                let image = await self.load(ref, bucket: bucket, key: key)
+                self.lock.withLock { self.inFlight[key] = nil }
+                return image
             }
             inFlight[key] = task
             return task
         }
-        let image = await task.value
-        lock.withLock { inFlight[key] = nil }
-        return image
+        return await task.value
     }
 
     private func load(_ ref: ArtworkRef, bucket: Int, key: String) async -> CGImage? {
@@ -71,7 +71,12 @@ final class ImagePipeline: @unchecked Sendable {
             try? downloaded.write(to: file, options: .atomic)
             data = downloaded
         }
-        guard !Task.isCancelled, let data, let image = Self.decode(data, maxPixelSize: bucket) else { return nil }
+        guard let data else { return nil }
+        guard let image = Self.decode(data, maxPixelSize: bucket) else {
+            // 磁碟上的檔案損毀：刪掉，下次重新下載
+            try? FileManager.default.removeItem(at: file)
+            return nil
+        }
         memory.setObject(CGImageBox(image), forKey: key as NSString, cost: image.bytesPerRow * image.height)
         return image
     }

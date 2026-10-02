@@ -41,7 +41,9 @@ struct AlbumWallView: NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
     func makeNSView(context: Context) -> NSScrollView {
-        let layout = NSCollectionViewFlowLayout()
+        // 依可用寬度調整封面尺寸，讓每列剛好填滿，封面之間維持細縫
+        let layout = AdaptiveGridLayout()
+        layout.captionHeight = 0
         let collection = WallCollectionView()
         collection.collectionViewLayout = layout
         collection.dataSource = context.coordinator
@@ -74,7 +76,8 @@ struct AlbumWallView: NSViewRepresentable {
     func updateNSView(_ scroll: NSScrollView, context: Context) {
         let coordinator = context.coordinator
         let albumsChanged = coordinator.parent.albums.map(\.id) != albums.map(\.id)
-        let densityChanged = coordinator.parent.density != density
+        // binding 讀的是即時值，不能拿舊的 parent 比；改與目前實際尺寸比較
+        let densityChanged = coordinator.currentSide != density.side
         let playingChanged = coordinator.parent.playingAlbumID != playingAlbumID
         let scrollRequested = coordinator.parent.scrollToPlayingToken != scrollToPlayingToken
         coordinator.parent = self
@@ -90,7 +93,7 @@ struct AlbumWallView: NSViewRepresentable {
         weak var collection: NSCollectionView?
         var isPinching = false
         private var pinchStartSide: CGFloat = 148
-        private var currentSide: CGFloat = 148
+        private(set) var currentSide: CGFloat = 148
 
         init(parent: AlbumWallView) { self.parent = parent }
 
@@ -118,10 +121,10 @@ struct AlbumWallView: NSViewRepresentable {
 
         func applySize(_ side: CGFloat, animated: Bool) {
             currentSide = side
-            guard let collection, let layout = collection.collectionViewLayout as? NSCollectionViewFlowLayout else { return }
+            guard let collection, let layout = collection.collectionViewLayout as? AdaptiveGridLayout else { return }
             // 封面牆：間距隨尺寸縮放，小尺寸幾乎無縫
             let gap = max(2, (side * 0.025).rounded())
-            layout.itemSize = NSSize(width: side, height: side)
+            layout.minItemWidth = side
             layout.minimumInteritemSpacing = gap
             layout.minimumLineSpacing = gap
             layout.sectionInset = NSEdgeInsets(top: gap, left: 24, bottom: gap, right: 24)
@@ -271,6 +274,7 @@ final class WallItem: NSCollectionViewItem {
     }
 
     private func loadArtwork() {
+        task?.cancel()
         guard let album else { return }
         let pixels = Int(side * (view.window?.backingScaleFactor ?? 2))
         titleLayer.string = nil
@@ -288,9 +292,12 @@ final class WallItem: NSCollectionViewItem {
         artwork.contents = ref.blurHash.flatMap { BlurHash.image($0) }
         artwork.backgroundColor = NSColor(white: 0.12, alpha: 1).cgColor
         let id = album.id
+        let bucket = ImagePipeline.bucket(pixels)
         task = Task { [weak self] in
             guard let image = await images.image(ref, pixelSize: pixels), !Task.isCancelled else { return }
-            guard let self, self.albumID == id else { return }
+            // 確認還是同一張專輯、同一個尺寸，避免較慢的小圖蓋掉清晰的大圖
+            guard let self, self.albumID == id,
+                  ImagePipeline.bucket(Int(self.side * (self.view.window?.backingScaleFactor ?? 2))) == bucket else { return }
             let fade = CABasicAnimation(keyPath: "contents")
             fade.duration = 0.2
             self.artwork.add(fade, forKey: "fade")

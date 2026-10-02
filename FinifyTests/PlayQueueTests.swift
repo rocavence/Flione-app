@@ -66,3 +66,35 @@ final class PlayQueueTests: XCTestCase {
         XCTAssertEqual(q.goBack()?.id, "t2")
     }
 }
+
+final class PlayQueueDuplicateTests: XCTestCase {
+    private func album() -> [Track] {
+        (0..<3).map {
+            Track(id: "t\($0)", name: "T\($0)", albumID: "a", albumName: "A", artistName: "X", artistID: nil,
+                  trackNumber: $0 + 1, discNumber: 1, duration: 100, container: "m4a", artwork: nil)
+        }
+    }
+
+    func testSameAlbumTwiceKeepsPositionWhenUnshuffling() {
+        var q = PlayQueue(tracks: album())
+        q.append(album())
+        q.jump(to: 4)   // 第二份的 t1
+        q.setShuffle(true)
+        q.setShuffle(false)
+        XCTAssertEqual(q.index, 4, "關閉 shuffle 後應回到第二份，而不是第一份的同一首")
+    }
+
+    func testRemovingUpcomingDuplicateKeepsEarlierCopy() {
+        var q = PlayQueue(tracks: album())
+        q.append(album())
+        q.jump(to: 2)
+        q.removeUpcoming(at: 1)  // 第二份的 t1
+        XCTAssertEqual(q.tracks.map(\.id), ["t0", "t1", "t2", "t0", "t2"])
+    }
+
+    func testMoveDownOnLastRowDoesNotCrash() {
+        var q = PlayQueue(tracks: album())
+        q.moveUpcoming(from: [1], to: 3)  // 超出範圍的目的地
+        XCTAssertEqual(q.upcoming.map(\.id), ["t1", "t2"])
+    }
+}

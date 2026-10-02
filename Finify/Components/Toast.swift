@@ -23,7 +23,8 @@ struct Toast: View {
         .finifyShadow(FinifyShadow.elevated)
         .onTapGesture(perform: onDismiss)
         .task {
-            try? await Task.sleep(for: .seconds(4))
+            // 被新的提示取代時 task 會被取消，此時不能關掉新的提示
+            guard (try? await Task.sleep(for: .seconds(4))) != nil else { return }
             onDismiss()
         }
         .accessibilityElement(children: .combine)

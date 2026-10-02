@@ -165,7 +165,7 @@ final class JellyfinRepository: MusicRepository {
         // Jellyfin 的專輯搜尋只比對專輯名稱。搜尋藝人名時，補上最相符藝人的專輯
         if let topArtist = results.artists.first, results.albums.count < 8 {
             let known = Set(results.albums.map(\.id))
-            let byArtist = try await self.albums(byArtist: topArtist.id).filter { !known.contains($0.id) }
+            let byArtist = ((try? await self.albums(byArtist: topArtist.id)) ?? []).filter { !known.contains($0.id) }
             results.albums += byArtist.prefix(8 - results.albums.count)
         }
         return results

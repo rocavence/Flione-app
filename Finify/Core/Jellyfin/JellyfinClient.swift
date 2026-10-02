@@ -148,7 +148,11 @@ final class JellyfinClient: Sendable {
 
     func url(_ path: String, query: [URLQueryItem] = []) -> URL {
         var components = URLComponents(url: serverURL.appendingPathComponent(path), resolvingAgainstBaseURL: false)!
-        if !query.isEmpty { components.queryItems = query }
+        if !query.isEmpty {
+            components.queryItems = query
+            // URLComponents 不會編碼「+」，server 會把它當空白（例如搜尋 C++）
+            components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+        }
         return components.url!
     }
 

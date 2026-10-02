@@ -153,7 +153,8 @@ struct QueuePanel: View {
                     }
                     if !player.queue.upcoming.isEmpty {
                         label("Next").padding(.top, Spacing.s16)
-                        ForEach(Array(player.queue.upcoming.enumerated()), id: \.offset) { offset, track in
+                        ForEach(Array(player.queue.upcomingEntries.enumerated()), id: \.element.id) { offset, entry in
+                            let track = entry.track
                             TrackRow(track: track, showsArtwork: true, onPlay: { player.jump(toQueuePosition: player.queue.index + 1 + offset) })
                                 .opacity(dragging == offset ? 0.4 : 1)
                                 .onDrag {

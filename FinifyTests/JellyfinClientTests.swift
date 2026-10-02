@@ -87,3 +87,11 @@ final class ArtworkTests: XCTestCase {
         }
     }
 }
+
+final class RequestEncodingTests: XCTestCase {
+    func testPlusSignIsPercentEncoded() {
+        let client = JellyfinClient(serverURL: URL(string: "http://mediabox:8096")!)
+        let url = client.url("/Items", query: [URLQueryItem(name: "SearchTerm", value: "C++ & A+B")])
+        XCTAssertEqual(url.query, "SearchTerm=C%2B%2B%20%26%20A%2BB")
+    }
+}

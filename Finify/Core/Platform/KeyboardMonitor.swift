@@ -13,6 +13,7 @@ final class KeyboardMonitor {
             let editingText = NSApp.keyWindow?.firstResponder is NSText
             switch event.keyCode {
             case 49 where modifiers.isEmpty && !editingText:
+                if event.isARepeat { return nil }
                 app.player.togglePlayPause()
                 return nil
             case 53:

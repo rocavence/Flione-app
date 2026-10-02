@@ -35,8 +35,8 @@ final class PlayerManager {
     @ObservationIgnored private var timeObserver: Any?
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
     @ObservationIgnored private var endObserver: NSObjectProtocol?
-    /// AVPlayerItem 對應的 queue 位置
-    @ObservationIgnored private var itemPositions: [ObjectIdentifier: Int] = [:]
+    /// AVPlayerItem 對應的佇列項目（以 entry id 對應，佇列編輯後位置改變也不會錯）
+    @ObservationIgnored private var itemEntries: [ObjectIdentifier: UUID] = [:]
     /// 目前正在播的 item；與 player.currentItem 不同時代表剛自動換曲
     @ObservationIgnored private var activeItem: ObjectIdentifier?
     @ObservationIgnored private var statusObservation: NSKeyValueObservation?
@@ -74,14 +74,17 @@ final class PlayerManager {
     func play(_ tracks: [Track], startAt index: Int = 0, shuffled: Bool = false) {
         guard !tracks.isEmpty else { return }
         reportStopped()
+        let mode = queue.repeatMode
         queue = PlayQueue(tracks: tracks, startAt: index, shuffled: shuffled)
-        queue.repeatMode = repeatMode
+        queue.repeatMode = mode
+        consecutiveFailures = 0
         rebuildPlayer()
         player.play()
     }
 
     func togglePlayPause() {
-        if isPlaying { player.pause(); return }
+        // 緩衝中（rate ≠ 0 但尚未出聲）也要能暫停
+        if player.rate != 0 || isPlaying { player.pause(); return }
         guard currentTrack != nil else { return }
         // 佇列已播完時，從目前曲目重新開始
         if player.currentItem == nil { rebuildPlayer() }
@@ -161,40 +164,51 @@ final class PlayerManager {
 
     // MARK: - AVQueuePlayer 管理
 
-    private func makeItem(_ track: Track, position: Int) -> AVPlayerItem? {
-        guard let url = repository?.streamURL(for: track) else { return nil }
+    private func makeItem(_ entry: QueueEntry) -> AVPlayerItem? {
+        guard let url = repository?.streamURL(for: entry.track) else { return nil }
         // MP3 經 HTTP 時，需要精確時間才能正確 seek 與無縫換曲（S2）
         let asset = AVURLAsset(url: url, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
         let item = AVPlayerItem(asset: asset)
         item.preferredForwardBufferDuration = 30
-        itemPositions[ObjectIdentifier(item)] = position
+        itemEntries[ObjectIdentifier(item)] = entry.id
         return item
     }
 
     /// 清空並以目前曲目＋下一首重建
     private func rebuildPlayer() {
         player.removeAllItems()
-        itemPositions.removeAll()
+        itemEntries.removeAll()
         currentTime = 0
+        reportedPosition = 0
         duration = currentTrack?.duration ?? 0
-        guard let track = currentTrack, let item = makeItem(track, position: queue.index) else { return }
+        guard let entry = queue.currentEntry, let item = makeItem(entry) else { return }
         activeItem = ObjectIdentifier(item)
         player.insert(item, after: nil)
         appendNextItem()
         trackStarted()
     }
 
+    private var nextEntry: QueueEntry? {
+        queue.nextIndex(automatic: true).map { queue.entries[$0] }
+    }
+
     private func appendNextItem() {
-        guard let nextIndex = queue.nextIndex(automatic: true),
-              let item = makeItem(queue.tracks[nextIndex], position: nextIndex) else { return }
+        guard let entry = nextEntry, let item = makeItem(entry) else { return }
         player.insert(item, after: player.items().last)
     }
 
-    /// 佇列改變後，替換已預載的下一首
+    /// 佇列改變後，若下一首變了才替換預載的 item（保留已緩衝的內容，維持無縫換曲）
     private func refreshNextItem() {
-        for item in player.items().dropFirst() {
+        // 佇列已播完時不要載入任何東西，否則下一首會直接變成目前曲目
+        guard player.currentItem != nil else { return }
+        let preloaded = player.items().dropFirst()
+        if preloaded.count == 1, let item = preloaded.first,
+           itemEntries[ObjectIdentifier(item)] == nextEntry?.id {
+            return
+        }
+        for item in preloaded {
             player.remove(item)
-            itemPositions[ObjectIdentifier(item)] = nil
+            itemEntries[ObjectIdentifier(item)] = nil
         }
         appendNextItem()
     }
@@ -209,14 +223,16 @@ final class PlayerManager {
             return
         }
         let id = ObjectIdentifier(item)
-        guard id != activeItem, let position = itemPositions[id] else { return }
+        guard id != activeItem, let entryID = itemEntries[id],
+              let position = queue.entries.firstIndex(where: { $0.id == entryID }) else { return }
         activeItem = id
         let live = Set(player.items().map(ObjectIdentifier.init))
-        itemPositions = itemPositions.filter { live.contains($0.key) }
+        itemEntries = itemEntries.filter { live.contains($0.key) }
 
         reportStopped()
         queue.jump(to: position)
         currentTime = 0
+        reportedPosition = 0
         duration = currentTrack?.duration ?? 0
         appendNextItem()
         trackStarted()
@@ -224,19 +240,28 @@ final class PlayerManager {
 
     /// 曲目無法播放時：提示使用者並跳到下一首，不讓播放停在原地
     private func observeFailure(of item: AVPlayerItem) {
-        statusObservation = item.observe(\.status, options: [.new]) { [weak self] item, _ in
+        // .initial：預載的 item 可能在變成目前曲目前就已經失敗
+        statusObservation = item.observe(\.status, options: [.initial, .new]) { [weak self] item, _ in
             guard item.status == .failed else { return }
-            Task { @MainActor in self?.trackFailed() }
+            let failed = ObjectIdentifier(item)
+            Task { @MainActor in
+                guard let self, self.activeItem == failed else { return }
+                self.trackFailed()
+            }
         }
     }
 
+    /// 連續失敗次數。整個佇列都失敗過一輪就停下來，避免 repeat 開啟時無限跳歌
+    @ObservationIgnored private var consecutiveFailures = 0
+
     private func trackFailed() {
         guard let track = currentTrack else { return }
-        let hasNext = queue.nextIndex(automatic: false) != nil
-        notice = PlayerNotice(message: hasNext
+        consecutiveFailures += 1
+        let canSkip = queue.nextIndex(automatic: false) != nil && consecutiveFailures < queue.entries.count
+        notice = PlayerNotice(message: canSkip
             ? "Couldn't play “\(track.name)”. Skipping to the next song."
             : "Couldn't play “\(track.name)”. Check that your music server is reachable.")
-        if hasNext { next() }
+        if canSkip { next() } else { player.pause() }
     }
 
     func dismissNotice() { notice = nil }
@@ -244,14 +269,32 @@ final class PlayerManager {
     private func tick(_ time: CMTime) {
         guard time.isValid, time.seconds.isFinite else { return }
         currentTime = time.seconds
+        // 只記錄正在回報的那一首的位置，換曲瞬間不會被新曲目的時間覆蓋
+        if let item = player.currentItem, ObjectIdentifier(item) == activeItem {
+            reportedPosition = time.seconds
+            if time.seconds > 1 { consecutiveFailures = 0 }
+        }
         if let itemDuration = player.currentItem?.duration.seconds, itemDuration.isFinite, itemDuration > 0 {
             duration = itemDuration
         }
     }
 
+    /// 登出或切換帳號時：停止播放、清空佇列與 Now Playing
+    func stop() {
+        reportStopped()
+        player.removeAllItems()
+        itemEntries.removeAll()
+        activeItem = nil
+        queue = PlayQueue()
+        currentTime = 0
+        duration = 0
+        notice = nil
+    }
+
     // MARK: - 播放回報（讓 Jellyfin 記錄最近播放）
 
     @ObservationIgnored private var reportedTrack: Track?
+    @ObservationIgnored private var reportedPosition: TimeInterval = 0
 
     private func trackStarted() {
         guard let track = currentTrack else { return }
@@ -263,7 +306,7 @@ final class PlayerManager {
 
     private func reportStopped() {
         guard let track = reportedTrack else { return }
-        let position = currentTime
+        let position = reportedPosition
         reportedTrack = nil
         Task { await repository?.reportPlaybackStopped(track, position: position) }
     }
