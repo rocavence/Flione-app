@@ -11,3 +11,4 @@ xcuserdata/
 # 本機帳密，不進版控
 .secrets/
 build-*/
+dist/
