@@ -39,6 +39,8 @@ struct AlbumWallView: NSViewRepresentable {
     let onOpen: (Album) -> Void
     let onPlay: (Album) -> Void
     let onQueue: (Album, _ next: Bool) -> Void
+    /// 額外的右鍵選單項目（喜愛、加入 playlist）
+    var extraMenu: ((Album) -> [NSMenuItem])?
     /// 捲動到正在播放的專輯；值改變時觸發
     var scrollToPlayingToken = 0
 
@@ -182,6 +184,7 @@ struct AlbumWallView: NSViewRepresentable {
             menu.addItem(ClosureMenuItem("Play") { [weak self] in self?.parent.onPlay(album) })
             menu.addItem(ClosureMenuItem("Play Next") { [weak self] in self?.parent.onQueue(album, true) })
             menu.addItem(ClosureMenuItem("Add to Queue") { [weak self] in self?.parent.onQueue(album, false) })
+            for item in parent.extraMenu?(album) ?? [] { menu.addItem(item) }
             menu.addItem(.separator())
             menu.addItem(ClosureMenuItem("Show Album") { [weak self] in self?.parent.onOpen(album) })
             return menu

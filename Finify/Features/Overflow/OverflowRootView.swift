@@ -85,6 +85,7 @@ struct OverflowRootView: View {
                             onOpen: { openAlbum = $0 },
                             onPlay: play,
                             onQueue: queue,
+                            extraMenu: wallMenu,
                             scrollToPlayingToken: scrollToPlaying
                         )
                     case .recent:
@@ -251,6 +252,29 @@ struct OverflowRootView: View {
             guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
             app.player.play(tracks)
         }
+    }
+
+    /// 封面牆右鍵選單：喜愛、加入 playlist
+    private func wallMenu(for album: Album) -> [NSMenuItem] {
+        let isFavorite = app.favorites.contains(album.id)
+        let favorite = ClosureMenuItem(isFavorite ? "Remove from Favorites" : "Add to Favorites") { app.favorites.toggle(album.id) }
+
+        let playlists = NSMenuItem(title: "Add to Playlist", action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+        submenu.addItem(ClosureMenuItem("New Playlist…") {
+            Task { app.newPlaylistTracks = (try? await app.repository?.tracks(inAlbum: album.id)) ?? [] }
+        })
+        if !app.playlists.playlists.isEmpty { submenu.addItem(.separator()) }
+        for playlist in app.playlists.playlists {
+            submenu.addItem(ClosureMenuItem(playlist.name) {
+                Task {
+                    let tracks = (try? await app.repository?.tracks(inAlbum: album.id)) ?? []
+                    await app.playlists.add(tracks, to: playlist)
+                }
+            })
+        }
+        playlists.submenu = submenu
+        return [.separator(), favorite, playlists]
     }
 
     private func queue(_ album: Album, next: Bool) {
