@@ -7,6 +7,7 @@ struct ImmersiveView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var controlsVisible = true
+    @AppStorage(SettingsKey.autoHideControls) private var autoHide = true
     @State private var lastMove = Date()
 
     var body: some View {
@@ -75,7 +76,7 @@ struct ImmersiveView: View {
         .task {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(500))
-                if controlsVisible, Date().timeIntervalSince(lastMove) > 2.5, app.player.isPlaying {
+                if autoHide, controlsVisible, Date().timeIntervalSince(lastMove) > 2.5, app.player.isPlaying {
                     controlsVisible = false
                     NSCursor.setHiddenUntilMouseMoves(true)
                 }

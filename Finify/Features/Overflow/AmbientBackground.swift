@@ -8,13 +8,14 @@ struct AmbientBackground: View {
     var intensity: Double = 0.55
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(SettingsKey.ambient) private var enabled = true
 
     var body: some View {
         ZStack {
             FinifyColor.Overflow.background
             // 放在 overlay 裡，封面的正方形比例才不會撐大整個版面
             Color.clear.overlay {
-                if let artwork {
+                if enabled, let artwork {
                     ArtworkView(artwork: artwork, cornerRadius: 0, elevation: .none)
                         .aspectRatio(contentMode: .fill)
                         .scaleEffect(1.4)

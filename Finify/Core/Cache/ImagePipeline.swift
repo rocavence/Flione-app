@@ -24,8 +24,7 @@ final class ImagePipeline: @unchecked Sendable {
     init(urlProvider: @escaping @Sendable (ArtworkRef, Int) -> URL) {
         self.urlProvider = urlProvider
         memory.totalCostLimit = Self.memoryBudgetMB * 1024 * 1024
-        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        diskDirectory = caches.appendingPathComponent("app.finify.Finify/Artwork", isDirectory: true)
+        diskDirectory = Self.diskDirectoryURL
         try? FileManager.default.createDirectory(at: diskDirectory, withIntermediateDirectories: true)
         let config = URLSessionConfiguration.default
         config.urlCache = nil
@@ -89,6 +88,22 @@ final class ImagePipeline: @unchecked Sendable {
 
     private static func fileName(_ key: String) -> String {
         SHA256.hash(data: Data(key.utf8)).prefix(16).map { String(format: "%02x", $0) }.joined() + ".img"
+    }
+
+    static var diskDirectoryURL: URL {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("app.finify.Finify/Artwork", isDirectory: true)
+    }
+
+    static func diskCacheSizeDescription() -> String {
+        let files = (try? FileManager.default.contentsOfDirectory(at: diskDirectoryURL, includingPropertiesForKeys: [.fileSizeKey])) ?? []
+        let bytes = files.reduce(0) { $0 + ((try? $1.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0) }
+        return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
+    }
+
+    static func clearDiskCache() {
+        try? FileManager.default.removeItem(at: diskDirectoryURL)
+        try? FileManager.default.createDirectory(at: diskDirectoryURL, withIntermediateDirectories: true)
     }
 
     /// 超過 disk 上限時，刪除最久沒用的檔案

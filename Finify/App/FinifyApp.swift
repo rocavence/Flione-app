@@ -15,12 +15,19 @@ struct FinifyApp: App {
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 1360, height: 860)
         .commands { FinifyCommands(app: app) }
+
+        Settings {
+            SettingsView()
+                .environment(app)
+                .tint(FinifyColor.accent)
+        }
     }
 }
 
 struct RootView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(SettingsKey.theme) private var theme: ThemePreference = .system
 
     var body: some View {
         Group {
@@ -39,6 +46,8 @@ struct RootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.mode)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.session)
         .ignoresSafeArea()
+        .preferredColorScheme(theme.colorScheme)
+        .tint(FinifyColor.accent)
     }
 }
 
