@@ -21,6 +21,7 @@ struct AlbumView: View {
             VStack(alignment: .leading, spacing: Spacing.s32) {
                 header
                 trackList
+                moreByArtist
             }
             .padding(.horizontal, Spacing.s32)
             .padding(.vertical, Spacing.s32)
@@ -72,6 +73,17 @@ struct AlbumView: View {
                 .disabled(tracks.isEmpty)
                 .padding(.top, Spacing.s8)
             }
+        }
+    }
+
+    /// 同一藝人的其他專輯（取自已載入的音樂庫）
+    @ViewBuilder
+    private var moreByArtist: some View {
+        let others = album.artistID.map { id in app.library.albums.filter { $0.artistID == id && $0.id != album.id } } ?? []
+        if !others.isEmpty {
+            AlbumShelf(title: "More by \(album.artistName)", state: .loaded(Array(others.prefix(12))),
+                       action: ("Show all", { router.openArtist(id: album.artistID, name: album.artistName) }))
+                .padding(.top, Spacing.s16)
         }
     }
 
