@@ -108,6 +108,11 @@ final class JellyfinClient: Sendable {
         try await send("GET", path, query: query, timeout: timeout)
     }
 
+    /// 不需要回應內容的請求（例如 DELETE）
+    func send(_ method: String, _ path: String) async throws {
+        _ = try await sendRaw(method, path, timeout: 10)
+    }
+
     func post(_ path: String, json: [String: Any]) async throws {
         let body = try JSONSerialization.data(withJSONObject: json)
         _ = try await sendRaw("POST", path, body: body, timeout: 10)

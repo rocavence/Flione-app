@@ -50,24 +50,28 @@ struct PlayerBar: View {
     private var nowPlaying: some View {
         if let track = app.player.currentTrack {
             HStack(spacing: Spacing.s12) {
-                ArtworkView(artwork: track.artwork, elevation: .none)
-                    .frame(width: 52, height: 52)
-                    .onTapGesture { onOpenAlbum(track.albumID) }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(track.name)
-                        .finifyFont(.bodyEmphasis)
-                        .foregroundStyle(FinifyColor.ink)
-                        .lineLimit(1)
+                HStack(spacing: Spacing.s12) {
+                    ArtworkView(artwork: track.artwork, elevation: .none)
+                        .frame(width: 52, height: 52)
                         .onTapGesture { onOpenAlbum(track.albumID) }
-                    Text(track.artistName)
-                        .finifyFont(.caption)
-                        .foregroundStyle(FinifyColor.muted)
-                        .lineLimit(1)
-                        .onTapGesture { onOpenArtist(track.artistID, track.artistName) }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(track.name)
+                            .finifyFont(.bodyEmphasis)
+                            .foregroundStyle(FinifyColor.ink)
+                            .lineLimit(1)
+                            .onTapGesture { onOpenAlbum(track.albumID) }
+                        Text(track.artistName)
+                            .finifyFont(.caption)
+                            .foregroundStyle(FinifyColor.muted)
+                            .lineLimit(1)
+                            .onTapGesture { onOpenArtist(track.artistID, track.artistName) }
+                    }
                 }
+                // 只合併封面與文字；愛心要保持為獨立按鈕，VoiceOver 才能操作
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Now playing: \(track.name) by \(track.artistName)")
+                FavoriteButton(itemID: track.id, name: track.name)
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("Now playing: \(track.name) by \(track.artistName)")
         } else {
             HStack(spacing: Spacing.s12) {
                 RoundedRectangle(cornerRadius: Radius.artwork).fill(FinifyColor.surface).frame(width: 52, height: 52)

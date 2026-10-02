@@ -14,6 +14,7 @@ final class AppEnvironment {
     private(set) var images: ImagePipeline?
     let player = PlayerManager()
     let library = LibraryStore()
+    let favorites = FavoritesStore()
 
     /// nil = 尚未選擇（首次登入後顯示 mode picker）
     var mode: AppMode? {
@@ -120,6 +121,7 @@ final class AppEnvironment {
         repository = nil
         images = nil
         library.reset()
+        favorites.reset()
     }
 
     // MARK: - 播放狀態保存
@@ -155,6 +157,7 @@ final class AppEnvironment {
         images = ImagePipeline { ref, size in repository.artworkURL(ref, maxPixelSize: size) }
         player.attach(repository: repository)
         library.attach(repository: repository, serverID: session.serverURL.absoluteString + session.userID)
+        favorites.attach(repository: repository)
         restorePlayback()
     }
 }

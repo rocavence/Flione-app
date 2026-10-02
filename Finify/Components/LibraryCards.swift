@@ -149,6 +149,8 @@ struct TrackRow: View {
                     .frame(maxWidth: 240, alignment: .leading)
             }
 
+            FavoriteButton(itemID: track.id, name: track.name)
+                .opacity(hovering || app.favorites.contains(track.id) ? 1 : 0)
             Text(track.duration.formattedDuration)
                 .finifyFont(.caption)
                 .monospacedDigit()
@@ -165,6 +167,7 @@ struct TrackRow: View {
             Button("Play", action: onPlay)
             Button("Play Next") { app.player.playNext([track]) }
             Button("Add to Queue") { app.player.addToQueue([track]) }
+            Button(app.favorites.contains(track.id) ? "Remove from Favorites" : "Add to Favorites") { app.favorites.toggle(track.id) }
             if let onOpenAlbum { Divider(); Button("Go to Album", action: onOpenAlbum) }
             if let onOpenArtist { Button("Go to Artist", action: onOpenArtist) }
         }
@@ -172,5 +175,8 @@ struct TrackRow: View {
         .accessibilityLabel("\(track.name), \(track.artistName), \(track.duration.formattedDuration)")
         .accessibilityAddTraits(isCurrent ? [.isButton, .isSelected] : .isButton)
         .accessibilityAction(named: "Play", onPlay)
+        .accessibilityAction(named: app.favorites.contains(track.id) ? "Remove from Favorites" : "Add to Favorites") {
+            app.favorites.toggle(track.id)
+        }
     }
 }

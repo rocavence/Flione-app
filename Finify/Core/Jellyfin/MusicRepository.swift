@@ -20,6 +20,10 @@ protocol MusicRepository: Sendable {
 
     func reportPlaybackStarted(_ track: Track) async
     func reportPlaybackStopped(_ track: Track, position: TimeInterval) async
+
+    func favoriteIDs() async throws -> Set<String>
+    func favoriteTracks() async throws -> [Track]
+    func setFavorite(_ itemID: String, _ isFavorite: Bool) async throws
 }
 
 final class JellyfinRepository: MusicRepository {
@@ -192,6 +196,28 @@ final class JellyfinRepository: MusicRepository {
             URLQueryItem(name: "static", value: "true"),
             URLQueryItem(name: "ApiKey", value: session.accessToken),
         ])
+    }
+
+    func favoriteIDs() async throws -> Set<String> {
+        let response = try await items([
+            "Filters": "IsFavorite",
+            "IncludeItemTypes": "Audio,MusicAlbum,MusicArtist",
+            "EnableImages": "false",
+            "EnableTotalRecordCount": "false",
+        ])
+        return Set(response.items.map(\.id))
+    }
+
+    func favoriteTracks() async throws -> [Track] {
+        try await items([
+            "Filters": "IsFavorite",
+            "IncludeItemTypes": "Audio",
+            "SortBy": "AlbumArtist,Album,ParentIndexNumber,IndexNumber",
+        ]).items.map { $0.toTrack() }
+    }
+
+    func setFavorite(_ itemID: String, _ isFavorite: Bool) async throws {
+        try await client.send(isFavorite ? "POST" : "DELETE", "/Users/\(session.userID)/FavoriteItems/\(itemID)")
     }
 
     /// 回報播放狀態，讓 Jellyfin 記錄「最近播放」。失敗不影響播放，所以不拋錯。

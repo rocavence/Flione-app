@@ -4,6 +4,7 @@ enum LibrarySection: String, CaseIterable {
     case albums = "Albums"
     case artists = "Artists"
     case songs = "Songs"
+    case favorites = "Favorites"
 }
 
 enum AlbumSort: String, CaseIterable {
@@ -63,6 +64,7 @@ struct LibraryView: View {
                 case .albums: albums
                 case .artists: artists
                 case .songs: SongsList()
+                case .favorites: FavoriteSongs()
                 }
             }
         }
@@ -152,5 +154,48 @@ private struct SongsList: View {
         } catch {
             failed = true
         }
+    }
+}
+
+/// 喜愛的歌曲。愛心狀態改變時重新載入
+private struct FavoriteSongs: View {
+    @Environment(AppEnvironment.self) private var app
+    @Environment(StandardRouter.self) private var router
+    @State private var tracks: Loadable<[Track]> = .loading
+
+    var body: some View {
+        Group {
+            switch tracks {
+            case .loading:
+                VStack(spacing: Spacing.s8) { ForEach(0..<8, id: \.self) { _ in SkeletonBlock().frame(height: 44) } }
+                    .padding(.horizontal, Spacing.s32)
+                Spacer()
+            case .failed:
+                MessageState(title: "Can't load your favorites.", message: "Check your connection to the music server.", icon: .wifiOff,
+                             primary: ("Retry", { Task { await load() } }))
+                Spacer()
+            case .loaded(let list) where list.isEmpty:
+                MessageState(title: "No favorites yet.", message: "Tap the heart next to a song and it will show up here.", icon: .heart)
+                Spacer()
+            case .loaded(let list):
+                ScrollView {
+                    LazyVStack(spacing: 2) {
+                        ForEach(Array(list.enumerated()), id: \.element.id) { index, track in
+                            TrackRow(track: track, number: index + 1, showsArtwork: true, showsAlbum: true, onPlay: {
+                                app.player.play(list, startAt: index)
+                            }, onOpenArtist: { router.openArtist(id: track.artistID, name: track.artistName) })
+                        }
+                    }
+                    .padding(.horizontal, Spacing.s24)
+                    .padding(.bottom, Spacing.s32)
+                }
+            }
+        }
+        .task(id: app.favorites.ids.count) { await load() }
+    }
+
+    private func load() async {
+        guard let repository = app.repository else { return }
+        do { tracks = .loaded(try await repository.favoriteTracks()) } catch { tracks = .failed }
     }
 }

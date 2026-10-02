@@ -46,6 +46,7 @@ struct ImmersiveView: View {
                             .foregroundStyle(FinifyColor.Overflow.muted)
                             .frame(width: min(560, geo.size.width * 0.6))
                             HStack(spacing: Spacing.s24) {
+                                if let track { FavoriteButton(itemID: track.id, name: track.name, size: .primary) }
                                 PlaybackControls(size: .emphasis)
                                 FinifyIconButton(icon: .playlist, label: "Queue", size: .primary, isActive: app.isQueuePresented) {
                                     app.isQueuePresented.toggle()

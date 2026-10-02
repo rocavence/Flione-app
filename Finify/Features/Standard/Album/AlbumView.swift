@@ -67,6 +67,7 @@ struct AlbumView: View {
                     }
                     FinifyButton(title: "Shuffle", icon: .shuffle) { app.player.play(tracks, shuffled: true) }
                     FinifyIconButton(icon: .playlist, label: "Add to Queue") { app.player.addToQueue(tracks) }
+                    FavoriteButton(itemID: album.id, name: album.name, size: .standard)
                 }
                 .disabled(tracks.isEmpty)
                 .padding(.top, Spacing.s8)

@@ -50,7 +50,10 @@ struct RootView: View {
         }
         .transition(.opacity)
         .overlay(alignment: .bottom) {
-            if let notice = app.player.notice {
+            if let message = app.favorites.failureMessage {
+                Toast(message: message) { app.favorites.failureMessage = nil }
+                    .padding(.bottom, 104)
+            } else if let notice = app.player.notice {
                 Toast(message: notice.message) { app.player.dismissNotice() }
                     .id(notice.id)
                     .padding(.bottom, 104)
@@ -85,6 +88,9 @@ struct FinifyCommands: Commands {
                 .keyboardShortcut("s", modifiers: [.command, .option])
             Button("Repeat") { app.player.cycleRepeat() }
                 .keyboardShortcut("r", modifiers: [.command, .option])
+            Button("Favorite Current Song") { if let id = app.player.currentTrack?.id { app.favorites.toggle(id) } }
+                .keyboardShortcut("f", modifiers: [.command, .shift])
+                .disabled(app.player.currentTrack == nil)
             Divider()
             Button("Volume Up") { app.player.volume = min(1, app.player.volume + 0.1) }
                 .keyboardShortcut(.upArrow, modifiers: .command)
