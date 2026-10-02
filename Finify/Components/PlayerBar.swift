@@ -33,6 +33,8 @@ struct PlayerBar: View {
                     app.isQueuePresented.toggle()
                 }
                 .keyboardShortcut("u", modifiers: [.command])
+                FinifyIconButton(icon: .fullscreen, label: "Fullscreen player (⌃⌘F)") { app.enterFullscreenPlayer() }
+                    .disabled(app.player.currentTrack == nil)
                 VolumeControl()
             }
             .frame(width: 280, alignment: .trailing)

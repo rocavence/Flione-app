@@ -32,6 +32,20 @@ final class AppEnvironment {
     /// 網路恢復時遞增；失敗中的畫面據此重新載入
     private(set) var reconnectCount = 0
     var isSearchPresented = false
+    /// 從 Standard 進入 Fullscreen 時記住原本的 mode，離開時回去
+    var fullscreenReturnMode: AppMode?
+
+    /// 從任何 mode 進入 Overflow 的 Fullscreen
+    func enterFullscreenPlayer() {
+        guard player.currentTrack != nil else { return }
+        if mode != .overflow {
+            fullscreenReturnMode = mode
+            mode = .overflow
+        }
+        isFullscreenRequested = true
+    }
+
+    var isFullscreenRequested = false
     var isQueuePresented = false
 
     @ObservationIgnored private let sessionStore: any SessionStore

@@ -58,7 +58,13 @@ struct AlbumView: View {
                         .foregroundStyle(FinifyColor.muted)
                 }
                 HStack(spacing: Spacing.s8) {
-                    FinifyButton(title: "Play", icon: .play, kind: .primary) { app.player.play(tracks) }
+                    if isPlayingThisAlbum {
+                        FinifyButton(title: app.player.isPlaying ? "Pause" : "Resume", icon: app.player.isPlaying ? .pause : .play, kind: .primary) {
+                            app.player.togglePlayPause()
+                        }
+                    } else {
+                        FinifyButton(title: "Play", icon: .play, kind: .primary) { app.player.play(tracks) }
+                    }
                     FinifyButton(title: "Shuffle", icon: .shuffle) { app.player.play(tracks, shuffled: true) }
                     FinifyIconButton(icon: .playlist, label: "Add to Queue") { app.player.addToQueue(tracks) }
                 }
@@ -67,6 +73,8 @@ struct AlbumView: View {
             }
         }
     }
+
+    private var isPlayingThisAlbum: Bool { app.player.currentTrack?.albumID == album.id }
 
     private var metadata: String {
         var parts: [String] = []

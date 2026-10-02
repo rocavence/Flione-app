@@ -41,7 +41,14 @@ struct OverflowRootView: View {
         #if DEBUG || BENCHMARK
         .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }, immersive: enterImmersive) }
         #endif
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { _ in immersive = false }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { _ in
+            if immersive { exitImmersive() }
+        }
+        .onChange(of: app.isFullscreenRequested, initial: true) {
+            guard app.isFullscreenRequested else { return }
+            app.isFullscreenRequested = false
+            enterImmersive()
+        }
     }
 
     private var browse: some View {
@@ -200,6 +207,11 @@ struct OverflowRootView: View {
     private func exitImmersive() {
         immersive = false
         if let window = NSApp.keyWindow, window.styleMask.contains(.fullScreen) { window.toggleFullScreen(nil) }
+        // 從 Standard 進來的就回到 Standard
+        if let previous = app.fullscreenReturnMode {
+            app.fullscreenReturnMode = nil
+            app.mode = previous
+        }
     }
 }
 

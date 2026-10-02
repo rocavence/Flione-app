@@ -168,6 +168,11 @@ final class JellyfinRepository: MusicRepository {
             let byArtist = ((try? await self.albums(byArtist: topArtist.id)) ?? []).filter { !known.contains($0.id) }
             results.albums += byArtist.prefix(8 - results.albums.count)
         }
+        if let topArtist = results.artists.first, results.tracks.count < 5 {
+            let known = Set(results.tracks.map(\.id))
+            let popular = ((try? await self.popularTracks(byArtist: topArtist.id, limit: 8)) ?? []).filter { !known.contains($0.id) }
+            results.tracks += popular.prefix(8 - results.tracks.count)
+        }
         return results
     }
 
