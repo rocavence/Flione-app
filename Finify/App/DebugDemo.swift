@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG || BENCHMARK
 import AppKit
 
 /// 開發用：以啟動參數把 app 帶到指定狀態，方便無人值守時截圖驗證。Release build 不包含。

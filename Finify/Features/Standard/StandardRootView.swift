@@ -35,7 +35,7 @@ struct StandardRootView: View {
         .background(FinifyColor.paper)
         .environment(router)
         .task { await app.library.refreshIfNeeded() }
-        #if DEBUG
+        #if DEBUG || BENCHMARK
         .task { await DebugDemo.run(app: app, openAlbum: { router.openAlbum($0) }) }
         #endif
     }

@@ -8,7 +8,7 @@ enum BlurHash {
     private static let lookup: [Character: Int] = Dictionary(uniqueKeysWithValues: characters.enumerated().map { ($1, $0) })
     nonisolated(unsafe) private static let cache = NSCache<NSString, CGImageBox>()
 
-    static func image(_ hash: String, size: Int = 24) -> CGImage? {
+    static func image(_ hash: String, size: Int = 16) -> CGImage? {
         let key = "\(hash)-\(size)" as NSString
         if let hit = cache.object(forKey: key) { return hit.image }
         guard let image = decode(hash, width: size, height: size) else { return nil }
@@ -46,13 +46,17 @@ enum BlurHash {
             }
         }
 
+        // 預先算好 cos 表：每個 component 只需 width + height 次 cos，而非每個像素都算
+        let cosX = (0..<numX).map { i in (0..<width).map { x in cos(.pi * Double(x) * Double(i) / Double(width)) } }
+        let cosY = (0..<numY).map { j in (0..<height).map { y in cos(.pi * Double(y) * Double(j) / Double(height)) } }
         var pixels = [UInt8](repeating: 255, count: width * height * 4)
         for y in 0..<height {
             for x in 0..<width {
                 var r = 0.0, g = 0.0, b = 0.0
                 for j in 0..<numY {
+                    let by = cosY[j][y]
                     for i in 0..<numX {
-                        let basis = cos(.pi * Double(x) * Double(i) / Double(width)) * cos(.pi * Double(y) * Double(j) / Double(height))
+                        let basis = cosX[i][x] * by
                         let c = colors[i + j * numX]
                         r += c.0 * basis; g += c.1 * basis; b += c.2 * basis
                     }

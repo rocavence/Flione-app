@@ -56,3 +56,18 @@ AppKit 版，1 萬張，不同 cache budget：
 * `ArtworkView` 仍是唯一的 artwork 元件；Album Wall 的 cell 由 AppKit 管理，但 artwork 載入與 cache 共用同一個 pipeline。
 * Cell 離開畫面時取消圖片請求（`prepareForReuse`）。
 * 待正式實作時補上：依捲動方向預載、BlurHash placeholder、disk cache。
+
+## 正式版實測（2026-10-03）
+
+Finify Release build、真實 library 1,426 張專輯、20 秒捲到底再 10 秒捲回頂端（比實際手勢快很多）。
+
+| 尺寸 | 往下 hitch | 往上 hitch | 記憶體 peak |
+| ---- | ---------: | ---------: | ----------: |
+| Medium | 0 ms/s | 1.7 ms/s | 312 MB |
+| Large | 0 ms/s | 0 ms/s | 332 MB |
+| Small（BlurHash 最佳化後，第 2 次） | 0 ms/s | 0 ms/s | 336 MB |
+| Small（BlurHash 最佳化後，第 1 次，封面首次下載） | 9.0 ms/s | 1.8 ms/s | 336 MB |
+
+* Small 一開始有明顯掉 frame（往上 22.4 ms/s）。原因是 BlurHash placeholder 在 main thread 解碼，每個 placeholder 約 1.4 萬次 `cos`；改用預先計算的 cos 表後解決。
+* 第 1 次往下捲有一次 184 ms 的停頓，推測與封面首次下載或 library 更新同時發生有關，尚未定位。
+* 量測方式：`-FinifyBenchWall <輸出路徑>`，需以 `SWIFT_ACTIVE_COMPILATION_CONDITIONS=BENCHMARK` 建置 Release。

@@ -10,7 +10,12 @@ struct FinifyApp: App {
             RootView()
                 .environment(app)
                 .frame(minWidth: 1040, minHeight: 680)
-                .onAppear { if keyboard == nil { keyboard = KeyboardMonitor(app: app) } }
+                .onAppear {
+                    if keyboard == nil { keyboard = KeyboardMonitor(app: app) }
+                    #if DEBUG || BENCHMARK
+                    WallBenchmark.startIfRequested()
+                    #endif
+                }
         }
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 1360, height: 860)

@@ -43,7 +43,7 @@ struct KeychainSessionStore: SessionStore {
     }
 }
 
-#if DEBUG
+#if DEBUG || BENCHMARK
 /// 開發用：從 `.secrets/` 讀取登入資訊，避免無人值守測試時 Keychain 跳出授權視窗。
 /// 啟動參數：`-FinifySecrets <repo>/.secrets`
 struct DevelopmentSessionStore: SessionStore {

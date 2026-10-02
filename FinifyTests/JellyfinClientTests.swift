@@ -57,3 +57,33 @@ final class JellyfinClientTests: XCTestCase {
         XCTAssertEqual(TimeInterval.nan.formattedDuration, "0:00")
     }
 }
+
+final class ArtworkTests: XCTestCase {
+    func testBlurHashDecodesToRequestedSize() throws {
+        let image = try XCTUnwrap(BlurHash.decode("LKO2?U%2Tw=w]~RBVZRi};RPxuwH", width: 16, height: 16))
+        XCTAssertEqual(image.width, 16)
+        XCTAssertEqual(image.height, 16)
+    }
+
+    func testBlurHashRejectsInvalidHash() {
+        XCTAssertNil(BlurHash.decode("bad", width: 16, height: 16))
+    }
+
+    func testBlurHashAverageColorIsInUnitRange() throws {
+        let c = try XCTUnwrap(BlurHash.averageColor("LKO2?U%2Tw=w]~RBVZRi};RPxuwH"))
+        for v in [c.r, c.g, c.b] { XCTAssert((0...1).contains(v)) }
+    }
+
+    func testImageBucketsRoundUp() {
+        XCTAssertEqual(ImagePipeline.bucket(1), 96)
+        XCTAssertEqual(ImagePipeline.bucket(296), 320)
+        XCTAssertEqual(ImagePipeline.bucket(5000), 1600)
+    }
+
+    func testBlurHashDecodeIsFastEnoughForScrolling() {
+        // 捲動時每 frame 可能要解碼數十個 placeholder
+        measure {
+            for _ in 0..<200 { _ = BlurHash.decode("LKO2?U%2Tw=w]~RBVZRi};RPxuwH", width: 16, height: 16) }
+        }
+    }
+}

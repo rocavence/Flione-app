@@ -43,7 +43,7 @@ final class AppEnvironment {
     }
 
     static func bootstrap() -> AppEnvironment {
-        #if DEBUG
+        #if DEBUG || BENCHMARK
         if let path = UserDefaults.standard.string(forKey: "FinifySecrets") {
             let env = AppEnvironment(sessionStore: DevelopmentSessionStore(directory: URL(fileURLWithPath: path)))
             if let mode = UserDefaults.standard.string(forKey: "FinifyStartMode").flatMap(AppMode.init) { env.mode = mode }

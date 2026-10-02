@@ -87,7 +87,7 @@ struct SearchPalette: View {
         .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.3), radius: 40, y: 20))
         .onAppear {
             fieldFocused = true
-            #if DEBUG
+            #if DEBUG || BENCHMARK
             if let term = DebugDemo.searchTerm, model.query.isEmpty { model.query = term }
             #endif
         }

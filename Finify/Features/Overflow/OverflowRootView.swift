@@ -38,7 +38,7 @@ struct OverflowRootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: immersive)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
         .task { await app.library.refreshIfNeeded() }
-        #if DEBUG
+        #if DEBUG || BENCHMARK
         .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }, immersive: enterImmersive) }
         #endif
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { _ in immersive = false }

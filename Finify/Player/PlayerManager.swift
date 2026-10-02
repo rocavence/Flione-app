@@ -55,7 +55,7 @@ final class PlayerManager {
         })
     }
 
-    #if DEBUG
+    #if DEBUG || BENCHMARK
     /// 測試時靜音，但不改動使用者記住的音量
     func muteForTesting() { player.volume = 0 }
     #endif
