@@ -541,7 +541,8 @@ FinifyIcon
 整合方式：
 
 * Reicon 沒有 Swift 套件，以腳本讀取 `data/icon-data.json`，產生 `Assets.xcassets`（template image、preserve vector data）。
-* Reicon 缺少的用途以語意相近的 icon 代替：Queue → `list`、Lyrics → `microphone`。
+* 語意對應（Reicon 名稱與用途不同時）：Album → `cd`、Library → `music-library`、Playlist → `playlist2`、Queue → `playlist`、Settings → `setting2`、Artist → `user`、Lyrics → `microphone`。
+* 線條型 icon（plus、x、check、chevron、repeat 等）沒有實心版本，Filled 與 Outline 外觀相同，Active 狀態以顏色區分。
 
 例外：
 
@@ -1291,7 +1292,7 @@ Platform Expansion
 
 | Spike | 驗證問題 | 結果影響 |
 | ----- | -------- | -------- |
-| S1 Reicon → Asset Catalog | Reicon 沒有 Swift 套件，SVG 能否轉成 template image 並支援 Outline / Filled | `FinifyIcon` 實作方式 |
+| S1 Reicon → Asset Catalog ✅ | Reicon 沒有 Swift 套件，SVG 能否轉成 template image 並支援 Outline / Filled | 可行：`scripts/reicon/generate.py` 產生向量 template image，16–32px 渲染正常 |
 | S2 AVPlayer gapless | Jellyfin FLAC 串流在 AVQueuePlayer 換曲是否有間隙 | libmpv 是否提前到 MVP |
 | S3 Album Wall 10k | 10,000 格 + pinch 換密度能否維持 60fps、記憶體有上限 | `LazyVGrid` 或 `NSCollectionView` |
 

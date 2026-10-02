@@ -1,0 +1,66 @@
+# Finify 使用的 Reicon icon（名稱即 Reicon 原名）
+# 新增 icon：加一行後執行 python3 scripts/reicon/generate.py
+
+# Navigation
+home
+search
+music-library
+music
+playlist
+heart
+
+# Playback
+play
+pause
+next
+previous
+skip-next
+skip-prev
+shuffle
+repeat
+repeat-one
+volume
+volume-high
+volume-low
+volume-off
+
+# Content
+cd
+user
+music-note
+
+# Actions
+plus
+minus
+more
+share
+edit
+trash
+x
+
+# Window
+fullscreen
+exit-fullscreen
+
+# System
+setting2
+info-circle
+warning
+danger
+check
+refresh
+wifi-off
+server
+
+# Layout / Overflow
+playlist2
+grid
+layers
+keyboard
+microphone
+clock
+history
+chevron-left
+chevron-right
+chevron-up
+chevron-down
