@@ -129,6 +129,8 @@ struct VolumeControl: View {
 struct QueuePanel: View {
     let onOpenAlbum: (String?) -> Void
     @Environment(AppEnvironment.self) private var app
+    /// 拖曳中的列（upcoming 內的位置）
+    @State private var dragging: Int?
 
     var body: some View {
         let player = app.player
@@ -153,6 +155,14 @@ struct QueuePanel: View {
                         label("Next").padding(.top, Spacing.s16)
                         ForEach(Array(player.queue.upcoming.enumerated()), id: \.offset) { offset, track in
                             TrackRow(track: track, showsArtwork: true, onPlay: { player.jump(toQueuePosition: player.queue.index + 1 + offset) })
+                                .opacity(dragging == offset ? 0.4 : 1)
+                                .onDrag {
+                                    dragging = offset
+                                    return NSItemProvider(object: String(offset) as NSString)
+                                }
+                                .onDrop(of: [.text], delegate: QueueDropDelegate(target: offset, dragging: $dragging, player: player))
+                                .accessibilityAction(named: "Move Up") { if offset > 0 { player.moveUpcoming(from: [offset], to: offset - 1) } }
+                                .accessibilityAction(named: "Move Down") { player.moveUpcoming(from: [offset], to: offset + 2) }
                                 .contextMenu {
                                     Button("Play") { player.jump(toQueuePosition: player.queue.index + 1 + offset) }
                                     Button("Remove from Queue") { player.removeUpcoming(at: offset) }
@@ -183,5 +193,27 @@ struct QueuePanel: View {
             .foregroundStyle(FinifyColor.muted)
             .padding(.horizontal, Spacing.s12)
             .padding(.bottom, Spacing.s4)
+    }
+}
+
+/// 拖曳排序：拖進另一列時即時移動，放開時結束
+private struct QueueDropDelegate: DropDelegate {
+    let target: Int
+    @Binding var dragging: Int?
+    let player: PlayerManager
+
+    func dropEntered(info: DropInfo) {
+        guard let from = dragging, from != target else { return }
+        withAnimation(Motion.micro) {
+            player.moveUpcoming(from: [from], to: target > from ? target + 1 : target)
+        }
+        dragging = target
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: .move) }
+
+    func performDrop(info: DropInfo) -> Bool {
+        dragging = nil
+        return true
     }
 }
