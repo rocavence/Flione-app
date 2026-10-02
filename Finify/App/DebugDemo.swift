@@ -8,6 +8,7 @@ import AppKit
 ///     -FinifyDemoOpen "<專輯名>"     打開該專輯頁
 ///     -FinifyDemoSearch "<關鍵字>"   打開 ⌘K 並搜尋
 ///     -FinifyDemoImmersive YES      Overflow 進入 Fullscreen
+///     -FinifyDemoSeekToEnd 5        播放後跳到第一首結尾前 5 秒
 @MainActor
 enum DebugDemo {
     static var defaults: UserDefaults { .standard }
@@ -21,6 +22,12 @@ enum DebugDemo {
         if let name = defaults.string(forKey: "FinifyDemoPlay"), let album = find(name, in: app),
            let tracks = try? await app.repository?.tracks(inAlbum: album.id) {
             app.player.play(tracks)
+            // -FinifyDemoSeekToEnd <秒>：跳到第一首結尾前 N 秒，用來驗證自動換曲
+            let seconds = defaults.double(forKey: "FinifyDemoSeekToEnd")
+            if seconds > 0, let first = tracks.first {
+                try? await Task.sleep(for: .seconds(2))
+                app.player.seek(to: first.duration - seconds)
+            }
         }
         if let name = defaults.string(forKey: "FinifyDemoOpen"), let album = find(name, in: app) {
             openAlbum(album)

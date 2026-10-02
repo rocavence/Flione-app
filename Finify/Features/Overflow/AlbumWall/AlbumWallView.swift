@@ -102,15 +102,18 @@ struct AlbumWallView: NSViewRepresentable {
             let item = collectionView.makeItem(withIdentifier: WallItem.identifier, for: indexPath) as! WallItem
             let album = parent.albums[indexPath.item]
             item.configure(album, side: currentSide, images: parent.images, isPlaying: album.id == parent.playingAlbumID, anyPlaying: parent.playingAlbumID != nil)
+            item.onClick = { [weak self] in self?.parent.onOpen(album) }
             item.onDoubleClick = { [weak self] in self?.parent.onPlay(album) }
             item.menuProvider = { [weak self] in self?.menu(for: album) }
             return item
         }
 
+        // 選取（方向鍵移動）只顯示焦點框；點一下打開專輯、雙擊或 Return 播放
         func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
-            guard let index = indexPaths.first?.item, parent.albums.indices.contains(index) else { return }
-            parent.onOpen(parent.albums[index])
-            collectionView.deselectItems(at: indexPaths)
+            if let index = indexPaths.first?.item, parent.albums.indices.contains(index) {
+                NSAccessibility.post(element: collectionView, notification: .announcementRequested,
+                                     userInfo: [.announcement: "\(parent.albums[index].name), \(parent.albums[index].artistName)"])
+            }
         }
 
         func applySize(_ side: CGFloat, animated: Bool) {
@@ -184,13 +187,14 @@ final class WallCollectionView: NSCollectionView {
     weak var coordinator: AlbumWallView.Coordinator?
 
     override func keyDown(with event: NSEvent) {
-        if event.keyCode == 36 { coordinator?.playSelected(); return }
+        if event.keyCode == 36 || event.keyCode == 76 { coordinator?.playSelected(); return }
         super.keyDown(with: event)
     }
 }
 
 final class WallItem: NSCollectionViewItem {
     static let identifier = NSUserInterfaceItemIdentifier("WallItem")
+    var onClick: (() -> Void)?
     var onDoubleClick: (() -> Void)?
     var menuProvider: (() -> NSMenu?)?
 
@@ -327,6 +331,14 @@ final class WallItem: NSCollectionViewItem {
         CATransaction.commit()
     }
 
+    override var isSelected: Bool {
+        didSet {
+            // 鍵盤焦點框
+            artwork.borderWidth = isSelected ? 3 : 0
+            artwork.borderColor = NSColor(hex: 0xFF6A3D).cgColor
+        }
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         task?.cancel()
@@ -336,12 +348,15 @@ final class WallItem: NSCollectionViewItem {
         isPlaying = false
     }
 
+    fileprivate func clicked() { onClick?() }
     fileprivate func doubleClicked() { onDoubleClick?() }
     fileprivate func contextMenu() -> NSMenu? { menuProvider?() }
 }
 
 private final class WallItemView: NSView {
     weak var item: WallItem?
+    /// 單擊要等雙擊間隔過去才執行，否則雙擊的第一下會先打開專輯
+    private var pendingClick: DispatchWorkItem?
 
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
@@ -353,8 +368,17 @@ private final class WallItemView: NSView {
     override func mouseExited(with event: NSEvent) { item?.setHovering(false) }
 
     override func mouseDown(with event: NSEvent) {
-        if event.clickCount == 2 { item?.doubleClicked(); return }
         super.mouseDown(with: event)
+        // 焦點框只給鍵盤操作用，滑鼠點擊不留選取
+        item?.collectionView?.deselectAll(nil)
+        pendingClick?.cancel()
+        if event.clickCount >= 2 {
+            item?.doubleClicked()
+            return
+        }
+        let work = DispatchWorkItem { [weak self] in self?.item?.clicked() }
+        pendingClick = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + NSEvent.doubleClickInterval, execute: work)
     }
 
     override func menu(for event: NSEvent) -> NSMenu? { item?.contextMenu() }
