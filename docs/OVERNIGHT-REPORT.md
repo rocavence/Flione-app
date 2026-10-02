@@ -1,26 +1,107 @@
-# 夜間進度報告（2026-10-03）
+# 夜間進度報告（2026-10-03 00:00–）
 
-> 這份是進行中的紀錄，結束時會整理成最終版。
+## 一句話
 
-## 目前狀態
+MVP 的 26 個 Task 中 24 個完成，另外提前做了 9 項 V1 功能。
+每項都用你的 Jellyfin（MediaBox，1,426 張專輯、17,180 首）實際操作並截圖驗證過；
+38 個自動測試全部通過。
 
-第一條 vertical slice 已完整跑通，並以真實 Jellyfin（MediaBox，1,426 張專輯）逐步截圖驗證：
+## 早上先做這 3 件事（約 10 分鐘）
 
-```text
-Launch → Connect → Home → Album → Play → Mini Player
-→ Overflow → Album Wall → 單擊打開專輯 → 雙擊播放 → Fullscreen
-```
+1. 打開 app：`open dist/Finify.app`（或在 Xcode 開 `Finify.xcodeproj` 執行）。
+2. 登入：Server 已預填 `http://mediabox:8096`，輸入帳號密碼。
+3. 看截圖：`docs/screenshots/` 有 8 張主要畫面。
+
+接著讀本文件的「需要你決定的事」。
 
 ## 完成項目
 
-* S1 Reicon、S2 無縫播放、S3 萬張 Album Wall 三個技術驗證
-* Design System token、共用元件
-* Jellyfin 資料層、Keychain、播放、佇列、媒體鍵、Now Playing
-* Standard：Home、Library、Album、Artist、⌘K 搜尋、mini player、queue
-* Overflow：Album Wall、Album Flow、Fullscreen、ambient 背景
+### MVP（規格 §30 的 Task Queue）
 
-## 過程中發現並修正的問題
+| 範圍 | 內容 |
+| ---- | ---- |
+| 連線 | 只輸入主機名稱就能連線（自動嘗試 8096 port）；登入資訊存 Keychain；登入過期時回到登入畫面並說明原因 |
+| Standard | Home（最近播放、最近加入、Quick Picks）、Library（專輯、藝人、歌曲）、專輯頁、藝人頁 |
+| 搜尋 | ⌘K，兩個 mode 共用；藝人、專輯、playlist、歌曲分組；方向鍵與 Return 操作 |
+| 播放 | 無縫換曲、佇列（插播、加入、移除、拖曳排序、清除）、shuffle、repeat、音量 |
+| macOS | 媒體鍵、Now Playing（含封面）、Space／⌘←→／⌘K／⌘1⌘2 等快捷鍵、選單 |
+| Overflow | Album Wall（NSCollectionView、pinch 縮放、正在播放的專輯浮起）、Album Flow、Fullscreen、ambient 背景 |
+| 品質 | 每個非同步畫面都有 loading、空、錯誤與重試；VoiceOver 標籤；Reduce Motion；增加對比；鍵盤操作 |
 
-* Now Playing 封面在背景 queue 被呼叫，Swift 6 執行期檢查導致 crash
-* Ambient 背景撐大 Overflow 版面，頂部列與播放列被推出畫面
-* Album Wall 用方向鍵移動時每格都會打開專輯；雙擊的第一下會先打開專輯
+未完成：TASK-026 Release（需要開發者帳號簽章與公證）；TASK-024 無障礙沒有做完整的 VoiceOver 實機走查。
+
+### 提前做的 V1（D12）
+
+Favorites、Playlists、歌詞、Genres、Album Flip、浮動迷你播放器（Always on Top）、選單列迷你播放器、
+Overflow 最近播放牆、Wall 的 Tiny／Huge 尺寸、重新開啟時恢復播放佇列、設定視窗、
+Overflow 專輯面板的「同藝人其他專輯」。
+
+每項都是獨立 commit（訊息開頭 `V1：`），不要的話可以單獨 `git revert`。
+
+## 實測數據
+
+| 項目 | 結果 | 目標 |
+| ---- | ---- | ---- |
+| 啟動到出現視窗 | 0.22–0.30 秒 | < 2 秒 |
+| 啟動到首頁資料載入完成 | 0.83–1.03 秒 | — |
+| Album Wall 捲動（1,426 張，Medium／Large） | 0 掉 frame | 60 fps |
+| Library 專輯格線捲動 | 往下 8 ms/s、往上 20–27 ms/s（原本 240 ms/s） | 60 fps |
+| 歌曲清單捲動（17,180 首） | 2.5–4.2 ms/s | 60 fps |
+| 同格式換曲 | 0–0.9 ms（24 次中 21 次） | 無縫 |
+| MP3 與 AAC 互換 | 85–101 ms | 無縫 |
+
+掉 frame 的單位是每秒累積卡住的毫秒數；> 5 ms/s 開始感覺得到，> 10 ms/s 明顯卡頓。
+Library 格線往上捲仍有輕微卡頓，見「已知問題」。
+
+## 我替你做的決定
+
+完整理由與修改方式在 `docs/DECISIONS.md`。重點：
+
+| # | 決定 | 不同意時 |
+| -- | ---- | -------- |
+| D01 | 播放引擎用 AVQueuePlayer | 改 `Player/PlayerManager.swift` |
+| D02 | Album Wall 用 NSCollectionView | — |
+| D04 | 音樂庫快取用 JSON 快照，不用規格寫的 SwiftData | 改 `LibraryStore.swift` |
+| D06 | 藝人圓形、專輯方形；藝人沒照片時用專輯封面 | 改 `LibraryCards.swift` |
+| D07 | Standard 用頂部導覽列，不用 sidebar | 改 `StandardRootView.swift` |
+| D09 | 品牌色 Ember `#FF6A3D`、暖色中性色 | 改 `FinifyColor.swift` |
+| D10 | 暫定 app icon：3×3 專輯格組成「F」 | 換掉 `AppIcon.appiconset` 的 PNG |
+| D11 | Wall 單擊開面板、雙擊播放 | 單擊有約 0.4 秒延遲，可改成單擊只選取 |
+| D13 | Playlist 一律以完整狀態寫入 | Jellyfin 12.1 改名會被覆蓋，所以這樣做 |
+
+## 需要你決定的事
+
+1. **跨格式換曲有 0.1 秒停頓。** 你的 library 有 24% 的專輯混用 MP3 與 AAC，專輯內 9% 的換曲是跨格式。
+   選項：接受現況、整理音樂庫統一格式，或花 2–3 天改用自行解碼的播放器。見 `docs/spikes/S2-gapless.md`。
+2. **串流網址帶 access token（D14）。** 自用沒問題；上架 App Store 前要改。
+3. **App icon 與品牌色都是暫定版。** 要正式設計時直接替換即可。
+4. **你的密碼曾出現在對話紀錄中**，建議改一組，並把新密碼更新到 `.secrets/jellyfin.env`。
+
+## 已知問題與沒做的事
+
+* Library 專輯格線往上快速捲動仍有輕微卡頓（20–27 ms/s）。Album Wall 沒有這個問題；可能要把卡片改成純 AppKit。
+* 歌詞：你的 server 目前沒有歌詞檔，同步歌詞的畫面只用單元測試驗證，沒有實際看過。
+* 規格 V1 中沒做：系統通知（會跳權限詢問視窗，無人值守時不能做）、拖放、分享、Expanded Player。
+* 120 Hz ProMotion 螢幕沒測（這台外接螢幕是 60 Hz）。
+* Release build 只有本機簽章；給別人用需要開發者帳號簽章與公證。
+
+## 對你的 Jellyfin 做了什麼
+
+* **都已還原。** Playlist 與喜愛的測試只在名為「Finify Test…」的暫存資料上寫入，結束時刪除；喜愛的狀態測試後切回原狀。目前 server 有原本的 5 個 playlist、0 個喜愛項目。
+* **播放紀錄有變動。** 測試時播放過的專輯（Moon Safari、OK Computer、Discovery 等）會出現在 Jellyfin 的「最近播放」。
+* 有一次測試失敗留下暫存 playlist，我發現後已刪除，之後在測試開頭加了清除殘留的步驟。
+
+## 過程中發現並修正的重要問題
+
+* Now Playing 封面在背景 queue 被呼叫，Swift 6 執行期檢查導致 crash。
+* Ambient 背景撐大 Overflow 版面，頂部列與播放列被推出畫面。
+* 兩輪獨立 code review 共找到 31 個問題，已修正，包括：開始播放新專輯時 repeat 被重設、
+  repeat 開啟時遇到失敗會無限跳歌、playlist 連續編輯時較早的請求蓋掉新的、
+  同一首歌加入佇列兩次時 shuffle 錯亂、佇列最後一列「下移」會 crash。
+
+## 怎麼繼續開發
+
+* 規格與目前狀態：`docs/EXECUTION-SPEC.md` §34–35
+* 執行測試：`xcodebuild -project Finify.xcodeproj -scheme Finify test`
+* 打包：`scripts/build-release.sh`
+* 開發用啟動參數（直接進入指定畫面、靜音播放、效能量測）：`README.md`
