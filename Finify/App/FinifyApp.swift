@@ -23,6 +23,17 @@ struct FinifyApp: App {
         .defaultSize(width: 1360, height: 860)
         .commands { FinifyCommands(app: app) }
 
+        Window("Mini Player", id: "floating") {
+            FloatingPlayerView()
+                .environment(app)
+                .tint(FinifyColor.accent)
+        }
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentMinSize)
+        .defaultSize(width: 280, height: 280)
+        .defaultPosition(.bottomTrailing)
+        .commandsRemoved()
+
         MenuBarExtra(isInserted: $showsMenuBar) {
             MenuBarPlayer()
                 .environment(app)
@@ -128,10 +139,23 @@ struct FinifyCommands: Commands {
                 .disabled(app.session == nil)
             Button("Show Queue") { app.isQueuePresented.toggle() }
                 .disabled(app.session == nil)
+            OpenWindowButton(title: "Mini Player", windowID: "floating")
+                .keyboardShortcut("m", modifiers: [.command, .option])
         }
         CommandGroup(after: .appSettings) {
             Button("Sign Out of Jellyfin…") { app.signOut() }
                 .disabled(app.session == nil)
         }
+    }
+}
+
+/// 選單中開啟其他視窗（Commands 裡不能直接用 openWindow environment）
+private struct OpenWindowButton: View {
+    let title: String
+    let windowID: String
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Button(title) { openWindow(id: windowID) }
     }
 }

@@ -20,6 +20,7 @@ enum SettingsKey {
     static let ambient = "FinifyAmbient"
     static let autoHideControls = "FinifyAutoHideControls"
     static let menuBar = "FinifyMenuBar"
+    static let floatingOnTop = "FinifyFloatingOnTop"
 }
 
 /// macOS 設定視窗（⌘,）

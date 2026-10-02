@@ -44,6 +44,7 @@ struct MenuBarPlayer: View {
                     openWindow(id: "main")
                     NSApp.activate()
                 }
+                FinifyButton(title: "Mini Player", kind: .ghost) { openWindow(id: "floating") }
                 Spacer()
                 FinifyButton(title: "Quit", kind: .ghost) { NSApp.terminate(nil) }
             }
