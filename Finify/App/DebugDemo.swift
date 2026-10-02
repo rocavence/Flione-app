@@ -14,7 +14,7 @@ enum DebugDemo {
     static var defaults: UserDefaults { .standard }
 
     static func run(app: AppEnvironment, openAlbum: @escaping (Album) -> Void, immersive: (() -> Void)? = nil) async {
-        if defaults.bool(forKey: "FinifyMuted") { app.player.volume = 0 }
+        if defaults.bool(forKey: "FinifyMuted") { app.player.muteForTesting() }
         let wantsLibrary = ["FinifyDemoPlay", "FinifyDemoOpen"].contains { defaults.string(forKey: $0) != nil }
         if wantsLibrary {
             for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }

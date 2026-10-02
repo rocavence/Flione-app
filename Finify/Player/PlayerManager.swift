@@ -12,8 +12,12 @@ final class PlayerManager {
     private(set) var duration: TimeInterval = 0
     /// 播放失敗時給使用者看的訊息
     private(set) var errorMessage: String?
-    var volume: Float = 0.8 {
-        didSet { player.volume = volume }
+    /// 音量記在 UserDefaults（UI 偏好，不是敏感資料）
+    var volume: Float = UserDefaults.standard.object(forKey: "FinifyVolume") as? Float ?? 0.8 {
+        didSet {
+            player.volume = volume
+            UserDefaults.standard.set(volume, forKey: "FinifyVolume")
+        }
     }
 
     var currentTrack: Track? { queue.current }
@@ -50,6 +54,11 @@ final class PlayerManager {
             Task { @MainActor in self?.currentItemChanged() }
         })
     }
+
+    #if DEBUG
+    /// 測試時靜音，但不改動使用者記住的音量
+    func muteForTesting() { player.volume = 0 }
+    #endif
 
     func attach(repository: any MusicRepository) {
         self.repository = repository
