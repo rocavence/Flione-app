@@ -1,3 +1,4 @@
+import UniformTypeIdentifiers
 import SwiftUI
 
 /// 底部 mini player：封面、曲名、播放控制、進度、queue、音量。
@@ -176,7 +177,7 @@ struct QueuePanel: View {
                                     dragging = offset
                                     return NSItemProvider(object: String(offset) as NSString)
                                 }
-                                .onDrop(of: [.text], delegate: QueueDropDelegate(target: offset, dragging: $dragging, player: player, app: app))
+                                .onDrop(of: [.text, .url], delegate: QueueDropDelegate(target: offset, dragging: $dragging, player: player, app: app))
                                 .accessibilityAction(named: "Move Up") { if offset > 0 { player.moveUpcoming(from: [offset], to: offset - 1) } }
                                 .accessibilityAction(named: "Move Down") { player.moveUpcoming(from: [offset], to: offset + 2) }
                                 .contextMenu {
@@ -209,7 +210,8 @@ struct QueuePanel: View {
                     .allowsHitTesting(false)
             }
         }
-        .dropDestination(for: String.self) { items, _ in
+        .dropDestination(for: URL.self) { items, _ in
+            dragging = nil
             let ids = items.compactMap(DragPayload.albumID(from:))
             guard !ids.isEmpty else { return false }
             Task {
@@ -238,8 +240,11 @@ private struct QueueDropDelegate: DropDelegate {
     let player: PlayerManager
     let app: AppEnvironment
 
+    /// 專輯拖曳是 URL、佇列內排序是純文字；以型別判斷，殘留的 `dragging`（取消拖曳時不會清除）不會誤判
+    private func isReorder(_ info: DropInfo) -> Bool { dragging != nil && !info.hasItemsConforming(to: [.url]) }
+
     func dropEntered(info: DropInfo) {
-        guard let from = dragging, from != target else { return }
+        guard isReorder(info), let from = dragging, from != target else { return }
         withAnimation(Motion.micro) {
             player.moveUpcoming(from: [from], to: target > from ? target + 1 : target)
         }
@@ -248,18 +253,19 @@ private struct QueueDropDelegate: DropDelegate {
 
     /// 佇列內排序用 move；從專輯卡片拖進來的只允許 copy（回 move 會被系統拒絕）
     func dropUpdated(info: DropInfo) -> DropProposal? {
-        DropProposal(operation: dragging == nil ? .copy : .move)
+        DropProposal(operation: isReorder(info) ? .move : .copy)
     }
 
     func performDrop(info: DropInfo) -> Bool {
-        guard dragging == nil else {
+        guard !isReorder(info) else {
             dragging = nil
             return true
         }
+        dragging = nil
         // 從專輯卡片拖進來：加到佇列結尾
-        for provider in info.itemProviders(for: [.text]) {
-            _ = provider.loadObject(ofClass: NSString.self) { object, _ in
-                guard let string = object as? String, let id = DragPayload.albumID(from: string) else { return }
+        for provider in info.itemProviders(for: [.url]) {
+            _ = provider.loadObject(ofClass: NSURL.self) { object, _ in
+                guard let url = object as? URL, let id = DragPayload.albumID(from: url) else { return }
                 Task { @MainActor in
                     if let tracks = try? await app.repository?.tracks(inAlbum: id) { player.addToQueue(tracks) }
                 }

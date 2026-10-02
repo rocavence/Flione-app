@@ -39,7 +39,7 @@ struct AlbumCard: View {
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .onTapGesture(perform: onOpen)
-        // 拖到佇列或 playlist 上加入
+        // 拖到佇列面板上加入佇列
         .draggable(DragPayload.album(album.id)) {
             ArtworkView(artwork: album.artwork, elevation: .none, fallbackTitle: album.name)
                 .frame(width: 64, height: 64)

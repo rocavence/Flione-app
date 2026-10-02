@@ -43,6 +43,8 @@ struct AlbumWallView: NSViewRepresentable {
     var extraMenu: ((Album) -> [NSMenuItem])?
     /// 捲動到正在播放的專輯；值改變時觸發
     var scrollToPlayingToken = 0
+    /// 上方有專輯面板或搜尋時為 false，Return 不播放牆上選取的專輯
+    var acceptsKeyboard = true
 
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
@@ -87,7 +89,11 @@ struct AlbumWallView: NSViewRepresentable {
         let playingChanged = coordinator.parent.playingAlbumID != playingAlbumID
         let scrollRequested = coordinator.parent.scrollToPlayingToken != scrollToPlayingToken
         coordinator.parent = self
-        if albumsChanged { coordinator.collection?.reloadData() }
+        if albumsChanged {
+            // 排序或內容改變後，同一個位置已是另一張專輯
+            coordinator.collection?.deselectAll(nil)
+            coordinator.collection?.reloadData()
+        }
         if densityChanged && !coordinator.isPinching { coordinator.applySize(density.side, animated: true) }
         if playingChanged { coordinator.refreshPlaying() }
         if scrollRequested { coordinator.scrollToPlaying() }
@@ -175,7 +181,7 @@ struct AlbumWallView: NSViewRepresentable {
         }
 
         func playSelected() {
-            guard let index = collection?.selectionIndexPaths.first?.item, parent.albums.indices.contains(index) else { return }
+            guard parent.acceptsKeyboard, let index = collection?.selectionIndexPaths.first?.item, parent.albums.indices.contains(index) else { return }
             parent.onPlay(parent.albums[index])
         }
 
@@ -209,11 +215,23 @@ final class WallCollectionView: NSCollectionView {
         if event.keyCode == 36 || event.keyCode == 76 { coordinator?.playSelected(); return }
         // 還沒有選取時，第一次按方向鍵選取畫面上第一張
         let arrows: Set<UInt16> = [123, 124, 125, 126]
-        if arrows.contains(event.keyCode), selectionIndexPaths.isEmpty,
-           let first = indexPathsForVisibleItems().min() {
-            selectionIndexPaths = [first]
-            delegate?.collectionView?(self, didSelectItemsAt: [first])
-            return
+        let modifiers = event.modifierFlags.intersection([.command, .option, .control])
+        if arrows.contains(event.keyCode), modifiers.isEmpty, selectionIndexPaths.isEmpty {
+            // 扣掉頂部列與底部播放列擋住的範圍
+            var visible = visibleRect
+            if let insets = enclosingScrollView?.contentInsets {
+                visible.origin.y += insets.top
+                visible.size.height -= insets.top + insets.bottom
+            }
+            if let first = indexPathsForVisibleItems().sorted().first(where: {
+                guard let frame = layoutAttributesForItem(at: $0)?.frame else { return false }
+                return visible.contains(frame)
+            }) {
+                selectionIndexPaths = [first]
+                scrollToItems(at: [first], scrollPosition: .nearestHorizontalEdge)
+                delegate?.collectionView?(self, didSelectItemsAt: [first])
+                return
+            }
         }
         super.keyDown(with: event)
     }

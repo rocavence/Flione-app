@@ -47,7 +47,7 @@ struct OverflowRootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
         .task { await app.library.refreshIfNeeded() }
-        .onChange(of: app.library.albums.count, initial: true) { sortedAlbums = sort.apply(to: app.library.albums) }
+        .onChange(of: app.library.albums, initial: true) { sortedAlbums = sort.apply(to: app.library.albums) }
         .onChange(of: sort) { sortedAlbums = sort.apply(to: app.library.albums) }
         // 最近播放：切到 Recent 或換曲時更新
         .task(id: layout == .recent ? (playingAlbumID ?? "") + "recent" : "") {
@@ -86,7 +86,8 @@ struct OverflowRootView: View {
                             onPlay: play,
                             onQueue: queue,
                             extraMenu: wallMenu,
-                            scrollToPlayingToken: scrollToPlaying
+                            scrollToPlayingToken: scrollToPlaying,
+                            acceptsKeyboard: openAlbum == nil && !app.isSearchPresented
                         )
                     case .recent:
                         switch recentAlbums {

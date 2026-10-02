@@ -103,6 +103,7 @@ final class OfflineTests: XCTestCase {
         try await Task.sleep(for: .milliseconds(300))
         XCTAssertTrue(store.contains("t1"))
         XCTAssertEqual(repository.favoriteWrites.last?.1, true)
-        XCTAssertLessThanOrEqual(repository.favoriteWrites.count, 3)
+        // 三次切換在第一次寫入開始前就完成，只需要一次寫入
+        XCTAssertEqual(repository.favoriteWrites.count, 1)
     }
 }
