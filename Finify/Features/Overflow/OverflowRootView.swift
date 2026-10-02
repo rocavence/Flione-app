@@ -120,7 +120,7 @@ struct OverflowRootView: View {
             if let album = openAlbum {
                 Color.black.opacity(0.45)
                     .onTapGesture { openAlbum = nil }
-                OverflowAlbumPanel(album: album) { openAlbum = nil }
+                OverflowAlbumPanel(album: album, onClose: { openAlbum = nil }, onOpenAlbum: { openAlbum = $0 })
                     .transition(.scale(scale: 0.96).combined(with: .opacity))
                     .onExitCommand { openAlbum = nil }
             }
