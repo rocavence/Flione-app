@@ -25,7 +25,8 @@ struct StandardRootView: View {
             if app.isSearchPresented {
                 ZStack(alignment: .top) {
                     Color.black.opacity(0.25).ignoresSafeArea().onTapGesture { app.isSearchPresented = false }
-                    SearchPalette(onOpenAlbum: { router.openAlbum($0) }, onOpenArtist: { router.openArtist(id: $0.id, name: $0.name) })
+                    SearchPalette(onOpenAlbum: { router.openAlbum($0) }, onOpenArtist: { router.openArtist(id: $0.id, name: $0.name) },
+                                  onOpenPlaylist: { router.open(.playlist($0)) })
                         .padding(.top, 80)
                 }
                 .transition(.opacity)
@@ -57,6 +58,7 @@ struct StandardRootView: View {
                     switch route {
                     case .album(let album): AlbumView(album: album)
                     case .artist(let id, let name): ArtistView(artistID: id, name: name)
+                    case .playlist(let playlist): PlaylistView(playlist: playlist)
                     }
                 }
                 .id(route)

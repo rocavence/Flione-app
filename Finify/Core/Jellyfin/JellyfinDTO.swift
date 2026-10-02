@@ -43,6 +43,8 @@ struct BaseItemDTO: Decodable, Sendable {
     let imageBlurHashes: [String: [String: String]]?
     let dateCreated: Date?
     let userData: UserDataDTO?
+    let playlistItemID: String?
+    let childCount: Int?
 
     enum CodingKeys: String, CodingKey {
         case id = "Id", name = "Name", type = "Type", album = "Album", albumID = "AlbumId"
@@ -51,6 +53,7 @@ struct BaseItemDTO: Decodable, Sendable {
         case indexNumber = "IndexNumber", parentIndexNumber = "ParentIndexNumber"
         case runTimeTicks = "RunTimeTicks", container = "Container", imageTags = "ImageTags"
         case imageBlurHashes = "ImageBlurHashes", dateCreated = "DateCreated", userData = "UserData"
+        case playlistItemID = "PlaylistItemId", childCount = "ChildCount"
     }
 
     /// 本身的 Primary 圖
@@ -97,8 +100,14 @@ struct BaseItemDTO: Decodable, Sendable {
             discNumber: parentIndexNumber,
             duration: Double(runTimeTicks ?? 0) / 10_000_000,
             container: container?.split(separator: ",").first.map(String.init),
-            artwork: albumArtwork
+            artwork: albumArtwork,
+            playlistItemID: playlistItemID
         )
+    }
+
+    func toPlaylist() -> Playlist {
+        Playlist(id: id, name: name ?? "Untitled Playlist", trackCount: childCount ?? 0,
+                 duration: Double(runTimeTicks ?? 0) / 10_000_000, artwork: primaryArtwork)
     }
 }
 

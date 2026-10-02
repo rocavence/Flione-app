@@ -109,8 +109,13 @@ final class JellyfinClient: Sendable {
     }
 
     /// 不需要回應內容的請求（例如 DELETE）
-    func send(_ method: String, _ path: String) async throws {
-        _ = try await sendRaw(method, path, timeout: 10)
+    func send(_ method: String, _ path: String, query: [URLQueryItem] = []) async throws {
+        _ = try await sendRaw(method, path, query: query, timeout: 10)
+    }
+
+    /// 帶 JSON body 並解碼回應
+    func sendJSON<T: Decodable>(_ method: String, _ path: String, json: [String: Any]) async throws -> T {
+        try await send(method, path, body: try JSONSerialization.data(withJSONObject: json))
     }
 
     func post(_ path: String, json: [String: Any]) async throws {

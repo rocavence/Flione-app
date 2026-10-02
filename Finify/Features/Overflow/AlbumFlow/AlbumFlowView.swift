@@ -70,6 +70,16 @@ struct AlbumFlowView: View {
 
     private var centered: Album? { albums.first { $0.id == centerID } }
 
+    /// 點中間的封面翻面看曲目；點旁邊的封面移到中間
+    private func tapped(_ album: Album) {
+        if album.id == centerID {
+            flippedID = flippedID == album.id ? nil : album.id
+        } else {
+            userMoved = true
+            withAnimation(Motion.artwork) { centerID = album.id }
+        }
+    }
+
     private func centerOnPlaying() {
         centerID = playingAlbumID.flatMap { id in albums.first { $0.id == id }?.id } ?? centerID ?? albums.first?.id
     }
@@ -86,15 +96,8 @@ struct AlbumFlowView: View {
                     .brightness(-min(abs(phase.value), 1) * 0.25)
             }
             .zIndex(album.id == centerID ? 1 : 0)
-            .onTapGesture {
-                // 點中間的封面翻面看曲目；點旁邊的封面移到中間
-                if album.id == centerID {
-                    flippedID = flippedID == album.id ? nil : album.id
-                } else {
-                    userMoved = true
-                    withAnimation(Motion.artwork) { centerID = album.id }
-                }
-            }
+            .onTapGesture { tapped(album) }
+            .accessibilityAction(.default) { tapped(album) }
             .accessibilityLabel("\(album.name), \(album.artistName)")
             .accessibilityHint(album.id == centerID ? "Flip to see tracks" : "Move to center")
             .accessibilityAddTraits(.isButton)

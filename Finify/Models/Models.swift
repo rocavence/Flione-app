@@ -36,14 +36,25 @@ struct Track: Identifiable, Hashable, Sendable, Codable {
     /// 原始檔容器（mp3、m4a…），串流時用來組 URL
     let container: String?
     let artwork: ArtworkRef?
+    /// 在 playlist 中的項目 id（同一首歌可在 playlist 出現多次）；不在 playlist 時為 nil
+    var playlistItemID: String? = nil
+}
+
+struct Playlist: Identifiable, Hashable, Sendable, Codable {
+    let id: String
+    let name: String
+    let trackCount: Int
+    let duration: TimeInterval
+    let artwork: ArtworkRef?
 }
 
 struct SearchResults: Sendable {
     var artists: [Artist] = []
     var albums: [Album] = []
     var tracks: [Track] = []
+    var playlists: [Playlist] = []
 
-    var isEmpty: Bool { artists.isEmpty && albums.isEmpty && tracks.isEmpty }
+    var isEmpty: Bool { artists.isEmpty && albums.isEmpty && tracks.isEmpty && playlists.isEmpty }
 }
 
 enum RepeatMode: Sendable, CaseIterable {

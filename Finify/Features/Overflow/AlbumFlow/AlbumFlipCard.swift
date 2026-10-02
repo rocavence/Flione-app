@@ -135,6 +135,7 @@ private struct BackTrackRow: View {
         .onTapGesture(perform: onPlay)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
+        .accessibilityAction(.default, onPlay)
         .accessibilityAction(named: "Play", onPlay)
     }
 }

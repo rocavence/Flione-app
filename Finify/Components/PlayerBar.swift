@@ -70,6 +70,9 @@ struct PlayerBar: View {
                 // 只合併封面與文字；愛心要保持為獨立按鈕，VoiceOver 才能操作
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Now playing: \(track.name) by \(track.artistName)")
+                .accessibilityHint("Opens the album")
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction(.default) { onOpenAlbum(track.albumID) }
                 FavoriteButton(itemID: track.id, name: track.name)
             }
         } else {

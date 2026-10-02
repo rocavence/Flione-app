@@ -4,6 +4,7 @@ enum LibrarySection: String, CaseIterable {
     case albums = "Albums"
     case artists = "Artists"
     case songs = "Songs"
+    case playlists = "Playlists"
     case favorites = "Favorites"
 }
 
@@ -42,6 +43,9 @@ struct LibraryView: View {
                     }
                 }
                 Spacer()
+                if section == .playlists {
+                    FinifyButton(title: "New Playlist", icon: .plus) { app.newPlaylistTracks = [] }
+                }
                 if section == .albums {
                     Picker("Sort", selection: $sort) {
                         ForEach(AlbumSort.allCases, id: \.self) { Text($0.rawValue).tag($0) }
@@ -64,6 +68,7 @@ struct LibraryView: View {
                 case .albums: albums
                 case .artists: artists
                 case .songs: SongsList()
+                case .playlists: playlistGrid
                 case .favorites: FavoriteSongs()
                 }
             }
@@ -100,6 +105,26 @@ struct LibraryView: View {
             ArtistCard(artist: artist) { router.openArtist(id: artist.id, name: artist.name) }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .environment(app)
+        }
+    }
+
+    @ViewBuilder
+    private var playlistGrid: some View {
+        if app.playlists.playlists.isEmpty {
+            MessageState(title: "Your playlists are empty.", message: "Create your first playlist and make the library yours.",
+                         icon: .playlist2, primary: ("Create Playlist", { app.newPlaylistTracks = [] }))
+            Spacer()
+        } else {
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 156, maximum: 220), spacing: Spacing.s20, alignment: .top)], alignment: .leading, spacing: Spacing.s24) {
+                    ForEach(app.playlists.playlists) { playlist in
+                        PlaylistCard(playlist: playlist) { router.open(.playlist(playlist)) }
+                    }
+                }
+                .padding(.horizontal, Spacing.s32)
+                .padding(.bottom, Spacing.s32)
+            }
+            .task { await app.playlists.refresh() }
         }
     }
 

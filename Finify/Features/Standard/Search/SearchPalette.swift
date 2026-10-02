@@ -10,7 +10,7 @@ final class SearchViewModel {
 
     var flatItems: [SearchItem] {
         guard case .loaded(let r) = results else { return [] }
-        return r.artists.map(SearchItem.artist) + r.albums.map(SearchItem.album) + r.tracks.map(SearchItem.track)
+        return r.artists.map(SearchItem.artist) + r.albums.map(SearchItem.album) + r.playlists.map(SearchItem.playlist) + r.tracks.map(SearchItem.track)
     }
 
     /// 輸入停頓 250 ms 後才送出搜尋
@@ -36,12 +36,13 @@ final class SearchViewModel {
 }
 
 enum SearchItem: Identifiable {
-    case artist(Artist), album(Album), track(Track)
+    case artist(Artist), album(Album), playlist(Playlist), track(Track)
 
     var id: String {
         switch self {
         case .artist(let a): "artist-\(a.id)"
         case .album(let a): "album-\(a.id)"
+        case .playlist(let p): "playlist-\(p.id)"
         case .track(let t): "track-\(t.id)"
         }
     }
@@ -51,6 +52,7 @@ enum SearchItem: Identifiable {
 struct SearchPalette: View {
     let onOpenAlbum: (Album) -> Void
     let onOpenArtist: (Artist) -> Void
+    var onOpenPlaylist: ((Playlist) -> Void)?
     @Environment(AppEnvironment.self) private var app
     @State private var model = SearchViewModel()
     @FocusState private var fieldFocused: Bool
@@ -116,10 +118,14 @@ struct SearchPalette: View {
                         section("Artists", count: r.artists.count)
                         ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                             if index == r.artists.count { section("Albums", count: r.albums.count) }
-                            if index == r.artists.count + r.albums.count { section("Songs", count: r.tracks.count) }
+                            if index == r.artists.count + r.albums.count { section("Playlists", count: r.playlists.count) }
+                            if index == r.artists.count + r.albums.count + r.playlists.count { section("Songs", count: r.tracks.count) }
                             row(item, selected: index == model.selection)
                                 .id(item.id)
                                 .onTapGesture { model.selection = index; activateSelection() }
+                                .accessibilityElement(children: .combine)
+                                .accessibilityAddTraits(.isButton)
+                                .accessibilityAction(.default) { model.selection = index; activateSelection() }
                                 .onHover { if $0 { model.selection = index } }
                         }
                     }
@@ -157,6 +163,9 @@ struct SearchPalette: View {
             case .album(let album):
                 ArtworkView(artwork: album.artwork, elevation: .none).frame(width: 36, height: 36)
                 text(album.name, "Album · \(album.artistName)")
+            case .playlist(let playlist):
+                ArtworkView(artwork: playlist.artwork, elevation: .none, fallbackTitle: playlist.name).frame(width: 36, height: 36)
+                text(playlist.name, "Playlist · \(playlist.trackCount) songs")
             case .track(let track):
                 ArtworkView(artwork: track.artwork, elevation: .none).frame(width: 36, height: 36)
                 text(track.name, "Song · \(track.artistName)")
@@ -192,6 +201,12 @@ struct SearchPalette: View {
         switch items[model.selection] {
         case .artist(let artist): onOpenArtist(artist)
         case .album(let album): onOpenAlbum(album)
+        case .playlist(let playlist):
+            if let onOpenPlaylist {
+                onOpenPlaylist(playlist)
+            } else {
+                Task { if let tracks = try? await app.repository?.playlistTracks(playlist.id) { app.player.play(tracks) } }
+            }
         case .track(let track):
             // 播放該曲所在專輯，從這首開始
             Task {

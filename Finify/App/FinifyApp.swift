@@ -64,6 +64,9 @@ struct RootView: View {
             if let message = app.favorites.failureMessage {
                 Toast(message: message) { app.favorites.failureMessage = nil }
                     .padding(.bottom, 104)
+            } else if let message = app.playlists.failureMessage {
+                Toast(message: message) { app.playlists.failureMessage = nil }
+                    .padding(.bottom, 104)
             } else if let notice = app.player.notice {
                 Toast(message: notice.message) { app.player.dismissNotice() }
                     .id(notice.id)
@@ -75,6 +78,7 @@ struct RootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.mode)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.session)
         .ignoresSafeArea()
+        .modifier(NewPlaylistPrompt())
         .preferredColorScheme(theme.colorScheme)
         .tint(FinifyColor.accent)
     }

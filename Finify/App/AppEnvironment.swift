@@ -15,6 +15,7 @@ final class AppEnvironment {
     let player = PlayerManager()
     let library = LibraryStore()
     let favorites = FavoritesStore()
+    let playlists = PlaylistStore()
 
     /// nil = 尚未選擇（首次登入後顯示 mode picker）
     var mode: AppMode? {
@@ -33,6 +34,8 @@ final class AppEnvironment {
     /// 網路恢復時遞增；失敗中的畫面據此重新載入
     private(set) var reconnectCount = 0
     var isSearchPresented = false
+    /// 要建立新 playlist 時的曲目（非 nil 時顯示命名對話框）
+    var newPlaylistTracks: [Track]?
     /// 從 Standard 進入 Fullscreen 時記住原本的 mode，離開時回去
     var fullscreenReturnMode: AppMode?
 
@@ -122,6 +125,7 @@ final class AppEnvironment {
         images = nil
         library.reset()
         favorites.reset()
+        playlists.reset()
     }
 
     // MARK: - 播放狀態保存
@@ -158,6 +162,7 @@ final class AppEnvironment {
         player.attach(repository: repository)
         library.attach(repository: repository, serverID: session.serverURL.absoluteString + session.userID)
         favorites.attach(repository: repository)
+        playlists.attach(repository: repository)
         restorePlayback()
     }
 }

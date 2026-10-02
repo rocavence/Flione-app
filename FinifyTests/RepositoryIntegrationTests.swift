@@ -46,6 +46,47 @@ final class RepositoryIntegrationTests: XCTestCase {
         XCTAssertFalse(popular.isEmpty)
     }
 
+    func testReadsExistingPlaylists() async throws {
+        let playlists = try await repository.playlists()
+        let jazz = try XCTUnwrap(playlists.first { $0.name == "Jazz Masters" })
+        let tracks = try await repository.playlistTracks(jazz.id)
+        XCTAssertFalse(tracks.isEmpty)
+        XCTAssertNotNil(tracks.first?.playlistItemID)
+    }
+
+    /// 只在暫時建立的 playlist 上測試寫入，結束時一定刪除，不動使用者原有的 playlist
+    func testPlaylistWriteOperationsOnTemporaryPlaylist() async throws {
+        let repository = repository!
+        // 先清掉之前測試失敗時可能留下的暫存 playlist
+        for leftover in try await repository.playlists() where leftover.name.hasPrefix("Finify Test") {
+            try await repository.deletePlaylist(leftover.id)
+        }
+        let albums = try await repository.allAlbums()
+        let dsotm = try XCTUnwrap(albums.first { $0.name == "The Dark Side of the Moon" })
+        let t = try await repository.tracks(inAlbum: dsotm.id).map(\.id)
+
+        let id = try await repository.createPlaylist(name: "Finify Test (temporary)", trackIDs: [t[0], t[1]])
+        defer { Task { try? await repository.deletePlaylist(id) } }
+
+        // 改名＋加入＋排序一次完成
+        try await repository.updatePlaylist(id, name: "Finify Test (renamed)", trackIDs: [t[2], t[0], t[1]])
+        var playlist = try await repository.playlist(id: id)
+        var items = try await repository.playlistTracks(id).map(\.id)
+        XCTAssertEqual(playlist.name, "Finify Test (renamed)")
+        XCTAssertEqual(items, [t[2], t[0], t[1]])
+
+        // 移除後名稱不能被還原
+        try await repository.updatePlaylist(id, name: "Finify Test (renamed)", trackIDs: [t[2], t[1]])
+        playlist = try await repository.playlist(id: id)
+        items = try await repository.playlistTracks(id).map(\.id)
+        XCTAssertEqual(playlist.name, "Finify Test (renamed)")
+        XCTAssertEqual(items, [t[2], t[1]])
+
+        try await repository.deletePlaylist(id)
+        let remaining = try await repository.playlists()
+        XCTAssertFalse(remaining.contains { $0.id == id })
+    }
+
     func testDiscoverBareHostname() async throws {
         let (url, info) = try await JellyfinClient.discover("mediabox")
         XCTAssertEqual(url.absoluteString, "http://mediabox:8096")

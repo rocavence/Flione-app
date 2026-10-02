@@ -103,6 +103,7 @@ private struct OverflowTrackRow: View {
         .onTapGesture { if hovering { onPlay() } }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
+        .accessibilityAction(.default, onPlay)
         .accessibilityAction(named: "Play", onPlay)
     }
 }

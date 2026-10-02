@@ -77,3 +77,11 @@
 * **選擇**：MVP 的 vertical slice 與驗收項目完成後，依價值排序提前實作部分 V1：Wall 的 Tiny / Huge、啟動時恢復播放佇列、Favorites、選單列控制器、Album Flip。
 * **理由**：規格只限制「vertical slice 完成前不做 AI、Lidarr、Offline、Mobile」，這些 V1 項目不在禁止範圍，且都是日常使用會直接感受到的功能。
 * **怎麼改**：每個項目都是獨立 commit（訊息開頭標 `V1`），不要的話可以單獨 `git revert`。
+
+## D13　Playlist 一律以完整狀態更新
+
+* **選擇**：改名、加入、移除、排序都用 `POST /Playlists/{id}`，一次送出名稱與完整曲目清單；不使用 Jellyfin 個別的 Items / Move API。
+* **理由**：Jellyfin 12.1 實測，改名後再用 Items API 加歌，名稱會被還原（間隔 2 秒也一樣）。完整狀態更新在改名、加入、排序、移除、重複曲目上都正確。
+* **代價**：每次編輯要先知道完整清單；playlist 很長（上千首）時請求較大，目前最大的 playlist 是 636 首，沒有問題。
+* **怎麼改**：`JellyfinRepository.updatePlaylist`。若 Jellyfin 修正此問題，可改回個別 API。
+* **測試安全**：整合測試只在名為「Finify Test…」的暫存 playlist 上寫入，開始時會清掉殘留、結束時刪除；不碰既有 playlist。

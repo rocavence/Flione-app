@@ -21,6 +21,15 @@ protocol MusicRepository: Sendable {
     func reportPlaybackStarted(_ track: Track) async
     func reportPlaybackStopped(_ track: Track, position: TimeInterval) async
 
+    func playlists() async throws -> [Playlist]
+    func playlistTracks(_ playlistID: String) async throws -> [Track]
+    func playlist(id: String) async throws -> Playlist
+    /// 建立並回傳新 playlist 的 id
+    func createPlaylist(name: String, trackIDs: [String]) async throws -> String
+    /// 以完整狀態更新 playlist（名稱＋全部曲目，依順序）。改名、加入、移除、排序都走這裡，見 D13
+    func updatePlaylist(_ playlistID: String, name: String, trackIDs: [String]) async throws
+    func deletePlaylist(_ playlistID: String) async throws
+
     func favoriteIDs() async throws -> Set<String>
     func favoriteTracks() async throws -> [Track]
     func setFavorite(_ itemID: String, _ isFavorite: Bool) async throws
@@ -161,10 +170,12 @@ final class JellyfinRepository: MusicRepository {
         ])
         async let albums = items(["IncludeItemTypes": "MusicAlbum", "SearchTerm": term, "Limit": "8", "Fields": Self.albumFields])
         async let tracks = items(["IncludeItemTypes": "Audio", "SearchTerm": term, "Limit": "12"])
+        async let playlists = items(["IncludeItemTypes": "Playlist", "SearchTerm": term, "Limit": "4", "Fields": "ChildCount"])
         var results = try await SearchResults(
             artists: artists.items.map { $0.toArtist() },
             albums: albums.items.map { $0.toAlbum() },
-            tracks: tracks.items.map { $0.toTrack() }
+            tracks: tracks.items.map { $0.toTrack() },
+            playlists: (try? await playlists.items.map { $0.toPlaylist() }) ?? []
         )
         // Jellyfin 的專輯搜尋只比對專輯名稱。搜尋藝人名時，補上最相符藝人的專輯
         if let topArtist = results.artists.first, results.albums.count < 8 {
@@ -196,6 +207,48 @@ final class JellyfinRepository: MusicRepository {
             URLQueryItem(name: "static", value: "true"),
             URLQueryItem(name: "ApiKey", value: session.accessToken),
         ])
+    }
+
+    // MARK: - Playlists
+
+    func playlists() async throws -> [Playlist] {
+        try await items([
+            "IncludeItemTypes": "Playlist",
+            "SortBy": "SortName",
+            "Fields": "ChildCount",
+            "EnableTotalRecordCount": "false",
+        ]).items.map { $0.toPlaylist() }
+    }
+
+    /// 單一 playlist（改名後列表查詢會延遲更新，單筆查詢是即時的）
+    func playlist(id: String) async throws -> Playlist {
+        let dto: BaseItemDTO = try await client.get("\(userPath)/\(id)", query: [URLQueryItem(name: "Fields", value: "ChildCount")])
+        return dto.toPlaylist()
+    }
+
+    func playlistTracks(_ playlistID: String) async throws -> [Track] {
+        let response: ItemsResponse = try await client.get("/Playlists/\(playlistID)/Items", query: [
+            URLQueryItem(name: "UserId", value: session.userID),
+        ])
+        return response.items.map { $0.toTrack() }
+    }
+
+    func createPlaylist(name: String, trackIDs: [String]) async throws -> String {
+        struct Created: Decodable { let Id: String }
+        let created: Created = try await client.sendJSON("POST", "/Playlists", json: [
+            "Name": name, "Ids": trackIDs, "UserId": session.userID, "MediaType": "Audio",
+        ])
+        return created.Id
+    }
+
+    /// Jellyfin 12.1 實測：先改名再用 Items API 加歌，名稱會被還原成舊的。
+    /// 一律送出完整的名稱與曲目清單，避免各操作互相覆蓋
+    func updatePlaylist(_ playlistID: String, name: String, trackIDs: [String]) async throws {
+        try await client.post("/Playlists/\(playlistID)", json: ["Name": name, "Ids": trackIDs])
+    }
+
+    func deletePlaylist(_ playlistID: String) async throws {
+        try await client.send("DELETE", "/Items/\(playlistID)")
     }
 
     func favoriteIDs() async throws -> Set<String> {

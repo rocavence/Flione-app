@@ -42,11 +42,14 @@ struct AlbumCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(album.name), \(album.artistName)")
         .accessibilityAddTraits(.isButton)
+        // onTapGesture 不會回應 VoiceOver 的預設動作，需要另外提供
+        .accessibilityAction(.default, onOpen)
         .accessibilityAction(named: "Play", onPlay)
         .contextMenu {
             Button("Play", action: onPlay)
             Button("Play Next") { queue(next: true) }
             Button("Add to Queue") { queue(next: false) }
+            AddToPlaylistMenu { (try? await app.repository?.tracks(inAlbum: album.id)) ?? [] }
             Divider()
             Button("Open Album", action: onOpen)
         }
@@ -81,6 +84,7 @@ struct ArtistCard: View {
         .onTapGesture(perform: onOpen)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
+        .accessibilityAction(.default, onOpen)
     }
 }
 
@@ -168,15 +172,40 @@ struct TrackRow: View {
             Button("Play Next") { app.player.playNext([track]) }
             Button("Add to Queue") { app.player.addToQueue([track]) }
             Button(app.favorites.contains(track.id) ? "Remove from Favorites" : "Add to Favorites") { app.favorites.toggle(track.id) }
+            AddToPlaylistMenu { [track] }
             if let onOpenAlbum { Divider(); Button("Go to Album", action: onOpenAlbum) }
             if let onOpenArtist { Button("Go to Artist", action: onOpenArtist) }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(track.name), \(track.artistName), \(track.duration.formattedDuration)")
         .accessibilityAddTraits(isCurrent ? [.isButton, .isSelected] : .isButton)
+        .accessibilityAction(.default) { if isCurrent { app.player.togglePlayPause() } else { onPlay() } }
         .accessibilityAction(named: "Play", onPlay)
         .accessibilityAction(named: app.favorites.contains(track.id) ? "Remove from Favorites" : "Add to Favorites") {
             app.favorites.toggle(track.id)
         }
+    }
+}
+
+/// Playlist 卡片
+struct PlaylistCard: View {
+    let playlist: Playlist
+    let onOpen: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.s8) {
+            ArtworkView(artwork: playlist.artwork, interactive: true, fallbackTitle: playlist.name)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(playlist.name).finifyFont(.subheading).foregroundStyle(FinifyColor.ink).lineLimit(1)
+                Text("\(playlist.trackCount) \(playlist.trackCount == 1 ? "song" : "songs")")
+                    .finifyFont(.caption).foregroundStyle(FinifyColor.muted)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onOpen)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(playlist.name), playlist, \(playlist.trackCount) songs")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction(.default, onOpen)
     }
 }
