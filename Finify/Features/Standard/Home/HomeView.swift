@@ -102,22 +102,59 @@ struct HomeView: View {
         case .failed:
             EmptyView()
         default:
-            VStack(alignment: .leading, spacing: Spacing.s16) {
-                SectionHeader(title: title, action: refresh.map { ("Shuffle picks", $0) })
-                AlbumShelf(state: state)
-            }
+            AlbumShelf(title: title, state: state, action: refresh.map { ("Shuffle picks", $0) })
         }
     }
 }
 
-/// 一列可橫向捲動的專輯
+/// 一列可橫向捲動的專輯。標題右側的箭頭讓沒有觸控板的使用者也能翻頁。
 struct AlbumShelf: View {
+    let title: String
     let state: Loadable<[Album]>
+    var action: (title: String, run: () -> Void)?
     var cardWidth: CGFloat = 168
     @Environment(AppEnvironment.self) private var app
     @Environment(StandardRouter.self) private var router
+    @State private var firstVisible = 0
+    @State private var visibleCount = 6
+
+    private var albums: [Album] {
+        if case .loaded(let albums) = state { return albums }
+        return []
+    }
 
     var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.s16) {
+            HStack(alignment: .firstTextBaseline) {
+                SectionHeader(title: title, action: action)
+                if albums.count > visibleCount {
+                    HStack(spacing: Spacing.s4) {
+                        FinifyIconButton(icon: .chevronLeft, label: "Scroll \(title) left", size: .compact) { page(-1) }
+                            .disabled(firstVisible == 0)
+                        FinifyIconButton(icon: .chevronRight, label: "Scroll \(title) right", size: .compact) { page(1) }
+                            .disabled(firstVisible + visibleCount >= albums.count)
+                    }
+                }
+            }
+            ScrollViewReader { proxy in
+                shelf
+                    .onChange(of: firstVisible) {
+                        guard albums.indices.contains(firstVisible) else { return }
+                        withAnimation(Motion.ui) { proxy.scrollTo(albums[firstVisible].id, anchor: .leading) }
+                    }
+            }
+            .background(GeometryReader { geo in
+                Color.clear.onAppear { visibleCount = max(1, Int(geo.size.width / (cardWidth + Spacing.s20))) }
+                    .onChange(of: geo.size.width) { visibleCount = max(1, Int(geo.size.width / (cardWidth + Spacing.s20))) }
+            })
+        }
+    }
+
+    private func page(_ direction: Int) {
+        firstVisible = min(max(0, firstVisible + direction * visibleCount), max(0, albums.count - visibleCount))
+    }
+
+    private var shelf: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(alignment: .top, spacing: Spacing.s20) {
                 switch state {
