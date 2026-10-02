@@ -83,12 +83,16 @@ Library 格線往上捲仍有輕微卡頓，見「已知問題」。
 * 歌詞：你的 server 目前沒有歌詞檔，同步歌詞的畫面只用單元測試驗證，沒有實際看過。
 * 規格 V1 中沒做：系統通知（會跳權限詢問視窗，無人值守時不能做）、拖放、分享、Expanded Player。
 * 120 Hz ProMotion 螢幕沒測（這台外接螢幕是 60 Hz）。
+* 02:40 左右外接螢幕解析度改變（變成 1920×1080）之後，模擬按鍵無法送進 app，所以「Fullscreen 中按 Esc 先關歌詞」沒有再用自動化驗證；邏輯與先前驗證過的 Esc 離開全螢幕相同。
+* 很多最近加入的專輯在 Jellyfin 沒有封面（顯示成文字方塊），是音樂庫的 metadata 問題，可在 Jellyfin 重新抓取 metadata。
 * Release build 只有本機簽章；給別人用需要開發者帳號簽章與公證。
 
 ## 對你的 Jellyfin 做了什麼
 
 * **都已還原。** Playlist 與喜愛的測試只在名為「Finify Test…」的暫存資料上寫入，結束時刪除；喜愛的狀態測試後切回原狀。目前 server 有原本的 5 個 playlist、0 個喜愛項目。
-* **播放紀錄有變動。** 測試時播放過的專輯（Moon Safari、OK Computer、Discovery 等）會出現在 Jellyfin 的「最近播放」。
+* **播放紀錄有變動，沒有自動還原。** 01:50 之後的播放都是我的測試：The Dark Side of the Moon、Disco Kandi The Mix、Live aus Berlin（無縫播放量測各 8–17 首）、OK Computer、In Rainbows、Moon Safari、Discovery、Addison Road。
+  23:17–23:28 與 00:55 的播放（不想放手、I Like Chopin、Easy Tempo、Rise、21）是你自己的。
+  沒有自動清除，因為「標為未播放」會一併清掉這些曲目原本的播放次數。要清除的話，在 Jellyfin 網頁版對這幾張專輯按「標為未播放」。
 * 有一次測試失敗留下暫存 playlist，我發現後已刪除，之後在測試開頭加了清除殘留的步驟。
 
 ## 過程中發現並修正的重要問題
