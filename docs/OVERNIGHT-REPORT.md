@@ -48,6 +48,7 @@ Overflow 最近播放牆、Wall 的 Tiny／Huge 尺寸、重新開啟時恢復�
 | Album Wall 捲動（1,426 張，Medium／Large） | 0 掉 frame | 60 fps |
 | Library 專輯格線捲動 | 往下 0–8 ms/s、往上 11–27 ms/s（每次量測不同；改用 NSCollectionView 前是 240 ms/s） | 60 fps |
 | 歌曲清單捲動（17,180 首） | 2.5–4.2 ms/s | 60 fps |
+| 連續換曲 40 次（約 5.5 分鐘） | 記憶體穩定在 111–126 MB，無持續上升，全程持續播放 | 無洩漏 |
 | 同格式換曲 | 0–0.9 ms（24 次中 21 次） | 無縫 |
 | MP3 與 AAC 互換 | 85–101 ms | 無縫 |
 
