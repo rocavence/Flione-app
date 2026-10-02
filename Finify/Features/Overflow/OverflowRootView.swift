@@ -14,6 +14,9 @@ struct OverflowRootView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("FinifyOverflowLayout") private var layout: OverflowLayout = .wall
     @AppStorage("FinifyWallDensity") private var densityRaw = WallDensity.medium.rawValue
+    @AppStorage("FinifyWallSort") private var sort: AlbumSort = .artist
+    /// 排序結果只在專輯清單或排序方式改變時重算
+    @State private var sortedAlbums: [Album] = []
     @State private var openAlbum: Album?
     @State private var immersive = false
     @State private var scrollToPlaying = 0
@@ -44,6 +47,8 @@ struct OverflowRootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
         .task { await app.library.refreshIfNeeded() }
+        .onChange(of: app.library.albums.count, initial: true) { sortedAlbums = sort.apply(to: app.library.albums) }
+        .onChange(of: sort) { sortedAlbums = sort.apply(to: app.library.albums) }
         // 最近播放：切到 Recent 或換曲時更新
         .task(id: layout == .recent ? (playingAlbumID ?? "") + "recent" : "") {
             guard layout == .recent, let repository = app.repository else { return }
@@ -73,7 +78,7 @@ struct OverflowRootView: View {
                     switch layout {
                     case .wall:
                         AlbumWallView(
-                            albums: app.library.albums,
+                            albums: sortedAlbums,
                             density: density,
                             playingAlbumID: playingAlbumID,
                             images: app.images,
@@ -103,7 +108,7 @@ struct OverflowRootView: View {
                             )
                         }
                     case .flow:
-                        AlbumFlowView(albums: app.library.albums, playingAlbumID: playingAlbumID, onPlay: play,
+                        AlbumFlowView(albums: sortedAlbums, playingAlbumID: playingAlbumID, onPlay: play,
                                       isActive: openAlbum == nil && !app.isSearchPresented && !app.isQueuePresented)
                     }
                 }
@@ -172,6 +177,22 @@ struct OverflowRootView: View {
                         .disabled(density.wrappedValue == WallDensity.allCases.last)
                 }
                 .help("Pinch to resize")
+            }
+            if layout != .recent {
+                Menu {
+                    Picker("Sort by", selection: $sort) {
+                        ForEach(AlbumSort.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.inline)
+                } label: {
+                    Text("Sort: \(sort.rawValue)")
+                        .finifyFont(.caption)
+                        .foregroundStyle(FinifyColor.Overflow.muted)
+                }
+                .menuStyle(.borderlessButton)
+                .tint(FinifyColor.Overflow.muted)
+                .fixedSize()
+                .accessibilityLabel("Sort albums, \(sort.rawValue)")
             }
             Spacer()
             SearchTrigger { app.isSearchPresented = true }

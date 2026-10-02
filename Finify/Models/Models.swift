@@ -94,3 +94,21 @@ extension TimeInterval {
         return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
     }
 }
+
+/// 專輯排序。Library、Album Wall、Album Flow 共用
+enum AlbumSort: String, CaseIterable, Sendable {
+    case artist = "Artist"
+    case title = "Title"
+    case recentlyAdded = "Recently Added"
+    case year = "Year"
+
+    /// 音樂庫本身已依藝人排序（server 端），artist 直接回傳
+    func apply(to albums: [Album]) -> [Album] {
+        switch self {
+        case .artist: albums
+        case .title: albums.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        case .recentlyAdded: albums.sorted { ($0.dateAdded ?? .distantPast) > ($1.dateAdded ?? .distantPast) }
+        case .year: albums.sorted { ($0.year ?? 0) > ($1.year ?? 0) }
+        }
+    }
+}

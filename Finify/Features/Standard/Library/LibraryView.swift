@@ -9,12 +9,6 @@ enum LibrarySection: String, CaseIterable {
     case favorites = "Favorites"
 }
 
-enum AlbumSort: String, CaseIterable {
-    case artist = "Artist"
-    case title = "Title"
-    case recentlyAdded = "Recently Added"
-    case year = "Year"
-}
 
 struct LibraryView: View {
     @Environment(AppEnvironment.self) private var app
@@ -77,15 +71,7 @@ struct LibraryView: View {
         }
     }
 
-    private var sortedAlbums: [Album] {
-        let albums = app.library.albums
-        switch sort {
-        case .artist: return albums
-        case .title: return albums.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-        case .recentlyAdded: return albums.sorted { ($0.dateAdded ?? .distantPast) > ($1.dateAdded ?? .distantPast) }
-        case .year: return albums.sorted { ($0.year ?? 0) > ($1.year ?? 0) }
-        }
-    }
+    private var sortedAlbums: [Album] { sort.apply(to: app.library.albums) }
 
     // 上千張專輯：用 NSCollectionView 重用 cell（LazyVGrid 實測捲動掉 frame，見 S3 正式版實測）
     @ViewBuilder
