@@ -19,6 +19,7 @@ enum SettingsKey {
     static let theme = "FinifyTheme"
     static let ambient = "FinifyAmbient"
     static let autoHideControls = "FinifyAutoHideControls"
+    static let menuBar = "FinifyMenuBar"
 }
 
 /// macOS 設定視窗（⌘,）
@@ -40,6 +41,7 @@ struct SettingsView: View {
 private struct GeneralSettings: View {
     @Environment(AppEnvironment.self) private var app
     @State private var cacheSize: String = "…"
+    @AppStorage(SettingsKey.menuBar) private var showsMenuBar = true
 
     var body: some View {
         @Bindable var app = app
@@ -49,6 +51,7 @@ private struct GeneralSettings: View {
                 Text("Overflow").tag(AppMode.overflow)
             }
             Toggle("Remember my choice", isOn: $app.rememberMode)
+            Toggle("Show player in menu bar", isOn: $showsMenuBar)
             LabeledContent("Artwork cache") {
                 HStack {
                     Text(cacheSize).foregroundStyle(.secondary)

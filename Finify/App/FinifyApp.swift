@@ -4,6 +4,7 @@ import SwiftUI
 struct FinifyApp: App {
     @State private var app = AppEnvironment.bootstrap()
     @State private var keyboard: KeyboardMonitor?
+    @AppStorage(SettingsKey.menuBar) private var showsMenuBar = true
 
     var body: some Scene {
         Window("Finify", id: "main") {
@@ -21,6 +22,16 @@ struct FinifyApp: App {
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 1360, height: 860)
         .commands { FinifyCommands(app: app) }
+
+        MenuBarExtra(isInserted: $showsMenuBar) {
+            MenuBarPlayer()
+                .environment(app)
+                .tint(FinifyColor.accent)
+        } label: {
+            Image("Reicon/music-note.\(app.player.isPlaying ? "filled" : "outline")")
+                .accessibilityLabel("Finify")
+        }
+        .menuBarExtraStyle(.window)
 
         Settings {
             SettingsView()
