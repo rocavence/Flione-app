@@ -86,3 +86,13 @@
 * **怎麼改**：`JellyfinRepository.updatePlaylist`。若 Jellyfin 修正此問題，可改回個別 API。
 * **測試安全**：整合測試只在名為「Finify Test…」的暫存 playlist 上寫入，開始時會清掉殘留、結束時刪除；不碰既有 playlist。
 * **補充**：新建立的 playlist 在 1.5 秒內再寫入會被 Jellyfin 背景存檔蓋掉（實測），`PlaylistStore` 會等到建立滿 1.5 秒才送出後續編輯。
+
+## D14　串流網址帶 access token（已知取捨）
+
+* **現況**：`AVPlayer` 無法替串流請求加 header，所以 token 放在網址的 `ApiKey` 參數（D03）。Jellyfin 官方網頁版也是這樣做。
+* **風險**：網址只送往你自己的 Jellyfin server（目前經 Tailscale），但 token 可能出現在 server 的存取紀錄或 proxy 紀錄中。這個 token 是你帳號的長期 token，外流等於帳號外流。
+* **為什麼暫時不改**：
+  * `AVURLAssetHTTPHeaderFieldsKey` 可以加 header，但它是未公開 API，上架 App Store 有被拒風險。
+  * `AVAssetResourceLoaderDelegate` 可以完全自己處理請求，但要重做 range request 與緩衝，可能影響 S2 驗證過的無縫播放。
+* **建議後續**：上架前改用 resource loader，並重跑 S2 無縫播放驗證；或在 Jellyfin 為 Finify 建立權限較小的專用帳號。
+* **怎麼改**：`JellyfinRepository.streamURL(for:)` 與 `PlayerManager.makeItem`。
