@@ -87,7 +87,6 @@ Library 格線往上捲仍有輕微卡頓，見「已知問題」。
 * 規格 V1 中沒做：系統通知（會跳權限詢問視窗，無人值守時不能做）、分享、Expanded Player（Standard 可直接進 Fullscreen 代替）。
 * 拖放只做了「專輯拖到佇列」；拖到 playlist 需要兩者同時出現在畫面上，目前的版面沒有這種情況。
 * 120 Hz ProMotion 螢幕沒測（這台外接螢幕是 60 Hz）。
-* 02:40 左右外接螢幕解析度改變（變成 1920×1080）之後，模擬按鍵無法送進 app，所以「Fullscreen 中按 Esc 先關歌詞」沒有再用自動化驗證；邏輯與先前驗證過的 Esc 離開全螢幕相同。
 * 很多最近加入的專輯在 Jellyfin 沒有封面（顯示成文字方塊），是音樂庫的 metadata 問題，可在 Jellyfin 重新抓取 metadata。
 * Release build 只有本機簽章；給別人用需要開發者帳號簽章與公證。
 
