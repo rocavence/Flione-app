@@ -58,6 +58,7 @@ struct HomeView: View {
             .padding(.bottom, Spacing.s48)
         }
         .task { await model.load(app.repository) }
+        .onChange(of: app.reconnectCount) { Task { await reload() } }
     }
 
     private var greeting: String {

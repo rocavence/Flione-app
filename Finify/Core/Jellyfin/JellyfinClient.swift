@@ -138,7 +138,10 @@ final class JellyfinClient: Sendable {
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         switch status {
         case 200..<300: return data
-        case 401, 403: throw JellyfinError.sessionExpired
+        case 401, 403:
+            // 已登入的請求被拒絕：token 失效，通知 app 回到登入畫面
+            if accessToken != nil { NotificationCenter.default.post(name: .finifySessionExpired, object: nil) }
+            throw JellyfinError.sessionExpired
         default: throw JellyfinError.unexpectedResponse(status)
         }
     }
@@ -168,4 +171,8 @@ final class JellyfinClient: Sendable {
         }
         return decoder
     }()
+}
+
+extension Notification.Name {
+    static let finifySessionExpired = Notification.Name("FinifySessionExpired")
 }

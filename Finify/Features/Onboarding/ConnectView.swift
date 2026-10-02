@@ -3,7 +3,7 @@ import SwiftUI
 /// 首次啟動：連線 Jellyfin。只需要 server 位址（可只填主機名稱）、帳號、密碼。
 struct ConnectView: View {
     @Environment(AppEnvironment.self) private var app
-    @State private var server = ""
+    @State private var server = AppEnvironment.lastServerAddress ?? ""
     @State private var user = ""
     @State private var password = ""
     @State private var isConnecting = false
@@ -30,6 +30,17 @@ struct ConnectView: View {
             .padding(.bottom, Spacing.s40)
 
             VStack(spacing: Spacing.s12) {
+                if let reason = app.signOutReason {
+                    HStack(alignment: .top, spacing: Spacing.s8) {
+                        FinifyIcon(.infoCircle, size: .compact)
+                        Text(reason).finifyFont(.caption).fixedSize(horizontal: false, vertical: true)
+                    }
+                    .foregroundStyle(FinifyColor.muted)
+                    .padding(Spacing.s12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(FinifyColor.surface, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+                    .padding(.bottom, Spacing.s8)
+                }
                 field("Server", text: $server, prompt: "mediabox or 192.168.1.10:8096", field: .server)
                 field("Username", text: $user, prompt: "", field: .user)
                 field("Password", text: $password, prompt: "", field: .password, secure: true)
@@ -60,7 +71,7 @@ struct ConnectView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(FinifyColor.paper)
-        .onAppear { focus = .server }
+        .onAppear { focus = server.isEmpty ? .server : .user }
     }
 
     private func field(_ label: String, text: Binding<String>, prompt: String, field: Field, secure: Bool = false) -> some View {

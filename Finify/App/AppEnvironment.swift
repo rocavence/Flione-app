@@ -1,4 +1,5 @@
 import Foundation
+import Network
 import Observation
 
 enum AppMode: String, Sendable {
@@ -26,11 +27,18 @@ final class AppEnvironment {
             if !rememberMode { UserDefaults.standard.removeObject(forKey: Self.modeKey) }
         }
     }
+    /// 回到登入畫面的原因（例如登入過期），顯示在 ConnectView
+    var signOutReason: String?
+    /// 網路恢復時遞增；失敗中的畫面據此重新載入
+    private(set) var reconnectCount = 0
     var isSearchPresented = false
     var isQueuePresented = false
 
     @ObservationIgnored private let sessionStore: any SessionStore
     @ObservationIgnored private var nowPlaying: NowPlayingController?
+    @ObservationIgnored private let pathMonitor = NWPathMonitor()
+    @ObservationIgnored private var wasOffline = false
+    @ObservationIgnored private var expiryObserver: NSObjectProtocol?
     private static let modeKey = "FinifyMode"
     private static let rememberKey = "FinifyRememberMode"
 
@@ -40,7 +48,27 @@ final class AppEnvironment {
         mode = rememberMode ? UserDefaults.standard.string(forKey: Self.modeKey).flatMap(AppMode.init) : nil
         nowPlaying = NowPlayingController(player: player) { [weak self] in self?.images }
         if let session = sessionStore.load() { activate(session) }
+        expiryObserver = NotificationCenter.default.addObserver(forName: .finifySessionExpired, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.session != nil else { return }
+                self.signOut(reason: "Your session with the music server ended. Sign in again to keep listening.")
+            }
+        }
+        pathMonitor.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor in self?.networkChanged(online: path.status == .satisfied) }
+        }
+        pathMonitor.start(queue: .global(qos: .utility))
     }
+
+    private func networkChanged(online: Bool) {
+        defer { wasOffline = !online }
+        guard online, wasOffline else { return }
+        reconnectCount += 1
+        if library.state == .failed { Task { await library.refresh() } }
+    }
+
+    /// 上次連線的 server 位址（不含帳密），用來預填登入畫面
+    static var lastServerAddress: String? { UserDefaults.standard.string(forKey: "FinifyLastServer") }
 
     static func bootstrap() -> AppEnvironment {
         #if DEBUG || BENCHMARK
@@ -55,10 +83,12 @@ final class AppEnvironment {
 
     func signIn(_ session: JellyfinSession) throws {
         try sessionStore.save(session)
+        signOutReason = nil
         activate(session)
     }
 
-    func signOut() {
+    func signOut(reason: String? = nil) {
+        signOutReason = reason
         player.pause()
         sessionStore.clear()
         session = nil
@@ -69,6 +99,7 @@ final class AppEnvironment {
 
     private func activate(_ session: JellyfinSession) {
         self.session = session
+        UserDefaults.standard.set(session.serverURL.absoluteString, forKey: "FinifyLastServer")
         let repository = JellyfinRepository(session: session)
         self.repository = repository
         images = ImagePipeline { ref, size in repository.artworkURL(ref, maxPixelSize: size) }
