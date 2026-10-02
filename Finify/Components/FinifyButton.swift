@@ -15,6 +15,8 @@ struct FinifyButton: View {
     var icon: Reicon?
     var kind: Kind = .secondary
     var isLoading = false
+    /// 填滿可用寬度（表單主按鈕）
+    var expands = false
     let action: () -> Void
 
     var body: some View {
@@ -27,6 +29,7 @@ struct FinifyButton: View {
                 }
                 Text(title).finifyFont(.bodyEmphasis)
             }
+            .frame(maxWidth: expands ? .infinity : nil)
         }
         .buttonStyle(FinifyButtonStyle(kind: kind))
         .disabled(isLoading)

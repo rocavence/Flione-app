@@ -44,8 +44,7 @@ struct ConnectView: View {
                     .transition(.opacity)
                 }
 
-                FinifyButton(title: isConnecting ? "Connecting…" : "Connect", kind: .primary, isLoading: isConnecting, action: connect)
-                    .frame(maxWidth: .infinity)
+                FinifyButton(title: isConnecting ? "Connecting…" : "Connect", kind: .primary, isLoading: isConnecting, expands: true, action: connect)
                     .disabled(server.isEmpty || user.isEmpty)
                     .keyboardShortcut(.defaultAction)
                     .padding(.top, Spacing.s8)
