@@ -82,7 +82,21 @@ UI icon 一律使用 [Reicon](https://github.com/dqev/reicon)。新增 icon：
 | `-FinifyDemoOpen "<專輯名>"` | 啟動後打開該專輯 |
 | `-FinifyDemoSearch "<關鍵字>"` | 啟動後打開搜尋 |
 | `-FinifyDemoImmersive YES` | Overflow 進入 Fullscreen |
-| `-FinifyBenchWall <輸出.json>` | Album Wall 捲動效能量測 |
+| `-FinifyDemoSeekToEnd <秒>` | 播放後跳到第一首結尾前 N 秒（驗證自動換曲） |
+| `-FinifyDemoTab library` ／ `-FinifyDemoSection <分頁>` | 直接打開 Library 的指定分頁 |
+| `-FinifyOverflowLayout Wall\|Flow\|Recent`、`-FinifyWallDensity 0–4`、`-FinifyWallSort <排序>` | Overflow 版面、封面尺寸、排序 |
+| `-FinifyTheme Light\|Dark` | 主題 |
+
+效能與穩定性量測（需以 `SWIFT_ACTIVE_COMPILATION_CONDITIONS=BENCHMARK` 建置 Release）：
+
+| 參數 | 作用 |
+| ---- | ---- |
+| `-FinifyBenchWall <輸出.json>` | 自動捲動 Album Wall（加 `-FinifyBenchTarget library` 改量 Library）並記錄掉 frame 與記憶體 |
+| `-FinifyLaunchMark <輸出檔>` | 記錄啟動到視窗出現、首頁載入完成的時間 |
+| `-FinifyGaplessProbe <輸出檔>` | 在 PlayerManager 上量測換曲停頓（搭配 `-FinifyDemoPlay`） |
+| `-FinifySoak <輸出檔>` | 連續換曲 40 次並記錄記憶體 |
+
+`-FinifyMuted YES` 的測試不會向 Jellyfin 回報播放，不影響播放紀錄。
 
 ## 文件
 
