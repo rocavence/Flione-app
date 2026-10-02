@@ -49,10 +49,27 @@ enum DebugDemo {
             try? await Task.sleep(for: .seconds(6))
             if let root = NSApp.windows.first(where: \.isVisible)?.contentView { dump(root, depth: 0) }
         }
+        if defaults.string(forKey: "FinifySoak") != nil { await soak(app: app) }
         if defaults.bool(forKey: "FinifyDemoImmersive") {
             try? await Task.sleep(for: .seconds(1))
             immersive?()
         }
+    }
+
+    /// -FinifySoak <輸出檔>：連續換曲 40 次（每 8 秒一次），記錄記憶體，用來找長時間使用的洩漏
+    static func soak(app: AppEnvironment) async {
+        guard let path = defaults.string(forKey: "FinifySoak") else { return }
+        try? await Task.sleep(for: .seconds(4))
+        var lines = ["start \(Int(WallBenchmark.footprintMB())) MB"]
+        for i in 1...40 {
+            app.player.next()
+            try? await Task.sleep(for: .seconds(8))
+            if i % 5 == 0 {
+                lines.append("after \(i) changes: \(Int(WallBenchmark.footprintMB())) MB, track=\(app.player.currentTrack?.name ?? "-"), playing=\(app.player.isPlaying)")
+                try? lines.joined(separator: "\n").write(toFile: path, atomically: true, encoding: .utf8)
+            }
+        }
+        NSApp.terminate(nil)
     }
 
     /// -FinifyGaplessProbe <輸出檔>：在真正的 PlayerManager 上量測換曲停頓（與 S2 時鐘法相同）

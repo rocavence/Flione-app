@@ -34,7 +34,8 @@ MVP 的 26 個 Task 中 24 個完成，另外提前做了 9 項 V1 功能。
 
 Favorites、Playlists、歌詞、Genres、Album Flip、浮動迷你播放器（Always on Top）、選單列迷你播放器、
 Overflow 最近播放牆、Wall 的 Tiny／Huge 尺寸、重新開啟時恢復播放佇列、設定視窗、
-Overflow 專輯面板的「同藝人其他專輯」。
+專輯拖放到佇列、Overflow 封面牆排序（藝人／標題／最近加入／年份）、
+「同藝人的其他專輯」（Overflow 專輯面板與 Standard 專輯頁）。
 
 每項都是獨立 commit（訊息開頭 `V1：`），不要的話可以單獨 `git revert`。
 
@@ -82,7 +83,8 @@ Library 格線往上捲仍有輕微卡頓，見「已知問題」。
 * Library 專輯格線：視窗 1360 寬時往上快速捲動有輕微卡頓（11–27 ms/s）；視窗 1040 寬時除了封面第一次載入，其他都在 0–3 ms/s。
   試過拿掉陰影、只在 hover 時建立播放鈕，都沒有可量測的改善，所以沒有保留。要根治可能得把卡片改成純 AppKit（像 Album Wall 那樣）。
 * 歌詞：你的 server 目前沒有歌詞檔，同步歌詞的畫面只用單元測試驗證，沒有實際看過。
-* 規格 V1 中沒做：系統通知（會跳權限詢問視窗，無人值守時不能做）、拖放、分享、Expanded Player。
+* 規格 V1 中沒做：系統通知（會跳權限詢問視窗，無人值守時不能做）、分享、Expanded Player（Standard 可直接進 Fullscreen 代替）。
+* 拖放只做了「專輯拖到佇列」；拖到 playlist 需要兩者同時出現在畫面上，目前的版面沒有這種情況。
 * 120 Hz ProMotion 螢幕沒測（這台外接螢幕是 60 Hz）。
 * 02:40 左右外接螢幕解析度改變（變成 1920×1080）之後，模擬按鍵無法送進 app，所以「Fullscreen 中按 Esc 先關歌詞」沒有再用自動化驗證；邏輯與先前驗證過的 Esc 離開全螢幕相同。
 * 很多最近加入的專輯在 Jellyfin 沒有封面（顯示成文字方塊），是音樂庫的 metadata 問題，可在 Jellyfin 重新抓取 metadata。
@@ -100,7 +102,7 @@ Library 格線往上捲仍有輕微卡頓，見「已知問題」。
 
 * Now Playing 封面在背景 queue 被呼叫，Swift 6 執行期檢查導致 crash。
 * Ambient 背景撐大 Overflow 版面，頂部列與播放列被推出畫面。
-* 兩輪獨立 code review 共找到 31 個問題，已修正，包括：開始播放新專輯時 repeat 被重設、
+* 三輪獨立 code review 共找到 39 個問題，除了少數標為「不確定」的都已修正，包括：開始播放新專輯時 repeat 被重設、
   repeat 開啟時遇到失敗會無限跳歌、playlist 連續編輯時較早的請求蓋掉新的、
   同一首歌加入佇列兩次時 shuffle 錯亂、佇列最後一列「下移」會 crash。
 
