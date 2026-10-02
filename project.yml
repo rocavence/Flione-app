@@ -23,3 +23,16 @@ targets:
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
         CODE_SIGN_IDENTITY: "-"
         ENABLE_HARDENED_RUNTIME: YES
+  # 技術驗證用，不隨 app 出貨
+  AlbumWallSpike:
+    type: application
+    platform: macOS
+    sources:
+      - path: Spikes/AlbumWall
+        excludes:
+          - make-artwork.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.finify.spike.AlbumWall
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_IDENTITY: "-"

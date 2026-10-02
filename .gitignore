@@ -7,3 +7,6 @@ xcuserdata/
 
 .DS_Store
 .cache/
+
+# 本機帳密，不進版控
+.secrets/
