@@ -109,7 +109,8 @@ struct ImmersiveView: View {
         .task {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(500))
-                if autoHide, !app.isQueuePresented, !app.isLyricsPresented, controlsVisible, Date().timeIntervalSince(lastMove) > 2.5, app.player.isPlaying {
+                // VoiceOver 使用者不會觸發滑鼠移動，控制項不能隱藏
+                if autoHide, !NSWorkspace.shared.isVoiceOverEnabled, !app.isQueuePresented, !app.isLyricsPresented, controlsVisible, Date().timeIntervalSince(lastMove) > 2.5, app.player.isPlaying {
                     controlsVisible = false
                     NSCursor.setHiddenUntilMouseMoves(true)
                 }
