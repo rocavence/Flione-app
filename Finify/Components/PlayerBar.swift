@@ -143,6 +143,7 @@ struct VolumeControl: View {
 struct QueuePanel: View {
     let onOpenAlbum: (String?) -> Void
     @Environment(AppEnvironment.self) private var app
+    @State private var isTargeted = false
     /// 拖曳中的列（upcoming 內的位置）
     @State private var dragging: Int?
 
@@ -175,7 +176,7 @@ struct QueuePanel: View {
                                     dragging = offset
                                     return NSItemProvider(object: String(offset) as NSString)
                                 }
-                                .onDrop(of: [.text], delegate: QueueDropDelegate(target: offset, dragging: $dragging, player: player))
+                                .onDrop(of: [.text], delegate: QueueDropDelegate(target: offset, dragging: $dragging, player: player, app: app))
                                 .accessibilityAction(named: "Move Up") { if offset > 0 { player.moveUpcoming(from: [offset], to: offset - 1) } }
                                 .accessibilityAction(named: "Move Down") { player.moveUpcoming(from: [offset], to: offset + 2) }
                                 .contextMenu {
@@ -199,6 +200,25 @@ struct QueuePanel: View {
         }
         .background(FinifyColor.elevated)
         .overlay(alignment: .leading) { FinifyColor.hairline.frame(width: 1) }
+        // 從專輯卡片拖進來：加到佇列結尾
+        .overlay {
+            if isTargeted {
+                RoundedRectangle(cornerRadius: Radius.ui, style: .continuous)
+                    .strokeBorder(FinifyColor.accent, style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                    .padding(Spacing.s4)
+                    .allowsHitTesting(false)
+            }
+        }
+        .dropDestination(for: String.self) { items, _ in
+            let ids = items.compactMap(DragPayload.albumID(from:))
+            guard !ids.isEmpty else { return false }
+            Task {
+                for id in ids {
+                    if let tracks = try? await app.repository?.tracks(inAlbum: id) { app.player.addToQueue(tracks) }
+                }
+            }
+            return true
+        } isTargeted: { isTargeted = $0 }
     }
 
     private func label(_ text: String) -> some View {
@@ -216,6 +236,7 @@ private struct QueueDropDelegate: DropDelegate {
     let target: Int
     @Binding var dragging: Int?
     let player: PlayerManager
+    let app: AppEnvironment
 
     func dropEntered(info: DropInfo) {
         guard let from = dragging, from != target else { return }
@@ -225,10 +246,25 @@ private struct QueueDropDelegate: DropDelegate {
         dragging = target
     }
 
-    func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: .move) }
+    /// 佇列內排序用 move；從專輯卡片拖進來的只允許 copy（回 move 會被系統拒絕）
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: dragging == nil ? .copy : .move)
+    }
 
     func performDrop(info: DropInfo) -> Bool {
-        dragging = nil
+        guard dragging == nil else {
+            dragging = nil
+            return true
+        }
+        // 從專輯卡片拖進來：加到佇列結尾
+        for provider in info.itemProviders(for: [.text]) {
+            _ = provider.loadObject(ofClass: NSString.self) { object, _ in
+                guard let string = object as? String, let id = DragPayload.albumID(from: string) else { return }
+                Task { @MainActor in
+                    if let tracks = try? await app.repository?.tracks(inAlbum: id) { player.addToQueue(tracks) }
+                }
+            }
+        }
         return true
     }
 }

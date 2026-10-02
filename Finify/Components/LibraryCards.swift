@@ -39,6 +39,12 @@ struct AlbumCard: View {
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .onTapGesture(perform: onOpen)
+        // 拖到佇列或 playlist 上加入
+        .draggable(DragPayload.album(album.id)) {
+            ArtworkView(artwork: album.artwork, elevation: .none, fallbackTitle: album.name)
+                .frame(width: 64, height: 64)
+                .environment(app)
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(album.name), \(album.artistName)")
         .accessibilityAddTraits(.isButton)

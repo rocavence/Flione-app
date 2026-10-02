@@ -112,3 +112,14 @@ enum AlbumSort: String, CaseIterable, Sendable {
         }
     }
 }
+
+/// 拖放時傳遞的內容（純文字，前綴區分類型）
+enum DragPayload {
+    static let albumPrefix = "finify-album:"
+
+    static func album(_ id: String) -> String { albumPrefix + id }
+
+    static func albumID(from string: String) -> String? {
+        string.hasPrefix(albumPrefix) ? String(string.dropFirst(albumPrefix.count)) : nil
+    }
+}
