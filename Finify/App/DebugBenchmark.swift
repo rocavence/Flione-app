@@ -5,6 +5,24 @@ import QuartzCore
 /// 效能量測：自動捲動 Album Wall，記錄每一 frame 時間與記憶體，輸出 JSON 後關閉 app。
 /// 啟動參數：`-FinifyBenchWall <輸出路徑>`（搭配 `-FinifyStartMode overflow`）
 /// 量測方法與 S3 spike 相同，見 docs/spikes/S3-album-wall.md。
+/// 啟動時間：`-FinifyLaunchMark <輸出路徑>`，記錄「視窗出現」與「首頁資料載入完成」距 process 啟動的秒數
+enum LaunchMark {
+    static func record(_ event: String) {
+        guard let path = UserDefaults.standard.string(forKey: "FinifyLaunchMark") else { return }
+        var info = kinfo_proc(), size = MemoryLayout<kinfo_proc>.size
+        var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+        sysctl(&mib, 4, &info, &size, nil, 0)
+        let start = info.kp_proc.p_un.__p_starttime
+        let started = Double(start.tv_sec) + Double(start.tv_usec) / 1_000_000
+        let line = String(format: "%@ %.3f\n", event, Date().timeIntervalSince1970 - started)
+        if let handle = FileHandle(forWritingAtPath: path) {
+            handle.seekToEndOfFile(); handle.write(Data(line.utf8)); handle.closeFile()
+        } else {
+            try? line.write(toFile: path, atomically: true, encoding: .utf8)
+        }
+    }
+}
+
 @MainActor
 final class WallBenchmark: NSObject {
     private let output: URL
@@ -23,7 +41,12 @@ final class WallBenchmark: NSObject {
             try? await Task.sleep(for: .seconds(4))
             guard let window = NSApp.windows.first(where: \.isVisible), let content = window.contentView else { return }
             let bench = WallBenchmark(output: URL(fileURLWithPath: path))
-            bench.scrollView = Self.findWallScrollView(in: content)
+            // -FinifyBenchTarget library：量 Standard 的 Library 專輯格線（取內容最長的垂直捲動區）
+            if UserDefaults.standard.string(forKey: "FinifyBenchTarget") == "library" {
+                bench.scrollView = Self.allScrollViews(in: content).max { ($0.documentView?.frame.height ?? 0) < ($1.documentView?.frame.height ?? 0) }
+            } else {
+                bench.scrollView = Self.findWallScrollView(in: content)
+            }
             bench.link = content.displayLink(target: bench, selector: #selector(tick(_:)))
             bench.link?.add(to: .main, forMode: .common)
             retained = bench
@@ -33,6 +56,10 @@ final class WallBenchmark: NSObject {
     private static var retained: WallBenchmark?
 
     init(output: URL) { self.output = output }
+
+    private static func allScrollViews(in view: NSView) -> [NSScrollView] {
+        (view as? NSScrollView).map { [$0] } ?? [] + view.subviews.flatMap(allScrollViews)
+    }
 
     private static func findWallScrollView(in view: NSView) -> NSScrollView? {
         if let scroll = view as? NSScrollView, scroll.documentView is NSCollectionView { return scroll }

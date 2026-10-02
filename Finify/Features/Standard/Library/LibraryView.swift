@@ -73,23 +73,33 @@ struct LibraryView: View {
         }
     }
 
+    // 上千張專輯：用 NSCollectionView 重用 cell（LazyVGrid 實測捲動掉 frame，見 S3 正式版實測）
+    @ViewBuilder
     private var albums: some View {
-        ScrollView {
-            AlbumGrid(albums: app.library.albums.isEmpty ? nil : sortedAlbums)
-                .padding(.horizontal, Spacing.s32)
-                .padding(.bottom, Spacing.s32)
+        if app.library.albums.isEmpty {
+            ScrollView { AlbumGrid(albums: nil).padding(.horizontal, Spacing.s32) }
+        } else {
+            CollectionGrid(items: sortedAlbums) { album in
+                AlbumCard(album: album, onOpen: { router.openAlbum(album) }, onPlay: { play(album) })
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .environment(app)
+                    .environment(router)
+            }
         }
     }
 
     private var artists: some View {
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 140, maximum: 180), spacing: Spacing.s24, alignment: .top)], spacing: Spacing.s24) {
-                ForEach(app.library.artists) { artist in
-                    ArtistCard(artist: artist) { router.openArtist(id: artist.id, name: artist.name) }
-                }
-            }
-            .padding(.horizontal, Spacing.s32)
-            .padding(.bottom, Spacing.s32)
+        CollectionGrid(items: app.library.artists, minItemWidth: 140, captionHeight: 28, spacing: Spacing.s24) { artist in
+            ArtistCard(artist: artist) { router.openArtist(id: artist.id, name: artist.name) }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .environment(app)
+        }
+    }
+
+    private func play(_ album: Album) {
+        Task {
+            guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
+            app.player.play(tracks)
         }
     }
 }

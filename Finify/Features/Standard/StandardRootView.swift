@@ -36,7 +36,10 @@ struct StandardRootView: View {
         .environment(router)
         .task { await app.library.refreshIfNeeded() }
         #if DEBUG || BENCHMARK
-        .task { await DebugDemo.run(app: app, openAlbum: { router.openAlbum($0) }) }
+        .task {
+            if UserDefaults.standard.string(forKey: "FinifyDemoTab") == "library" { router.tab = .library }
+            await DebugDemo.run(app: app, openAlbum: { router.openAlbum($0) })
+        }
         #endif
     }
 

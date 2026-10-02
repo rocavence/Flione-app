@@ -57,7 +57,12 @@ struct HomeView: View {
             .padding(.horizontal, Spacing.s32)
             .padding(.bottom, Spacing.s48)
         }
-        .task { await model.load(app.repository) }
+        .task {
+            await model.load(app.repository)
+            #if DEBUG || BENCHMARK
+            LaunchMark.record("homeLoaded")
+            #endif
+        }
         .onChange(of: app.reconnectCount) { Task { await reload() } }
     }
 

@@ -13,6 +13,7 @@ struct FinifyApp: App {
                 .onAppear {
                     if keyboard == nil { keyboard = KeyboardMonitor(app: app) }
                     #if DEBUG || BENCHMARK
+                    LaunchMark.record("window")
                     WallBenchmark.startIfRequested()
                     #endif
                 }
