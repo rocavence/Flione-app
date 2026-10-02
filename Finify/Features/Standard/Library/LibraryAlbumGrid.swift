@@ -43,7 +43,7 @@ struct LibraryAlbumGrid: NSViewRepresentable {
 
     func updateNSView(_ scroll: NSScrollView, context: Context) {
         let coordinator = context.coordinator
-        let changed = coordinator.parent.albums.map(\.id) != albums.map(\.id)
+        let changed = coordinator.parent.albums != albums
         coordinator.parent = self
         if changed { coordinator.collection?.reloadData() }
     }
@@ -64,7 +64,8 @@ struct LibraryAlbumGrid: NSViewRepresentable {
         func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
             let item = collectionView.makeItem(withIdentifier: LibraryAlbumItem.identifier, for: indexPath) as! LibraryAlbumItem
             let album = parent.albums[indexPath.item]
-            item.configure(album, images: parent.app.images, playing: album.id == playingAlbumID, isPlaying: isPlaying)
+            let width = (collectionView.collectionViewLayout as? NSCollectionViewFlowLayout)?.itemSize.width ?? 168
+            item.configure(album, images: parent.app.images, width: width, playing: album.id == playingAlbumID, isPlaying: isPlaying)
             item.onOpen = { [weak self] in self?.parent.onOpen(album) }
             item.onPlay = { [weak self] in
                 guard let self else { return }
@@ -141,6 +142,8 @@ final class LibraryAlbumItem: NSCollectionViewItem {
     private var hovering = false
     private var playing = false
     private var isPlaying = false
+    /// 由版面傳入；新建立的 cell 在 configure 時 bounds 還是 0
+    private var itemWidth: CGFloat = 168
 
     override func loadView() {
         let view = LibraryAlbumItemView()
@@ -173,6 +176,7 @@ final class LibraryAlbumItem: NSCollectionViewItem {
         playButton.target = self
         playButton.action = #selector(playTapped)
         playButton.isHidden = true
+        playButton.setAccessibilityElement(false)
         view.addSubview(playButton)
 
         view.setAccessibilityElement(true)
@@ -196,7 +200,8 @@ final class LibraryAlbumItem: NSCollectionViewItem {
         playButton.frame = CGRect(x: width - 52, y: view.bounds.height - width + 8, width: 44, height: 44)
     }
 
-    func configure(_ album: Album, images: ImagePipeline?, playing: Bool, isPlaying: Bool) {
+    func configure(_ album: Album, images: ImagePipeline?, width: CGFloat, playing: Bool, isPlaying: Bool) {
+        itemWidth = width
         task?.cancel()
         self.album = album
         self.images = images
@@ -238,7 +243,11 @@ final class LibraryAlbumItem: NSCollectionViewItem {
     private func applyState() {
         playButton.isHidden = !(hovering || playing)
         playButton.image = NSImage(named: playing && isPlaying ? "Reicon/pause.filled" : "Reicon/play.filled")
-        playButton.setAccessibilityLabel(playing && isPlaying ? "Pause \(album?.name ?? "")" : "Play \(album?.name ?? "")")
+        // 按鈕只在 hover 時出現；VoiceOver 改用 cell 上的自訂動作
+        view.setAccessibilityCustomActions([NSAccessibilityCustomAction(name: playing && isPlaying ? "Pause" : "Play") { [weak self] in
+            self?.onPlay?()
+            return true
+        }])
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         CATransaction.begin()
         CATransaction.setAnimationDuration(reduceMotion ? 0 : 0.15)
@@ -255,7 +264,7 @@ final class LibraryAlbumItem: NSCollectionViewItem {
         guard let album else { return }
         fallbackTitle.string = nil
         let scale = view.window?.backingScaleFactor ?? 2
-        let pixels = Int(max(view.bounds.width, 160) * scale)
+        let pixels = Int(itemWidth * scale)
         guard let ref = album.artwork, let images else {
             artwork.contents = nil
             fallbackTitle.fontSize = 15

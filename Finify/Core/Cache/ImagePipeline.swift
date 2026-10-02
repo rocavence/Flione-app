@@ -2,6 +2,7 @@ import AppKit
 import CryptoKit
 import Foundation
 import ImageIO
+import os
 
 final class CGImageBox: @unchecked Sendable {
     let image: CGImage
@@ -94,23 +95,25 @@ final class ImagePipeline: @unchecked Sendable {
     }
 
     /// 主螢幕的色彩空間。外接螢幕常用自己的 ICC 描述檔（不是 sRGB），影像要轉成這個空間 Core Animation 才不用再轉
-    nonisolated(unsafe) private static var displayColorSpace: CGColorSpace? = CGColorSpace(name: CGColorSpace.sRGB)
+    /// 背景解碼讀取、main thread 在螢幕改變時寫入，以 lock 保護
+    private static let displayColorSpace = OSAllocatedUnfairLock<CGColorSpace?>(initialState: CGColorSpace(name: CGColorSpace.sRGB))
     nonisolated(unsafe) private static var screenObserver: NSObjectProtocol?
 
     /// 在 main thread 呼叫：記下主螢幕色彩空間，螢幕改變時更新
     @MainActor
     static func trackDisplayColorSpace() {
-        displayColorSpace = NSScreen.main?.colorSpace?.cgColorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)
+        let update: @Sendable () -> Void = { displayColorSpace.withLock { $0 = NSScreen.main?.colorSpace?.cgColorSpace ?? CGColorSpace(name: CGColorSpace.sRGB) } }
+        update()
         guard screenObserver == nil else { return }
         screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { _ in
-            displayColorSpace = NSScreen.main?.colorSpace?.cgColorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)
+            update()
         }
     }
 
     /// 在背景 thread 把影像重畫成螢幕原生格式（螢幕色彩空間、premultiplied BGRA）。
     /// 否則 Core Animation 會在 main thread 逐張做色彩轉換，捲動時掉 frame（Instruments 實測佔 main thread 16–23%）
     static func preparedForDisplay(_ image: CGImage) -> CGImage {
-        guard let space = displayColorSpace ?? CGColorSpace(name: CGColorSpace.sRGB),
+        guard let space = displayColorSpace.withLock({ $0 }) ?? CGColorSpace(name: CGColorSpace.sRGB),
               let context = CGContext(data: nil, width: image.width, height: image.height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
                                       bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)
         else { return image }
