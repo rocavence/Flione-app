@@ -73,6 +73,7 @@ final class AppEnvironment {
         self.sessionStore = sessionStore
         rememberMode = UserDefaults.standard.object(forKey: Self.rememberKey) as? Bool ?? true
         mode = rememberMode ? UserDefaults.standard.string(forKey: Self.modeKey).flatMap(AppMode.init) : nil
+        ImagePipeline.trackDisplayColorSpace()
         nowPlaying = NowPlayingController(player: player) { [weak self] in self?.images }
         if let session = sessionStore.load() { activate(session) }
         expiryObserver = NotificationCenter.default.addObserver(forName: .finifySessionExpired, object: nil, queue: .main) { [weak self] _ in

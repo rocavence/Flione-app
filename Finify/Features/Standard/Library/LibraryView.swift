@@ -79,12 +79,7 @@ struct LibraryView: View {
         if app.library.albums.isEmpty {
             ScrollView { AlbumGrid(albums: nil).padding(.horizontal, Spacing.s32) }
         } else {
-            CollectionGrid(items: sortedAlbums) { album in
-                AlbumCard(album: album, onOpen: { router.openAlbum(album) }, onPlay: { play(album) })
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .environment(app)
-                    .environment(router)
-            }
+            LibraryAlbumGrid(albums: sortedAlbums, app: app, onOpen: { router.openAlbum($0) }, onPlay: play)
         }
     }
 

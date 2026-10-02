@@ -81,16 +81,17 @@ Library 格線往上捲仍有輕微卡頓，見「已知問題」。
 
 ## 已知問題與沒做的事
 
-* Library 專輯格線：視窗 1360 寬時往上快速捲動有輕微卡頓（11–27 ms/s）；視窗 1040 寬時除了封面第一次載入，其他都在 0–3 ms/s。
-  03:20 後背景的 Zen 瀏覽器持續吃 CPU／GPU，1360 寬時量到 95–150 ms/s；同條件下 Album Wall 仍是 0。
-  試過拿掉陰影、只在 hover 建立播放鈕、甚至把整個 cell 改成純 AppKit，都沒有改善，所以都沒保留。
-  原因應該在 cell 之外（Library 外層的 SwiftUI 版面），下一步要用 Instruments 找（trace 已錄好但還沒分析）。
+* Library 專輯格線捲動（視窗 1360 寬）仍有卡頓，但用 Instruments 找到並修掉兩個主要原因：
+  1. 封面的色彩轉換在 main thread 進行。這台螢幕用自己的 ICC 描述檔，每張封面上畫面前都要轉換（佔 main thread 16–23%）。現在在背景先轉成螢幕的色彩空間，main thread 只剩約 1%。
+  2. 每個 cell 是 SwiftUI，重用時要重建整個 view 圖。改成純 AppKit cell 後，這部分從 17,681 個 sample 降到 615。
+  剩下的主要是每個新 cell 的文字繪製。另外背景的 Zen 瀏覽器一直佔用 CPU 與 GPU，量測數字（90–137 ms/s）偏高，關掉瀏覽器再量比較準。
 * 歌詞：你的 server 目前沒有歌詞檔，同步歌詞的畫面只用單元測試驗證，沒有實際看過。
 * 規格 V1 中沒做：系統通知（會跳權限詢問視窗，無人值守時不能做）、分享、Expanded Player（Standard 可直接進 Fullscreen 代替）。
 * 拖放只做了「專輯拖到佇列」；拖到 playlist 需要兩者同時出現在畫面上，目前的版面沒有這種情況。
 * 120 Hz ProMotion 螢幕沒測（這台外接螢幕是 60 Hz）。
 * 很多最近加入的專輯在 Jellyfin 沒有封面（顯示成文字方塊），是音樂庫的 metadata 問題，可在 Jellyfin 重新抓取 metadata。
 * Release build 只有本機簽章；給別人用需要開發者帳號簽章與公證。
+* 38 個測試中，有一個跟時間有關的測試偶爾會失敗（連續 4 次跑，1 次失敗）。
 
 ## 對你的 Jellyfin 做了什麼
 
