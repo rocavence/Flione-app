@@ -40,6 +40,24 @@ struct Track: Identifiable, Hashable, Sendable, Codable {
     var playlistItemID: String? = nil
 }
 
+/// 歌詞。每行有開始時間時為同步歌詞
+struct Lyrics: Sendable, Equatable {
+    struct Line: Sendable, Equatable {
+        let text: String
+        let start: TimeInterval?
+    }
+
+    let lines: [Line]
+
+    var isSynced: Bool { !lines.isEmpty && lines.allSatisfy { $0.start != nil } }
+
+    /// 播放到 `time` 時應該亮起的那一行
+    func currentLineIndex(at time: TimeInterval) -> Int? {
+        guard isSynced else { return nil }
+        return lines.lastIndex { ($0.start ?? .infinity) <= time }
+    }
+}
+
 struct Genre: Identifiable, Hashable, Sendable, Codable {
     let id: String
     let name: String

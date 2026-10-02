@@ -115,6 +115,21 @@ struct BaseItemDTO: Decodable, Sendable {
     }
 }
 
+struct LyricsDTO: Decodable, Sendable {
+    struct Line: Decodable, Sendable {
+        let text: String?
+        let start: Int64?
+        enum CodingKeys: String, CodingKey { case text = "Text", start = "Start" }
+    }
+
+    let lyrics: [Line]
+    enum CodingKeys: String, CodingKey { case lyrics = "Lyrics" }
+
+    func toLyrics() -> Lyrics {
+        Lyrics(lines: lyrics.map { Lyrics.Line(text: $0.text ?? "", start: $0.start.map { Double($0) / 10_000_000 }) })
+    }
+}
+
 struct AuthenticationResponse: Decodable, Sendable {
     struct User: Decodable, Sendable {
         let id: String

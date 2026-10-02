@@ -89,6 +89,12 @@ final class RepositoryIntegrationTests: XCTestCase {
         XCTAssertFalse(remaining.contains { $0.id == id })
     }
 
+    func testTrackWithoutLyricsReturnsNil() async throws {
+        // 這個 server 目前沒有歌詞檔，Jellyfin 回 404
+        let lyrics = try await repository.lyrics(for: "5e272fb46db8b120c59ecb607517fc6d")
+        XCTAssertNil(lyrics)
+    }
+
     func testDiscoverBareHostname() async throws {
         let (url, info) = try await JellyfinClient.discover("mediabox")
         XCTAssertEqual(url.absoluteString, "http://mediabox:8096")

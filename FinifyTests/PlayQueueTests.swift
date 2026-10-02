@@ -98,3 +98,22 @@ final class PlayQueueDuplicateTests: XCTestCase {
         XCTAssertEqual(q.upcoming.map(\.id), ["t1", "t2"])
     }
 }
+
+final class LyricsTests: XCTestCase {
+    func testDecodesSyncedLyricsAndFindsCurrentLine() throws {
+        let json = #"{"Metadata":{},"Lyrics":[{"Text":"Hello","Start":0},{"Text":"World","Start":50000000},{"Text":"Again","Start":120000000}]}"#
+        let lyrics = try JellyfinClient.decoder.decode(LyricsDTO.self, from: Data(json.utf8)).toLyrics()
+        XCTAssertTrue(lyrics.isSynced)
+        XCTAssertEqual(lyrics.lines[1].start, 5)
+        XCTAssertEqual(lyrics.currentLineIndex(at: 0), 0)
+        XCTAssertEqual(lyrics.currentLineIndex(at: 6.2), 1)
+        XCTAssertEqual(lyrics.currentLineIndex(at: 200), 2)
+    }
+
+    func testPlainLyricsHaveNoCurrentLine() throws {
+        let json = #"{"Lyrics":[{"Text":"Line one"},{"Text":"Line two"}]}"#
+        let lyrics = try JellyfinClient.decoder.decode(LyricsDTO.self, from: Data(json.utf8)).toLyrics()
+        XCTAssertFalse(lyrics.isSynced)
+        XCTAssertNil(lyrics.currentLineIndex(at: 10))
+    }
+}

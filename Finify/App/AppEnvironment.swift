@@ -50,7 +50,12 @@ final class AppEnvironment {
     }
 
     var isFullscreenRequested = false
-    var isQueuePresented = false
+    var isQueuePresented = false {
+        didSet { if isQueuePresented { isLyricsPresented = false } }
+    }
+    var isLyricsPresented = false {
+        didSet { if isLyricsPresented { isQueuePresented = false } }
+    }
 
     @ObservationIgnored private let sessionStore: any SessionStore
     @ObservationIgnored private var nowPlaying: NowPlayingController?

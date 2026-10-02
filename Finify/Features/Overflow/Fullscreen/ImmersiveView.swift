@@ -48,6 +48,9 @@ struct ImmersiveView: View {
                             HStack(spacing: Spacing.s24) {
                                 if let track { FavoriteButton(itemID: track.id, name: track.name, size: .primary) }
                                 PlaybackControls(size: .emphasis)
+                                FinifyIconButton(icon: .microphone, label: "Lyrics", size: .primary, isActive: app.isLyricsPresented) {
+                                    app.isLyricsPresented.toggle()
+                                }
                                 FinifyIconButton(icon: .playlist, label: "Queue", size: .primary, isActive: app.isQueuePresented) {
                                     app.isQueuePresented.toggle()
                                 }
@@ -59,6 +62,18 @@ struct ImmersiveView: View {
                     Spacer()
                 }
                 .padding(Spacing.s48)
+
+                if app.isLyricsPresented {
+                    HStack {
+                        Spacer()
+                        LyricsPanel()
+                            .frame(width: 420)
+                            .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+                            .padding(.vertical, Spacing.s80)
+                            .padding(.trailing, Spacing.s32)
+                    }
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
 
                 if app.isQueuePresented {
                     HStack {
@@ -84,6 +99,7 @@ struct ImmersiveView: View {
         .environment(\.overflowStyle, true)
         .animation(Motion.respecting(reduceMotion, Motion.controlsFade), value: controlsVisible)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
+        .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isLyricsPresented)
         .onContinuousHover { phase in
             if case .active = phase {
                 lastMove = .now
@@ -93,7 +109,7 @@ struct ImmersiveView: View {
         .task {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(500))
-                if autoHide, !app.isQueuePresented, controlsVisible, Date().timeIntervalSince(lastMove) > 2.5, app.player.isPlaying {
+                if autoHide, !app.isQueuePresented, !app.isLyricsPresented, controlsVisible, Date().timeIntervalSince(lastMove) > 2.5, app.player.isPlaying {
                     controlsVisible = false
                     NSCursor.setHiddenUntilMouseMoves(true)
                 }

@@ -17,8 +17,15 @@ struct StandardRootView: View {
                         .frame(width: 340)
                         .transition(.move(edge: .trailing).combined(with: .opacity))
                 }
+                if app.isLyricsPresented {
+                    LyricsPanel()
+                        .frame(width: 380)
+                        .overlay(alignment: .leading) { FinifyColor.hairline.frame(width: 1) }
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
             }
             .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
+            .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isLyricsPresented)
             PlayerBar(onOpenAlbum: openAlbum(id:), onOpenArtist: { router.openArtist(id: $0, name: $1) })
         }
         .overlay {

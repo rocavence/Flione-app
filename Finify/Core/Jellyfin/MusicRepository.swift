@@ -21,6 +21,9 @@ protocol MusicRepository: Sendable {
     func reportPlaybackStarted(_ track: Track) async
     func reportPlaybackStopped(_ track: Track, position: TimeInterval) async
 
+    /// 沒有歌詞時回傳 nil
+    func lyrics(for trackID: String) async throws -> Lyrics?
+
     func genres() async throws -> [Genre]
     func albums(inGenre genreID: String) async throws -> [Album]
     /// 隨機挑選該類型的曲目
@@ -212,6 +215,18 @@ final class JellyfinRepository: MusicRepository {
             URLQueryItem(name: "static", value: "true"),
             URLQueryItem(name: "ApiKey", value: session.accessToken),
         ])
+    }
+
+    // MARK: - Lyrics
+
+    func lyrics(for trackID: String) async throws -> Lyrics? {
+        do {
+            let dto: LyricsDTO = try await client.get("/Audio/\(trackID)/Lyrics")
+            let lyrics = dto.toLyrics()
+            return lyrics.lines.contains { !$0.text.trimmingCharacters(in: .whitespaces).isEmpty } ? lyrics : nil
+        } catch JellyfinError.unexpectedResponse(404) {
+            return nil
+        }
     }
 
     // MARK: - Genres
