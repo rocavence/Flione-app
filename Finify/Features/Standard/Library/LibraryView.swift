@@ -16,7 +16,12 @@ enum AlbumSort: String, CaseIterable {
 struct LibraryView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(StandardRouter.self) private var router
-    @State private var section: LibrarySection = .albums
+    @State private var section: LibrarySection = {
+        #if DEBUG || BENCHMARK
+        if let raw = UserDefaults.standard.string(forKey: "FinifyDemoSection"), let section = LibrarySection(rawValue: raw) { return section }
+        #endif
+        return .albums
+    }()
     @State private var sort: AlbumSort = .artist
 
     var body: some View {
