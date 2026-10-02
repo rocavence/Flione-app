@@ -1311,3 +1311,43 @@ Prefetch                    依捲動方向預載下一屏；離開預載範圍�
 LOD                         依 density 請求對應尺寸縮圖；快速捲動先顯示 BlurHash，停下再補清晰圖
 Decode                      ImageIO 在背景 thread downsample，不在 main thread 解碼原圖
 ```
+
+---
+
+# 35. 執行狀態（2026-10-03）
+
+## Task Queue
+
+| Task | 狀態 | 備註 |
+| ---- | ---- | ---- |
+| 001 macOS SwiftUI project | ✅ | XcodeGen（`project.yml`） |
+| 002 Design System | ✅ | `Finify/DesignSystem/` |
+| 003 Reicon | ✅ | `scripts/reicon/`、`FinifyIcon` |
+| 004 App navigation | ✅ | 頂部導覽列（D07） |
+| 005 Jellyfin authentication | ✅ | 只填主機名稱即可連線；Keychain |
+| 006 Library repository | ✅ | `MusicRepository` / `JellyfinRepository` |
+| 007 Album Grid | ✅ | Library 用 `CollectionGrid`（NSCollectionView） |
+| 008 Artist page | ✅ | 沒有照片時用專輯封面（D06） |
+| 009 Album page | ✅ | 多碟分組、ambient 色 |
+| 010 Search | ✅ | ⌘K，兩個 mode 共用（D08） |
+| 011 PlayerManager | ✅ | AVQueuePlayer，預載下一首（D01） |
+| 012 Queue | ✅ | 插播、加入、移除、拖曳排序、清除 |
+| 013 Mini Player | ✅ | |
+| 014 Media Keys | ✅ | MPRemoteCommandCenter；未以實體鍵盤驗證 |
+| 015 Now Playing | ✅ | 含封面；未以 Control Center 截圖驗證 |
+| 016 Standard Home | ✅ | Recently Played / Added、Quick Picks |
+| 017 Overflow entry | ✅ | Mode picker、⌘1 / ⌘2 |
+| 018 Album Wall | ✅ | NSCollectionView（D02） |
+| 019 Album Density | ✅ | Small / Medium / Large、pinch、+／− |
+| 020 Album Flow | ✅ | |
+| 021 Ambient Background | ✅ | 可在設定關閉 |
+| 022 Fullscreen Overflow | ✅ | 控制項自動隱藏 |
+| 023 Performance | ✅ | 啟動 0.2 s 出現視窗、0.9 s 首頁資料；捲動量測見 S3 |
+| 024 Accessibility | 🟡 | VoiceOver 標籤、Reduce Motion、增加對比已做；未做完整 VoiceOver 實測 |
+| 025 Visual polish | 🟡 | 持續進行 |
+| 026 Release build | ⬜ | 需要開發者帳號簽章與公證 |
+
+## §34 待定義項目的處理
+
+* **Onboarding mode picker**：已實作，選項可記住（設定中可改）。
+* **Overflow Search**：與 Standard 共用 ⌘K 面板，見 `DECISIONS.md` D08。
