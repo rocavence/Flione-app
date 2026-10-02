@@ -193,8 +193,25 @@ struct AlbumWallView: NSViewRepresentable {
 final class WallCollectionView: NSCollectionView {
     weak var coordinator: AlbumWallView.Coordinator?
 
+    /// 出現時取得鍵盤焦點，方向鍵與 Return 才能直接使用（目前有文字輸入焦點時不搶）
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let window = self.window, !(window.firstResponder is NSText) else { return }
+            window.makeFirstResponder(self)
+        }
+    }
+
     override func keyDown(with event: NSEvent) {
         if event.keyCode == 36 || event.keyCode == 76 { coordinator?.playSelected(); return }
+        // 還沒有選取時，第一次按方向鍵選取畫面上第一張
+        let arrows: Set<UInt16> = [123, 124, 125, 126]
+        if arrows.contains(event.keyCode), selectionIndexPaths.isEmpty,
+           let first = indexPathsForVisibleItems().min() {
+            selectionIndexPaths = [first]
+            delegate?.collectionView?(self, didSelectItemsAt: [first])
+            return
+        }
         super.keyDown(with: event)
     }
 }
