@@ -42,6 +42,7 @@ enum Reicon: String, CaseIterable, Sendable {
     case wifiOff = "wifi-off"
     case server = "server"
     case playlist2 = "playlist2"
+    case menu = "menu"
     case grid = "grid"
     case layers = "layers"
     case keyboard = "keyboard"

@@ -1,0 +1,159 @@
+import SwiftUI
+
+/// 專輯卡片：封面＋標題＋藝人。hover 時出現播放鈕。
+struct AlbumCard: View {
+    let album: Album
+    var subtitle: String?
+    let onOpen: () -> Void
+    let onPlay: () -> Void
+
+    @Environment(AppEnvironment.self) private var app
+    @State private var hovering = false
+
+    private var isPlaying: Bool { app.player.currentTrack?.albumID == album.id }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.s8) {
+            ArtworkView(artwork: album.artwork, elevation: isPlaying ? .playing : .standard, interactive: true)
+                .overlay(alignment: .bottomTrailing) {
+                    FinifyIconButton(icon: isPlaying && app.player.isPlaying ? .pause : .play, label: "Play \(album.name)", size: .standard, prominent: true) {
+                        if isPlaying { app.player.togglePlayPause() } else { onPlay() }
+                    }
+                    .finifyShadow(FinifyShadow.elevated)
+                    .padding(Spacing.s8)
+                    .opacity(hovering || isPlaying ? 1 : 0)
+                    .offset(y: hovering || isPlaying ? 0 : 6)
+                    .animation(Motion.micro, value: hovering)
+                }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(album.name)
+                    .finifyFont(.subheading)
+                    .foregroundStyle(isPlaying ? FinifyColor.accent : FinifyColor.ink)
+                    .lineLimit(1)
+                Text(subtitle ?? album.artistName)
+                    .finifyFont(.caption)
+                    .foregroundStyle(FinifyColor.muted)
+                    .lineLimit(1)
+            }
+        }
+        .contentShape(Rectangle())
+        .onHover { hovering = $0 }
+        .onTapGesture(perform: onOpen)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(album.name), \(album.artistName)")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction(named: "Play", onPlay)
+        .contextMenu {
+            Button("Play", action: onPlay)
+            Button("Open Album", action: onOpen)
+        }
+    }
+}
+
+/// 藝人卡片。藝人照片用圓形，與方形的專輯封面區隔（D06）。
+struct ArtistCard: View {
+    let artist: Artist
+    let onOpen: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        VStack(spacing: Spacing.s8) {
+            ArtworkView(artwork: artist.artwork, cornerRadius: 999, interactive: true)
+            Text(artist.name)
+                .finifyFont(.subheading)
+                .foregroundStyle(FinifyColor.ink)
+                .lineLimit(1)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onOpen)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// 曲目列。雙擊播放；hover 時顯示播放鈕；正在播放時以 accent 標示。
+struct TrackRow: View {
+    let track: Track
+    /// 顯示在左側的編號（專輯曲序或清單順序）
+    var number: Int?
+    var showsArtwork = false
+    var showsAlbum = false
+    let onPlay: () -> Void
+    var onOpenAlbum: (() -> Void)?
+    var onOpenArtist: (() -> Void)?
+
+    @Environment(AppEnvironment.self) private var app
+    @State private var hovering = false
+
+    private var isCurrent: Bool { app.player.currentTrack?.id == track.id }
+
+    var body: some View {
+        HStack(spacing: Spacing.s12) {
+            ZStack {
+                if hovering {
+                    FinifyIcon(isCurrent && app.player.isPlaying ? .pause : .play, weight: .filled, size: .compact)
+                        .foregroundStyle(FinifyColor.ink)
+                } else if isCurrent {
+                    FinifyIcon(.volumeHigh, weight: .filled, size: .compact)
+                        .foregroundStyle(FinifyColor.accent)
+                } else if let number {
+                    Text("\(number)")
+                        .finifyFont(.body)
+                        .monospacedDigit()
+                        .foregroundStyle(FinifyColor.muted)
+                }
+            }
+            .frame(width: 24)
+            .contentShape(Rectangle())
+            .onTapGesture { if isCurrent { app.player.togglePlayPause() } else { onPlay() } }
+
+            if showsArtwork {
+                ArtworkView(artwork: track.artwork, elevation: .none)
+                    .frame(width: 36, height: 36)
+            }
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(track.name)
+                    .finifyFont(.body)
+                    .foregroundStyle(isCurrent ? FinifyColor.accent : FinifyColor.ink)
+                    .lineLimit(1)
+                Text(track.artistName)
+                    .finifyFont(.caption)
+                    .foregroundStyle(FinifyColor.muted)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            if showsAlbum {
+                Text(track.albumName)
+                    .finifyFont(.caption)
+                    .foregroundStyle(FinifyColor.muted)
+                    .lineLimit(1)
+                    .frame(maxWidth: 240, alignment: .leading)
+            }
+
+            Text(track.duration.formattedDuration)
+                .finifyFont(.caption)
+                .monospacedDigit()
+                .foregroundStyle(FinifyColor.muted)
+                .frame(width: 48, alignment: .trailing)
+        }
+        .padding(.horizontal, Spacing.s12)
+        .frame(height: showsArtwork ? 52 : 44)
+        .background(hovering ? FinifyColor.surface : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+        .contentShape(Rectangle())
+        .onHover { hovering = $0 }
+        .onTapGesture(count: 2) { if isCurrent { app.player.togglePlayPause() } else { onPlay() } }
+        .contextMenu {
+            Button("Play", action: onPlay)
+            Button("Play Next") { app.player.playNext([track]) }
+            Button("Add to Queue") { app.player.addToQueue([track]) }
+            if let onOpenAlbum { Divider(); Button("Go to Album", action: onOpenAlbum) }
+            if let onOpenArtist { Button("Go to Artist", action: onOpenArtist) }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(track.name), \(track.artistName), \(track.duration.formattedDuration)")
+        .accessibilityAddTraits(isCurrent ? [.isButton, .isSelected] : .isButton)
+        .accessibilityAction(named: "Play", onPlay)
+    }
+}

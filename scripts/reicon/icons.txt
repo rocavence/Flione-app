@@ -54,6 +54,7 @@ server
 
 # Layout / Overflow
 playlist2
+menu
 grid
 layers
 keyboard

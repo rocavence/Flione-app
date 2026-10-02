@@ -1,0 +1,138 @@
+import SwiftUI
+
+@MainActor @Observable
+final class ArtistViewModel {
+    var artist: Artist?
+    var popular: Loadable<[Track]> = .loading
+    var albums: Loadable<[Album]> = .loading
+
+    func load(id: String, repository: (any MusicRepository)?) async {
+        guard let repository else { return }
+        async let artist = try? repository.artist(id: id)
+        async let popular: Loadable<[Track]> = { do { return .loaded(try await repository.popularTracks(byArtist: id, limit: 5)) } catch { return .failed } }()
+        async let albums: Loadable<[Album]> = { do { return .loaded(try await repository.albums(byArtist: id)) } catch { return .failed } }()
+        (self.artist, self.popular, self.albums) = await (artist, popular, albums)
+    }
+}
+
+struct ArtistView: View {
+    let artistID: String
+    let name: String
+    @Environment(AppEnvironment.self) private var app
+    @Environment(StandardRouter.self) private var router
+    @State private var model = ArtistViewModel()
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.s40) {
+                header
+                popularSection
+                albumsSection
+            }
+            .padding(Spacing.s32)
+        }
+        .background(alignment: .top) { AmbientWash(artwork: model.artist?.artwork ?? firstAlbumArtwork) }
+        .task { await model.load(id: artistID, repository: app.repository) }
+    }
+
+    private var firstAlbumArtwork: ArtworkRef? {
+        if case .loaded(let albums) = model.albums { return albums.first?.artwork }
+        return nil
+    }
+
+    private var header: some View {
+        HStack(alignment: .bottom, spacing: Spacing.s32) {
+            ArtworkView(artwork: model.artist?.artwork ?? firstAlbumArtwork, cornerRadius: 999, elevation: .playing)
+                .frame(width: 200, height: 200)
+            VStack(alignment: .leading, spacing: Spacing.s12) {
+                Text("Artist").finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
+                Text(name).finifyFont(.display).foregroundStyle(FinifyColor.ink).lineLimit(2).minimumScaleFactor(0.6)
+                HStack(spacing: Spacing.s8) {
+                    FinifyButton(title: "Play", icon: .play, kind: .primary) { Task { await playAll(shuffled: false) } }
+                    FinifyButton(title: "Shuffle", icon: .shuffle) { Task { await playAll(shuffled: true) } }
+                }
+                .padding(.top, Spacing.s8)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var popularSection: some View {
+        if case .loaded(let tracks) = model.popular, !tracks.isEmpty {
+            VStack(alignment: .leading, spacing: Spacing.s12) {
+                SectionHeader(title: "Popular")
+                VStack(spacing: 2) {
+                    ForEach(Array(tracks.enumerated()), id: \.element.id) { index, track in
+                        TrackRow(track: track, number: index + 1, showsArtwork: true, showsAlbum: true, onPlay: {
+                            app.player.play(tracks, startAt: index)
+                        }, onOpenAlbum: { openAlbum(id: track.albumID) })
+                    }
+                }
+            }
+        } else if case .loading = model.popular {
+            VStack(spacing: Spacing.s8) { ForEach(0..<5, id: \.self) { _ in SkeletonBlock().frame(height: 44) } }
+        }
+    }
+
+    @ViewBuilder
+    private var albumsSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.s16) {
+            SectionHeader(title: "Albums")
+            switch model.albums {
+            case .loading:
+                AlbumGrid(albums: nil)
+            case .failed:
+                MessageState(title: "Can't load albums.", message: "Check your connection to the music server.", icon: .wifiOff,
+                             primary: ("Retry", { Task { await model.load(id: artistID, repository: app.repository) } }))
+            case .loaded(let albums):
+                AlbumGrid(albums: albums, subtitle: { $0.year.map(String.init) ?? "Album" })
+            }
+        }
+    }
+
+    private func openAlbum(id: String?) {
+        guard case .loaded(let albums) = model.albums, let album = albums.first(where: { $0.id == id }) else { return }
+        router.openAlbum(album)
+    }
+
+    /// 依專輯順序（新到舊）串成整個藝人的曲目
+    private func playAll(shuffled: Bool) async {
+        guard case .loaded(let albums) = model.albums, let repository = app.repository else { return }
+        var tracks: [Track] = []
+        for album in albums.prefix(20) {
+            if let albumTracks = try? await repository.tracks(inAlbum: album.id) { tracks += albumTracks }
+        }
+        app.player.play(tracks, shuffled: shuffled)
+    }
+}
+
+/// 自適應欄數的專輯格線（Standard 用；Overflow 的 Album Wall 另以 NSCollectionView 實作）
+struct AlbumGrid: View {
+    /// nil = 載入中
+    let albums: [Album]?
+    var subtitle: ((Album) -> String)?
+    @Environment(AppEnvironment.self) private var app
+    @Environment(StandardRouter.self) private var router
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 156, maximum: 220), spacing: Spacing.s20, alignment: .top)], alignment: .leading, spacing: Spacing.s24) {
+            if let albums {
+                ForEach(albums) { album in
+                    AlbumCard(album: album, subtitle: subtitle?(album), onOpen: { router.openAlbum(album) }, onPlay: {
+                        Task {
+                            guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
+                            app.player.play(tracks)
+                        }
+                    })
+                }
+            } else {
+                ForEach(0..<12, id: \.self) { _ in
+                    VStack(alignment: .leading, spacing: Spacing.s8) {
+                        SkeletonBlock().aspectRatio(1, contentMode: .fit)
+                        SkeletonBlock().frame(width: 110, height: 10)
+                    }
+                }
+            }
+        }
+    }
+}
