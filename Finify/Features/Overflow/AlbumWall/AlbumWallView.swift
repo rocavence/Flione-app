@@ -58,13 +58,16 @@ struct AlbumWallView: NSViewRepresentable {
         scroll.hasVerticalScroller = true
         scroll.autohidesScrollers = true
         scroll.scrollerStyle = .overlay
-        scroll.contentInsets = NSEdgeInsets(top: 64, left: 0, bottom: 120, right: 0)
+        scroll.automaticallyAdjustsContentInsets = false
+        scroll.contentInsets = NSEdgeInsets(top: 60, left: 0, bottom: 120, right: 0)
 
         let pinch = NSMagnificationGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.pinch(_:)))
         collection.addGestureRecognizer(pinch)
 
         context.coordinator.collection = collection
         context.coordinator.applySize(density.side, animated: false)
+        // 有 content inset 時，初始位置要捲到 inset 之上，第一列才不會被頂部列擋住
+        scroll.contentView.scroll(to: NSPoint(x: 0, y: -scroll.contentInsets.top))
         return scroll
     }
 

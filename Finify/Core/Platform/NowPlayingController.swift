@@ -87,13 +87,18 @@ final class NowPlayingController {
         center.playbackState = player.isPlaying ? .playing : .paused
     }
 
+    /// MediaPlayer 會在背景 queue 呼叫 artwork closure；必須建立在 main actor 之外，否則 Swift 6 執行期檢查會 crash
+    nonisolated private static func makeArtwork(_ cgImage: CGImage) -> MPMediaItemArtwork {
+        let image = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
+        return MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+    }
+
     private func loadArtwork(for track: Track) {
         artworkTask?.cancel()
         guard let ref = track.artwork, let images = images() else { return }
         artworkTask = Task {
             guard let cgImage = await images.image(ref, pixelSize: 600), !Task.isCancelled else { return }
-            let image = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
-            let artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+            let artwork = Self.makeArtwork(cgImage)
             let center = MPNowPlayingInfoCenter.default()
             var info = center.nowPlayingInfo ?? [:]
             info[MPMediaItemPropertyArtwork] = artwork

@@ -85,7 +85,12 @@ struct SearchPalette: View {
         .background(FinifyColor.elevated, in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: Radius.card, style: .continuous).strokeBorder(FinifyColor.hairline, lineWidth: 1) }
         .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.3), radius: 40, y: 20))
-        .onAppear { fieldFocused = true }
+        .onAppear {
+            fieldFocused = true
+            #if DEBUG
+            if let term = DebugDemo.searchTerm, model.query.isEmpty { model.query = term }
+            #endif
+        }
         .onExitCommand { app.isSearchPresented = false }
         .environment(\.overflowStyle, false)
     }

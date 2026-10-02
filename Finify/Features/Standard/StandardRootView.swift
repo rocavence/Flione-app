@@ -35,6 +35,9 @@ struct StandardRootView: View {
         .background(FinifyColor.paper)
         .environment(router)
         .task { await app.library.refreshIfNeeded() }
+        #if DEBUG
+        .task { await DebugDemo.run(app: app, openAlbum: { router.openAlbum($0) }) }
+        #endif
     }
 
     private var content: some View {

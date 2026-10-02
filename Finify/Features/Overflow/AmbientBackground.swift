@@ -12,16 +12,20 @@ struct AmbientBackground: View {
     var body: some View {
         ZStack {
             FinifyColor.Overflow.background
-            if let artwork {
-                ArtworkView(artwork: artwork, cornerRadius: 0, elevation: .none)
-                    .aspectRatio(contentMode: .fill)
-                    .scaleEffect(1.4)
-                    .blur(radius: 90, opaque: true)
-                    .saturation(1.2)
-                    .opacity(intensity)
-                    .id(artwork)
-                    .transition(.opacity)
+            // 放在 overlay 裡，封面的正方形比例才不會撐大整個版面
+            Color.clear.overlay {
+                if let artwork {
+                    ArtworkView(artwork: artwork, cornerRadius: 0, elevation: .none)
+                        .aspectRatio(contentMode: .fill)
+                        .scaleEffect(1.4)
+                        .blur(radius: 90, opaque: true)
+                        .saturation(1.2)
+                        .opacity(intensity)
+                        .id(artwork)
+                        .transition(.opacity)
+                }
             }
+            .clipped()
             // 壓暗並加上縱向漸層，確保前景文字對比
             LinearGradient(colors: [.black.opacity(0.35), .black.opacity(0.7)], startPoint: .top, endPoint: .bottom)
         }

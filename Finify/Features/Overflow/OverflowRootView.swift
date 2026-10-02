@@ -38,6 +38,9 @@ struct OverflowRootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: immersive)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
         .task { await app.library.refreshIfNeeded() }
+        #if DEBUG
+        .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }, immersive: enterImmersive) }
+        #endif
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { _ in immersive = false }
     }
 
@@ -64,7 +67,7 @@ struct OverflowRootView: View {
                     }
                 }
             }
-            .blur(radius: openAlbum == nil ? 0 : 24)
+            .opacity(openAlbum == nil ? 1 : 0.25)
             .allowsHitTesting(openAlbum == nil)
 
             VStack(spacing: 0) {
@@ -74,8 +77,7 @@ struct OverflowRootView: View {
             }
 
             if let album = openAlbum {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
+                Color.black.opacity(0.45)
                     .onTapGesture { openAlbum = nil }
                 OverflowAlbumPanel(album: album) { openAlbum = nil }
                     .transition(.scale(scale: 0.96).combined(with: .opacity))
@@ -154,7 +156,7 @@ struct OverflowRootView: View {
 
     private var searchOverlay: some View {
         ZStack(alignment: .top) {
-            Color.black.opacity(0.45).ignoresSafeArea().onTapGesture { app.isSearchPresented = false }
+            Color.black.opacity(0.45).onTapGesture { app.isSearchPresented = false }
             SearchPalette(onOpenAlbum: { openAlbum = $0 }, onOpenArtist: { artist in
                 // Overflow 沒有藝人頁：開該藝人最新的專輯
                 Task {
