@@ -45,7 +45,19 @@ struct AlbumCard: View {
         .accessibilityAction(named: "Play", onPlay)
         .contextMenu {
             Button("Play", action: onPlay)
+            Button("Play Next") { queue(next: true) }
+            Button("Add to Queue") { queue(next: false) }
+            Divider()
             Button("Open Album", action: onOpen)
+        }
+    }
+}
+
+extension AlbumCard {
+    fileprivate func queue(next: Bool) {
+        Task {
+            guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
+            if next { app.player.playNext(tracks) } else { app.player.addToQueue(tracks) }
         }
     }
 }
