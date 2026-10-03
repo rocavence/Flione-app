@@ -231,7 +231,7 @@ final class LibraryAlbumItem: NSCollectionViewItem {
     /// 深淺色切換時由 view 呼叫
     fileprivate func applyColors() {
         view.effectiveAppearance.performAsCurrentDrawingAppearance {
-            titleField.textColor = playing ? NSColor(FinifyColor.accent) : NSColor(FinifyColor.ink)
+            titleField.textColor = playing ? NSColor(FinifyColor.orange) : NSColor(FinifyColor.ink)
             subtitleField.textColor = NSColor(FinifyColor.muted)
             artwork.backgroundColor = NSColor(FinifyColor.surface).cgColor
             artwork.borderColor = NSColor(FinifyColor.ink).withAlphaComponent(0.06).cgColor

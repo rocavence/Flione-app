@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Standard mode 左側導覽（Finity 設計：Deep Navy 面板，選取項目只用一點 Finity Blue）
+/// Standard mode 左側導覽（Flione：Surface 1 面板，選取項目用 Surface Active 加一點 Flione Blue 邊）
 struct StandardSidebar: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(StandardRouter.self) private var router
@@ -95,7 +95,7 @@ private struct SidebarRow: View {
     }
 
     private var background: Color {
-        if isSelected { return FinifyColor.accent.opacity(0.22) }
+        if isSelected { return FinifyColor.active }
         return hovering ? FinifyColor.glassHighlight : .clear
     }
 }
@@ -119,7 +119,7 @@ private struct PlaylistSidebarRow: View {
             }
             .padding(.horizontal, Spacing.s12)
             .frame(height: 34)
-            .background(isSelected ? FinifyColor.accent.opacity(0.22) : (hovering ? FinifyColor.glassHighlight : .clear),
+            .background(isSelected ? FinifyColor.active : (hovering ? FinifyColor.glassHighlight : .clear),
                         in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
             .contentShape(Rectangle())
         }

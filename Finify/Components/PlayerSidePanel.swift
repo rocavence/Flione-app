@@ -23,8 +23,8 @@ struct PlayerSidePanel: View {
         .frame(width: 360)
         .clipShape(shape)
         // 文字為主的面板：玻璃上墊一層半透明底，後面的封面才不會干擾閱讀
-        .finifyGlass(in: shape, tint: overflow ? Color(hex: 0x0D1633).opacity(0.5) : FinifyColor.elevated.opacity(0.4),
-                     backing: overflow ? Color(hex: 0x0D1633).opacity(0.55) : FinifyColor.elevated.opacity(0.7),
+        .finifyGlass(in: shape, tint: overflow ? FinifyColor.Ocean.surface1.opacity(0.5) : FinifyColor.elevated.opacity(0.4),
+                     backing: overflow ? FinifyColor.Ocean.surface1.opacity(0.55) : FinifyColor.elevated.opacity(0.7),
                      fallback: FinifyColor.elevated)
         .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.4), radius: 40, y: 16))
         // 面板內一律用一般配色（Overflow 的半透明白字不適合長清單）

@@ -153,7 +153,7 @@ struct VolumeControl: View {
             FinifyIconButton(icon: player.volume == 0 ? .volumeOff : (player.volume < 0.5 ? .volumeLow : .volumeHigh), label: player.volume == 0 ? "Unmute" : "Mute", size: .compact) {
                 if player.volume == 0 { player.volume = lastVolume } else { lastVolume = player.volume; player.volume = 0 }
             }
-            ProgressBar(value: Double(player.volume), continuous: true) { player.volume = Float($0) }
+            ProgressBar(value: Double(player.volume), continuous: true, isPlayback: false) { player.volume = Float($0) }
                 .frame(width: 88)
                 .accessibilityLabel("Volume")
         }

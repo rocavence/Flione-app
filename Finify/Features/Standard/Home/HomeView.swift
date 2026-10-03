@@ -266,7 +266,7 @@ private struct HomeHero: View {
                     .transition(.opacity)
             }
             // 左側壓暗，讓文字清楚
-            LinearGradient(colors: [Color(hex: 0x080D20).opacity(0.75), Color(hex: 0x080D20).opacity(0.15)], startPoint: .leading, endPoint: .trailing)
+            LinearGradient(colors: [FinifyColor.Ocean.abyss.opacity(0.75), FinifyColor.Ocean.abyss.opacity(0.15)], startPoint: .leading, endPoint: .trailing)
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.8), value: album?.artwork)
         .drawingGroup()
@@ -305,7 +305,7 @@ private struct HeroButton: View {
                 Text(title).finifyFont(.bodyEmphasis)
             }
             .fixedSize()
-            .foregroundStyle(prominent ? Color(hex: 0x0D1633) : .white)
+            .foregroundStyle(prominent ? FinifyColor.Ocean.surface1 : .white)
             .padding(.horizontal, Spacing.s20)
             .frame(height: 38)
             .modifier(HeroButtonBackground(prominent: prominent, hovering: hovering))

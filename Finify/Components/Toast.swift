@@ -9,7 +9,7 @@ struct Toast: View {
     var body: some View {
         HStack(spacing: Spacing.s12) {
             FinifyIcon(icon, size: .compact)
-                .foregroundStyle(FinifyColor.accent)
+                .foregroundStyle(FinifyColor.warning)
             Text(message)
                 .finifyFont(.body)
                 .foregroundStyle(FinifyColor.ink)

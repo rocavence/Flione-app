@@ -90,6 +90,8 @@ struct ProgressBar: View {
     var steps: Int?
     /// 圓點平常也顯示（分段滑桿）；預設只在 hover／拖曳時出現
     var alwaysShowsKnob = false
+    /// 播放進度用 Bright Coral Orange；音量、大小這類控制用 Flione Blue
+    var isPlayback = true
     var onSeek: ((Double) -> Void)?
     @Environment(\.overflowStyle) private var overflow
     @State private var hovering = false
@@ -104,8 +106,8 @@ struct ProgressBar: View {
             ZStack(alignment: .leading) {
                 Capsule().fill(overflow ? Color.white.opacity(0.18) : FinifyColor.hairline)
                 Capsule()
-                    // 播放進度一律用 Finity Blue（Overflow 平常用白色，操作時才變藍）
-                    .fill(!overflow || hovering || dragValue != nil ? FinifyColor.accent : FinifyColor.Overflow.ink)
+                    // 播放進度一律用橘色；其他控制用藍色（Infinity／Cover Flow 平常用白色，操作時才變藍）
+                    .fill(isPlayback ? FinifyColor.orange : (!overflow || active ? FinifyColor.accent : FinifyColor.Overflow.ink))
                     .frame(width: max(0, min(1, shown)) * geo.size.width)
             }
             // 軌道 3pt，hover／拖曳時 1.5 倍；圓點放在 overlay，不參與排版

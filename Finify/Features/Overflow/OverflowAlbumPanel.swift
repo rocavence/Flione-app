@@ -122,13 +122,13 @@ private struct OverflowTrackRow: View {
         let current = app.player.currentTrack?.id == track.id
         HStack(spacing: Spacing.s12) {
             Group {
-                if current { FinifyIcon(.volumeHigh, weight: .filled, size: .compact).foregroundStyle(FinifyColor.accent) }
+                if current { FinifyIcon(.volumeHigh, weight: .filled, size: .compact).foregroundStyle(FinifyColor.orange) }
                 else if hovering { FinifyIcon(.play, weight: .filled, size: .compact).foregroundStyle(FinifyColor.Overflow.ink) }
                 else { Text("\(number)").monospacedDigit().foregroundStyle(FinifyColor.Overflow.faint) }
             }
             .frame(width: 20)
             Text(track.name)
-                .foregroundStyle(current ? FinifyColor.accent : FinifyColor.Overflow.ink)
+                .foregroundStyle(current ? FinifyColor.orange : FinifyColor.Overflow.ink)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text(track.duration.formattedDuration).monospacedDigit().foregroundStyle(FinifyColor.Overflow.faint)
@@ -153,7 +153,7 @@ private struct AlbumPanelGlass: ViewModifier {
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
         if #available(macOS 26.0, *) {
-            content.glassEffect(.regular.tint(Color(hex: 0x080D20).opacity(0.6)), in: shape)
+            content.glassEffect(.regular.tint(FinifyColor.Ocean.abyss.opacity(0.6)), in: shape)
         } else {
             content
                 .background(.black.opacity(0.55), in: shape)

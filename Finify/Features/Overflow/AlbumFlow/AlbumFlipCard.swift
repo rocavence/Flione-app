@@ -103,7 +103,7 @@ private struct AlbumBack: View {
 
     /// 背面底色取自封面平均色並壓暗（ambient color，不是品牌色）
     private var backColor: Color {
-        guard let hash = album.artwork?.blurHash, let c = BlurHash.averageColor(hash) else { return Color(hex: 0x111D40) }
+        guard let hash = album.artwork?.blurHash, let c = BlurHash.averageColor(hash) else { return FinifyColor.Ocean.surface2 }
         return Color(red: c.r * 0.28, green: c.g * 0.28, blue: c.b * 0.28)
     }
 }
@@ -123,7 +123,7 @@ private struct BackTrackRow: View {
                 .foregroundStyle(FinifyColor.Overflow.faint)
                 .frame(width: 18, alignment: .trailing)
             Text(track.name)
-                .foregroundStyle(current ? FinifyColor.accent : FinifyColor.Overflow.ink)
+                .foregroundStyle(current ? FinifyColor.orange : FinifyColor.Overflow.ink)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text(track.duration.formattedDuration)

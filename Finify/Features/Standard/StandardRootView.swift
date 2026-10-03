@@ -292,7 +292,7 @@ struct TopBarSurface<S: InsettableShape>: ViewModifier {
     var strokeFallback = true
 
     func body(content: Content) -> some View {
-        content.finifyGlass(in: shape, tint: overflow ? Color(hex: 0x111D40).opacity(0.45) : FinifyColor.surface.opacity(0.5),
+        content.finifyGlass(in: shape, tint: overflow ? FinifyColor.Ocean.surface2.opacity(0.45) : FinifyColor.surface.opacity(0.5),
                             interactive: true, fallback: fallback)
     }
 }

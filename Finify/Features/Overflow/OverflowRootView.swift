@@ -172,7 +172,7 @@ struct OverflowRootView: View {
         }
         .padding(.leading, Spacing.s16)
         .frame(height: ViewControls.barHeight)
-        .background(LinearGradient(colors: [Color(hex: 0x080D20).opacity(0.75), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
+        .background(LinearGradient(colors: [FinifyColor.Ocean.abyss.opacity(0.75), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
     }
 
     @ViewBuilder
@@ -256,7 +256,7 @@ private struct NowPlayingPill: View {
             }
             .padding(.horizontal, Spacing.s16)
             .padding(.vertical, Spacing.s8)
-            .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous), tint: Color(hex: 0x0D1633).opacity(0.55), fallback: Color(hex: 0x0D1633).opacity(0.88))
+            .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous), tint: FinifyColor.Ocean.surface1.opacity(0.55), fallback: FinifyColor.Ocean.surface1.opacity(0.88))
             .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 30, y: 12))
             .padding(.bottom, Spacing.s24)
             .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -276,7 +276,7 @@ private struct SizeSlider: View {
         let last = Double(count - 1)
         HStack(spacing: Spacing.s8) {
             FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.faint).scaleEffect(0.7)
-            ProgressBar(value: Double(step) / last, continuous: true, steps: count, alwaysShowsKnob: true) {
+            ProgressBar(value: Double(step) / last, continuous: true, steps: count, alwaysShowsKnob: true, isPlayback: false) {
                 let next = Int(($0 * last).rounded())
                 if next != step { Haptics.perform(.step) }
                 step = next

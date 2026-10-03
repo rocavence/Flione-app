@@ -123,14 +123,14 @@ func appIcon(source: String) -> CGImage {
 
 // MARK: - 選單列 icon
 
-/// 18×18pt 畫布、字形 16pt 置中；playing 時右下加一個播放中的小點
+/// 18×18pt 畫布、字形 16pt 置中；playing 時換成 Bright Coral Orange，右下加一個播放中的小點
 func menuBarIcon(svg: String, scale: Int, playing: Bool) -> CGImage {
     let pt: CGFloat = 18
     let ctx = makeContext(Int(pt) * scale, Int(pt) * scale)
     ctx.scaleBy(x: CGFloat(scale), y: CGFloat(scale))
     ctx.addPath(glyph(svg: svg, in: CGRect(x: 1, y: 1, width: 16, height: 16)))
     if playing { ctx.addEllipse(in: CGRect(x: 13.8, y: 0.6, width: 3.2, height: 3.2)) }
-    ctx.setFillColor(playing ? color(0x3E7CF6) : color(0x000000))
+    ctx.setFillColor(playing ? color(0xFF8A3D) : color(0x111827))
     ctx.fillPath()
     return ctx.makeImage()!
 }

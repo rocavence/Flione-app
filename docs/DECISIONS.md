@@ -56,18 +56,23 @@
 * **理由**：規格要求 Overflow 能獨立搜尋，但沒有定義 UI。共用面板讓兩邊行為一致，也不必維護兩套。
 * **補充**：Jellyfin 的專輯搜尋只比對專輯名，所以搜尋藝人名時會補上該藝人的專輯（搜「Radiohead」才會出現 OK Computer）。
 
-## D09　品牌色改為 Finity Blue（#2F6BFF）與深藍中性色
+## D09　色彩系統：Flione（deep-ocean／bioluminescent）
 
-* **選擇**：依使用者提供的 Finity Visual Design System：accent 用 Finity Blue（深色模式用 Electric #3E7CF6），底色是 Navy #0D1633、面板 Deep Navy #111D40、卡片 Blue Glass #182956；Aurora 漸層（#1D4ED8 → #2F6BFF → #6A8DFF → #A78BFA）只用在 Hero。淺色模式用帶藍調的淺灰白（#F4F6FC）。
-* **取代**：原本的 Ember 橘與暖色中性色。
-* **命名**：設計文件寫的是「Finity」，程式與 App 名稱仍是「Finify」，沒有改名。
-* **Overflow**：背景改為 Ink #080D20，浮動控制也帶藍調，但仍維持「封面是主角」。
-* **怎麼改**：全部集中在 `DesignSystem/Colors/FinifyColor.swift`。
+* **來源**：使用者提供的 Flione Color System（取代先前的 Finity 配色）。
+* **底色層級**：Abyss `#061426`（App 背景）→ Surface 1 `#0A1D3C`（側欄）→ Surface 2 `#10264B`（卡片）→ Surface 3 `#14305A`（浮起）→ Surface Active `#183D78`（選取）。文字 `#FFFFFF`／`#AFC0DF`／`#7185AA`／`#4D6085`。邊框 `#FFFFFF12`、hover `#FFFFFF0A`。
+* **藍色**：Flione Blue `#2F6BFF` 用在按鈕、選取、音量與大小滑軌、focus；Ice Blue `#6AA8FF` 次要 accent。
+* **橘色**：Bright Coral Orange `#FF8A3D` 只用在播放進度、正在播放的標示（曲目列、專輯面板、Cover Flow、Library 網格）與選單列「播放中」圖示。不可成為主要 UI 色。
+* **紫色**：Aurora Violet `#A78BFF` 只當氛圍（漸層），不用在按鈕與導覽。
+* **漸層**：Flione Aurora（藍 → 冰藍 → 紫 → 橘，橘色只在尾端焦點），只用在首頁 Hero。
+* **語意色**：Success `#55D6A6`、Warning `#FFB84D`（Toast 圖示）、Error `#FF5F6D`、Info `#6AA8FF`。
+* **淺色模式**：文件沒有定義，沿用原本的淺色底色，只換品牌色。
+* **命名**：設計文件寫的是「Flione」，程式與 App 名稱仍是「Finify」，沒有改名。
+* **怎麼改**：全部集中在 `DesignSystem/Colors/FinifyColor.swift`（深色固定值在 `FinifyColor.Ocean`）。
 
 ## D10　App icon 與選單列 icon（Finity）
 
 * **App icon**：設計稿 `scripts/icon/finity-icon-source.png`（深藍底、發光的半透明鳥形）依 macOS icon 格線標準化：824×824 圓角方形置中於 1024 畫布，加上標準陰影與細亮邊，再縮成 `AppIcon.appiconset` 的各尺寸。設計稿若四周有白底會自動裁掉。
-* **選單列**：設計稿 `scripts/icon/menubar-source.png` 的剪影以 potrace 描成向量（`scripts/icon/menubar-glyph.svg`），重畫成 18pt 畫布、字形 16pt。平常是 template（淺色選單列黑、深色白）；播放中換成 Electric Blue（#3E7CF6），右下加一個小點。
+* **選單列**：設計稿 `scripts/icon/menubar-source.png` 的剪影以 potrace 描成向量（`scripts/icon/menubar-glyph.svg`），重畫成 18pt 畫布、字形 16pt。平常是 template（淺色選單列黑、深色白）；播放中換成 Bright Coral Orange（#FF8A3D），右下加一個小點。
 * **怎麼改**：換設計稿後重跑 `scripts/icon/make-icon.swift app …` 與 `menubar …`（用法寫在檔案開頭）。
 
 ## D11　Album Wall 的點擊行為
