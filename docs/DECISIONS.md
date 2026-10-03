@@ -101,12 +101,11 @@
 * **建議後續**：上架前改用 resource loader，並重跑 S2 無縫播放驗證；或在 Jellyfin 為 Finify 建立權限較小的專用帳號。
 * **怎麼改**：`JellyfinRepository.streamURL(for:)` 與 `PlayerManager.makeItem`。
 
-## D15　換歌通知與分享
+## D15　換歌通知
 
-* **通知**：只在 Finify 不在前景時發，內容是曲名、藝人、專輯，附封面；新通知取代上一則，不會堆一長串。啟動時就請求通知權限，因為 app 在背景時才請求會被系統直接拒絕（實測）。設定 → General 可關閉。
-* **分享**：文字是「名稱 — 藝人」，連結是 Jellyfin 網頁版的項目頁（`<server>/web/#/details?id=…`）。這個連結只有能登入同一台 server 的人打得開，而且會讓對方看到 server 位址。若之後想分享給外部的人，可以改成只分享文字，或改用公開的音樂連結服務。
-* **位置**：專輯與歌曲的右鍵選單（含 Album Wall、Library 網格）、Now Playing 面板的分享按鈕。
-* **怎麼改**：`Core/Platform/TrackNotifier.swift`、`App/ShareItem.swift`。
+* **選擇**：只在 Finify 不在前景時發，內容是曲名、藝人、專輯，附封面；新通知取代上一則，不會堆一長串。啟動時就請求通知權限，因為 app 在背景時才請求會被系統直接拒絕（實測）。設定 → General 可關閉。
+* **分享**：曾經加入（右鍵選單與 Now Playing 面板），依使用者要求移除。
+* **怎麼改**：`Core/Platform/TrackNotifier.swift`。
 
 ## D16　歌詞備援 LRCLIB（預設關閉）
 
@@ -135,3 +134,14 @@
 * **網址**：`finify://play`、`pause`、`toggle`、`next`、`previous`；`finify://album/<id>` 打開專輯（Standard 開專輯頁、Overflow 開專輯面板）；`finify://play?album=<id>`、`finify://play?playlist=<id>` 直接播放。讓 Raycast、Alfred、捷徑可以控制 Finify。未登入時忽略。
 * **Info.plist**：網址註冊需要 `CFBundleURLTypes`，所以 `project.yml` 改為產生 `Finify/Info.plist`（版本號仍引用 `MARKETING_VERSION`），其餘欄位照舊由 `GENERATE_INFOPLIST_FILE` 產生。
 * **怎麼改**：`App/AppDelegate.swift`、`Core/Platform/Haptics.swift`、`App/URLCommands.swift`。
+
+## D20　三種模式：Standard、Infinity、Cover Flow
+
+* **選擇**：模式收斂成三種，所有模式的右上角都是同一組三段切換（膠囊外形，與搜尋框一致），旁邊一顆全螢幕按鈕。快捷鍵 ⌘1／⌘2／⌘3。
+  * Standard：原本的 Standard。
+  * Infinity：原本 Overflow 的封面牆（Wall）。
+  * Cover Flow：原本 Overflow 的 Flow。
+* **全螢幕**：按鈕讓整個視窗照目前的畫面進入 macOS 全螢幕（等同 ⌃⌘F），不再是只顯示一首歌的畫面。只顯示一首歌的大畫面仍保留，改名「Now Playing view」，入口在播放列（圖示與全螢幕不同）。
+* **移除**：Overflow 原本的 Wall／Flow／Recent 分段控制、側欄的 Overflow 項目、設定裡的 Layout 選項。Recent（最近播放專輯牆）不在三種模式內，先移除；首頁的 Recently Played 仍在。
+* **程式**：內部仍是 `AppMode.standard／overflow` 加 `OverflowLayout.wall／flow`，使用者看到的是 `ViewMode`（`AppEnvironment.viewMode`）。
+* **怎麼改**：`ModeSwitch`、`FullscreenButton`（`StandardRootView.swift`）、`ViewMode`（`AppEnvironment.swift`）。

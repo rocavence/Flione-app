@@ -6,6 +6,35 @@ enum AppMode: String, Sendable {
     case standard, overflow
 }
 
+/// 使用者看到的三種模式。Infinity 與 Cover Flow 共用 Overflow 的畫面（深色、封面為主），只是版面不同。
+enum ViewMode: CaseIterable, Sendable {
+    case standard, infinity, coverFlow
+
+    var title: String {
+        switch self {
+        case .standard: "Standard"
+        case .infinity: "Infinity"
+        case .coverFlow: "Cover Flow"
+        }
+    }
+
+    var icon: Reicon {
+        switch self {
+        case .standard: .menu
+        case .infinity: .infinite
+        case .coverFlow: .carouselH
+        }
+    }
+
+    var shortcut: Character {
+        switch self {
+        case .standard: "1"
+        case .infinity: "2"
+        case .coverFlow: "3"
+        }
+    }
+}
+
 /// App 層的狀態與依賴：登入、repository、artwork、播放器、目前 mode。
 @MainActor @Observable
 final class AppEnvironment {
@@ -28,6 +57,25 @@ final class AppEnvironment {
             if rememberMode { UserDefaults.standard.set(mode?.rawValue, forKey: Self.modeKey) }
         }
     }
+    /// Overflow 畫面的版面：Infinity（封面牆）或 Cover Flow
+    var overflowLayout: OverflowLayout = OverflowLayout(rawValue: UserDefaults.standard.string(forKey: "FinifyOverflowLayout") ?? "") ?? .wall {
+        didSet { UserDefaults.standard.set(overflowLayout.rawValue, forKey: "FinifyOverflowLayout") }
+    }
+
+    var viewMode: ViewMode {
+        get {
+            guard mode == .overflow else { return .standard }
+            return overflowLayout == .flow ? .coverFlow : .infinity
+        }
+        set {
+            switch newValue {
+            case .standard: mode = .standard
+            case .infinity: overflowLayout = .wall; mode = .overflow
+            case .coverFlow: overflowLayout = .flow; mode = .overflow
+            }
+        }
+    }
+
     var rememberMode: Bool {
         didSet {
             UserDefaults.standard.set(rememberMode, forKey: Self.rememberKey)

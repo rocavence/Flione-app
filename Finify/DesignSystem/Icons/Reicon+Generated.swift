@@ -57,4 +57,7 @@ enum Reicon: String, CaseIterable, Sendable {
     case pip = "pip"
     case power = "power"
     case gps = "gps"
+    case infinite = "infinite"
+    case carouselH = "carousel-h"
+    case maximizeSquare = "maximize-square"
 }

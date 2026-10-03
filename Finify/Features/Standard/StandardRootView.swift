@@ -129,6 +129,7 @@ private struct StandardTopBar: View {
                 .frame(maxWidth: 400)
             Spacer(minLength: Spacing.s16)
             ModeSwitch()
+            FullscreenButton()
         }
         .padding(.horizontal, Spacing.s20)
         .frame(height: 56)
@@ -201,25 +202,46 @@ struct ModeSwitch: View {
 
     var body: some View {
         HStack(spacing: 2) {
-            segment(.standard, icon: .menu, label: "Standard")
-            segment(.overflow, icon: .grid, label: "Overflow")
+            ForEach(ViewMode.allCases, id: \.self) { segment($0) }
         }
-        .padding(2)
-        .background(overflow ? FinifyColor.Overflow.control : FinifyColor.surface, in: RoundedRectangle(cornerRadius: Radius.ui + 2, style: .continuous))
+        .padding(3)
+        // 與搜尋框相同的膠囊外形
+        .background(overflow ? FinifyColor.Overflow.control : FinifyColor.surface, in: Capsule())
     }
 
-    private func segment(_ mode: AppMode, icon: Reicon, label: String) -> some View {
-        let selected = app.mode == mode
-        return Button { app.mode = mode } label: {
-            FinifyIcon(icon, weight: selected ? .filled : .outline, size: .compact)
-                .frame(width: 32, height: 26)
+    private func segment(_ mode: ViewMode) -> some View {
+        let selected = app.viewMode == mode
+        return Button { app.viewMode = mode } label: {
+            FinifyIcon(mode.icon, weight: selected ? .filled : .outline, size: .compact)
+                .frame(width: 34, height: 28)
                 .foregroundStyle(selected ? (overflow ? FinifyColor.Overflow.background : FinifyColor.onPrimary) : (overflow ? FinifyColor.Overflow.muted : FinifyColor.muted))
-                .background(selected ? (overflow ? FinifyColor.Overflow.ink : FinifyColor.primary) : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+                .background(selected ? (overflow ? FinifyColor.Overflow.ink : FinifyColor.primary) : .clear, in: Capsule())
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help("\(label) (\(mode == .standard ? "⌘1" : "⌘2"))")
-        .accessibilityLabel(label)
+        .help("\(mode.title) (⌘\(mode.shortcut))")
+        .accessibilityLabel(mode.title)
         .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+}
+
+/// 視窗全螢幕：照目前的畫面放大到整個螢幕（和選單的「進入全螢幕」⌃⌘F 相同）
+struct FullscreenButton: View {
+    /// 按鈕所在的視窗（不用 keyWindow：app 不在前景時 keyWindow 是 nil）
+    @State private var window: NSWindow?
+    @State private var isFullscreen = false
+
+    var body: some View {
+        FinifyIconButton(icon: isFullscreen ? .exitFullscreen : .fullscreen,
+                         label: isFullscreen ? "Exit Full Screen (⌃⌘F)" : "Enter Full Screen (⌃⌘F)", size: .compact) {
+            window?.toggleFullScreen(nil)
+        }
+        .background(WindowAccessor { window = $0; isFullscreen = $0?.styleMask.contains(.fullScreen) ?? false })
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) {
+            if $0.object as? NSWindow === window { isFullscreen = true }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) {
+            if $0.object as? NSWindow === window { isFullscreen = false }
+        }
     }
 }

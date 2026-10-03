@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 登入後選擇體驗：Standard 或 Overflow。兩者是平級的 App 入口。
+/// 登入後選擇體驗：Standard、Infinity 或 Cover Flow。三者是平級的 App 入口。
 struct ModePickerView: View {
     @Environment(AppEnvironment.self) private var app
 
@@ -11,13 +11,14 @@ struct ModePickerView: View {
                 Text("Choose your experience")
                     .finifyFont(.title)
                     .foregroundStyle(FinifyColor.ink)
-                Text("You can switch anytime with ⌘1 and ⌘2.")
+                Text("You can switch anytime with ⌘1, ⌘2, and ⌘3, or from the top-right corner.")
                     .finifyFont(.body)
                     .foregroundStyle(FinifyColor.muted)
             }
             HStack(spacing: Spacing.s24) {
-                ModeCard(mode: .standard, title: "Standard", subtitle: "Your library, organized.\nBrowse, search, and build a queue.") { app.mode = .standard }
-                ModeCard(mode: .overflow, title: "Overflow", subtitle: "Your library as a wall of albums.\nImmersive, artwork first.") { app.mode = .overflow }
+                ModeCard(mode: .standard, title: "Standard", subtitle: "Your library, organized.\nBrowse, search, and build a queue.") { app.viewMode = .standard }
+                ModeCard(mode: .overflow, title: "Infinity", subtitle: "Your library as an endless wall of albums.\nArtwork first.") { app.viewMode = .infinity }
+                ModeCard(mode: .overflow, title: "Cover Flow", subtitle: "Flip through your albums one by one.\nBig covers, soft reflections.") { app.viewMode = .coverFlow }
             }
             Toggle("Remember my choice", isOn: $app.rememberMode)
                 .toggleStyle(.checkbox)
@@ -44,7 +45,7 @@ private struct ModeCard: View {
         Button(action: choose) {
             VStack(alignment: .leading, spacing: 0) {
                 preview
-                    .frame(width: 320, height: 220)
+                    .frame(width: 280, height: 190)
                     .clipped()
                 VStack(alignment: .leading, spacing: Spacing.s4) {
                     Text(title).finifyFont(.heading).foregroundStyle(FinifyColor.ink)
@@ -52,7 +53,7 @@ private struct ModeCard: View {
                 }
                 .padding(Spacing.s20)
             }
-            .frame(width: 320)
+            .frame(width: 280)
             .background(FinifyColor.elevated, in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
             .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
             .overlay {

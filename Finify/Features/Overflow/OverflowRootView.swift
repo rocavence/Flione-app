@@ -1,18 +1,16 @@
 import AppKit
 import SwiftUI
 
+/// Overflow 畫面的版面（使用者看到的名稱是 Infinity 與 Cover Flow，見 ViewMode）
 enum OverflowLayout: String, CaseIterable {
     case wall = "Wall"
     case flow = "Flow"
-    /// 最近播放的專輯牆
-    case recent = "Recent"
 }
 
 /// Overflow mode：讓音樂庫成為畫面本身。完整的 App mode，可瀏覽、搜尋、播放、排佇列，不需離開。
 struct OverflowRootView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @AppStorage("FinifyOverflowLayout") private var layout: OverflowLayout = .wall
     @AppStorage("FinifyWallDensity") private var densityRaw = WallDensity.medium.rawValue
     @AppStorage("FinifyWallSort") private var sort: AlbumSort = .artist
     @AppStorage("FinifyFlowSize") private var flowSize = 3
@@ -22,13 +20,13 @@ struct OverflowRootView: View {
     @State private var immersive = false
     @State private var scrollToPlaying = 0
     @State private var browseWidth: CGFloat = 1360
-    @State private var recentAlbums: Loadable<[Album]> = .loading
 
     private var density: Binding<WallDensity> {
         Binding { WallDensity(rawValue: densityRaw) ?? .medium } set: { densityRaw = $0.rawValue }
     }
 
     private var playingAlbumID: String? { app.player.currentTrack?.albumID }
+    private var layout: OverflowLayout { app.overflowLayout }
 
     var body: some View {
         ZStack {
@@ -52,13 +50,6 @@ struct OverflowRootView: View {
         .task { await app.library.refreshIfNeeded() }
         .onChange(of: app.library.albums, initial: true) { sortedAlbums = sort.apply(to: app.library.albums) }
         .onChange(of: sort) { sortedAlbums = sort.apply(to: app.library.albums) }
-        // 最近播放：切到 Recent 或換曲時更新
-        .task(id: layout == .recent ? (playingAlbumID ?? "") + "recent" : "") {
-            guard layout == .recent, let repository = app.repository else { return }
-            do { recentAlbums = .loaded(try await repository.recentlyPlayed(limit: 120)) } catch {
-                if case .loading = recentAlbums { recentAlbums = .failed }
-            }
-        }
         #if DEBUG || BENCHMARK
         .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }, immersive: enterImmersive) }
         #endif
@@ -102,26 +93,6 @@ struct OverflowRootView: View {
                             acceptsKeyboard: openAlbum == nil && !app.isSearchPresented,
                             typeToSelectByTitle: sort == .title
                         )
-                    case .recent:
-                        switch recentAlbums {
-                        case .loading:
-                            Color.clear
-                        case .failed:
-                            MessageState(title: "Can't load recently played.", message: "Check your connection to the music server.", icon: .wifiOff)
-                        case .loaded(let list) where list.isEmpty:
-                            MessageState(title: "Nothing played yet.", message: "Albums you play will fill this wall.", icon: .history)
-                        case .loaded(let list):
-                            // 最近播放通常只有幾十張，固定用大尺寸，畫面才不會空
-                            AlbumWallView(
-                                albums: list,
-                                density: .constant(.large),
-                                playingAlbumID: playingAlbumID,
-                                images: app.images,
-                                onOpen: { openAlbum = $0 },
-                                onPlay: play,
-                                onQueue: queue
-                            )
-                        }
                     case .flow:
                         AlbumFlowView(albums: sortedAlbums, playingAlbumID: playingAlbumID, onPlay: play,
                                       isActive: openAlbum == nil && !app.isSearchPresented && !app.isQueuePresented,
@@ -140,7 +111,7 @@ struct OverflowRootView: View {
             }
 
             // 右下角：Flow 的封面大小滑桿、回到正在播放的專輯（封面牆與 Album Flow）
-            if openAlbum == nil, layout != .recent {
+            if openAlbum == nil {
                 VStack {
                     Spacer()
                     HStack(spacing: Spacing.s12) {
@@ -194,21 +165,6 @@ struct OverflowRootView: View {
     private var topBar: some View {
         HStack(spacing: Spacing.s12) {
             Color.clear.frame(width: 64)
-            HStack(spacing: 2) {
-                ForEach(OverflowLayout.allCases, id: \.self) { item in
-                    Button(item.rawValue) { layout = item }
-                        .buttonStyle(.plain)
-                        .finifyFont(.bodyEmphasis)
-                        .foregroundStyle(layout == item ? FinifyColor.Overflow.background : FinifyColor.Overflow.muted)
-                        .padding(.horizontal, Spacing.s12)
-                        .frame(height: 26)
-                        .background(layout == item ? FinifyColor.Overflow.ink : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
-                        .accessibilityAddTraits(layout == item ? .isSelected : [])
-                }
-            }
-            .padding(2)
-            .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.ui + 2, style: .continuous), tint: Color(hex: 0x111D40).opacity(0.4), fallback: FinifyColor.Overflow.control)
-
             if layout == .wall {
                 HStack(spacing: 2) {
                     FinifyIconButton(icon: .minus, label: "Smaller albums", size: .compact) { stepDensity(-1) }
@@ -222,7 +178,7 @@ struct OverflowRootView: View {
                 }
                 .help("Pinch to resize")
             }
-            if layout != .recent {
+            Group {
                 Menu {
                     Picker("Sort by", selection: $sort) {
                         ForEach(AlbumSort.allCases, id: \.self) { Text($0.rawValue).tag($0) }
@@ -241,9 +197,8 @@ struct OverflowRootView: View {
             Spacer()
             SearchTrigger { app.isSearchPresented = true }
                 .frame(width: 260)
-            FinifyIconButton(icon: .fullscreen, label: "Fullscreen (⌃⌘F)", action: enterImmersive)
-                .keyboardShortcut("f", modifiers: [.command, .control])
             ModeSwitch()
+            FullscreenButton()
         }
         .padding(.horizontal, Spacing.s16)
         .frame(height: 52)
@@ -347,6 +302,7 @@ private struct NowPlayingPill: View {
                         .frame(width: 300)
                 }
                 FinifyIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) { app.isQueuePresented.toggle() }
+                FinifyIconButton(icon: .maximizeSquare, label: "Now Playing view", action: onImmersive)
                 VolumeControl()
             }
             .padding(.horizontal, Spacing.s16)

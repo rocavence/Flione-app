@@ -21,7 +21,6 @@ struct StandardSidebar: View {
                 header("Smart")
                 item("Recently Added", icon: .clock, tab: .recentlyAdded)
                 item("Favorites", icon: .heart, tab: .library(.favorites))
-                SidebarRow(title: "Overflow", icon: .grid, isSelected: false) { app.mode = .overflow }
 
                 if !app.playlists.playlists.isEmpty {
                     header("Playlists")

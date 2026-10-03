@@ -52,9 +52,8 @@ private struct GeneralSettings: View {
     var body: some View {
         @Bindable var app = app
         Form {
-            Picker("Open Finify in", selection: Binding(get: { app.mode ?? .standard }, set: { app.mode = $0 })) {
-                Text("Standard").tag(AppMode.standard)
-                Text("Overflow").tag(AppMode.overflow)
+            Picker("Open Finify in", selection: $app.viewMode) {
+                ForEach(ViewMode.allCases, id: \.self) { Text($0.title).tag($0) }
             }
             Toggle("Remember my choice", isOn: $app.rememberMode)
             Toggle("Show player in menu bar", isOn: $showsMenuBar)
@@ -83,7 +82,6 @@ private struct AppearanceSettings: View {
     @AppStorage(SettingsKey.ambient) private var ambient = true
     @AppStorage(SettingsKey.autoHideControls) private var autoHide = true
     @AppStorage(SettingsKey.wallDrift) private var wallDrift = true
-    @AppStorage("FinifyOverflowLayout") private var layout: OverflowLayout = .wall
     @AppStorage("FinifyWallDensity") private var density = WallDensity.medium.rawValue
 
     var body: some View {
@@ -94,12 +92,9 @@ private struct AppearanceSettings: View {
                 }
                 .pickerStyle(.segmented)
             } footer: {
-                Text("Overflow is always dark.").foregroundStyle(.secondary)
+                Text("Infinity and Cover Flow are always dark.").foregroundStyle(.secondary)
             }
-            Section("Overflow") {
-                Picker("Layout", selection: $layout) {
-                    ForEach(OverflowLayout.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                }
+            Section("Infinity & Cover Flow") {
                 Picker("Album size", selection: $density) {
                     ForEach(WallDensity.allCases, id: \.self) { Text($0.label).tag($0.rawValue) }
                 }

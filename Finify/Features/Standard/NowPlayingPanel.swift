@@ -42,7 +42,6 @@ struct NowPlayingPanel: View {
                                 .lineLimit(1)
                         }
                         Spacer(minLength: 0)
-                        ShareButton(item: app.shareItem(for: track))
                         FavoriteButton(itemID: track.id, name: track.name, size: .standard)
                     }
                 }
@@ -96,29 +95,3 @@ struct NowPlayingPanel: View {
     }
 }
 
-/// 分享目前這首歌（系統分享面板）
-private struct ShareButton: View {
-    let item: ShareItem
-    @State private var hovering = false
-
-    var body: some View {
-        Group {
-            if let url = item.url {
-                ShareLink(item: url, subject: Text(item.text), message: Text(item.text)) { icon }
-            } else {
-                ShareLink(item: item.text) { icon }
-            }
-        }
-        .buttonStyle(.plain)
-        .onHover { hovering = $0 }
-        .help("Share")
-        .accessibilityLabel("Share \(item.text)")
-    }
-
-    private var icon: some View {
-        FinifyIcon(.share, size: .standard)
-            .foregroundStyle(hovering ? FinifyColor.ink : FinifyColor.muted)
-            .frame(width: 32, height: 32)
-            .contentShape(Rectangle())
-    }
-}

@@ -128,12 +128,11 @@ struct FinifyCommands: Commands {
                 .keyboardShortcut(.downArrow, modifiers: .command)
         }
         CommandGroup(after: .sidebar) {
-            Button("Standard") { app.mode = .standard }
-                .keyboardShortcut("1", modifiers: .command)
-                .disabled(app.session == nil)
-            Button("Overflow") { app.mode = .overflow }
-                .keyboardShortcut("2", modifiers: .command)
-                .disabled(app.session == nil)
+            ForEach(ViewMode.allCases, id: \.self) { mode in
+                Button(mode.title) { app.viewMode = mode }
+                    .keyboardShortcut(KeyEquivalent(mode.shortcut), modifiers: .command)
+                    .disabled(app.session == nil)
+            }
             Divider()
             Button("Search") { app.isSearchPresented = true }
                 .keyboardShortcut("k", modifiers: .command)

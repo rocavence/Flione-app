@@ -64,7 +64,8 @@ struct FloatingPlayerView: View {
 }
 
 /// 取得 SwiftUI view 所在的 NSWindow（在 view 加入視窗時回報）
-private struct WindowAccessor: NSViewRepresentable {
+/// 取得 SwiftUI view 所在的 NSWindow
+struct WindowAccessor: NSViewRepresentable {
     let onWindow: (NSWindow?) -> Void
 
     func makeNSView(context: Context) -> NSView {
