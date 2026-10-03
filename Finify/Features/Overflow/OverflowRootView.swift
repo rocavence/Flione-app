@@ -308,15 +308,14 @@ private struct FlowSizeSlider: View {
     var body: some View {
         HStack(spacing: Spacing.s8) {
             FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.faint).scaleEffect(0.75)
-            Slider(value: Binding(get: { Double(step) }, set: {
-                       let next = Int($0.rounded())
-                       if next != step { Haptics.perform(.step) }
-                       step = next
-                   }),
-                   in: 0...Double(AlbumFlowView.sizeSteps - 1), step: 1)
-                .controlSize(.small)
+            // 與播放進度同一個滑桿（hover 時圓點放大），分段吸附
+            let last = Double(AlbumFlowView.sizeSteps - 1)
+            ProgressBar(value: Double(step) / last, continuous: true, steps: AlbumFlowView.sizeSteps, alwaysShowsKnob: true) {
+                let next = Int(($0 * last).rounded())
+                if next != step { Haptics.perform(.step) }
+                step = next
+            }
                 .frame(width: 110)
-                .tint(FinifyColor.Overflow.ink)
                 .accessibilityLabel("Cover size")
                 .accessibilityValue("\(step + 1) of \(AlbumFlowView.sizeSteps)")
             FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.muted)

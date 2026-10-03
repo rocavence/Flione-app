@@ -86,6 +86,10 @@ struct ProgressBar: View {
     let value: Double
     /// 拖曳時持續回報（音量）；否則放開時才回報（播放進度）
     var continuous = false
+    /// 分段滑桿（例如封面大小 6 段）：拖曳時吸附到最近的一段
+    var steps: Int?
+    /// 圓點平常也顯示（分段滑桿）；預設只在 hover／拖曳時出現
+    var alwaysShowsKnob = false
     var onSeek: ((Double) -> Void)?
     @Environment(\.overflowStyle) private var overflow
     @State private var hovering = false
@@ -94,26 +98,33 @@ struct ProgressBar: View {
     var body: some View {
         GeometryReader { geo in
             let shown = dragValue ?? value
-            let height: CGFloat = hovering || dragValue != nil ? 5 : 3
+            let active = hovering || dragValue != nil
+            // 軌道粗細固定；hover／拖曳時圓點放大到 160%（11 → 18）
+            let knob: CGFloat = active ? 18 : 11
             ZStack(alignment: .leading) {
                 Capsule().fill(overflow ? Color.white.opacity(0.18) : FinifyColor.hairline)
                 Capsule()
                     // 播放進度一律用 Finity Blue（Overflow 平常用白色，操作時才變藍）
                     .fill(!overflow || hovering || dragValue != nil ? FinifyColor.accent : FinifyColor.Overflow.ink)
                     .frame(width: max(0, min(1, shown)) * geo.size.width)
-                if onSeek != nil, hovering || dragValue != nil {
+            }
+            // 軌道固定 3pt；圓點放在 overlay，不參與排版，放大時不會把軌道撐粗
+            .frame(height: 3)
+            .overlay(alignment: .leading) {
+                if onSeek != nil, active || alwaysShowsKnob {
                     Circle()
                         .fill(overflow ? FinifyColor.Overflow.ink : FinifyColor.ink)
-                        .frame(width: 11, height: 11)
-                        .offset(x: max(0, min(1, shown)) * geo.size.width - 5.5)
+                        .frame(width: knob, height: knob)
+                        .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+                        .offset(x: max(0, min(1, shown)) * geo.size.width - knob / 2)
                 }
             }
-            .frame(height: height)
             .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
             .gesture(DragGesture(minimumDistance: 0)
                 .onChanged {
-                    let v = max(0, min(1, $0.location.x / geo.size.width))
+                    var v = max(0, min(1, $0.location.x / geo.size.width))
+                    if let steps, steps > 1 { v = (v * Double(steps - 1)).rounded() / Double(steps - 1) }
                     dragValue = v
                     if continuous { onSeek?(v) }
                 }
