@@ -1,6 +1,6 @@
 // 產生 Flione 的 app icon 與選單列 icon（Finity 設計）
 // app icon：設計稿 scripts/icon/finity-icon-source.png 依 macOS icon 格線標準化——824×824 圓角方形置中於 1024 畫布，加上標準陰影。
-//   正方形設計稿整張等比放入，底色取設計稿角落的顏色。
+//   取設計稿的主體（去掉白邊）等比縮到圓角方形的 62% 置中，底色取設計稿角落的顏色。
 // 選單列：scripts/icon/menubar-glyph.svg（由 menubar-source.png 以 potrace 描出的向量路徑）。
 // 用法：
 //   swift scripts/icon/make-icon.swift app <設計稿 PNG> <輸出 1024px PNG>
@@ -109,8 +109,8 @@ func cornerColor(of image: CGImage) -> CGColor {
 
 func appIcon(source: String) -> CGImage {
     let src = NSImage(contentsOfFile: source)!.cgImage(forProposedRect: nil, context: nil, hints: nil)!
-    // 正方形設計稿整張等比放入（白底、留白都保留）；不是正方形的才裁掉四周白邊，避免拉伸變形
-    let art = src.width == src.height ? src : src.cropping(to: contentRect(of: src))!
+    // 只取設計稿中非白色的主體，等比縮放後置中，四周留白
+    let art = src.cropping(to: contentRect(of: src))!
     let size = 1024
     // macOS icon 格線：824×824 的圓角方形，置中，下方留陰影空間
     let body = CGRect(x: 100, y: 110, width: 824, height: 824)
@@ -119,14 +119,19 @@ func appIcon(source: String) -> CGImage {
     ctx.interpolationQuality = .high
     ctx.saveGState()
     ctx.setShadow(offset: CGSize(width: 0, height: -12), blur: 28, color: color(0x000000, 0.35))
-    ctx.addPath(bodyPath); ctx.setFillColor(cornerColor(of: art)); ctx.fillPath()
+    ctx.addPath(bodyPath); ctx.setFillColor(cornerColor(of: src)); ctx.fillPath()
     ctx.restoreGState()
     ctx.saveGState()
     ctx.addPath(bodyPath); ctx.clip()
-    ctx.draw(art, in: body)
+    // 主體最長邊占圓角方形的 62%（系統內建 app 的比例），維持原比例置中
+    let fit = body.width * 0.62 / CGFloat(max(art.width, art.height))
+    let artSize = CGSize(width: CGFloat(art.width) * fit, height: CGFloat(art.height) * fit)
+    // multiply：設計稿的白底（不是純白）融進底色，不會留下一圈方框
+    ctx.setBlendMode(.multiply)
+    ctx.draw(art, in: CGRect(x: body.midX - artSize.width / 2, y: body.midY - artSize.height / 2, width: artSize.width, height: artSize.height))
     ctx.restoreGState()
     // 細邊：深色 icon 用亮邊、淺色 icon 用暗邊，在 Dock 上都有輪廓
-    let light = (cornerColor(of: art).components?.first ?? 0) > 0.5
+    let light = (cornerColor(of: src).components?.first ?? 0) > 0.5
     ctx.addPath(CGPath(roundedRect: body.insetBy(dx: 1, dy: 1), cornerWidth: 184, cornerHeight: 184, transform: nil))
     ctx.setStrokeColor(light ? color(0x000000, 0.08) : color(0xFFFFFF, 0.12)); ctx.setLineWidth(2); ctx.strokePath()
     return ctx.makeImage()!
@@ -134,12 +139,12 @@ func appIcon(source: String) -> CGImage {
 
 // MARK: - 選單列 icon
 
-/// 18×18pt 畫布、字形 16pt 置中；playing 時換成 Bright Coral Orange，右下加一個播放中的小點
+/// 18×18pt 畫布、字形 13pt 置中（與系統選單列圖示同大小）；playing 時換成 Bright Coral Orange，右下加一個播放中的小點
 func menuBarIcon(svg: String, scale: Int, playing: Bool) -> CGImage {
     let pt: CGFloat = 18
     let ctx = makeContext(Int(pt) * scale, Int(pt) * scale)
     ctx.scaleBy(x: CGFloat(scale), y: CGFloat(scale))
-    ctx.addPath(glyph(svg: svg, in: CGRect(x: 1, y: 1, width: 16, height: 16)))
+    ctx.addPath(glyph(svg: svg, in: CGRect(x: 2.5, y: 2.5, width: 13, height: 13)))
     if playing { ctx.addEllipse(in: CGRect(x: 13.8, y: 0.6, width: 3.2, height: 3.2)) }
     ctx.setFillColor(playing ? color(0xFF8A3D) : color(0x111827))
     ctx.fillPath()
