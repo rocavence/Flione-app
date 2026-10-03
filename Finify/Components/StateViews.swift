@@ -98,7 +98,8 @@ struct ProgressBar: View {
             ZStack(alignment: .leading) {
                 Capsule().fill(overflow ? Color.white.opacity(0.18) : FinifyColor.hairline)
                 Capsule()
-                    .fill(hovering || dragValue != nil ? FinifyColor.accent : (overflow ? FinifyColor.Overflow.ink : FinifyColor.ink))
+                    // 播放進度一律用 Finity Blue（Overflow 平常用白色，操作時才變藍）
+                    .fill(!overflow || hovering || dragValue != nil ? FinifyColor.accent : FinifyColor.Overflow.ink)
                     .frame(width: max(0, min(1, shown)) * geo.size.width)
                 if onSeek != nil, hovering || dragValue != nil {
                     Circle()

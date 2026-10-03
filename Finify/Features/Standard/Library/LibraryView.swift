@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum LibrarySection: String, CaseIterable {
+enum LibrarySection: String, CaseIterable, Sendable {
     case albums = "Albums"
     case artists = "Artists"
     case songs = "Songs"
@@ -13,30 +13,17 @@ enum LibrarySection: String, CaseIterable {
 struct LibraryView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(StandardRouter.self) private var router
-    @State private var section: LibrarySection = {
-        #if DEBUG || BENCHMARK
-        if let raw = UserDefaults.standard.string(forKey: "FinifyDemoSection"), let section = LibrarySection(rawValue: raw) { return section }
-        #endif
-        return .albums
-    }()
-    @State private var sort: AlbumSort = .artist
+    /// 由側欄決定
+    let section: LibrarySection
+    /// 標題（例如「Recently Added」）；nil 時用分頁名稱
+    var title: String?
+    @State var sort: AlbumSort = .artist
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: Spacing.s24) {
-                Text("Library").finifyFont(.title).foregroundStyle(FinifyColor.ink)
-                HStack(spacing: Spacing.s4) {
-                    ForEach(LibrarySection.allCases, id: \.self) { item in
-                        Button(item.rawValue) { section = item }
-                            .buttonStyle(.plain)
-                            .finifyFont(.bodyEmphasis)
-                            .foregroundStyle(section == item ? FinifyColor.ink : FinifyColor.muted)
-                            .padding(.horizontal, Spacing.s12)
-                            .frame(height: 28)
-                            .background(section == item ? FinifyColor.surface : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
-                            .accessibilityAddTraits(section == item ? .isSelected : [])
-                    }
-                }
+                Text(title ?? section.rawValue).finifyFont(.title).foregroundStyle(FinifyColor.ink)
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
                 if section == .playlists {
                     FinifyButton(title: "New Playlist", icon: .plus) { app.newPlaylistTracks = [] }

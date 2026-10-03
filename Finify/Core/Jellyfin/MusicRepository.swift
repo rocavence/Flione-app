@@ -28,6 +28,8 @@ protocol MusicRepository: Sendable {
     func albums(inGenre genreID: String) async throws -> [Album]
     /// 隨機挑選該類型的曲目
     func randomTracks(inGenre genreID: String, limit: Int) async throws -> [Track]
+    /// 從整個音樂庫隨機挑選曲目
+    func randomTracks(limit: Int) async throws -> [Track]
 
     func playlists() async throws -> [Playlist]
     func playlistTracks(_ playlistID: String) async throws -> [Track]
@@ -256,6 +258,10 @@ final class JellyfinRepository: MusicRepository {
             "SortBy": "Random",
             "Limit": "\(limit)",
         ]).items.map { $0.toTrack() }
+    }
+
+    func randomTracks(limit: Int) async throws -> [Track] {
+        try await items(["IncludeItemTypes": "Audio", "SortBy": "Random", "Limit": "\(limit)"]).items.map { $0.toTrack() }
     }
 
     // MARK: - Playlists

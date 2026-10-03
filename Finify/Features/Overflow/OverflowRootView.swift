@@ -142,7 +142,7 @@ struct OverflowRootView: View {
                             FinifyIcon(.gps, weight: .filled, size: .standard)
                                 .foregroundStyle(FinifyColor.Overflow.ink)
                                 .frame(width: 44, height: 44)
-                                .background(Color(white: 0.08).opacity(0.86), in: Circle())
+                                .background(Color(hex: 0x111D40).opacity(0.88), in: Circle())
                                 .overlay { Circle().strokeBorder(.white.opacity(0.1), lineWidth: 1) }
                                 .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 16, y: 6))
                         }
@@ -239,7 +239,7 @@ struct OverflowRootView: View {
         }
         .padding(.horizontal, Spacing.s16)
         .frame(height: 52)
-        .background(LinearGradient(colors: [.black.opacity(0.65), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
+        .background(LinearGradient(colors: [Color(hex: 0x080D20).opacity(0.75), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
     }
 
     @ViewBuilder
@@ -343,7 +343,7 @@ private struct NowPlayingPill: View {
             }
             .padding(.horizontal, Spacing.s16)
             .padding(.vertical, Spacing.s8)
-            .background(Color(white: 0.06).opacity(0.86), in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+            .background(Color(hex: 0x0D1633).opacity(0.88), in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
             .overlay { RoundedRectangle(cornerRadius: Radius.large, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
             .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 30, y: 12))
             .padding(.bottom, Spacing.s24)
@@ -385,7 +385,7 @@ private struct FlowSizeSlider: View {
         }
         .padding(.horizontal, Spacing.s16)
         .frame(height: 44)
-        .background(Color(white: 0.08).opacity(0.86), in: Capsule())
+        .background(Color(hex: 0x111D40).opacity(0.88), in: Capsule())
         .overlay { Capsule().strokeBorder(.white.opacity(0.1), lineWidth: 1) }
         .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 16, y: 6))
         .help("Cover size")

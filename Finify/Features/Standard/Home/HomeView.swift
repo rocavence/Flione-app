@@ -36,10 +36,8 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.s40) {
-                Text(greeting)
-                    .finifyFont(.title)
-                    .foregroundStyle(FinifyColor.ink)
-                    .padding(.top, Spacing.s32)
+                HomeHero(greeting: greeting, album: heroAlbum)
+                    .padding(.top, Spacing.s8)
 
                 if case .failed = model.recentlyAdded, case .failed = model.quickPicks {
                     MessageState(
@@ -64,6 +62,12 @@ struct HomeView: View {
             #endif
         }
         .onChange(of: app.reconnectCount) { Task { await reload() } }
+    }
+
+    /// Hero 介紹最新加入的專輯
+    private var heroAlbum: Album? {
+        if case .loaded(let albums) = model.recentlyAdded { return albums.first { $0.artwork != nil } }
+        return nil
     }
 
     private var greeting: String {
@@ -184,5 +188,132 @@ struct AlbumShelf: View {
             guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
             app.player.play(tracks)
         }
+    }
+}
+
+/// 首頁 Hero：最新加入專輯的封面模糊成背景，疊上 Finity Aurora 漸層；Play 播放這張，Shuffle 隨機播放整個音樂庫
+private struct HomeHero: View {
+    let greeting: String
+    let album: Album?
+    @Environment(AppEnvironment.self) private var app
+    @Environment(StandardRouter.self) private var router
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            background
+            HStack(alignment: .center, spacing: Spacing.s32) {
+                VStack(alignment: .leading, spacing: Spacing.s12) {
+                    Text(greeting.uppercased())
+                        .finifyFont(.micro)
+                        .foregroundStyle(FinifyColor.ice.opacity(0.85))
+                    Text("Your music, your server.")
+                        .font(.system(size: 36, weight: .bold))
+                        .tracking(-0.8)
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.7)
+                    Text(subtitle)
+                        .finifyFont(.body)
+                        .foregroundStyle(FinifyColor.ice.opacity(0.85))
+                        .lineLimit(2)
+                        .frame(maxWidth: 380, alignment: .leading)
+                    HStack(spacing: Spacing.s8) {
+                        HeroButton(title: "Play", icon: .play, prominent: true) { playAlbum() }
+                            .disabled(album == nil)
+                        HeroButton(title: "Shuffle", icon: .shuffle, prominent: false) { shuffleLibrary() }
+                    }
+                    .padding(.top, Spacing.s8)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
+                if let album {
+                    ArtworkView(artwork: album.artwork, elevation: .playing)
+                        .frame(width: 160, height: 160)
+                        .onTapGesture { router.openAlbum(album) }
+                        .accessibilityLabel("Open \(album.name)")
+                        .accessibilityAddTraits(.isButton)
+                }
+            }
+            .padding(Spacing.s32)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 260)
+        .clipShape(RoundedRectangle(cornerRadius: Radius.hero, style: .continuous))
+        .overlay { RoundedRectangle(cornerRadius: Radius.hero, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
+        .finifyShadow(FinifyShadow.elevated)
+        .environment(\.colorScheme, .dark)
+    }
+
+    private var subtitle: String {
+        let count = app.library.albums.count
+        let server = app.session?.serverName ?? "your server"
+        guard let album else { return "\(count) albums on \(server), ready when you are." }
+        return "New on \(server): \(album.name) by \(album.artistName)."
+    }
+
+    private var background: some View {
+        ZStack {
+            FinifyColor.aurora
+            if let artwork = album?.artwork {
+                ArtworkView(artwork: artwork, cornerRadius: 0, elevation: .none)
+                    .aspectRatio(contentMode: .fill)
+                    .scaleEffect(1.5)
+                    .blur(radius: 60, opaque: true)
+                    .opacity(0.55)
+                    .blendMode(.softLight)
+                    .id(artwork)
+                    .transition(.opacity)
+            }
+            // 左側壓暗，讓文字清楚
+            LinearGradient(colors: [Color(hex: 0x080D20).opacity(0.75), Color(hex: 0x080D20).opacity(0.15)], startPoint: .leading, endPoint: .trailing)
+        }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.8), value: album?.artwork)
+        .drawingGroup()
+        .accessibilityHidden(true)
+    }
+
+    private func playAlbum() {
+        guard let album else { return }
+        Task {
+            guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
+            app.player.play(tracks)
+        }
+    }
+
+    private func shuffleLibrary() {
+        Task {
+            guard let tracks = try? await app.repository?.randomTracks(limit: 200), !tracks.isEmpty else { return }
+            app.player.play(tracks)
+        }
+    }
+}
+
+/// Hero 上的按鈕：Play 為白底膠囊，Shuffle 為半透明玻璃
+private struct HeroButton: View {
+    let title: String
+    let icon: Reicon
+    let prominent: Bool
+    let action: () -> Void
+    @Environment(\.isEnabled) private var isEnabled
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Spacing.s8) {
+                FinifyIcon(icon, weight: .filled, size: .compact)
+                Text(title).finifyFont(.bodyEmphasis)
+            }
+            .fixedSize()
+            .foregroundStyle(prominent ? Color(hex: 0x0D1633) : .white)
+            .padding(.horizontal, Spacing.s20)
+            .frame(height: 38)
+            .background(prominent ? AnyShapeStyle(FinifyColor.ice.opacity(hovering ? 0.9 : 1)) : AnyShapeStyle(.white.opacity(hovering ? 0.22 : 0.14)), in: Capsule())
+            .contentShape(Capsule())
+        }
+        .buttonStyle(PressScaleStyle())
+        .opacity(isEnabled ? 1 : 0.5)
+        .onHover { hovering = $0 }
+        .animation(Motion.micro, value: hovering)
     }
 }

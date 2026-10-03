@@ -20,6 +20,11 @@ final class AppEnvironment {
     /// nil = 尚未選擇（首次登入後顯示 mode picker）
     var mode: AppMode? {
         didSet {
+            // 佇列與歌詞在兩個 mode 的呈現方式不同（Standard 是側面板、Overflow 是浮層），切換時收起
+            if oldValue != mode, oldValue != nil {
+                isQueuePresented = false
+                isLyricsPresented = false
+            }
             if rememberMode { UserDefaults.standard.set(mode?.rawValue, forKey: Self.modeKey) }
         }
     }
@@ -113,6 +118,10 @@ final class AppEnvironment {
             let env = AppEnvironment(sessionStore: DevelopmentSessionStore(directory: URL(fileURLWithPath: path)))
             if let mode = UserDefaults.standard.string(forKey: "FinifyStartMode").flatMap(AppMode.init) { env.mode = mode }
             return env
+        }
+        // 當 test host 時不碰 Keychain：重新簽章後系統會跳授權框，test runner 會一直卡住
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+            return AppEnvironment(sessionStore: DevelopmentSessionStore(directory: FileManager.default.temporaryDirectory.appending(path: "FinifyTestHost")))
         }
         #endif
         return AppEnvironment(sessionStore: KeychainSessionStore())

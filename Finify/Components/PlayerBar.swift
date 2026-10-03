@@ -47,7 +47,7 @@ struct PlayerBar: View {
         }
         .padding(.horizontal, Spacing.s16)
         .frame(height: 80)
-        .background(FinifyColor.elevated)
+        .background(FinifyColor.panel)
         .overlay(alignment: .top) { FinifyColor.hairline.frame(height: 1) }
     }
 
@@ -143,6 +143,8 @@ struct VolumeControl: View {
 /// 右側滑出的播放佇列
 struct QueuePanel: View {
     let onOpenAlbum: (String?) -> Void
+    /// 放在 Now Playing 面板裡時不顯示自己的標題列與「正在播放」
+    var embedded = false
     @Environment(AppEnvironment.self) private var app
     @State private var isTargeted = false
     /// 拖曳中的列（upcoming 內的位置）
@@ -151,6 +153,7 @@ struct QueuePanel: View {
     var body: some View {
         let player = app.player
         VStack(alignment: .leading, spacing: 0) {
+            if !embedded {
             HStack {
                 Text("Queue").finifyFont(.heading).foregroundStyle(FinifyColor.ink)
                 Spacer()
@@ -160,15 +163,16 @@ struct QueuePanel: View {
                 FinifyIconButton(icon: .x, label: "Close queue") { app.isQueuePresented = false }
             }
             .padding(Spacing.s16)
+            }
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.s4) {
-                    if let current = player.currentTrack {
+                    if !embedded, let current = player.currentTrack {
                         label("Now playing")
                         TrackRow(track: current, showsArtwork: true, onPlay: { player.togglePlayPause() }, onOpenAlbum: { onOpenAlbum(current.albumID) })
                     }
                     if !player.queue.upcoming.isEmpty {
-                        label("Next").padding(.top, Spacing.s16)
+                        label("Next").padding(.top, embedded ? 0 : Spacing.s16)
                         ForEach(Array(player.queue.upcomingEntries.enumerated()), id: \.element.id) { offset, entry in
                             let track = entry.track
                             TrackRow(track: track, showsArtwork: true, onPlay: { player.jump(toQueuePosition: player.queue.index + 1 + offset) })
@@ -199,8 +203,8 @@ struct QueuePanel: View {
                 .padding(.bottom, Spacing.s16)
             }
         }
-        .background(FinifyColor.elevated)
-        .overlay(alignment: .leading) { FinifyColor.hairline.frame(width: 1) }
+        .background(embedded ? Color.clear : FinifyColor.elevated)
+        .overlay(alignment: .leading) { if !embedded { FinifyColor.hairline.frame(width: 1) } }
         // 從專輯卡片拖進來：加到佇列結尾
         .overlay {
             if isTargeted {

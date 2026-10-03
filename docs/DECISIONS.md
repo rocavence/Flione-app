@@ -41,12 +41,14 @@
 * **理由**：形狀一眼區分「人」與「作品」。實測你的 Jellyfin 幾乎所有藝人都沒有照片，整頁都是佔位圖，看起來像壞掉。
 * **怎麼改**：形狀在 `Components/LibraryCards.swift` 的 `ArtistCard`；替代圖邏輯在 `LibraryStore.artwork(for:)`。
 
-## D07　Standard 用頂部導覽列，不用 sidebar
+## D07　Standard 改用左側 sidebar＋右側 Now Playing 面板（取代原本的頂部導覽列）
 
-* **選擇**：Home / Library 兩個分頁放在頂部，中間是搜尋入口，右側是 Standard ↔ Overflow 切換。
-* **理由**：規格的 Anti-patterns 明列「Generic sidebar」。MVP 只有兩個主要分頁，sidebar 會留下大片空白；頂部列讓內容寬度最大，封面更大。
-* **代價**：V1 加入 Playlists、Favorites 後分頁變多，屆時需要重新評估（可能改成可收合的窄欄）。
-* **怎麼改**：`Features/Standard/StandardRootView.swift` 的 `StandardTopBar`。
+* **選擇**：依使用者提供的 Finity 參考圖重做版面：左側導覽（Home、Search、Music、Smart、Playlists）、中間內容、右側 Now Playing 面板（封面、控制、Up Next／Lyrics）、底部播放列。頂部列只留上一頁／下一頁、搜尋、mode 切換。
+* **理由**：原本選頂部列是因為 MVP 只有兩個分頁；V1 加入 Playlists、Favorites 後項目變多，且使用者指定了參考設計。
+* **省略的項目**：參考圖中的 Sources（Jellyfin／Spotify）、All／Jellyfin／Spotify 篩選、Well、Related 分頁。Finify 沒有 Spotify 整合，Well 與 Related 也還沒有對應的資料，放了只會是空殼。
+* **補充**：Hero 標語用「Your music, your server.」而不是參考圖的「Music Without Limits.」，副標寫的是真實資料（最新加入的專輯、server 名稱），Play 播放該專輯，Shuffle 從整個音樂庫隨機挑 200 首。
+* **面板開關**：記在 `FinifyNowPlayingPanel`，只在 Standard 裡記錄。
+* **怎麼改**：`Features/Standard/StandardSidebar.swift`、`NowPlayingPanel.swift`、`StandardRootView.swift`、`Home/HomeView.swift` 的 `HomeHero`。
 
 ## D08　⌘K 搜尋面板在兩個 mode 共用
 
@@ -54,10 +56,12 @@
 * **理由**：規格要求 Overflow 能獨立搜尋，但沒有定義 UI。共用面板讓兩邊行為一致，也不必維護兩套。
 * **補充**：Jellyfin 的專輯搜尋只比對專輯名，所以搜尋藝人名時會補上該藝人的專輯（搜「Radiohead」才會出現 OK Computer）。
 
-## D09　品牌色 Ember（#FF6A3D）與暖色中性色
+## D09　品牌色改為 Finity Blue（#2F6BFF）與深藍中性色
 
-* **選擇**：accent 用偏紅的橘色 Ember；底色是帶暖調的近黑（#0E0D0C）與米白（#F7F5F1），不是純黑白。
-* **理由**：規格要求不用 Spotify 綠，且品牌色要與封面 ambient 色分離。暖色中性色讓封面成為畫面主角，Ember 只用在「正在播放」與主要狀態。
+* **選擇**：依使用者提供的 Finity Visual Design System：accent 用 Finity Blue（深色模式用 Electric #3E7CF6），底色是 Navy #0D1633、面板 Deep Navy #111D40、卡片 Blue Glass #182956；Aurora 漸層（#1D4ED8 → #2F6BFF → #6A8DFF → #A78BFA）只用在 Hero。淺色模式用帶藍調的淺灰白（#F4F6FC）。
+* **取代**：原本的 Ember 橘與暖色中性色。
+* **命名**：設計文件寫的是「Finity」，程式與 App 名稱仍是「Finify」，沒有改名。
+* **Overflow**：背景改為 Ink #080D20，浮動控制也帶藍調，但仍維持「封面是主角」。
 * **怎麼改**：全部集中在 `DesignSystem/Colors/FinifyColor.swift`。
 
 ## D10　App icon（暫定）

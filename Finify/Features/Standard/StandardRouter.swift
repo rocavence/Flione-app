@@ -1,8 +1,10 @@
 import Observation
 
-enum StandardTab: String, CaseIterable, Sendable {
-    case home = "Home"
-    case library = "Library"
+enum StandardTab: Hashable, Sendable {
+    case home
+    case library(LibrarySection)
+    /// 依加入時間排序的專輯
+    case recentlyAdded
 }
 
 enum StandardRoute: Hashable, Sendable {
@@ -12,19 +14,27 @@ enum StandardRoute: Hashable, Sendable {
     case genre(Genre)
 }
 
-/// Standard mode 的導覽狀態。tab 根畫面常駐（保留捲動位置），詳細頁疊在上面。
+/// Standard mode 的導覽狀態：側欄選的頁面（tab）＋疊在上面的詳細頁（path），可上一頁／下一頁。
 @MainActor @Observable
 final class StandardRouter {
     var tab: StandardTab = .home {
-        didSet { if oldValue != tab { path.removeAll() } }
+        didSet {
+            guard oldValue != tab else { return }
+            path.removeAll()
+            forward.removeAll()
+        }
     }
     private(set) var path: [StandardRoute] = []
+    /// 上一頁之後可以「下一頁」回去的頁面
+    private(set) var forward: [StandardRoute] = []
 
     var canGoBack: Bool { !path.isEmpty }
+    var canGoForward: Bool { !forward.isEmpty }
 
     func open(_ route: StandardRoute) {
         guard path.last != route else { return }
         path.append(route)
+        forward.removeAll()
     }
 
     func openAlbum(_ album: Album) { open(.album(album)) }
@@ -35,6 +45,18 @@ final class StandardRouter {
     }
 
     func back() {
-        _ = path.popLast()
+        guard let last = path.popLast() else { return }
+        forward.append(last)
+    }
+
+    func goForward() {
+        guard let next = forward.popLast() else { return }
+        path.append(next)
+    }
+
+    /// 回到目前頁面的根（側欄再點一次同一項）
+    func popToRoot() {
+        path.removeAll()
+        forward.removeAll()
     }
 }

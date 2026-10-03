@@ -103,7 +103,7 @@ private struct AlbumBack: View {
 
     /// 背面底色取自封面平均色並壓暗（ambient color，不是品牌色）
     private var backColor: Color {
-        guard let hash = album.artwork?.blurHash, let c = BlurHash.averageColor(hash) else { return Color(white: 0.1) }
+        guard let hash = album.artwork?.blurHash, let c = BlurHash.averageColor(hash) else { return Color(hex: 0x111D40) }
         return Color(red: c.r * 0.28, green: c.g * 0.28, blue: c.b * 0.28)
     }
 }
