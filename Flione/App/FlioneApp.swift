@@ -62,7 +62,12 @@ struct RootView: View {
     var body: some View {
         Group {
             if app.session == nil {
-                ConnectView()
+                // youtube-music 分支：沒有 Jellyfin 時，YouTube Music 登入後的狀態另外處理
+                if app.youtube.state == .signedOut {
+                    ConnectView()
+                } else {
+                    YouTubeGateView()
+                }
             } else if let mode = app.mode {
                 switch mode {
                 case .standard: StandardRootView()

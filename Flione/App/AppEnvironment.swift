@@ -45,6 +45,8 @@ final class AppEnvironment {
     let library = LibraryStore()
     let favorites = FavoritesStore()
     let playlists = PlaylistStore()
+    /// YouTube Music 帳號（youtube-music 分支，docs/youtube/DESIGN.md）
+    let youtube = YouTubeAccount()
 
     /// nil = 尚未選擇（首次登入後顯示 mode picker）
     var mode: AppMode? {
@@ -120,6 +122,7 @@ final class AppEnvironment {
         self.notifier = notifier
         player.onTrackChange = { notifier.trackChanged($0) }
         if let session = sessionStore.load() { activate(session) }
+        else { Task { await youtube.restore() } }
         expiryObserver = NotificationCenter.default.addObserver(forName: .finifySessionExpired, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, self.session != nil else { return }

@@ -14,6 +14,8 @@ struct ConnectView: View {
     @State private var emblemShown = false
     @State private var contentShown = false
     @State private var breathing = false
+    /// 這個分支以 YouTube Music 為主要登入方式；Jellyfin 表單點「改用 Jellyfin 伺服器」才展開
+    @State private var showsJellyfin = false
 
     private enum Field { case server, user, password }
 
@@ -30,7 +32,7 @@ struct ConnectView: View {
                 Text("Your music. Your server.")
                     .finifyFont(.title)
                     .foregroundStyle(FinifyColor.ink)
-                Text("Connect to your Jellyfin server to bring your library in.")
+                Text(showsJellyfin ? "Connect to your Jellyfin server to bring your library in." : "Sign in with YouTube Music Premium, or connect your own Jellyfin server.")
                     .finifyFont(.body)
                     .foregroundStyle(FinifyColor.muted)
             }
@@ -38,6 +40,8 @@ struct ConnectView: View {
             .opacity(contentShown ? 1 : 0)
             .offset(y: contentShown ? 0 : 6)
 
+            Group {
+            if showsJellyfin {
             VStack(spacing: Spacing.s12) {
                 if let reason = app.signOutReason {
                     HStack(alignment: .top, spacing: Spacing.s8) {
@@ -71,6 +75,10 @@ struct ConnectView: View {
             }
             .frame(width: 320)
             .animation(Motion.ui, value: errorMessage)
+            } else {
+                youtubeOptions
+            }
+            }
             .opacity(contentShown ? 1 : 0)
 
             Spacer()
@@ -88,6 +96,29 @@ struct ConnectView: View {
             focus = server.isEmpty ? .server : .user
             reveal()
         }
+    }
+
+    /// YouTube Music：主要按鈕開 Google 登入視窗；Jellyfin 是次要選項
+    private var youtubeOptions: some View {
+        VStack(spacing: Spacing.s16) {
+            FinifyButton(title: "Sign in to YouTube Music with Google", kind: .primary, expands: true) {
+                GoogleSignIn.present { Task { await app.youtube.didSignIn() } }
+            }
+            .keyboardShortcut(.defaultAction)
+            Text("Requires YouTube Premium. Google's sign-in page opens in a separate window.")
+                .finifyFont(.caption)
+                .foregroundStyle(FinifyColor.muted)
+                .multilineTextAlignment(.center)
+            Button("Use a Jellyfin server instead") {
+                withAnimation(Motion.ui) { showsJellyfin = true }
+                focus = server.isEmpty ? .server : .user
+            }
+            .buttonStyle(.plain)
+            .finifyFont(.body)
+            .foregroundStyle(FinifyColor.accent)
+            .padding(.top, Spacing.s8)
+        }
+        .frame(width: 320)
     }
 
     /// 花翼：圖檔的黑底已轉成透明（依亮度），任何底色上都只留下光；背後一層柔光緩慢呼吸
