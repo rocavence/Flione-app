@@ -23,6 +23,7 @@ extension AppEnvironment {
             })
         }
         playlistsItem.submenu = submenu
-        return [.separator(), favorite, playlistsItem]
+        let share = NSSharingServicePicker(items: shareItem(for: album).items).standardShareMenuItem
+        return [.separator(), favorite, playlistsItem, share]
     }
 }

@@ -100,3 +100,10 @@
   * `AVAssetResourceLoaderDelegate` 可以完全自己處理請求，但要重做 range request 與緩衝，可能影響 S2 驗證過的無縫播放。
 * **建議後續**：上架前改用 resource loader，並重跑 S2 無縫播放驗證；或在 Jellyfin 為 Finify 建立權限較小的專用帳號。
 * **怎麼改**：`JellyfinRepository.streamURL(for:)` 與 `PlayerManager.makeItem`。
+
+## D15　換歌通知與分享
+
+* **通知**：只在 Finify 不在前景時發，內容是曲名、藝人、專輯，附封面；新通知取代上一則，不會堆一長串。啟動時就請求通知權限，因為 app 在背景時才請求會被系統直接拒絕（實測）。設定 → General 可關閉。
+* **分享**：文字是「名稱 — 藝人」，連結是 Jellyfin 網頁版的項目頁（`<server>/web/#/details?id=…`）。這個連結只有能登入同一台 server 的人打得開，而且會讓對方看到 server 位址。若之後想分享給外部的人，可以改成只分享文字，或改用公開的音樂連結服務。
+* **位置**：專輯與歌曲的右鍵選單（含 Album Wall、Library 網格）、Now Playing 面板的分享按鈕。
+* **怎麼改**：`Core/Platform/TrackNotifier.swift`、`App/ShareItem.swift`。

@@ -66,6 +66,7 @@ final class AppEnvironment {
 
     @ObservationIgnored private let sessionStore: any SessionStore
     @ObservationIgnored private var nowPlaying: NowPlayingController?
+    @ObservationIgnored private var notifier: TrackNotifier?
     @ObservationIgnored private let pathMonitor = NWPathMonitor()
     @ObservationIgnored private var wasOffline = false
     @ObservationIgnored private var expiryObserver: NSObjectProtocol?
@@ -80,6 +81,9 @@ final class AppEnvironment {
         mode = rememberMode ? UserDefaults.standard.string(forKey: Self.modeKey).flatMap(AppMode.init) : nil
         ImagePipeline.trackDisplayColorSpace()
         nowPlaying = NowPlayingController(player: player) { [weak self] in self?.images }
+        let notifier = TrackNotifier { [weak self] in self?.images }
+        self.notifier = notifier
+        player.onTrackChange = { notifier.trackChanged($0) }
         if let session = sessionStore.load() { activate(session) }
         expiryObserver = NotificationCenter.default.addObserver(forName: .finifySessionExpired, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {

@@ -56,6 +56,7 @@ struct AlbumCard: View {
             Button("Play Next") { queue(next: true) }
             Button("Add to Queue") { queue(next: false) }
             AddToPlaylistMenu { (try? await app.repository?.tracks(inAlbum: album.id)) ?? [] }
+            ShareMenu(item: app.shareItem(for: album))
             Divider()
             Button("Open Album", action: onOpen)
         }
@@ -182,6 +183,7 @@ struct TrackRow: View {
             Button("Add to Queue") { app.player.addToQueue([track]) }
             Button(app.favorites.contains(track.id) ? "Remove from Favorites" : "Add to Favorites") { app.favorites.toggle(track.id) }
             AddToPlaylistMenu { [track] }
+            ShareMenu(item: app.shareItem(for: track))
             if !extraMenu.isEmpty {
                 Divider()
                 ForEach(Array(extraMenu.enumerated()), id: \.offset) { _, item in Button(item.title, action: item.action) }

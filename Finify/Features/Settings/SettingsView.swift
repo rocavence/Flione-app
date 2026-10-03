@@ -22,6 +22,7 @@ enum SettingsKey {
     static let menuBar = "FinifyMenuBar"
     static let floatingOnTop = "FinifyFloatingOnTop"
     static let wallDrift = "FinifyWallDrift"
+    static let trackNotifications = "FinifyTrackNotifications"
 }
 
 /// macOS 設定視窗（⌘,）
@@ -44,6 +45,7 @@ private struct GeneralSettings: View {
     @Environment(AppEnvironment.self) private var app
     @State private var cacheSize: String = "…"
     @AppStorage(SettingsKey.menuBar) private var showsMenuBar = true
+    @AppStorage(SettingsKey.trackNotifications) private var trackNotifications = true
 
     var body: some View {
         @Bindable var app = app
@@ -54,6 +56,7 @@ private struct GeneralSettings: View {
             }
             Toggle("Remember my choice", isOn: $app.rememberMode)
             Toggle("Show player in menu bar", isOn: $showsMenuBar)
+            Toggle("Notify when a new song starts", isOn: $trackNotifications)
             LabeledContent("Artwork cache") {
                 HStack {
                     Text(cacheSize).foregroundStyle(.secondary)
