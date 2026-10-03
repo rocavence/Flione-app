@@ -6,6 +6,18 @@ struct StandardSidebar: View {
     @Environment(StandardRouter.self) private var router
 
     var body: some View {
+        VStack(spacing: 0) {
+            navigation
+            SidebarProfile()
+        }
+        .frame(width: 220)
+        .background(FinifyColor.panel)
+        .overlay(alignment: .trailing) { FinifyColor.hairline.frame(width: 1) }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Sidebar")
+    }
+
+    private var navigation: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 2) {
                 item("Home", icon: .home, tab: .home)
@@ -36,11 +48,6 @@ struct StandardSidebar: View {
             .padding(.top, 52)
             .padding(.bottom, Spacing.s16)
         }
-        .frame(width: 220)
-        .background(FinifyColor.panel)
-        .overlay(alignment: .trailing) { FinifyColor.hairline.frame(width: 1) }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("Sidebar")
     }
 
     private func item(_ title: String, icon: Reicon, tab: StandardTab) -> some View {
@@ -127,5 +134,154 @@ private struct PlaylistSidebarRow: View {
         .onHover { hovering = $0 }
         .accessibilityLabel("\(playlist.name), playlist")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
+/// 側欄底部：登入者頭像、名稱與 server；點一下打開帳號選單，右邊的齒輪打開設定（做法參考 Kaset 的 SidebarProfileView）
+private struct SidebarProfile: View {
+    @Environment(AppEnvironment.self) private var app
+    @State private var showsAccount = false
+    @State private var hovering = false
+
+    var body: some View {
+        if let session = app.session {
+            HStack(spacing: Spacing.s4) {
+                Button { showsAccount = true } label: {
+                    HStack(spacing: Spacing.s8) {
+                        UserAvatar(session: session, size: 32)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(session.userName)
+                                .finifyFont(.bodyEmphasis)
+                                .foregroundStyle(FinifyColor.ink)
+                            Text(session.serverName)
+                                .finifyFont(.caption)
+                                .foregroundStyle(FinifyColor.muted)
+                        }
+                        .lineLimit(1)
+                        Spacer(minLength: 0)
+                        FinifyIcon(.chevronUp, size: .compact)
+                            .foregroundStyle(FinifyColor.faint)
+                    }
+                    .padding(.horizontal, Spacing.s8)
+                    .frame(height: 48)
+                    .background(hovering ? FinifyColor.glassHighlight : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .onHover { hovering = $0 }
+                .animation(Motion.micro, value: hovering)
+                .accessibilityLabel("\(session.userName) on \(session.serverName)")
+                .accessibilityHint("Shows account options")
+                .popover(isPresented: $showsAccount, arrowEdge: .top) {
+                    AccountPopover(session: session) { showsAccount = false }
+                        .environment(app)
+                }
+                FinifyIconButton(icon: .setting2, label: "Settings (⌘,)") { app.isSettingsPresented = true }
+            }
+            .padding(.horizontal, Spacing.s8)
+            .padding(.vertical, Spacing.s8)
+            .overlay(alignment: .top) { FinifyColor.hairline.frame(height: 1) }
+        }
+    }
+}
+
+/// 帳號選單：server 資訊、重新整理音樂庫、設定、登出
+private struct AccountPopover: View {
+    let session: JellyfinSession
+    let dismiss: () -> Void
+    @Environment(AppEnvironment.self) private var app
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: Spacing.s12) {
+                UserAvatar(session: session, size: 44)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(session.userName).finifyFont(.subheading).foregroundStyle(FinifyColor.ink)
+                    Text(session.serverURL.host() ?? session.serverURL.absoluteString)
+                        .finifyFont(.caption).foregroundStyle(FinifyColor.muted)
+                    Text("\(app.library.albums.count) albums").finifyFont(.caption).foregroundStyle(FinifyColor.faint)
+                }
+                .lineLimit(1)
+            }
+            .padding(Spacing.s12)
+            Divider().padding(.vertical, Spacing.s4)
+            row("Refresh Library", icon: .refresh) {
+                Task { await app.library.refresh() }
+            }
+            .disabled(app.library.state == .loading)
+            row("Settings…", icon: .setting2) { app.isSettingsPresented = true }
+            Divider().padding(.vertical, Spacing.s4)
+            row("Sign Out", icon: .power, role: .destructive) { app.signOut() }
+        }
+        .padding(Spacing.s8)
+        .frame(width: 260)
+    }
+
+    private func row(_ title: String, icon: Reicon, role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
+        PopoverRow(title: title, icon: icon, destructive: role == .destructive) {
+            dismiss()
+            action()
+        }
+    }
+}
+
+private struct PopoverRow: View {
+    let title: String
+    let icon: Reicon
+    let destructive: Bool
+    let action: () -> Void
+    @Environment(\.isEnabled) private var isEnabled
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Spacing.s12) {
+                FinifyIcon(icon, size: .compact)
+                Text(title).finifyFont(.body)
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(destructive ? FinifyColor.danger : FinifyColor.ink)
+            .padding(.horizontal, Spacing.s12)
+            .frame(height: 32)
+            .background(hovering && isEnabled ? FinifyColor.glassHighlight : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .opacity(isEnabled ? 1 : 0.4)
+        .onHover { hovering = $0 }
+    }
+}
+
+/// Jellyfin 使用者頭像；沒有設定頭像時顯示名字的第一個字
+struct UserAvatar: View {
+    let session: JellyfinSession
+    let size: CGFloat
+
+    var body: some View {
+        AsyncImage(url: session.avatarURL(pixelSize: Int(size * 2))) { phase in
+            if let image = phase.image {
+                image.resizable().scaledToFill()
+            } else {
+                ZStack {
+                    FinifyColor.aurora
+                    Text(session.userName.prefix(1).uppercased())
+                        .font(.system(size: size * 0.42, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(Circle())
+        .overlay(Circle().strokeBorder(FinifyColor.hairline, lineWidth: 1))
+        .accessibilityHidden(true)
+    }
+}
+
+extension JellyfinSession {
+    /// 使用者頭像（Jellyfin 的使用者圖片不需要登入就能取得；沒有頭像時回 404）
+    func avatarURL(pixelSize: Int) -> URL {
+        var components = URLComponents(url: serverURL.appending(path: "Users/\(userID)/Images/Primary"), resolvingAgainstBaseURL: false)!
+        components.queryItems = [URLQueryItem(name: "maxWidth", value: "\(pixelSize)"), URLQueryItem(name: "maxHeight", value: "\(pixelSize)")]
+        return components.url!
     }
 }

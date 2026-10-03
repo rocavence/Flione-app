@@ -17,6 +17,7 @@ final class KeyboardMonitor {
                 app.player.togglePlayPause()
                 return nil
             case 53:
+                if app.isSettingsPresented { app.isSettingsPresented = false; return nil }
                 if app.isSearchPresented { app.isSearchPresented = false; return nil }
                 if app.isQueuePresented { app.isQueuePresented = false; return nil }
                 if app.isLyricsPresented { app.isLyricsPresented = false; return nil }

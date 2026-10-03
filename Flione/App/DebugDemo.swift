@@ -8,6 +8,7 @@ import AVFoundation
 ///     -FinifyDemoPlay "<專輯名>"     播放該專輯
 ///     -FinifyDemoOpen "<專輯名>"     打開該專輯頁
 ///     -FinifyDemoSearch "<關鍵字>"   打開 ⌘K 並搜尋
+///     -FinifyDemoSettings YES       打開設定卡片
 ///     -FinifyDemoSeekToEnd 5        播放後跳到第一首結尾前 5 秒
 ///     -FinifyLatencyProbe <檔案>     量測按下播放到出聲的時間（-FinifyDemoPlay 指定專輯，沒指定時隨機）
 @MainActor
@@ -50,6 +51,7 @@ enum DebugDemo {
             openAlbum(album)
         }
         if defaults.string(forKey: "FinifyDemoSearch") != nil { app.isSearchPresented = true }
+        if defaults.bool(forKey: "FinifyDemoSettings") { app.isSettingsPresented = true }
         if defaults.bool(forKey: "FinifyDumpViews") {
             try? await Task.sleep(for: .seconds(6))
             if let root = NSApp.windows.first(where: \.isVisible)?.contentView { dump(root, depth: 0) }

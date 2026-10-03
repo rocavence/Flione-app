@@ -21,7 +21,7 @@ struct StandardRootView: View {
                 // 中間欄吃掉剩餘寬度，不讓子視圖把側欄和面板擠出視窗
                 .frame(minWidth: 0, maxWidth: .infinity)
                 .clipped()
-                .background(FinifyColor.paper)
+                .background(ContentGlow(artwork: glowArtwork))
             }
             // 佇列與歌詞：與 Infinity／Cover Flow 相同的浮層，浮在內容右側
             .overlay(alignment: .trailing) {
@@ -95,11 +95,19 @@ struct StandardRootView: View {
                 }
                 .id(route)
                 .transition(.opacity)
-                .background(FinifyColor.paper)
             }
         }
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: router.path)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// 背景光暈的顏色來源：專輯與 playlist 頁用該頁封面，其他頁用正在播放的歌
+    private var glowArtwork: ArtworkRef? {
+        switch router.path.last {
+        case .album(let album): album.artwork
+        case .playlist(let playlist): playlist.artwork
+        default: app.player.currentTrack?.artwork
+        }
     }
 
     private func openAlbum(id: String?) {

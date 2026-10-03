@@ -48,11 +48,6 @@ struct FlioneApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        Settings {
-            SettingsView()
-                .environment(app)
-                .tint(FinifyColor.accent)
-        }
     }
 }
 
@@ -89,6 +84,16 @@ struct RootView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .overlay {
+            if app.isSettingsPresented {
+                ZStack {
+                    Color.black.opacity(0.4).ignoresSafeArea().onTapGesture { app.isSettingsPresented = false }
+                    SettingsCard().padding(Spacing.s32)
+                }
+                .transition(.opacity)
+            }
+        }
+        .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isSettingsPresented)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.player.notice)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.mode)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.session)
@@ -145,7 +150,10 @@ struct FinifyCommands: Commands {
             OpenWindowButton(title: "Mini Player", windowID: "floating")
                 .keyboardShortcut("m", modifiers: [.command, .option])
         }
-        CommandGroup(after: .appSettings) {
+        // 設定是主視窗裡的卡片，不是獨立視窗
+        CommandGroup(replacing: .appSettings) {
+            Button("Settings…") { app.isSettingsPresented = true }
+                .keyboardShortcut(",", modifiers: .command)
             Button("Sign Out of Jellyfin…") { app.signOut() }
                 .disabled(app.session == nil)
         }

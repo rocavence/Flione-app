@@ -201,3 +201,18 @@
 * **暫代曲目**：id 以 `pending:` 開頭（`Track.isPlaceholder`），不能加愛心、不查歌詞；這段時間按暫停會取消這次播放，上一首／下一首不動作。
 * **實測**（`-FinifyLatencyProbe`，隨機 5 張專輯）：畫面進入播放狀態 0–2 ms；取回曲目 0.3–1.7 秒；出聲 1.4–2.8 秒。
 * **範圍**：專輯的播放按鈕（Home、Library、藝人頁、Infinity／Cover Flow）。藝人「全部播放」、曲風與音樂庫隨機播放、`flione://` 仍是取回後才播。
+
+## D27　Modern 的背景光暈與側欄帳號區（參考 Kaset）
+
+* **光暈**：主要內容後面依封面上色，做法參考 Kaset 的 `AccentBackground`。深色模式頂端是封面主色往下淡出，左上角再疊一層放射光；淺色模式只在頂端淡淡上色。顏色從 BlurHash 解成 2×1 取左右兩色，不額外下載圖片。
+* **顏色來源**：專輯頁、playlist 頁用該頁封面；其他頁（首頁、音樂庫、藝人、曲風）用正在播放的歌。只在主要內容區，側欄與播放列維持原本的面板色。
+* **開關**：沿用設定的「Ambient background」，Modern 與 Infinity／Cover Flow 共用。
+* **側欄底部**：登入者頭像（Jellyfin 使用者圖片，沒有時顯示名字第一個字）、名稱、server 名稱；點一下打開帳號選單（重新整理音樂庫、設定、登出），旁邊的齒輪直接打開設定。
+* **怎麼改**：`Features/Standard/ContentGlow.swift`、`StandardSidebar.swift` 的 `SidebarProfile`。
+
+## D28　設定改成主視窗裡的卡片
+
+* **選擇**：依使用者提供的參考圖，設定不再是獨立的 macOS 設定視窗，改成浮在主視窗上的卡片：標題、分頁膠囊（General／Appearance／Jellyfin）、關閉鈕；每列左邊是名稱與說明，右邊是開關、選單或膠囊按鈕。
+* **打開方式**：⌘,、選單「Settings…」、Modern 側欄的齒輪與帳號選單；Esc 或點卡片外面關閉。三種模式都能開。
+* **開關**：自己畫，不用系統的 switch。系統的在視窗不在前景時會變灰，看不出開或關。
+* **怎麼改**：`Features/Settings/SettingsView.swift`（`SettingsCard`）。
