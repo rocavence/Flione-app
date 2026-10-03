@@ -150,3 +150,10 @@
 * **移除**：Overflow 原本的 Wall／Flow／Recent 分段控制、側欄的 Overflow 項目、設定裡的 Layout 選項。Recent（最近播放專輯牆）不在三種模式內，先移除；首頁的 Recently Played 仍在。
 * **程式**：內部仍是 `AppMode.standard／overflow` 加 `OverflowLayout.wall／flow`，使用者看到的是 `ViewMode`（`AppEnvironment.viewMode`）。
 * **怎麼改**：`ModeSwitch`、`FullscreenButton`（`StandardRootView.swift`）、`ViewMode`（`AppEnvironment.swift`）。
+
+## D21　用固定的開發者憑證簽章
+
+* **問題**：原本用 ad-hoc 簽章（`CODE_SIGN_IDENTITY: "-"`），每次建置簽章都不同；鑰匙圈依簽章判斷是不是同一個 app，所以每次重建後打開都會跳「要使用鑰匙圈中的機密資訊」並要求系統密碼。
+* **選擇**：Finify 與測試 target 改用 `Apple Development: you@example.com`（Team `XXXXXXXXXX`）手動簽章。簽章的身分固定為「app.finify.Finify＋這張憑證」，在提示中按一次「永遠允許」後，之後重建也不會再問。
+* **限制**：仍未經 Apple 公證；給其他人用時第一次打開仍要在 Finder 按右鍵 → 打開。換電腦建置時，該電腦要有這張憑證，或改回 `"-"`。
+* **怎麼改**：`project.yml` 的 `CODE_SIGN_IDENTITY`、`DEVELOPMENT_TEAM`。
