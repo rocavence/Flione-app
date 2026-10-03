@@ -22,8 +22,14 @@ struct AlbumFlowView: View {
     @AppStorage(SettingsKey.flowRounded) private var rounded = true
     /// 兩側封面變暗的程度（設定 → Appearance → Cover Flow）
     @AppStorage(SettingsKey.flowDim) private var dim = 0.25
-    /// 背景光暈的亮度（設定 → Cover Flow → 光暈亮度）
-    @AppStorage(SettingsKey.flowGlow) private var glow = 0.9
+    /// 停下來後背景光暈暗下來的程度（設定 → Cover Flow → 光暈亮度；0 = 不變暗）
+    @AppStorage(SettingsKey.flowSettleDim) private var settleDim = 0.0
+    /// 移動中為 false；停下約 0.8 秒後變 true，背景光暈慢慢暗下來
+    @State private var settled = false
+    @State private var settleTask: Task<Void, Never>?
+
+    /// 移動時光暈最亮（0.9），停下來後依設定變暗
+    private var glow: Double { settled ? 0.9 * (1 - settleDim) : 0.9 }
     @State private var centerID: String?
     /// 使用者手動移動過後，不再自動跳到正在播放的專輯
     @State private var userMoved = false
@@ -132,7 +138,11 @@ struct AlbumFlowView: View {
                 withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { resize(to: geo.size) }
             }
         }
-        .background { FlowBackdrop(artwork: centered?.artwork, horizon: 0.5, glow: glow) }
+        .background {
+            FlowBackdrop(artwork: centered?.artwork, horizon: 0.5, glow: glow)
+                // 暗下來要慢、亮回來要快
+                .animation(reduceMotion ? nil : (settled ? .easeInOut(duration: 1.4) : .easeOut(duration: 0.3)), value: settled)
+        }
         .onAppear {
             centerOnPlaying()
             realignToken += 1
@@ -150,7 +160,16 @@ struct AlbumFlowView: View {
             realignToken += 1
         }
         .background(FlowWindowReader { activeState.window = $0 })
-        .onChange(of: centerID) { flippedID = nil }
+        .onChange(of: centerID) {
+            flippedID = nil
+            settled = false
+            settleTask?.cancel()
+            settleTask = Task {
+                try? await Task.sleep(for: .milliseconds(800))
+                guard !Task.isCancelled else { return }
+                settled = true
+            }
+        }
         .onChange(of: centerOnPlayingToken) {
             userMoved = false
             withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { centerOnPlaying() }
@@ -312,7 +331,7 @@ private struct FlowBackdrop: View {
     let artwork: ArtworkRef?
     /// 地平線位置（0 = 頂端、1 = 底部），倒影落在這條線下方
     let horizon: CGFloat
-    /// 光暈亮度（0 = 不顯示，0.9 = 最亮）
+    /// 光暈亮度（移動時 0.9；停下來後依設定變暗）
     var glow: Double = 0.9
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -322,7 +341,7 @@ private struct FlowBackdrop: View {
             Color.clear.overlay {
                 // 一律用 BlurHash，不下載封面大圖：原本停下來後 1600px 大圖載完會取代 BlurHash，
                 // 背景明顯變暗（BlurHash 較亮、沒有暗部）；模糊 110 之後也看不出解析度的差別
-                if glow > 0, let hash = artwork?.blurHash, let image = BlurHash.image(hash, size: 32) {
+                if let hash = artwork?.blurHash, let image = BlurHash.image(hash, size: 32) {
                     Image(decorative: image, scale: 1)
                         .resizable()
                         .interpolation(.medium)

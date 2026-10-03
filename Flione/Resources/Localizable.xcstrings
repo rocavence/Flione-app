@@ -516,16 +516,6 @@
         }
       }
     },
-    "Bright": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "亮"
-          }
-        }
-      }
-    },
     "By Genre": {
       "localizations": {
         "zh-Hant": {
@@ -1017,6 +1007,16 @@
         }
       }
     },
+    "Don't dim": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不變暗"
+          }
+        }
+      }
+    },
     "Drift": {
       "localizations": {
         "zh-Hant": {
@@ -1395,16 +1395,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "由亮到暗"
-          }
-        }
-      }
-    },
-    "Low": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "低"
           }
         }
       }
@@ -2743,12 +2733,12 @@
         }
       }
     },
-    "The glow behind the covers, in the colors of the center album.": {
+    "The glow behind the covers is brightest while you move between albums. Choose how much it dims after you stop.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "封面後方的光暈，顏色來自中間那張專輯。"
+            "value": "封面後方的光暈在移動時最亮，這裡設定停下來後要暗多少。"
           }
         }
       }
