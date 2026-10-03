@@ -244,7 +244,8 @@ struct AlbumWallView: NSViewRepresentable {
 
         func scrollToPlaying() {
             guard let id = parent.playingAlbumID, let index = parent.albums.firstIndex(where: { $0.id == id }) else { return }
-            motion.noteActivity()
+            // 自動捲動每一幀都會推動封面牆，會打斷這段捲動動畫；先暫停 3 秒，讓使用者看到正在播放的專輯
+            motion.pause(seconds: 3)
             collection?.animator().scrollToItems(at: [IndexPath(item: index, section: 0)], scrollPosition: .centeredHorizontally)
         }
 
@@ -477,6 +478,14 @@ final class WallMotion: NSObject {
 
     func stopInertia() { inertia = 0 }
 
+    /// 暫停漂移與自動捲動（例如捲到正在播放的專輯時），時間到後重新緩緩加速
+    private var pausedUntil: CFTimeInterval = 0
+    func pause(seconds: CFTimeInterval) {
+        pausedUntil = CACurrentMediaTime() + seconds
+        drift = 0
+        inertia = 0
+    }
+
     func startInertia(velocity: CGFloat) {
         guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
         inertia = max(-4000, min(4000, velocity))
@@ -487,6 +496,7 @@ final class WallMotion: NSObject {
         let dt = lastTick == 0 ? 1.0 / 60 : min(now - lastTick, 0.05)
         lastTick = now
         guard let collection, let clip = collection.enclosingScrollView?.contentView else { return }
+        guard now >= pausedUntil else { drift = 0; return }
 
         if abs(inertia) > 8 {
             collection.scrollHorizontally(clip, by: inertia * CGFloat(dt))
