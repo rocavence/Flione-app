@@ -66,9 +66,9 @@
 
 ## D10　App icon 與選單列 icon（Finity）
 
-* **App icon**：直接使用設計稿 `scripts/icon/finity-icon-source.png`（藍紫漸層底、半透明玻璃緞帶「F」），裁出圓角方形、放大一點讓設計稿四角的白底落在遮罩外，再加上 macOS icon 的陰影。
-* **選單列**：設計稿裡兩個水滴的實心輪廓（上方水滴圓頭在右上，下方水滴圓頭在左下、尾巴成為中橫），座標是對著設計稿描的。18pt 畫布、字形 16pt。平常是 template（淺色選單列黑、深色白）；播放中換成 Electric Blue（#3E7CF6），右下 F 的空白處加一個小點。
-* **怎麼改**：`scripts/icon/make-icon.swift`。換設計稿就重跑 `app`；字形在 `drops`。app icon 用 `sips` 縮成 `AppIcon.appiconset` 的各尺寸；選單列直接寫入 `MenuBarIcon`／`MenuBarIconPlaying` imageset。
+* **App icon**：設計稿 `scripts/icon/finity-icon-source.png`（深藍底、發光的半透明鳥形）依 macOS icon 格線標準化：824×824 圓角方形置中於 1024 畫布，加上標準陰影與細亮邊，再縮成 `AppIcon.appiconset` 的各尺寸。設計稿若四周有白底會自動裁掉。
+* **選單列**：設計稿 `scripts/icon/menubar-source.png` 的剪影以 potrace 描成向量（`scripts/icon/menubar-glyph.svg`），重畫成 18pt 畫布、字形 16pt。平常是 template（淺色選單列黑、深色白）；播放中換成 Electric Blue（#3E7CF6），右下加一個小點。
+* **怎麼改**：換設計稿後重跑 `scripts/icon/make-icon.swift app …` 與 `menubar …`（用法寫在檔案開頭）。
 
 ## D11　Album Wall 的點擊行為
 
