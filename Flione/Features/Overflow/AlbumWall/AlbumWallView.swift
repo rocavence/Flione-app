@@ -660,16 +660,30 @@ final class WallItem: NSCollectionViewItem {
         guard let layer = view.layer else { return }
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         let scale: CGFloat = isPlaying ? 1.08 : (hovering ? 1.12 : 1)
+        let raised = isPlaying || hovering
+        let zPosition: CGFloat = isPlaying ? 20 : (hovering ? 10 : 0)
+        let duration = animated && !reduceMotion ? (raised ? 0.55 : 0.7) : 0
         CATransaction.begin()
-        CATransaction.setAnimationDuration(animated && !reduceMotion ? 0.35 : 0)
-        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
+        // 柔和：慢慢起步、長長收尾；縮回比放大更從容（原本 0.35 秒 easeOut 起步太急）
+        CATransaction.setAnimationDuration(duration)
+        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(controlPoints: 0.33, 0, 0.15, 1))
+        // 浮起時立刻置頂；降下時等縮回原尺寸才放回原層，否則還在縮小時就被旁邊的封面突然蓋住。
+        // completion block 只等之後加入的動畫，所以要在改 transform 之前設定
+        if zPosition >= layer.zPosition || duration == 0 {
+            layer.zPosition = zPosition
+        } else {
+            CATransaction.setCompletionBlock { [weak self] in
+                guard let self, let layer = self.view.layer else { return }
+                let current: CGFloat = self.isPlaying ? 20 : (self.hovering ? 10 : 0)
+                if current == zPosition { layer.zPosition = zPosition }
+            }
+        }
         let bounds = view.bounds
         var transform = CATransform3DIdentity
         transform = CATransform3DTranslate(transform, bounds.midX, bounds.midY, 0)
         transform = CATransform3DScale(transform, scale, scale, 1)
         transform = CATransform3DTranslate(transform, -bounds.midX, -bounds.midY, 0)
         layer.sublayerTransform = transform
-        layer.zPosition = isPlaying ? 20 : (hovering ? 10 : 0)
         shadowLayer.opacity = isPlaying || hovering ? 1 : 0
         // 專輯資訊一律點了才看（打開專輯面板），hover 只放大
         captionGradient.opacity = 0
