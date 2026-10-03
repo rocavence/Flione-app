@@ -15,6 +15,11 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
     private(set) var duration: Double = 0
     /// 已經開始載入過歌曲（播放列才顯示）
     private(set) var hasTrack = false
+    /// 正在用 AirPlay 播放（網頁的 video 回報 webkitCurrentPlaybackTargetIsWireless）
+    private(set) var isWireless = false
+    /// 最近一次回報的影片，用來確認頁面內換歌有沒有成功
+    @ObservationIgnored private var reportedVideoId: String?
+    @ObservationIgnored private var fallbackTask: Task<Void, Never>?
 
     @ObservationIgnored private var webView: WKWebView?
 
@@ -49,6 +54,7 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
                     time: v ? v.currentTime : 0,
                     duration: v && isFinite(v.duration) ? v.duration : 0,
                     ended: !!(v && v.ended),
+                    wireless: !!(v && v.webkitCurrentPlaybackTargetIsWireless),
                     videoId: new URLSearchParams(location.search).get('v') || '',
                     title: meta ? meta.title : '',
                     artist: meta ? meta.artist : '',
@@ -64,6 +70,8 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
         if let webView { return webView }
         let configuration = WKWebViewConfiguration()
         configuration.mediaTypesRequiringUserActionForPlayback = []
+        // AirPlay：用 WebKit 自己的裝置選單（與 Kaset 相同，ADR-0010）
+        configuration.allowsAirPlayForMediaPlayback = true
         configuration.userContentController.add(self, name: "flione")
         configuration.userContentController.addUserScript(WKUserScript(source: Self.observer, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         #if DEBUG
@@ -94,10 +102,63 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
         ensureWebView().load(URLRequest(url: components.url!))
     }
 
-    /// 只播單首（佇列由 PlayerManager 管）
+    /// 只播單首（佇列由 PlayerManager 管）。
+    /// 頁面已經載入時，用 YouTube Music 自己的 router 在同一個頁面換歌：不重新載入，AirPlay 連線不會斷，換歌也比較快。
+    /// 5 秒內網頁沒有換到這首（router 不在、YouTube 改版），就退回整頁重新載入
     func load(videoId: String) {
-        appliedVolume = nil
-        play(videoId: videoId)
+        fallbackTask?.cancel()
+        guard let webView, webView.url?.host == URL(string: InnerTube.origin)?.host, !webView.isLoading else {
+            appliedVolume = nil
+            play(videoId: videoId)
+            return
+        }
+        hasTrack = true
+        isPlaying = true
+        let script = """
+        (function () {
+            var app = document.querySelector('ytmusic-app');
+            if (!app || typeof app.resolveCommand !== 'function') { return false; }
+            app.resolveCommand({ watchEndpoint: { videoId: '\(videoId)' } });
+            return true;
+        })()
+        """
+        webView.evaluateJavaScript(script) { [weak self] result, _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                #if DEBUG
+                Self.debugNote("in-page=\(result as? Bool == true) \(videoId)")
+                #endif
+                guard result as? Bool == true else {
+                    self.appliedVolume = nil
+                    self.play(videoId: videoId)
+                    return
+                }
+                self.fallbackTask = Task { [weak self] in
+                    try? await Task.sleep(for: .seconds(5))
+                    guard let self, !Task.isCancelled, self.reportedVideoId != videoId else { return }
+                    #if DEBUG
+                    Self.debugNote("fallback to full load \(videoId)")
+                    #endif
+                    self.appliedVolume = nil
+                    self.play(videoId: videoId)
+                }
+            }
+        }
+    }
+
+    /// 叫出 WebKit 的 AirPlay 裝置選單。WebKit 以網頁最後一次收到的滑鼠位置當選單位置，
+    /// 先送一個不按下的 mouseUp 把位置設到按鈕上（與 Kaset 相同，ADR-0010）
+    func showAirPlayPicker(at screenPoint: CGPoint?) {
+        guard let webView else { return }
+        if let screenPoint, let window = webView.window, let contentView = window.contentView {
+            let point = contentView.convert(window.convertPoint(fromScreen: screenPoint), from: nil)
+            if let event = NSEvent.mouseEvent(with: .leftMouseUp, location: point, modifierFlags: [],
+                                              timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+                                              context: nil, eventNumber: 0, clickCount: 0, pressure: 0) {
+                webView.mouseUp(with: event)
+            }
+        }
+        run("var v = document.querySelector('video'); if (v && v.webkitShowPlaybackTargetPicker) { v.webkitShowPlaybackTargetPicker(); }")
     }
 
     func pause() { run("document.querySelector('video').pause()"); isPlaying = false }
@@ -132,6 +193,8 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
                              videoId: (body["videoId"] as? String).flatMap { $0.isEmpty ? nil : $0 },
                              ended: body["ended"] as? Bool ?? false))
             isPlaying = body["playing"] as? Bool ?? false
+            isWireless = body["wireless"] as? Bool ?? false
+            reportedVideoId = (body["videoId"] as? String).flatMap { $0.isEmpty ? nil : $0 }
             currentTime = body["time"] as? Double ?? 0
             duration = body["duration"] as? Double ?? 0
             if let value = body["title"] as? String, !value.isEmpty { title = value }
@@ -143,7 +206,19 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
         }
     }
 
+    #if DEBUG
+    /// -FinifyRouterLog <檔案>：記錄 YouTube 換歌走頁面內 router 或整頁重新載入
+    private static func debugNote(_ line: String) {
+        guard let path = UserDefaults.standard.string(forKey: "FinifyRouterLog") else { return }
+        if !FileManager.default.fileExists(atPath: path) { FileManager.default.createFile(atPath: path, contents: nil) }
+        guard let handle = FileHandle(forWritingAtPath: path) else { return }
+        handle.seekToEndOfFile(); handle.write(Data((line + "\n").utf8)); try? handle.close()
+    }
+    #endif
+
     func stop() {
+        fallbackTask?.cancel()
+        isWireless = false
         webView?.load(URLRequest(url: URL(string: "about:blank")!))
         webView?.removeFromSuperview()
         webView = nil

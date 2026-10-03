@@ -2225,6 +2225,16 @@
         }
       }
     },
+    "Play To": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放到"
+          }
+        }
+      }
+    },
     "Play a song to see its lyrics.": {
       "localizations": {
         "zh-Hant": {

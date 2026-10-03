@@ -94,6 +94,9 @@ final class PlayerManager {
     var debugQueuePlayer: AVQueuePlayer { player }
     #endif
 
+    /// 給 AirPlay 選單（AVRoutePickerView）指定要轉送的播放器
+    var routingPlayer: AVPlayer { player }
+
     func attach(repository: any MusicRepository) {
         self.repository = repository
     }

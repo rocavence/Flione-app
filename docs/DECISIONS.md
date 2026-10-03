@@ -306,3 +306,12 @@
 * **大標題**：`display`、`title` 本來就大，只放大一半的比例，避免撐破專輯頁固定高度的頁首。首頁 Hero 的大標題是固定字級，不放大。
 * **做法**：`finifyFont` 讀環境值 `finifyTextScale`，由 `StandardRootView` 依設定提供；所有走 `finifyFont` 的文字自動跟著放大，太長的名稱照原本的規則截斷。
 * **怎麼改**：倍率在 `FinifyFont.swift` 的 `TextComfort`；範圍在 `StandardRootView` 與 `OverflowRootView` 的 `.environment(\.finifyTextScale, …)`。
+
+## D42　AirPlay：選單列的「播放到」
+
+* **入口**：選單列展開畫面底部的「播放到」按鈕（`OutputPickerButton`）。一次只從一個裝置出聲：選了 AirPlay 裝置，Mac 就不出聲。
+* **Jellyfin**：用系統的 `AVRoutePickerView`，`player` 指向 `PlayerManager` 的 AVQueuePlayer（`routingPlayer`）。系統按鈕的圖示設為透明，疊在 Flione 的 `screencast` 圖示上，外觀與其他按鈕一致。
+* **YouTube Music**：聲音在 WKWebView 的 `<video>` 裡，系統的 `AVRoutePickerView` 接不到。改照 Kaset（ADR-0010）：設定 `allowsAirPlayForMediaPlayback`，呼叫 `video.webkitShowPlaybackTargetPicker()`，並先送一個不按下的 mouseUp 把 WebKit 的選單位置設到按鈕上。是否正在無線播放讀 `webkitCurrentPlaybackTargetIsWireless`，按鈕會亮起。
+* **換歌不斷線**：原本 YouTube Music 每換一首都整頁重新載入，AirPlay 連線會跟著斷。改成頁面已載入時，用 YouTube Music 自己的 router（`ytmusic-app.resolveCommand({ watchEndpoint })`）在同一個頁面換歌；5 秒內沒有換到這首就退回整頁重新載入。換歌也因此變快。DEBUG 參數 `-FinifyRouterLog <檔案>` 會記錄每次走哪一條路。
+* **限制**：整頁重新載入（router 失敗的退路）時 AirPlay 會斷，要重新選。Chromecast 尚未實作（Mac 沒有官方 SDK，需自行實作 Cast 協定）。
+* **怎麼改**：`Components/OutputPickerButton.swift`、`YouTubeWebPlayer.load(videoId:)`／`showAirPlayPicker(at:)`。
