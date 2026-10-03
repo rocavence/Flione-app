@@ -19,7 +19,7 @@ struct StandardSidebar: View {
             }
         }
         // 側欄的框線都壓淡，只留輪廓（使用者要求不要明顯）
-        .overlay(alignment: .trailing) { FinifyColor.hairline.opacity(0.5).frame(width: 1) }
+        .overlay(alignment: .trailing) { FinifyColor.hairline.opacity(0.25).frame(width: 1) }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Sidebar")
     }
@@ -97,7 +97,7 @@ private struct SidebarRow: View {
             .overlay {
                 if isSelected {
                     RoundedRectangle(cornerRadius: Radius.ui, style: .continuous)
-                        .strokeBorder(FinifyColor.accent.opacity(0.15), lineWidth: 1)
+                        .strokeBorder(FinifyColor.accent.opacity(0.08), lineWidth: 1)
                 }
             }
             .contentShape(Rectangle())
@@ -184,7 +184,7 @@ private struct SidebarProfile: View {
             }
             .padding(.horizontal, Spacing.s8)
             .padding(.vertical, Spacing.s8)
-            .overlay(alignment: .top) { FinifyColor.hairline.opacity(0.5).frame(height: 1) }
+            .overlay(alignment: .top) { FinifyColor.hairline.opacity(0.25).frame(height: 1) }
         }
     }
 }
@@ -276,7 +276,7 @@ struct UserAvatar: View {
         }
         .frame(width: size, height: size)
         .clipShape(Circle())
-        .overlay(Circle().strokeBorder(FinifyColor.hairline.opacity(0.5), lineWidth: 1))
+        .overlay(Circle().strokeBorder(FinifyColor.hairline.opacity(0.3), lineWidth: 1))
         .accessibilityHidden(true)
     }
 }

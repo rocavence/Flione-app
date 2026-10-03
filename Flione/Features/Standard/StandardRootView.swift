@@ -238,8 +238,8 @@ struct ModeSwitch: View {
 struct ViewControls: View {
     /// 頂部列高度，Standard 與 Infinity／Cover Flow 相同
     static let barHeight: CGFloat = 52
-    /// 三段切換（3 × 42 + 6）＋ 間距 12 ＋ 全螢幕 41
-    static let width: CGFloat = 132 + 12 + 41
+    /// 三段切換（3 × 42 + 6）＋ 間距 12 ＋ 全螢幕 40
+    static let width: CGFloat = 132 + 12 + 40
 
     var body: some View {
         HStack(spacing: Spacing.s12) {
@@ -267,8 +267,8 @@ struct FullscreenButton: View {
             FinifyIcon(.fullscreen, size: .compact)
                 .scaleEffect(0.9)
                 .foregroundStyle((overflow ? FinifyColor.Overflow.ink : FinifyColor.ink).opacity(hovering ? 1 : 0.72))
-                // 視覺修正：正圓看起來偏直，寬度多 3pt 才會看起來是圓的
-                .frame(width: 41, height: 38)
+                // 視覺修正：正圓看起來偏直，寬度多 2pt 才會看起來是圓的
+                .frame(width: 40, height: 38)
                 .modifier(TopBarSurface(overflow: overflow, shape: Ellipse(),
                                         fallback: hovering ? (overflow ? FinifyColor.Overflow.controlHover : FinifyColor.glassHighlight)
                                                            : (overflow ? FinifyColor.Overflow.control : FinifyColor.glass),
