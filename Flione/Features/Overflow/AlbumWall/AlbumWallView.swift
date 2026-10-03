@@ -706,11 +706,14 @@ private final class WallItemView: NSView {
     /// 單擊要等雙擊間隔過去才執行，否則雙擊的第一下會先打開專輯
     private var pendingClick: DispatchWorkItem?
 
-    override func updateTrackingAreas() {
-        super.updateTrackingAreas()
-        trackingAreas.forEach(removeTrackingArea)
-        addTrackingArea(NSTrackingArea(rect: bounds, options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect], owner: self))
+    // .inVisibleRect 會自動跟著 view 的可見範圍，只要加一次。
+    // 原本每次 updateTrackingAreas 都移除重建，捲動時每個 cell 都要重做（Instruments 佔 main thread 約 2%）
+    override init(frame: NSRect) {
+        super.init(frame: frame)
+        addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect], owner: self))
     }
+
+    required init?(coder: NSCoder) { fatalError() }
 
     override func mouseEntered(with event: NSEvent) { item?.setHovering(true) }
     override func mouseExited(with event: NSEvent) { item?.setHovering(false) }

@@ -87,8 +87,9 @@ Library 格線往上捲仍有輕微卡頓，見「已知問題」。
   1. 封面的色彩轉換在 main thread 進行。這台螢幕用自己的 ICC 描述檔，每張封面上畫面前都要轉換（佔 main thread 16–23%）。現在在背景先轉成螢幕的色彩空間，main thread 只剩約 1%。
   2. 每個 cell 是 SwiftUI，重用時要重建整個 view 圖。改成純 AppKit cell 後，這部分從 17,681 個 sample 降到 615。
   剩下的主要是每個新 cell 的文字繪製。另外背景的 Zen 瀏覽器一直佔用 CPU 與 GPU，量測數字（90–137 ms/s）偏高，關掉瀏覽器再量比較準。
+  2026-10-03 下午再查：cell 的 tracking area 改成只建一次。同一時間把凌晨的版本（`ee81720`）建起來對照，往下捲 74–110、往上 161–188 ms/s，現在的版本是 87–122／89–141 ms/s，沒有退步。卡頓高低主要跟機器當下的 WindowServer 負載有關：main thread 大部分時間在等 render server 同步，而不是在跑 Flione 的程式。
 * 歌詞：你的 server 目前沒有歌詞檔，同步歌詞的畫面只用單元測試驗證，沒有實際看過。
-* 規格 V1 中沒做：系統通知（會跳權限詢問視窗，無人值守時不能做）、分享、Expanded Player（Standard 可直接進 Fullscreen 代替）。
+* 規格 V1 中沒做：Expanded Player（單曲全螢幕已依要求移除）。系統通知後來已完成（D15）；分享依要求移除。
 * 拖放只做了「專輯拖到佇列」；拖到 playlist 需要兩者同時出現在畫面上，目前的版面沒有這種情況。
 * 120 Hz ProMotion 螢幕沒測（這台外接螢幕是 60 Hz）。
 * 很多最近加入的專輯在 Jellyfin 沒有封面（顯示成文字方塊），是音樂庫的 metadata 問題，可在 Jellyfin 重新抓取 metadata。
