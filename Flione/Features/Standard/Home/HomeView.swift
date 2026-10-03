@@ -254,12 +254,7 @@ private struct HomeHero: View {
         ZStack {
             FinifyColor.aurora
             if let artwork = album?.artwork {
-                ArtworkView(artwork: artwork, cornerRadius: 0, elevation: .none)
-                    .aspectRatio(contentMode: .fill)
-                    .scaleEffect(1.5)
-                    .blur(radius: 60, opaque: true)
-                    .opacity(0.55)
-                    .blendMode(.softLight)
+                HeroBackdrop(artwork: artwork)
                     .id(artwork)
                     .transition(.opacity)
             }
@@ -280,6 +275,34 @@ private struct HomeHero: View {
         Task {
             guard let tracks = try? await app.repository?.randomTracks(limit: 200), !tracks.isEmpty else { return }
             app.player.play(tracks)
+        }
+    }
+}
+
+/// Hero 背景的模糊封面：直接向封面快取要圖，填滿整條 Hero。
+/// 不用 ArtworkView：它維持正方形，載入前的佔位方塊模糊後會在 Hero 中間留下一塊硬邊色塊。載入前不畫，只有極光漸層
+private struct HeroBackdrop: View {
+    let artwork: ArtworkRef
+    @Environment(AppEnvironment.self) private var app
+    @State private var image: CGImage?
+
+    var body: some View {
+        ZStack {
+            if let image {
+                Image(decorative: image, scale: 1)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+                    .blur(radius: 60, opaque: true)
+                    .opacity(0.55)
+                    .blendMode(.softLight)
+                    .transition(.opacity)
+            }
+        }
+        .task(id: artwork) {
+            // 模糊 60 之後解析度看不出差別，720px 就夠
+            image = await app.images?.image(artwork, pixelSize: 720)
         }
     }
 }
