@@ -106,8 +106,8 @@ struct ProgressBar: View {
             ZStack(alignment: .leading) {
                 Capsule().fill(overflow ? Color.white.opacity(0.18) : FinifyColor.hairline)
                 Capsule()
-                    // 播放進度一律用橘色；其他控制用藍色（Infinity／Cover Flow 平常用白色，操作時才變藍）
-                    .fill(isPlayback ? FinifyColor.orange : (!overflow || active ? FinifyColor.accent : FinifyColor.Overflow.ink))
+                    // 播放進度一律用橘色；音量、大小這類控制在三種模式一致：平常是文字色，hover／拖曳時變藍
+                    .fill(isPlayback ? FinifyColor.orange : (active ? FinifyColor.accent : (overflow ? FinifyColor.Overflow.ink : FinifyColor.ink)))
                     .frame(width: max(0, min(1, shown)) * geo.size.width)
                     .finifyGlow(isPlayback, radius: 5)
             }
