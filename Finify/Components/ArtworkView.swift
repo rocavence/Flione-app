@@ -10,7 +10,8 @@ struct ArtworkView: View {
     }
 
     let artwork: ArtworkRef?
-    var cornerRadius: CGFloat = Radius.artwork
+    /// nil = 依封面大小自動決定（Radius.artwork(for:)）
+    var cornerRadius: CGFloat?
     var elevation: Elevation = .standard
     /// hover 時微幅上浮
     var interactive = false
@@ -23,6 +24,9 @@ struct ArtworkView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var loaded: LoadedImage?
     @State private var hovering = false
+    @State private var measuredSide: CGFloat = 0
+
+    private var radius: CGFloat { cornerRadius ?? Radius.artwork(for: measuredSide) }
 
     private struct LoadedImage: Equatable {
         let key: String
@@ -56,9 +60,10 @@ struct ArtworkView: View {
             }
         }
         .aspectRatio(1, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { measuredSide = $0 }
+        .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
                 .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
         }
         .finifyShadow(shadowStyle)
@@ -88,7 +93,7 @@ struct ArtworkView: View {
             GeometryReader { geo in
                 let scale = geo.size.width / 200
                 // 圓形（藝人）時置中，避免文字被圓角裁掉
-                let circular = cornerRadius >= geo.size.width / 2
+                let circular = radius >= geo.size.width / 2
                 VStack(alignment: circular ? .center : .leading, spacing: 4 * scale) {
                     if !circular { Spacer(minLength: 0) }
                     Text(fallbackTitle)

@@ -493,7 +493,7 @@ final class WallItem: NSCollectionViewItem {
         view.item = self
         artwork.contentsGravity = .resizeAspectFill
         artwork.masksToBounds = true
-        artwork.cornerRadius = 2
+        artwork.cornerCurve = .continuous
         shadowLayer.backgroundColor = NSColor.black.cgColor
         shadowLayer.shadowColor = NSColor.black.cgColor
         shadowLayer.shadowOffset = CGSize(width: 0, height: -10)
@@ -523,6 +523,7 @@ final class WallItem: NSCollectionViewItem {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         artwork.frame = view.bounds
+        artwork.cornerRadius = Radius.artwork(for: view.bounds.width)
         let inset = max(6, view.bounds.width * 0.07)
         titleLayer.frame = view.bounds.insetBy(dx: inset, dy: inset)
         titleLayer.fontSize = max(9, view.bounds.width * 0.085)

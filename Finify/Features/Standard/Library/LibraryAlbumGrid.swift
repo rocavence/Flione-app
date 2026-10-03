@@ -153,7 +153,7 @@ final class LibraryAlbumItem: NSCollectionViewItem {
 
         artwork.contentsGravity = .resizeAspectFill
         artwork.masksToBounds = true
-        artwork.cornerRadius = Radius.artwork
+        artwork.cornerCurve = .continuous
         artwork.borderWidth = 0.5
         fallbackTitle.isWrapped = true
         fallbackTitle.truncationMode = .end
@@ -191,9 +191,10 @@ final class LibraryAlbumItem: NSCollectionViewItem {
         CATransaction.setDisableActions(true)
         // AppKit 預設 y 軸向上：封面在上方，文字在下方
         artwork.frame = CGRect(x: 0, y: view.bounds.height - width, width: width, height: width)
+        artwork.cornerRadius = Radius.artwork(for: width)
         let inset = width * 0.07
         fallbackTitle.frame = CGRect(x: inset, y: inset, width: width - inset * 2, height: width * 0.4)
-        view.layer?.shadowPath = CGPath(rect: artwork.frame, transform: nil)
+        view.layer?.shadowPath = CGPath(roundedRect: artwork.frame, cornerWidth: artwork.cornerRadius, cornerHeight: artwork.cornerRadius, transform: nil)
         CATransaction.commit()
         titleField.frame = CGRect(x: 0, y: view.bounds.height - width - 26, width: width, height: 18)
         subtitleField.frame = CGRect(x: 0, y: view.bounds.height - width - 42, width: width, height: 15)

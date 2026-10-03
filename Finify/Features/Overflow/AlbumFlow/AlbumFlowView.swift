@@ -11,6 +11,12 @@ struct AlbumFlowView: View {
     var isActive = true
     /// 值改變時回到正在播放的專輯
     var centerOnPlayingToken = 0
+    /// 封面大小（0–5 共 6 段），5 = 視窗放得下的最大尺寸
+    var sizeStep = 3
+
+    static let sizeSteps = 6
+    /// 倒影高度占封面的比例
+    private static let reflectionRatio: CGFloat = 0.32
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var centerID: String?
@@ -35,10 +41,14 @@ struct AlbumFlowView: View {
     @State private var side: CGFloat = 340
     @State private var resizeAnchor: String?
 
-    private static func side(for size: CGSize) -> CGFloat {
-        let byHeight = size.height - 380
-        let byWidth = size.width * 0.34
-        return max(220, min(byHeight, byWidth, 900)).rounded()
+    /// 先算視窗放得下的最大封面（扣掉頂部列、倒影、標題、底部播放列），再依段數縮小
+    private static func side(for size: CGSize, step: Int) -> CGFloat {
+        // 垂直空間：頂部列 56、封面＋倒影＋上下留白 60、間距 32、標題與按鈕約 110、底部播放列留白 96
+        let byHeight = (size.height - 56 - 60 - 32 - 110 - 96 - 20) / (1 + reflectionRatio)
+        let byWidth = size.width * 0.36
+        let maximum = max(180, min(byHeight, byWidth, 960))
+        let factor = 0.5 + 0.1 * CGFloat(min(max(step, 0), sizeSteps - 1))
+        return max(140, maximum * factor).rounded()
     }
 
     var body: some View {
@@ -61,7 +71,12 @@ struct AlbumFlowView: View {
                 // 尺寸改變後 scroll view 不會自動保持置中，等版面更新後重新捲到目前的專輯
                 .onChange(of: side) {
                     guard let id = resizeAnchor ?? centerID else { return }
+                    // 大幅改變尺寸時，第一次捲動可能發生在版面還沒更新完；稍後再校正一次
                     DispatchQueue.main.async {
+                        proxy.scrollTo(id, anchor: .center)
+                        centerID = id
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                         proxy.scrollTo(id, anchor: .center)
                         centerID = id
                         resizeAnchor = nil
@@ -77,7 +92,7 @@ struct AlbumFlowView: View {
                         }
                     }
                     .onEnded { _ in dragSteps = 0 })
-                .frame(height: side + 60)
+                .frame(height: side * (1 + Self.reflectionRatio) + 60)
                 .focusable()
                 .focusEffectDisabled()
                 .focused($focused)
@@ -89,12 +104,12 @@ struct AlbumFlowView: View {
                 caption
                 Spacer(minLength: Spacing.s96)
             }
-            .onChange(of: geo.size, initial: true) {
-                // 先記下目前置中的專輯：改尺寸時 scroll view 會回報新的位置，蓋掉原本的專輯
-                if resizeAnchor == nil { resizeAnchor = centerID }
-                side = Self.side(for: geo.size)
+            .onChange(of: geo.size, initial: true) { resize(to: geo.size) }
+            .onChange(of: sizeStep) {
+                withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { resize(to: geo.size) }
             }
         }
+        .background { FlowBackdrop(artwork: centered?.artwork, horizon: 0.5) }
         .onAppear {
             centerOnPlaying()
             focused = true
@@ -116,6 +131,12 @@ struct AlbumFlowView: View {
         .onChange(of: albums.count) { if !userMoved { centerOnPlaying() } }
     }
 
+    private func resize(to size: CGSize) {
+        // 先記下目前置中的專輯：改尺寸時 scroll view 會回報新的位置，蓋掉原本的專輯
+        if resizeAnchor == nil { resizeAnchor = centerID }
+        side = Self.side(for: size, step: sizeStep)
+    }
+
     private var centered: Album? { albums.first { $0.id == centerID } }
 
     /// 點中間的封面翻面看曲目；點旁邊的封面移到中間
@@ -134,8 +155,14 @@ struct AlbumFlowView: View {
 
     private func cover(_ album: Album) -> some View {
         let reduceMotion = reduceMotion
-        return AlbumFlipCard(album: album, isFlipped: flippedID == album.id, side: side,
-                             elevation: album.id == playingAlbumID ? .playing : .standard)
+        let flipped = flippedID == album.id
+        return VStack(spacing: 2) {
+            AlbumFlipCard(album: album, isFlipped: flipped, side: side,
+                          elevation: album.id == playingAlbumID ? .playing : .standard)
+            FlowReflection(album: album, side: side, ratio: Self.reflectionRatio)
+                .opacity(flipped ? 0 : 1)
+                .animation(.easeInOut(duration: 0.25), value: flipped)
+        }
             .scrollTransition(axis: .horizontal) { content, phase in
                 content
                     .rotation3DEffect(.degrees(reduceMotion ? 0 : phase.value * -58), axis: (x: 0, y: 1, z: 0), perspective: 0.45)
@@ -218,5 +245,75 @@ private struct FlowWindowReader: NSViewRepresentable {
             super.viewDidMoveToWindow()
             onWindow?(window)
         }
+    }
+}
+
+/// 封面下方的鏡面倒影：上下翻轉、由淡到透明，略帶模糊，像放在亮面展示台上
+private struct FlowReflection: View {
+    let album: Album
+    let side: CGFloat
+    let ratio: CGFloat
+
+    var body: some View {
+        ArtworkView(artwork: album.artwork, elevation: .none, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
+            .frame(width: side, height: side)
+            .scaleEffect(x: 1, y: -1)
+            .blur(radius: 1.5)
+            .mask {
+                LinearGradient(stops: [
+                    .init(color: .white.opacity(0.32), location: 0),
+                    .init(color: .white.opacity(0.08), location: ratio * 0.55),
+                    .init(color: .clear, location: ratio),
+                ], startPoint: .top, endPoint: .bottom)
+            }
+            .frame(width: side, height: side * ratio, alignment: .top)
+            .clipped()
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+}
+
+/// Album Flow 的背景：目前置中專輯的封面放大、重度模糊，換張時緩慢交叉淡入；
+/// 再疊上暗角與「地面」漸層，讓封面像擺在展示台上。Reduce Motion 時直接切換
+private struct FlowBackdrop: View {
+    let artwork: ArtworkRef?
+    /// 地平線位置（0 = 頂端、1 = 底部），倒影落在這條線下方
+    let horizon: CGFloat
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ZStack {
+            FinifyColor.Overflow.background
+            Color.clear.overlay {
+                if let artwork {
+                    ArtworkView(artwork: artwork, cornerRadius: 0, elevation: .none)
+                        .aspectRatio(contentMode: .fill)
+                        .scaleEffect(1.6)
+                        .blur(radius: 110, opaque: true)
+                        .saturation(1.4)
+                        .opacity(0.9)
+                        .id(artwork)
+                        .transition(.opacity)
+                }
+            }
+            .clipped()
+            // 中央的柔光，讓置中的封面周圍最亮
+            RadialGradient(colors: [.white.opacity(0.06), .clear], center: UnitPoint(x: 0.5, y: horizon - 0.08),
+                           startRadius: 0, endRadius: 520)
+            // 暗角
+            RadialGradient(colors: [.clear, .black.opacity(0.6)], center: UnitPoint(x: 0.5, y: horizon - 0.05),
+                           startRadius: 280, endRadius: 1200)
+            // 地面：地平線以下漸暗，倒影融進去
+            LinearGradient(stops: [
+                .init(color: .clear, location: horizon),
+                .init(color: .black.opacity(0.55), location: min(1, horizon + 0.25)),
+                .init(color: .black.opacity(0.8), location: 1),
+            ], startPoint: .top, endPoint: .bottom)
+        }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.9), value: artwork)
+        .drawingGroup()
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }

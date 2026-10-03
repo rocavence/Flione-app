@@ -15,11 +15,13 @@ struct OverflowRootView: View {
     @AppStorage("FinifyOverflowLayout") private var layout: OverflowLayout = .wall
     @AppStorage("FinifyWallDensity") private var densityRaw = WallDensity.medium.rawValue
     @AppStorage("FinifyWallSort") private var sort: AlbumSort = .artist
+    @AppStorage("FinifyFlowSize") private var flowSize = 3
     /// 排序結果只在專輯清單或排序方式改變時重算
     @State private var sortedAlbums: [Album] = []
     @State private var openAlbum: Album?
     @State private var immersive = false
     @State private var scrollToPlaying = 0
+    @State private var browseWidth: CGFloat = 1360
     @State private var recentAlbums: Loadable<[Album]> = .loading
 
     private var density: Binding<WallDensity> {
@@ -41,6 +43,7 @@ struct OverflowRootView: View {
         }
         .environment(\.overflowStyle, true)
         .environment(\.colorScheme, .dark)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { browseWidth = $0 }
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: immersive)
         .onChange(of: immersive, initial: true) { app.isImmersive = immersive }
         .onDisappear { app.isImmersive = false }
@@ -113,7 +116,8 @@ struct OverflowRootView: View {
                     case .flow:
                         AlbumFlowView(albums: sortedAlbums, playingAlbumID: playingAlbumID, onPlay: play,
                                       isActive: openAlbum == nil && !app.isSearchPresented && !app.isQueuePresented,
-                                      centerOnPlayingToken: scrollToPlaying)
+                                      centerOnPlayingToken: scrollToPlaying,
+                                      sizeStep: flowSize)
                     }
                 }
             }
@@ -126,12 +130,14 @@ struct OverflowRootView: View {
                 if openAlbum == nil { NowPlayingPill(onOpen: openPlayingAlbum, onImmersive: enterImmersive) }
             }
 
-            // 浮動按鈕：回到正在播放的專輯（封面牆與 Album Flow）
-            if openAlbum == nil, playingAlbumID != nil, layout != .recent {
+            // 右下角：Flow 的封面大小滑桿、回到正在播放的專輯（封面牆與 Album Flow）
+            if openAlbum == nil, layout != .recent {
                 VStack {
                     Spacer()
-                    HStack {
+                    HStack(spacing: Spacing.s12) {
                         Spacer()
+                        if layout == .flow { FlowSizeSlider(step: $flowSize) }
+                        if playingAlbumID != nil {
                         Button { scrollToPlaying += 1 } label: {
                             FinifyIcon(.gps, weight: .filled, size: .standard)
                                 .foregroundStyle(FinifyColor.Overflow.ink)
@@ -143,9 +149,11 @@ struct OverflowRootView: View {
                         .buttonStyle(PressScaleStyle())
                         .help("Show what's playing")
                         .accessibilityLabel("Show what's playing")
-                        .padding(.trailing, Spacing.s24)
-                        .padding(.bottom, Spacing.s32)
+                        }
                     }
+                    .padding(.trailing, Spacing.s24)
+                    // 視窗窄時，右下角控制項會壓到置中的播放列，改放到播放列上方
+                    .padding(.bottom, browseWidth < 1300 ? 104 : Spacing.s32)
                 }
                 .transition(.opacity)
             }
@@ -356,5 +364,30 @@ struct OverflowQueue: View {
             .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 40, y: 16))
             // 佇列內的元件使用一般深色配色，不是 Overflow 的半透明樣式
             .environment(\.overflowStyle, false)
+    }
+}
+
+/// Album Flow 的封面大小：6 段滑桿，拖動時即時縮放
+private struct FlowSizeSlider: View {
+    @Binding var step: Int
+
+    var body: some View {
+        HStack(spacing: Spacing.s8) {
+            FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.faint).scaleEffect(0.75)
+            Slider(value: Binding(get: { Double(step) }, set: { step = Int($0.rounded()) }),
+                   in: 0...Double(AlbumFlowView.sizeSteps - 1), step: 1)
+                .controlSize(.small)
+                .frame(width: 110)
+                .tint(FinifyColor.Overflow.ink)
+                .accessibilityLabel("Cover size")
+                .accessibilityValue("\(step + 1) of \(AlbumFlowView.sizeSteps)")
+            FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.muted)
+        }
+        .padding(.horizontal, Spacing.s16)
+        .frame(height: 44)
+        .background(Color(white: 0.08).opacity(0.86), in: Capsule())
+        .overlay { Capsule().strokeBorder(.white.opacity(0.1), lineWidth: 1) }
+        .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 16, y: 6))
+        .help("Cover size")
     }
 }

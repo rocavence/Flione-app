@@ -92,8 +92,8 @@ private struct AlbumBack: View {
         }
         .padding(Spacing.s20)
         .frame(width: side, height: side, alignment: .topLeading)
-        .background(backColor, in: RoundedRectangle(cornerRadius: Radius.artwork, style: .continuous))
-        .overlay { RoundedRectangle(cornerRadius: Radius.artwork, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
+        .background(backColor, in: RoundedRectangle(cornerRadius: Radius.artwork(for: side), style: .continuous))
+        .overlay { RoundedRectangle(cornerRadius: Radius.artwork(for: side), style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
         .finifyShadow(FinifyShadow.playing)
         .environment(\.overflowStyle, true)
         .task(id: album.id) {
