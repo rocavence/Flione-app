@@ -158,7 +158,7 @@ private struct CircleNavButton: View {
             FinifyIcon(icon, size: .compact)
                 .foregroundStyle(FinifyColor.ink)
                 .frame(width: 30, height: 30)
-                .modifier(TopBarSurface(overflow: false, shape: Circle(), fallback: hovering ? FinifyColor.glassHighlight : FinifyColor.glass))
+                .modifier(TopBarSurface(overflow: false, shape: Circle(), fallback: hovering ? FinifyColor.glassHighlight : FinifyColor.glass, interactive: false))
                 .contentShape(Circle())
         }
         .buttonStyle(PressScaleStyle())
@@ -270,7 +270,8 @@ struct FullscreenButton: View {
                 .frame(width: 38, height: 38)
                 .modifier(TopBarSurface(overflow: overflow, shape: Circle(),
                                         fallback: hovering ? (overflow ? FinifyColor.Overflow.controlHover : FinifyColor.glassHighlight)
-                                                           : (overflow ? FinifyColor.Overflow.control : FinifyColor.glass)))
+                                                           : (overflow ? FinifyColor.Overflow.control : FinifyColor.glass),
+                                interactive: false))
                 .contentShape(Circle())
         }
         .buttonStyle(PressScaleStyle())
@@ -295,9 +296,11 @@ struct TopBarSurface<S: InsettableShape>: ViewModifier {
     let shape: S
     let fallback: Color
     var strokeFallback = true
+    /// 系統玻璃的互動變形（滑鼠靠近或按下時鼓起）。小圓按鈕關掉，否則會被拉成直的橢圓
+    var interactive = true
 
     func body(content: Content) -> some View {
         content.finifyGlass(in: shape, tint: overflow ? FinifyColor.Ocean.surface2.opacity(0.45) : FinifyColor.surface.opacity(0.5),
-                            interactive: true, fallback: fallback)
+                            interactive: interactive, fallback: fallback)
     }
 }
