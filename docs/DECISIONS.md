@@ -107,3 +107,10 @@
 * **分享**：文字是「名稱 — 藝人」，連結是 Jellyfin 網頁版的項目頁（`<server>/web/#/details?id=…`）。這個連結只有能登入同一台 server 的人打得開，而且會讓對方看到 server 位址。若之後想分享給外部的人，可以改成只分享文字，或改用公開的音樂連結服務。
 * **位置**：專輯與歌曲的右鍵選單（含 Album Wall、Library 網格）、Now Playing 面板的分享按鈕。
 * **怎麼改**：`Core/Platform/TrackNotifier.swift`、`App/ShareItem.swift`。
+
+## D16　歌詞備援 LRCLIB（預設關閉）
+
+* **選擇**：Jellyfin 沒有歌詞時，若使用者同意，再查 lrclib.net（免費、公開的歌詞資料庫），在結果中挑長度最接近這首歌的版本，優先使用同步歌詞。
+* **為什麼預設關閉**：查詢會把歌名、藝人送到外部網站。開關在設定 → General；歌詞面板沒有歌詞時也有「Search LRCLIB」按鈕，按下等於開啟。
+* **顯示**：來自 LRCLIB 的歌詞底部標示「Lyrics from LRCLIB」。外部查詢失敗時視為沒有歌詞，不顯示錯誤。
+* **怎麼改**：`Core/Lyrics/LRCLib.swift`（含 LRC 解析，測試在 `LRCLibTests`）、`LyricsPanel.load`。

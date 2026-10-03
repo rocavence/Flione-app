@@ -23,6 +23,7 @@ enum SettingsKey {
     static let floatingOnTop = "FinifyFloatingOnTop"
     static let wallDrift = "FinifyWallDrift"
     static let trackNotifications = "FinifyTrackNotifications"
+    static let onlineLyrics = "FinifyOnlineLyrics"
 }
 
 /// macOS 設定視窗（⌘,）
@@ -46,6 +47,7 @@ private struct GeneralSettings: View {
     @State private var cacheSize: String = "…"
     @AppStorage(SettingsKey.menuBar) private var showsMenuBar = true
     @AppStorage(SettingsKey.trackNotifications) private var trackNotifications = true
+    @AppStorage(SettingsKey.onlineLyrics) private var onlineLyrics = false
 
     var body: some View {
         @Bindable var app = app
@@ -57,6 +59,10 @@ private struct GeneralSettings: View {
             Toggle("Remember my choice", isOn: $app.rememberMode)
             Toggle("Show player in menu bar", isOn: $showsMenuBar)
             Toggle("Notify when a new song starts", isOn: $trackNotifications)
+            Toggle(isOn: $onlineLyrics) {
+                Text("Find missing lyrics online")
+                Text("Searches LRCLIB when your server has no lyrics. Sends the song title and artist to lrclib.net.")
+            }
             LabeledContent("Artwork cache") {
                 HStack {
                     Text(cacheSize).foregroundStyle(.secondary)

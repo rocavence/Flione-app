@@ -8,6 +8,9 @@ struct LyricsPanel: View {
     @Environment(\.overflowStyle) private var overflow
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var lyrics: Loadable<Lyrics?> = .loading
+    /// 目前歌詞是否來自 LRCLIB（顯示來源）
+    @State private var fromLRCLib = false
+    @AppStorage(SettingsKey.onlineLyrics) private var onlineLyrics = false
 
     var body: some View {
         let track = app.player.currentTrack
@@ -50,8 +53,14 @@ struct LyricsPanel: View {
                          primary: ("Retry", { Task { await load(app.player.currentTrack) } }))
         case .loaded(nil):
             MessageState(title: "No lyrics for this song.",
-                         message: "Add .lrc or .txt lyric files next to your music on the server, and Jellyfin will pick them up.",
-                         icon: .microphone)
+                         message: onlineLyrics
+                            ? "Neither your server nor LRCLIB has lyrics for it."
+                            : "Add .lrc or .txt lyric files next to your music on the server, or search LRCLIB, a free online lyrics database.",
+                         icon: .microphone,
+                         primary: onlineLyrics ? nil : ("Search LRCLIB", {
+                             onlineLyrics = true
+                             Task { await load(app.player.currentTrack) }
+                         }))
         case .loaded(let value?):
             lines(value)
         }
@@ -75,6 +84,13 @@ struct LyricsPanel: View {
                 }
                 .padding(.horizontal, Spacing.s16)
                 .padding(.vertical, Spacing.s48)
+                if fromLRCLib {
+                    Text("Lyrics from LRCLIB")
+                        .finifyFont(.caption)
+                        .foregroundStyle(muted)
+                        .padding(.horizontal, Spacing.s16)
+                        .padding(.bottom, Spacing.s24)
+                }
             }
             .onChange(of: current) {
                 guard let current else { return }
@@ -86,8 +102,14 @@ struct LyricsPanel: View {
     private func load(_ track: Track?) async {
         guard let track, let repository = app.repository else { return }
         lyrics = .loading
+        fromLRCLib = false
         do {
-            let result = try await repository.lyrics(for: track.id)
+            var result = try await repository.lyrics(for: track.id)
+            // server 沒有歌詞時，使用者同意的話再查 LRCLIB；外部查詢失敗就當作沒有歌詞
+            if result == nil, onlineLyrics, let online = try? await LRCLib.lyrics(for: track) {
+                result = online
+                fromLRCLib = true
+            }
             guard !Task.isCancelled else { return }
             lyrics = .loaded(result)
         } catch {
