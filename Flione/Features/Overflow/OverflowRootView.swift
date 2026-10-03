@@ -58,6 +58,15 @@ struct OverflowRootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isLyricsPresented)
         .task { await app.library.refreshIfNeeded() }
         .onChange(of: app.library.albums, initial: true) { resort() }
+        #if DEBUG
+        // -FinifyDemoFocusPlaying <秒>：幾秒後按「正在播放」（除錯用）
+        .task {
+            let delay = UserDefaults.standard.double(forKey: "FinifyDemoFocusPlaying")
+            guard delay > 0 else { return }
+            try? await Task.sleep(for: .seconds(delay))
+            scrollToPlaying += 1
+        }
+        #endif
         .onChange(of: sort) {
             magicRaw = ""
             resort()

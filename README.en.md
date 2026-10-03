@@ -128,6 +128,7 @@ Interface translations live in `Flione/Resources/Localizable.xcstrings`. To add 
 | `-FinifyDemoTab library`, `-FinifyDemoSection <section>` | Open a Library section |
 | `-FinifyDemoSwitchTo coverFlow\|infinity\|modern` | Switch views after a few seconds (`-FinifyDemoSwitchAfter <seconds>`) |
 | `-FinifyDemoHoverAll YES` | Show every Infinity cover in its hover state |
+| `-FinifyDemoFocusPlaying <seconds>` | Press Now Playing in Infinity / Cover Flow after a few seconds |
 | `-FinifyDemoSeekToEnd <seconds>` | Jump near the end of the first track (to check track changes) |
 | `-FinifyLatencyProbe <file>` | Measure the time from pressing Play to UI response, tracks loaded, and audio |
 | `-AppleLanguages "(zh-Hant)"` | Launch in a given language |

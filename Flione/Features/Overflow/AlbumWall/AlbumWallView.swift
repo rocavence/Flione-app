@@ -246,7 +246,17 @@ struct AlbumWallView: NSViewRepresentable {
             guard let id = parent.playingAlbumID, let index = parent.albums.firstIndex(where: { $0.id == id }) else { return }
             // 自動捲動每一幀都會推動封面牆，會打斷這段捲動動畫；先暫停 3 秒，讓使用者看到正在播放的專輯
             motion.pause(seconds: 3)
-            collection?.animator().scrollToItems(at: [IndexPath(item: index, section: 0)], scrollPosition: .centeredHorizontally)
+            // 自己算目標位置：NSCollectionView 的 scrollToItems 在這面封面牆上不會捲動（實測位置不變）
+            guard let collection, let clip = collection.enclosingScrollView?.contentView,
+                  let frame = collection.layoutAttributesForItem(at: IndexPath(item: index, section: 0))?.frame else { return }
+            let maxX = max(0, collection.frame.width - clip.bounds.width)
+            let target = NSPoint(x: min(max(0, frame.midX - clip.bounds.width / 2), maxX), y: clip.bounds.origin.y)
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.6
+                context.timingFunction = CAMediaTimingFunction(controlPoints: 0.33, 0, 0.15, 1)
+                clip.animator().setBoundsOrigin(target)
+            }
+            collection.enclosingScrollView?.reflectScrolledClipView(clip)
         }
 
         /// 輸入文字跳到第一張專輯名或藝人以此開頭的專輯（像 Finder 的 type-to-select）

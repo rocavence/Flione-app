@@ -128,6 +128,7 @@ App icon 與選單列 icon 由 `scripts/icon/make-icon.swift` 依 macOS icon 格
 | `-FinifyDemoTab library`、`-FinifyDemoSection <分頁>` | 直接打開音樂庫的指定分頁 |
 | `-FinifyDemoSwitchTo coverFlow\|infinity\|modern` | 幾秒後切換模式（`-FinifyDemoSwitchAfter <秒>`） |
 | `-FinifyDemoHoverAll YES` | Infinity 所有封面呈現 hover 狀態 |
+| `-FinifyDemoFocusPlaying <秒>` | 幾秒後在 Infinity／Cover Flow 按「正在播放」 |
 | `-FinifyDemoSeekToEnd <秒>` | 播放後跳到第一首結尾前 N 秒（驗證自動換曲） |
 | `-FinifyLatencyProbe <輸出檔>` | 量測按下播放到畫面反應、取回曲目、出聲的時間 |
 | `-AppleLanguages "(zh-Hant)"` | 以指定語言啟動 |
