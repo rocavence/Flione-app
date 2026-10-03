@@ -75,4 +75,32 @@ YouTube Music 使用者的收藏專輯通常比 Jellyfin 音樂庫少，Infinity
 | ---- | ---- | ---- |
 | 1 | 登入畫面、瀏覽器登入視窗、登入判斷、帳號資訊 | 完成（2026-10-03 實測登入成功） |
 | 2 | 網頁播放器引擎，在 Flione 播出一首歌 | 完成（驗證畫面：音樂庫專輯、喜歡的歌曲、簡易播放列） |
-| 3 | 音樂庫、搜尋、播放清單接上 Modern／Infinity／Cover Flow | 未開始 |
+| 3 | 音樂庫、搜尋、播放清單接上 Modern／Infinity／Cover Flow | 完成主要功能（見「第三階段」） |
+
+## 第三階段：接上原本的介面（2026-10-03）
+
+**做法**：
+- `YouTubeMusicRepository` 實作 `MusicRepository`，把 InnerTube 的回應轉成 Album／Track／Artist／Playlist，原本的 Modern、Infinity、Cover Flow 不需修改即可使用。
+- 登入成功後建立一個 `source = "youtube"` 的連線（`JellyfinSession`），側欄帳號區、登出、播放佇列保存都沿用；頭像取自帳號選單。這個連線不存鑰匙圈，啟動時用 cookie 重新連線。
+- `PlayerManager` 增加網頁播放器分支：佇列、上一首／下一首、跳到佇列中某首由 Flione 管，網頁播放器一次只播一首；網頁回報播完或 YouTube 自己換到別首時，換成佇列的下一首。播放列、佇列面板、媒體鍵、Now Playing 都沿用。Jellyfin 的播放流程不變。
+
+**對應**：
+
+| Flione | YouTube Music |
+| ---- | ---- |
+| 音樂庫專輯、最近加入 | 收藏的專輯（讀完所有分頁，最多 20 頁） |
+| 最近播放 | 播放記錄，整理成專輯 |
+| 精選推薦 | 收藏的專輯隨機挑選 |
+| 藝人 | 音樂庫的藝人；藝人頁取熱門歌曲與專輯區塊 |
+| 歌曲、最愛 | 喜歡的歌曲；按愛心會同步到 YouTube |
+| 播放清單 | 音樂庫的播放清單 |
+| 搜尋 | 歌曲、專輯、藝人、播放清單 |
+
+**實測（靜音）**：Modern 首頁與側欄、播放清單頁、Infinity 封面牆都顯示 YouTube Music 資料；播放專輯時播放列進度正常；跳到曲尾後自動換到下一首。
+
+**已知限制**：
+- YouTube 沒有 BlurHash：專輯頁光暈、Cover Flow 背景光暈、Magic 的顏色排序、封面載入前的色塊都沒有效果。之後可下載小縮圖計算顏色。
+- 沒有曲風；建立、改名、刪除播放清單會失敗。
+- 沒有歌詞（開啟 LRCLIB 時會改查 LRCLIB）；Smart Shuffle 沒有推薦歌曲。
+- 換歌時會重新載入網頁播放器，歌與歌之間有短暫空白，沒有無縫播放。
+- 搜尋、藝人頁、Cover Flow 尚未實際看過畫面。

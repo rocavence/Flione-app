@@ -34,16 +34,27 @@ enum InnerTube {
         return "\(timestamp)_" + digest.map { String(format: "%02x", $0) }.joined()
     }
 
-    /// POST `youtubei/v1/<endpoint>`，回傳解析後的 JSON
+    /// cookie 標頭與 SAPISID（讀 WebKit 的 cookie 要在 main thread）
     @MainActor
-    static func post(_ endpoint: String, body: [String: Any] = [:]) async throws -> [String: Any] {
+    private static func credentials() async -> (cookie: String, sapisid: String)? {
         let all = await cookies().filter { $0.domain.hasSuffix("youtube.com") }
-        guard let sapisid = all.first(where: { $0.name == "SAPISID" })?.value else { throw Failure.signedOut }
+        guard let sapisid = all.first(where: { $0.name == "SAPISID" })?.value else { return nil }
+        return (all.map { "\($0.name)=\($0.value)" }.joined(separator: "; "), sapisid)
+    }
 
-        var request = URLRequest(url: URL(string: "\(origin)/youtubei/v1/\(endpoint)?prettyPrint=false")!)
+    /// POST `youtubei/v1/<endpoint>`，回傳解析後的 JSON。網路請求與解析在背景進行
+    static func post(_ endpoint: String, body: [String: Any] = [:], continuation: String? = nil) async throws -> [String: Any] {
+        guard let credentials = await credentials() else { throw Failure.signedOut }
+        let sapisid = credentials.sapisid
+
+        var components = URLComponents(string: "\(origin)/youtubei/v1/\(endpoint)")!
+        components.queryItems = [URLQueryItem(name: "prettyPrint", value: "false")]
+            // 下一頁：帶上一頁回應裡的 continuation token
+            + (continuation.map { [URLQueryItem(name: "ctoken", value: $0), URLQueryItem(name: "continuation", value: $0), URLQueryItem(name: "type", value: "next")] } ?? [])
+        var request = URLRequest(url: components.url!)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(all.map { "\($0.name)=\($0.value)" }.joined(separator: "; "), forHTTPHeaderField: "Cookie")
+        request.setValue(credentials.cookie, forHTTPHeaderField: "Cookie")
         request.setValue("SAPISIDHASH \(sapisidHash(sapisid))", forHTTPHeaderField: "Authorization")
         request.setValue(origin, forHTTPHeaderField: "Origin")
         request.setValue(origin, forHTTPHeaderField: "X-Origin")
@@ -68,7 +79,9 @@ enum InnerTube {
         }
         #if DEBUG
         // 開發用：保留原始回應，分析 YouTube Music 的資料格式
-        try? data.write(to: URL(fileURLWithPath: "/tmp/flione-youtube-\(endpoint.replacingOccurrences(of: "/", with: "-")).json"))
+        let target = (body["browseId"] as? String) ?? (body["query"] as? String) ?? (body["playlistId"] as? String) ?? ""
+        let name = [endpoint.replacingOccurrences(of: "/", with: "-"), target].filter { !$0.isEmpty }.joined(separator: "-")
+        try? data.write(to: URL(fileURLWithPath: "/tmp/flione-youtube-\(name).json"))
         #endif
         return json
     }

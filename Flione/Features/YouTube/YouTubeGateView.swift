@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// YouTube Music 登入後的狀態畫面（第一階段，docs/youtube/DESIGN.md）：
-/// 連線中、連線失敗、已連線（音樂庫與播放在第二、三階段）。
+/// YouTube Music 登入後、進入 Flione 前的狀態畫面（docs/youtube/DESIGN.md）：連線中、連線失敗。
+/// 連線成功後 AppEnvironment 啟用 YouTube Music 的連線，畫面就是原本的 Modern／Infinity／Cover Flow。
 struct YouTubeGateView: View {
     @Environment(AppEnvironment.self) private var app
 
@@ -33,7 +33,7 @@ struct YouTubeGateView: View {
             EmptyView()
         case .failed(let reason):
             message(title: "Can't connect to YouTube Music", detail: "\(reason)") {
-                FinifyButton(title: "Retry", kind: .primary) { Task { await app.youtube.check() } }
+                FinifyButton(title: "Retry", kind: .primary) { Task { await app.signInYouTube() } }
             }
         }
     }

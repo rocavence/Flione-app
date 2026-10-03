@@ -65,8 +65,6 @@ struct RootView: View {
                 // youtube-music 分支：沒有 Jellyfin 時，YouTube Music 登入後的狀態另外處理
                 if app.youtube.state == .signedOut {
                     ConnectView()
-                } else if case .connected(let name) = app.youtube.state {
-                    YouTubeHomeView(accountName: name)
                 } else {
                     YouTubeGateView()
                 }

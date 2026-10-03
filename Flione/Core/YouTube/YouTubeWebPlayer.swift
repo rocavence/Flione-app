@@ -18,6 +18,20 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
 
     @ObservationIgnored private var webView: WKWebView?
 
+    /// 給 PlayerManager 的狀態回報（每 0.5 秒）
+    struct Update {
+        let playing: Bool
+        let time: Double
+        let duration: Double
+        /// 網頁目前播放的影片：與 Flione 要播的不同時，代表 YouTube 自己換到別首（自動播放）
+        let videoId: String?
+        let ended: Bool
+    }
+    @ObservationIgnored var onUpdate: ((Update) -> Void)?
+    /// 音量 0–1；每次載入新頁面後重新套用
+    @ObservationIgnored var volume: Float = 1 { didSet { appliedVolume = nil } }
+    @ObservationIgnored private var appliedVolume: Float?
+
     /// 頁面載入後每 0.5 秒把網頁播放器的狀態送回來
     private static let observer = """
     (function () {
@@ -34,6 +48,8 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
                     playing: !!(v && !v.paused && !v.ended),
                     time: v ? v.currentTime : 0,
                     duration: v && isFinite(v.duration) ? v.duration : 0,
+                    ended: !!(v && v.ended),
+                    videoId: new URLSearchParams(location.search).get('v') || '',
                     title: meta ? meta.title : '',
                     artist: meta ? meta.artist : '',
                     artwork: art
@@ -78,6 +94,15 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
         ensureWebView().load(URLRequest(url: components.url!))
     }
 
+    /// 只播單首（佇列由 PlayerManager 管）
+    func load(videoId: String) {
+        appliedVolume = nil
+        play(videoId: videoId)
+    }
+
+    func pause() { run("document.querySelector('video').pause()"); isPlaying = false }
+    func resume() { run("document.querySelector('video').play()"); isPlaying = true }
+
     func togglePlayPause() {
         run(isPlaying ? "document.querySelector('video').pause()" : "document.querySelector('video').play()")
         isPlaying.toggle()
@@ -98,6 +123,14 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
     nonisolated func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
         guard let body = message.body as? [String: Any] else { return }
         MainActor.assumeIsolated {
+            if appliedVolume != volume {
+                appliedVolume = volume
+                run("document.querySelector('video').volume = \(volume)")
+            }
+            onUpdate?(Update(playing: body["playing"] as? Bool ?? false, time: body["time"] as? Double ?? 0,
+                             duration: body["duration"] as? Double ?? 0,
+                             videoId: (body["videoId"] as? String).flatMap { $0.isEmpty ? nil : $0 },
+                             ended: body["ended"] as? Bool ?? false))
             isPlaying = body["playing"] as? Bool ?? false
             currentTime = body["time"] as? Double ?? 0
             duration = body["duration"] as? Double ?? 0

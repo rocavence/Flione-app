@@ -8,7 +8,7 @@ final class YouTubeAccount {
     enum State: Equatable {
         case signedOut
         case checking
-        case connected(name: String)
+        case connected(name: String, avatar: URL?)
         case failed(message: String)
     }
 
@@ -34,7 +34,9 @@ final class YouTubeAccount {
         state = .checking
         do {
             let menu = try await InnerTube.post("account/account_menu")
-            state = .connected(name: Self.accountName(in: menu) ?? "YouTube")
+            let header = Self.find("activeAccountHeaderRenderer", in: menu) as? [String: Any]
+            let photo = (Self.find("thumbnails", in: header?["accountPhoto"] ?? [:]) as? [[String: Any]])?.last?["url"] as? String
+            state = .connected(name: Self.accountName(in: menu) ?? "YouTube", avatar: photo.flatMap(URL.init(string:)))
         } catch InnerTube.Failure.signedOut {
             state = .signedOut
         } catch {

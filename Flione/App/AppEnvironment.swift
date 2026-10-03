@@ -124,7 +124,7 @@ final class AppEnvironment {
         self.notifier = notifier
         player.onTrackChange = { notifier.trackChanged($0) }
         if let session = sessionStore.load() { activate(session) }
-        else { Task { await youtube.restore() } }
+        else { Task { await restoreYouTube() } }
         expiryObserver = NotificationCenter.default.addObserver(forName: .finifySessionExpired, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, self.session != nil else { return }
@@ -178,13 +178,35 @@ final class AppEnvironment {
     }
 
     func signIn(_ session: JellyfinSession) throws {
+        if self.session?.isYouTube == true { signOut() }
         try sessionStore.save(session)
         signOutReason = nil
         activate(session)
     }
 
+    // MARK: - YouTube Music（youtube-music 分支）
+
+    /// 登入視窗完成後：確認帳號並切到 YouTube Music
+    func signInYouTube() async {
+        await youtube.didSignIn()
+        activateYouTubeIfConnected()
+    }
+
+    /// 啟動時：之前登入過（cookie 還在）就直接連線
+    func restoreYouTube() async {
+        await youtube.restore()
+        activateYouTubeIfConnected()
+    }
+
+    private func activateYouTubeIfConnected() {
+        guard session == nil, case .connected(let name, let avatar) = youtube.state else { return }
+        activate(JellyfinSession(serverURL: URL(string: InnerTube.origin)!, serverName: "YouTube Music", userID: "youtube",
+                                 userName: name, accessToken: "", source: "youtube", avatar: avatar))
+    }
+
     func signOut(reason: String? = nil) {
         signOutReason = reason
+        if session?.isYouTube == true { Task { await youtube.signOut() } }
         player.stop()
         try? FileManager.default.removeItem(at: playbackFile)
         sessionStore.clear()
@@ -225,8 +247,15 @@ final class AppEnvironment {
 
     private func activate(_ session: JellyfinSession) {
         self.session = session
-        UserDefaults.standard.set(session.serverURL.absoluteString, forKey: "FinifyLastServer")
-        let repository = JellyfinRepository(session: session)
+        let repository: any MusicRepository
+        if session.isYouTube {
+            repository = YouTubeMusicRepository()
+            player.attach(webPlayer: youtubePlayer)
+        } else {
+            UserDefaults.standard.set(session.serverURL.absoluteString, forKey: "FinifyLastServer")
+            repository = JellyfinRepository(session: session)
+            player.attach(webPlayer: nil)
+        }
         self.repository = repository
         images = ImagePipeline { ref, size in repository.artworkURL(ref, maxPixelSize: size) }
         player.attach(repository: repository)

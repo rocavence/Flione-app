@@ -285,6 +285,7 @@ struct UserAvatar: View {
 extension JellyfinSession {
     /// 使用者頭像（Jellyfin 的使用者圖片不需要登入就能取得；沒有頭像時回 404）
     func avatarURL(pixelSize: Int) -> URL {
+        if let avatar { return avatar }
         var components = URLComponents(url: serverURL.appending(path: "Users/\(userID)/Images/Primary"), resolvingAgainstBaseURL: false)!
         components.queryItems = [URLQueryItem(name: "maxWidth", value: "\(pixelSize)"), URLQueryItem(name: "maxHeight", value: "\(pixelSize)")]
         return components.url!

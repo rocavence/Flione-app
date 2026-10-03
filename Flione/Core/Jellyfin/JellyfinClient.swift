@@ -6,6 +6,12 @@ struct JellyfinSession: Codable, Sendable, Equatable {
     let userID: String
     let userName: String
     let accessToken: String
+    /// 音樂來源：nil 是 Jellyfin；"youtube" 是 YouTube Music（youtube-music 分支，登入資訊是 WebKit 的 cookie，不存鑰匙圈）
+    var source: String? = nil
+    /// 帳號頭像（YouTube Music 由帳號選單取得；Jellyfin 由 server 的使用者圖片產生）
+    var avatar: URL? = nil
+
+    var isYouTube: Bool { source == "youtube" }
 }
 
 enum JellyfinError: Error, Equatable {

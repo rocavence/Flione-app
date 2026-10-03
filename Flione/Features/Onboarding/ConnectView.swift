@@ -102,7 +102,7 @@ struct ConnectView: View {
     private var youtubeOptions: some View {
         VStack(spacing: Spacing.s16) {
             FinifyButton(title: "Sign in to YouTube Music with Google", kind: .primary, expands: true) {
-                GoogleSignIn.present { Task { await app.youtube.didSignIn() } }
+                GoogleSignIn.present { Task { await app.signInYouTube() } }
             }
             .keyboardShortcut(.defaultAction)
             Text("Google's sign-in page opens in a separate window.")

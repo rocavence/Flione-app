@@ -30,6 +30,7 @@ final class PlayerManager {
     var volume: Float = UserDefaults.standard.object(forKey: "FinifyVolume") as? Float ?? 0.8 {
         didSet {
             player.volume = volume
+            web?.volume = volume
             UserDefaults.standard.set(volume, forKey: "FinifyVolume")
         }
     }
@@ -69,7 +70,8 @@ final class PlayerManager {
             // 佇列播完時 rate 仍是 1，狀態會停在 waiting（noItemToPlay），這不算播放中
             let waiting = status == .waitingToPlayAtSpecifiedRate && player.reasonForWaitingToPlay != .noItemToPlay
             Task { @MainActor in
-                guard let self else { return }
+                // YouTube Music 由網頁播放器播放，AVQueuePlayer 沒有 item，它的狀態不算數
+                guard let self, self.web == nil else { return }
                 // 按下播放就算播放中，緩衝不讓按鈕跳回「播放」；正在取曲目時維持使用者按下的狀態
                 if self.pending == nil { self.isPlaying = status == .playing || waiting }
                 self.isBuffering = waiting
@@ -94,6 +96,53 @@ final class PlayerManager {
 
     func attach(repository: any MusicRepository) {
         self.repository = repository
+    }
+
+    // MARK: - YouTube Music：網頁播放器引擎（youtube-music 分支，docs/youtube/DESIGN.md）
+    // 佇列、上一首／下一首、自動換歌仍由 Flione 管；網頁播放器一次只播一首。Jellyfin 不經過這裡。
+
+    @ObservationIgnored private var web: YouTubeWebPlayer?
+    /// 網頁播放器目前載入的佇列項目；nil 代表還沒載入（例如恢復的佇列尚未按播放）
+    @ObservationIgnored private var webLoadedEntry: UUID?
+    @ObservationIgnored private var webLoadedAt = Date.distantPast
+
+    func attach(webPlayer: YouTubeWebPlayer?) {
+        web?.onUpdate = nil
+        web = webPlayer
+        webPlayer?.volume = volume
+        webPlayer?.onUpdate = { [weak self] update in self?.webUpdated(update) }
+    }
+
+    private func loadInWeb(_ entry: QueueEntry) {
+        webLoadedEntry = entry.id
+        webLoadedAt = .now
+        web?.load(videoId: entry.track.id)
+    }
+
+    private func webUpdated(_ update: YouTubeWebPlayer.Update) {
+        guard let entry = queue.currentEntry, webLoadedEntry == entry.id else { return }
+        // 剛載入的 2 秒內，舊頁面的訊息可能還在，不據此判斷換歌；播放狀態也先維持使用者按下的
+        let settled = Date().timeIntervalSince(webLoadedAt) > 2
+        if pending == nil, update.playing || settled { isPlaying = update.playing }
+        currentTime = update.time
+        reportedPosition = update.time
+        if update.duration > 0 { duration = update.duration }
+        if update.time > 1 { consecutiveFailures = 0 }
+        let switchedAway = update.videoId.map { $0 != entry.track.id } ?? false
+        if settled, update.ended || switchedAway { webTrackEnded() }
+    }
+
+    /// 一首播完（或 YouTube 自己換到別首）：換成佇列的下一首；佇列播完就停下
+    private func webTrackEnded() {
+        reportStopped()
+        guard queue.advance(automatic: true) != nil else {
+            web?.pause()
+            isPlaying = false
+            webLoadedEntry = nil
+            return
+        }
+        rebuildPlayer()
+        start()
     }
 
     // MARK: - 播放狀態保存與恢復
@@ -146,7 +195,7 @@ final class PlayerManager {
         pending = Track(id: Track.placeholderPrefix + album.id, name: album.name, albumID: album.id, albumName: album.name,
                         artistName: album.artistName, artistID: album.artistID, trackNumber: nil, discNumber: nil,
                         duration: 0, container: nil, artwork: album.artwork)
-        player.pause()
+        if let web { web.pause() } else { player.pause() }
         isPlaying = true
         currentTime = 0
         duration = 0
@@ -174,13 +223,30 @@ final class PlayerManager {
 
     /// 呼叫 player.play() 後 timeControlStatus 要等一下才更新，先讓按鈕顯示播放中
     private func start() {
-        player.play()
+        if let web {
+            // 剛載入新頁面時，舊頁面還在；這時送「繼續播放」會先播一下舊的歌。新頁面會自動播放
+            if Date().timeIntervalSince(webLoadedAt) > 1 { web.resume() }
+        } else {
+            player.play()
+        }
         isPlaying = true
     }
 
     func togglePlayPause() {
         // 還在取曲目時按暫停：取消這次播放
         if pending != nil { cancelPending(); isPlaying = false; return }
+        if web != nil {
+            if isPlaying { pause(); return }
+            guard let entry = queue.currentEntry else { return }
+            if webLoadedEntry != entry.id {
+                loadInWeb(entry)
+                trackStarted()
+            } else {
+                web?.resume()
+            }
+            isPlaying = true
+            return
+        }
         // 緩衝中（rate ≠ 0 但尚未出聲）也要能暫停
         if player.rate != 0 || isPlaying { pause(); return }
         guard currentTrack != nil else { return }
@@ -193,7 +259,7 @@ final class PlayerManager {
 
     func pause() {
         if pending != nil { cancelPending() }
-        player.pause()
+        if let web { web.pause() } else { player.pause() }
         isPlaying = false
     }
 
@@ -227,6 +293,7 @@ final class PlayerManager {
 
     func seek(to seconds: TimeInterval) {
         currentTime = seconds
+        if let web { web.seek(to: seconds); return }
         player.seek(to: CMTime(seconds: seconds, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero)
     }
 
@@ -302,6 +369,21 @@ final class PlayerManager {
 
     /// 清空並以目前曲目＋下一首重建。`announce` 為 false 時（恢復上次狀態）不回報開始播放
     private func rebuildPlayer(announce: Bool = true) {
+        if web != nil {
+            activeItem = nil
+            currentTime = 0
+            reportedPosition = 0
+            duration = currentTrack?.duration ?? 0
+            guard let entry = queue.currentEntry else { return }
+            // 恢復的佇列不自動載入，按播放時才載入（見 togglePlayPause）
+            if announce {
+                loadInWeb(entry)
+                trackStarted()
+            } else {
+                webLoadedEntry = nil
+            }
+            return
+        }
         player.removeAllItems()
         itemEntries.removeAll()
         currentTime = 0
@@ -341,6 +423,7 @@ final class PlayerManager {
 
     /// AVQueuePlayer 自動前進到下一個 item（無縫換曲）
     private func currentItemChanged() {
+        guard web == nil else { return }
         guard let item = player.currentItem else {
             // 佇列播完：停在最後一首
             if activeItem != nil { reportStopped() }
@@ -411,7 +494,7 @@ final class PlayerManager {
     func dismissNotice() { notice = nil }
 
     private func tick(_ time: CMTime) {
-        guard time.isValid, time.seconds.isFinite else { return }
+        guard web == nil, time.isValid, time.seconds.isFinite else { return }
         currentTime = time.seconds
         // 只記錄正在回報的那一首的位置，換曲瞬間不會被新曲目的時間覆蓋
         if let item = player.currentItem, ObjectIdentifier(item) == activeItem {
@@ -427,6 +510,8 @@ final class PlayerManager {
     func stop() {
         cancelPending()
         reportStopped()
+        web?.stop()
+        webLoadedEntry = nil
         player.removeAllItems()
         itemEntries.removeAll()
         activeItem = nil
