@@ -100,6 +100,7 @@ struct PlaybackControls: View {
         let player = app.player
         HStack(spacing: Spacing.s12) {
             FinifyIconButton(icon: .shuffle, label: shuffleLabel, size: .compact, isActive: player.isShuffled) {
+                Haptics.perform(.toggle)
                 player.toggleShuffle()
             }
             // Smart Shuffle：在 shuffle 圖示右上角加一個小點
@@ -109,12 +110,20 @@ struct PlaybackControls: View {
                 }
             }
             .help(shuffleLabel)
-            FinifyIconButton(icon: .skipPrev, label: "Previous", size: size) { player.previous() }
+            FinifyIconButton(icon: .skipPrev, label: "Previous", size: size) {
+                Haptics.perform(.playback)
+                player.previous()
+            }
             FinifyIconButton(icon: player.isPlaying ? .pause : .play, label: player.isPlaying ? "Pause" : "Play", size: size, prominent: true) {
+                Haptics.perform(.playback)
                 player.togglePlayPause()
             }
-            FinifyIconButton(icon: .skipNext, label: "Next", size: size) { player.next() }
+            FinifyIconButton(icon: .skipNext, label: "Next", size: size) {
+                Haptics.perform(.playback)
+                player.next()
+            }
             FinifyIconButton(icon: player.repeatMode == .one ? .repeatOne : .repeat, label: repeatLabel, size: .compact, isActive: player.repeatMode != .off) {
+                Haptics.perform(.toggle)
                 player.cycleRepeat()
             }
         }

@@ -127,3 +127,11 @@
 * **理由**：Kaset 的 Smart Shuffle 是穿插 YouTube 的推薦；Jellyfin 有現成的 Instant Mix，不用自己算相似度。
 * **規則**：推薦只放在播放順序，不進原始順序，所以關掉隨機播放就會消失（若正在播推薦曲目，會保留這一首）。播放新的專輯或清單時，Smart Shuffle 會關閉。
 * **怎麼改**：`PlayQueue.blendSuggestions`（測試在 `PlayQueueTests`）、`PlayerManager.toggleShuffle`／`refillSuggestions`，每幾首插一首在 `suggestEvery`。
+
+## D19　Dock 選單、觸覺回饋、finify:// 網址
+
+* **Dock 選單**：在 Dock 圖示按右鍵，顯示目前播放的歌，以及播放／暫停、下一首、上一首。沒有播放時不加項目。
+* **觸覺回饋**：只在 Force Touch 觸控板上有感覺。用在播放控制、喜愛、隨機／重複，以及 Flow 大小滑桿換段；一般按鈕不加，避免太吵。
+* **網址**：`finify://play`、`pause`、`toggle`、`next`、`previous`；`finify://album/<id>` 打開專輯（Standard 開專輯頁、Overflow 開專輯面板）；`finify://play?album=<id>`、`finify://play?playlist=<id>` 直接播放。讓 Raycast、Alfred、捷徑可以控制 Finify。未登入時忽略。
+* **Info.plist**：網址註冊需要 `CFBundleURLTypes`，所以 `project.yml` 改為產生 `Finify/Info.plist`（版本號仍引用 `MARKETING_VERSION`），其餘欄位照舊由 `GENERATE_INFOPLIST_FILE` 產生。
+* **怎麼改**：`App/AppDelegate.swift`、`Core/Platform/Haptics.swift`、`App/URLCommands.swift`。

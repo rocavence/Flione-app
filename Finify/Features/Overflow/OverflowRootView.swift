@@ -62,6 +62,15 @@ struct OverflowRootView: View {
         #if DEBUG || BENCHMARK
         .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }, immersive: enterImmersive) }
         #endif
+        .onChange(of: app.requestedAlbumID, initial: true) {
+            guard let id = app.requestedAlbumID else { return }
+            app.requestedAlbumID = nil
+            if let album = app.library.albums.first(where: { $0.id == id }) {
+                openAlbum = album
+            } else {
+                Task { if let album = try? await app.repository?.album(id: id) { openAlbum = album } }
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { _ in
             if immersive { exitImmersive() }
         }
@@ -372,7 +381,11 @@ private struct FlowSizeSlider: View {
     var body: some View {
         HStack(spacing: Spacing.s8) {
             FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.faint).scaleEffect(0.75)
-            Slider(value: Binding(get: { Double(step) }, set: { step = Int($0.rounded()) }),
+            Slider(value: Binding(get: { Double(step) }, set: {
+                       let next = Int($0.rounded())
+                       if next != step { Haptics.perform(.step) }
+                       step = next
+                   }),
                    in: 0...Double(AlbumFlowView.sizeSteps - 1), step: 1)
                 .controlSize(.small)
                 .frame(width: 110)

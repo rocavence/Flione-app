@@ -49,6 +49,11 @@ struct StandardRootView: View {
         .onAppear { if wantsPanel && !panelVisible { app.isQueuePresented = true } }
         // 只在 Standard 裡記住面板開關（切到 Overflow 時旗標會被清掉，不算使用者的選擇）
         .onChange(of: panelVisible) { if app.mode == .standard { wantsPanel = panelVisible } }
+        .onChange(of: app.requestedAlbumID, initial: true) {
+            guard let id = app.requestedAlbumID else { return }
+            app.requestedAlbumID = nil
+            openAlbum(id: id)
+        }
         #if DEBUG || BENCHMARK
         .task {
             if UserDefaults.standard.string(forKey: "FinifyDemoTab") == "library" {

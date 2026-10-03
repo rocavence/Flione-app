@@ -41,6 +41,8 @@ final class AppEnvironment {
     var isSearchPresented = false
     /// 要建立新 playlist 時的曲目（非 nil 時顯示命名對話框）
     var newPlaylistTracks: [Track]?
+    /// `finify://album/<id>` 要打開的專輯；由目前的 mode 打開後清掉
+    var requestedAlbumID: String?
     /// 從 Standard 進入 Fullscreen 時記住原本的 mode，離開時回去
     var fullscreenReturnMode: AppMode?
 

@@ -11,6 +11,7 @@ struct FavoriteButton: View {
         let isFavorite = app.favorites.contains(itemID)
         FinifyIconButton(icon: .heart, label: isFavorite ? "Remove \(name) from Favorites" : "Add \(name) to Favorites",
                          size: size, isActive: isFavorite) {
+            Haptics.perform(.toggle)
             app.favorites.toggle(itemID)
         }
     }

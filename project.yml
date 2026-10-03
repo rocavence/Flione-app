@@ -37,6 +37,15 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_IDENTITY: "-"
         ENABLE_HARDENED_RUNTIME: YES
+    # finify:// 網址（URLCommands.swift）；其餘 Info.plist 內容由 GENERATE_INFOPLIST_FILE 產生
+    info:
+      path: Finify/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleURLTypes:
+          - CFBundleURLName: app.finify.Finify
+            CFBundleURLSchemes: [finify]
   FinifyTests:
     type: bundle.unit-test
     platform: macOS

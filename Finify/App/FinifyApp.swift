@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct FinifyApp: App {
+    @NSApplicationDelegateAdaptor private var delegate: AppDelegate
     @State private var app = AppEnvironment.bootstrap()
     @State private var keyboard: KeyboardMonitor?
     @AppStorage(SettingsKey.menuBar) private var showsMenuBar = true
@@ -11,7 +12,9 @@ struct FinifyApp: App {
             RootView()
                 .environment(app)
                 .frame(minWidth: 1040, minHeight: 680)
+                .onOpenURL { app.handle($0) }
                 .onAppear {
+                    delegate.app = app
                     if keyboard == nil { keyboard = KeyboardMonitor(app: app) }
                     #if DEBUG || BENCHMARK
                     LaunchMark.record("window")
