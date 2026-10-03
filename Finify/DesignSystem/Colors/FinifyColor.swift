@@ -118,6 +118,14 @@ enum FinifyColor {
     }
 }
 
+extension View {
+    /// 橘色元素的微光（Flione：發光生物般的焦點）。兩層柔和光暈：貼近的亮一點、外圈淡；`active` 為 false 時不畫
+    func finifyGlow(_ active: Bool = true, radius: CGFloat = 6) -> some View {
+        shadow(color: active ? FinifyColor.orange.opacity(0.55) : .clear, radius: radius * 0.4)
+            .shadow(color: active ? FinifyColor.orangeGlow : .clear, radius: radius)
+    }
+}
+
 extension Color {
     init(hex: UInt32) {
         self.init(nsColor: NSColor(hex: hex))

@@ -124,6 +124,7 @@ private struct BackTrackRow: View {
                 .frame(width: 18, alignment: .trailing)
             Text(track.name)
                 .foregroundStyle(current ? FinifyColor.orange : FinifyColor.Overflow.ink)
+                .finifyGlow(current, radius: 4)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text(track.duration.formattedDuration)

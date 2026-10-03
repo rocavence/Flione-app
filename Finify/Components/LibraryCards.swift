@@ -29,6 +29,7 @@ struct AlbumCard: View {
                 Text(album.name)
                     .finifyFont(.subheading)
                     .foregroundStyle(isPlaying ? FinifyColor.orange : FinifyColor.ink)
+                    .finifyGlow(isPlaying, radius: 4)
                     .lineLimit(1)
                 Text(subtitle ?? album.artistName)
                     .finifyFont(.caption)
@@ -125,6 +126,7 @@ struct TrackRow: View {
                 } else if isCurrent {
                     FinifyIcon(.volumeHigh, weight: .filled, size: .compact)
                         .foregroundStyle(FinifyColor.orange)
+                        .finifyGlow()
                 } else if let number {
                     Text("\(number)")
                         .finifyFont(.body)
@@ -145,6 +147,7 @@ struct TrackRow: View {
                 Text(track.name)
                     .finifyFont(.body)
                     .foregroundStyle(isCurrent ? FinifyColor.orange : FinifyColor.ink)
+                    .finifyGlow(isCurrent, radius: 4)
                     .lineLimit(1)
                 if showsArtist || suggested {
                     HStack(spacing: Spacing.s4) {

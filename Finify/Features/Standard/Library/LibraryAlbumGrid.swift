@@ -232,6 +232,15 @@ final class LibraryAlbumItem: NSCollectionViewItem {
     fileprivate func applyColors() {
         view.effectiveAppearance.performAsCurrentDrawingAppearance {
             titleField.textColor = playing ? NSColor(FinifyColor.orange) : NSColor(FinifyColor.ink)
+            // 正在播放的標題散發橘色微光（與 SwiftUI 的 finifyGlow 一致）
+            titleField.wantsLayer = true
+            titleField.shadow = playing ? {
+                let glow = NSShadow()
+                glow.shadowColor = NSColor(FinifyColor.orange).withAlphaComponent(0.55)
+                glow.shadowBlurRadius = 4
+                glow.shadowOffset = .zero
+                return glow
+            }() : nil
             subtitleField.textColor = NSColor(FinifyColor.muted)
             artwork.backgroundColor = NSColor(FinifyColor.surface).cgColor
             artwork.borderColor = NSColor(FinifyColor.ink).withAlphaComponent(0.06).cgColor

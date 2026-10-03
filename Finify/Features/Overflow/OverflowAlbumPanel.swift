@@ -122,13 +122,14 @@ private struct OverflowTrackRow: View {
         let current = app.player.currentTrack?.id == track.id
         HStack(spacing: Spacing.s12) {
             Group {
-                if current { FinifyIcon(.volumeHigh, weight: .filled, size: .compact).foregroundStyle(FinifyColor.orange) }
+                if current { FinifyIcon(.volumeHigh, weight: .filled, size: .compact).foregroundStyle(FinifyColor.orange).finifyGlow() }
                 else if hovering { FinifyIcon(.play, weight: .filled, size: .compact).foregroundStyle(FinifyColor.Overflow.ink) }
                 else { Text("\(number)").monospacedDigit().foregroundStyle(FinifyColor.Overflow.faint) }
             }
             .frame(width: 20)
             Text(track.name)
                 .foregroundStyle(current ? FinifyColor.orange : FinifyColor.Overflow.ink)
+                .finifyGlow(current, radius: 4)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text(track.duration.formattedDuration).monospacedDigit().foregroundStyle(FinifyColor.Overflow.faint)

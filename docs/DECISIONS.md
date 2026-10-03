@@ -62,6 +62,7 @@
 * **底色層級**：Abyss `#061426`（App 背景）→ Surface 1 `#0A1D3C`（側欄）→ Surface 2 `#10264B`（卡片）→ Surface 3 `#14305A`（浮起）→ Surface Active `#183D78`（選取）。文字 `#FFFFFF`／`#AFC0DF`／`#7185AA`／`#4D6085`。邊框 `#FFFFFF12`、hover `#FFFFFF0A`。
 * **藍色**：Flione Blue `#2F6BFF` 用在按鈕、選取、音量與大小滑軌、focus；Ice Blue `#6AA8FF` 次要 accent。
 * **橘色**：Bright Coral Orange `#FF8A3D` 只用在播放進度、正在播放的標示（曲目列、專輯面板、Cover Flow、Library 網格）與選單列「播放中」圖示。不可成為主要 UI 色。
+* **橘色微光**：所有橘色元素都帶柔和光暈（`finifyGlow()`：貼近的 55% 橘＋外圈 Orange Glow 24%），像深海裡的發光體；Library 網格的標題用 NSShadow 做同樣效果。
 * **紫色**：Aurora Violet `#A78BFF` 只當氛圍（漸層），不用在按鈕與導覽。
 * **漸層**：Flione Aurora（藍 → 冰藍 → 紫 → 橘，橘色只在尾端焦點），只用在首頁 Hero。
 * **語意色**：Success `#55D6A6`、Warning `#FFB84D`（Toast 圖示）、Error `#FF5F6D`、Info `#6AA8FF`。

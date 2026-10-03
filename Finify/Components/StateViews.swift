@@ -109,6 +109,7 @@ struct ProgressBar: View {
                     // 播放進度一律用橘色；其他控制用藍色（Infinity／Cover Flow 平常用白色，操作時才變藍）
                     .fill(isPlayback ? FinifyColor.orange : (!overflow || active ? FinifyColor.accent : FinifyColor.Overflow.ink))
                     .frame(width: max(0, min(1, shown)) * geo.size.width)
+                    .finifyGlow(isPlayback, radius: 5)
             }
             // 軌道 3pt，hover／拖曳時 1.5 倍；圓點放在 overlay，不參與排版
             .frame(height: active ? 4.5 : 3)
