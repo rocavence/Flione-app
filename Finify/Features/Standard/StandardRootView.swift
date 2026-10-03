@@ -16,7 +16,7 @@ struct StandardRootView: View {
             HStack(spacing: 0) {
                 StandardSidebar()
                 VStack(spacing: 0) {
-                    StandardTopBar(router: router)
+                    StandardTopBar(router: router, reservesViewControls: !panelVisible)
                     content
                 }
                 // 中間欄吃掉剩餘寬度，不讓子視圖把側欄和面板擠出視窗
@@ -31,6 +31,8 @@ struct StandardRootView: View {
             .animation(Motion.respecting(reduceMotion, Motion.ui), value: panelVisible)
             PlayerBar(onOpenAlbum: openAlbum(id:), onOpenArtist: { router.openArtist(id: $0, name: $1) })
         }
+        // 模式切換固定在視窗右上角，位置與 Infinity／Cover Flow 完全相同，不受 Now Playing 面板影響
+        .overlay(alignment: .topTrailing) { ViewControls() }
         .overlay {
             if app.isSearchPresented {
                 ZStack(alignment: .top) {
@@ -112,6 +114,8 @@ struct StandardRootView: View {
 
 private struct StandardTopBar: View {
     let router: StandardRouter
+    /// 右側沒有 Now Playing 面板時，模式切換浮在這一列的右端，要留位置給它
+    let reservesViewControls: Bool
     @Environment(AppEnvironment.self) private var app
 
     var body: some View {
@@ -128,11 +132,10 @@ private struct StandardTopBar: View {
             SearchTrigger { app.isSearchPresented = true }
                 .frame(maxWidth: 400)
             Spacer(minLength: Spacing.s16)
-            ModeSwitch()
-            FullscreenButton()
+            if reservesViewControls { Color.clear.frame(width: ViewControls.width) }
         }
-        .padding(.horizontal, Spacing.s20)
-        .frame(height: 56)
+        .padding(.horizontal, Spacing.s16)
+        .frame(height: ViewControls.barHeight)
     }
 }
 
@@ -212,8 +215,8 @@ struct ModeSwitch: View {
     private func segment(_ mode: ViewMode) -> some View {
         let selected = app.viewMode == mode
         return Button { app.viewMode = mode } label: {
-            FinifyIcon(mode.icon, weight: selected ? .filled : .outline, size: .compact)
-                .frame(width: 34, height: 28)
+            FinifyIcon(mode.icon, weight: selected ? .filled : .outline, size: .standard)
+                .frame(width: 42, height: 32)
                 .foregroundStyle(selected ? (overflow ? FinifyColor.Overflow.background : FinifyColor.onPrimary) : (overflow ? FinifyColor.Overflow.muted : FinifyColor.muted))
                 .background(selected ? (overflow ? FinifyColor.Overflow.ink : FinifyColor.primary) : .clear, in: Capsule())
                 .contentShape(Rectangle())
@@ -222,6 +225,23 @@ struct ModeSwitch: View {
         .help("\(mode.title) (⌘\(mode.shortcut))")
         .accessibilityLabel(mode.title)
         .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+}
+
+/// 右上角的模式切換＋全螢幕。三種模式共用，位置固定在視窗右上角
+struct ViewControls: View {
+    /// 頂部列高度，Standard 與 Infinity／Cover Flow 相同
+    static let barHeight: CGFloat = 52
+    /// 三段切換（3 × 42 + 6）＋ 間距 12 ＋ 全螢幕 38
+    static let width: CGFloat = 132 + 12 + 38
+
+    var body: some View {
+        HStack(spacing: Spacing.s12) {
+            ModeSwitch()
+            FullscreenButton()
+        }
+        .frame(height: Self.barHeight)
+        .padding(.trailing, Spacing.s16)
     }
 }
 
@@ -237,7 +257,7 @@ struct FullscreenButton: View {
                          label: isFullscreen ? "Exit Full Screen (⌃⌘F)" : "Enter Full Screen (⌃⌘F)", size: .compact) {
             window?.toggleFullScreen(nil)
         }
-        .frame(width: 34, height: 34)
+        .frame(width: 38, height: 38)
         .modifier(TopBarSurface(overflow: overflow, shape: Circle(), fallback: .clear, strokeFallback: false))
         .background(WindowAccessor { window = $0; isFullscreen = $0?.styleMask.contains(.fullScreen) ?? false })
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) {

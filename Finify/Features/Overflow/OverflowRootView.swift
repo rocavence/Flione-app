@@ -203,11 +203,10 @@ struct OverflowRootView: View {
             Spacer()
             SearchTrigger { app.isSearchPresented = true }
                 .frame(width: 260)
-            ModeSwitch()
-            FullscreenButton()
+            ViewControls()
         }
-        .padding(.horizontal, Spacing.s16)
-        .frame(height: 52)
+        .padding(.leading, Spacing.s16)
+        .frame(height: ViewControls.barHeight)
         .background(LinearGradient(colors: [Color(hex: 0x080D20).opacity(0.75), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
     }
 

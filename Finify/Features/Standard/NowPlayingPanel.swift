@@ -11,15 +11,16 @@ struct NowPlayingPanel: View {
     var body: some View {
         let player = app.player
         VStack(alignment: .leading, spacing: 0) {
+            // 關閉鈕放左邊：右上角是固定的模式切換
             HStack {
-                Spacer()
                 FinifyIconButton(icon: .x, label: "Hide Now Playing", size: .compact) {
                     app.isQueuePresented = false
                     app.isLyricsPresented = false
                 }
+                Spacer()
             }
             .padding(.horizontal, Spacing.s12)
-            .padding(.top, Spacing.s12)
+            .frame(height: ViewControls.barHeight)
 
             if let track = player.currentTrack {
                 VStack(alignment: .leading, spacing: Spacing.s16) {
