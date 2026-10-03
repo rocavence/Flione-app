@@ -12,7 +12,7 @@ enum ViewMode: CaseIterable, Sendable {
 
     var title: String {
         switch self {
-        case .standard: "Standard"
+        case .standard: "Modern"
         case .infinity: "Infinity"
         case .coverFlow: "Cover Flow"
         }

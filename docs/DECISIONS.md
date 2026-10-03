@@ -172,3 +172,7 @@
 * **大小與 Auto**：Infinity 的 5 段以列數定義（8／6／5／4／3 列），封面永遠剛好填滿上下。兩種模式預設是 Auto（依目前視窗尺寸計算、縮放視窗時即時更新）：Infinity 挑封面邊長最接近 200pt 的列數；Cover Flow 取視窗放得下的最大封面的 8 成，限制在 260～560pt。拖過大小滑軌後記住使用者的選擇；設定 → Appearance 可改回 Auto。
 * **滑軌**：hover／拖曳時軌道 1.5 倍（3 → 4.5pt）、圓點 160%（11 → 18pt）。
 * **怎麼改**：`Components/PlayerSidePanel.swift`、`OverflowRootView.topBar`、`SizeSlider`、`ProgressBar`。
+
+## D23　Standard 改名為 Modern
+
+* **選擇**：使用者看到的模式名稱由「Standard」改為「Modern」（右上角切換的提示、選單 ⌘1、設定「Open Finify in」、首次的模式選擇畫面）。程式內部仍叫 `standard`（`AppMode.standard`、`ViewMode.standard`、`StandardRootView`），避免大範圍改檔；先前決策紀錄中的「Standard」即指 Modern。

@@ -16,7 +16,7 @@ struct ModePickerView: View {
                     .foregroundStyle(FinifyColor.muted)
             }
             HStack(spacing: Spacing.s24) {
-                ModeCard(mode: .standard, title: "Standard", subtitle: "Your library, organized.\nBrowse, search, and build a queue.") { app.viewMode = .standard }
+                ModeCard(mode: .standard, title: "Modern", subtitle: "Your library, organized.\nBrowse, search, and build a queue.") { app.viewMode = .standard }
                 ModeCard(mode: .infinity, title: "Infinity", subtitle: "Your library as an endless wall of albums.\nArtwork first.") { app.viewMode = .infinity }
                 ModeCard(mode: .coverFlow, title: "Cover Flow", subtitle: "Flip through your albums one by one.\nBig covers, soft reflections.") { app.viewMode = .coverFlow }
             }
