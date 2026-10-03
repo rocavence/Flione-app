@@ -2,7 +2,7 @@
 
 [繁體中文](README.md) · **English**
 
-A native macOS music player for Jellyfin. Your music, your server, three ways to browse it.
+A native macOS music player for Jellyfin and YouTube Music. Your music, beautifully played, and browsed three ways.
 
 <p align="center">
   <img src="Flione/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" width="160" alt="Flione icon">
@@ -10,7 +10,7 @@ A native macOS music player for Jellyfin. Your music, your server, three ways to
 
 ## What it does
 
-Flione connects to your own Jellyfin server and gives you three peer ways to browse your library. Switch any time with ⌘1 / ⌘2 / ⌘3 or from the top-right corner:
+Flione connects to your own Jellyfin server or to YouTube Music and gives you three peer ways to browse your library. Switch any time with ⌘1 / ⌘2 / ⌘3 or from the top-right corner:
 
 - **Modern**: a full music app. Home, Library (albums, artists, songs, genres, playlists, favorites), album and artist pages, ⌘K search, the queue, and lyrics. Album pages glow with the colors of the cover, and the translucent sidebar picks up the glow.
 - **Infinity**: your whole library as one wall of covers. Pinch to resize; the wall drifts slowly when the pointer is away, or keeps moving with Auto-scroll on. Magic sort rearranges it by color, genre, era, or chance.
@@ -22,6 +22,13 @@ Flione connects to your own Jellyfin server and gives you three peer ways to bro
 - Gapless playback (AVQueuePlayer buffers the next track), shuffle, Smart Shuffle (Jellyfin Instant Mix), repeat
 - Media keys, Now Playing in Control Center, Dock menu, menu bar player, floating mini player
 - Synced lyrics, with an optional LRCLIB fallback when your server has none (off by default)
+
+### Music sources
+
+- **Jellyfin**: your own server. Gapless playback, Smart Shuffle, genres, and playlist editing are Jellyfin-only
+- **YouTube Music**: sign in through a Google window inside Flione; saved albums, liked songs, playlists, history, and search all feed the same three views. A hidden web player handles playback
+- Pick a source on the sign-in screen; switch later under Settings > Music Source or from the sidebar account menu. Both sign-ins are kept, so switching never asks you to sign in again
+- YouTube Music relies on the unofficial InnerTube API, which can break when Google changes it, and can't ship on the App Store. See [`docs/youtube/DESIGN.md`](docs/youtube/DESIGN.md)
 - Restores your last queue when you reopen it
 
 ### Appearance and language
@@ -32,7 +39,7 @@ Flione connects to your own Jellyfin server and gives you three peer ways to bro
 
 ## Why it's built this way
 
-- **Talks only to your server**: no account, no analytics, no tracking. Sign-in details live in the Keychain.
+- **Connects only to the music source you choose**: no Flione account, no analytics, no tracking. Jellyfin sign-in lives in the Keychain; YouTube Music sign-in is the app's WebKit cookies.
 - **Native**: SwiftUI with AppKit where it matters. The cover wall and library grid reuse cells with `NSCollectionView`, so libraries with 1,400+ albums scroll smoothly.
 - **Covers come first**: colors come from each cover's BlurHash, so glows and Magic sort work without downloading extra images.
 
@@ -47,14 +54,14 @@ Requirements:
 - macOS 14 or later (Liquid Glass needs macOS 26)
 - Xcode 26 or later
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen): `brew install xcodegen`
-- A Jellyfin server (tested with 12.1)
+- A Jellyfin server (tested with 12.1) or a YouTube Music account
 
 ```sh
 xcodegen generate          # generates Flione.xcodeproj from project.yml
 open Flione.xcodeproj      # run the Flione scheme
 ```
 
-On first launch Flione asks you to connect to Jellyfin. You can enter just a host name (for example `mediabox`); Flione tries `http://mediabox:8096` for you.
+On first launch, pick a music source on the sign-in screen. YouTube Music opens Google's sign-in window (passkeys don't work there; use your password and 2-Step Verification). For Jellyfin, you can enter just a host name (for example `mediabox`); Flione tries `http://mediabox:8096` for you.
 
 `Flione.xcodeproj` is not checked in; change project settings in `project.yml`. Code signing is set in `project.yml`; to build with your own certificate, change `CODE_SIGN_IDENTITY` and `DEVELOPMENT_TEAM`.
 
@@ -82,6 +89,7 @@ Flione/
 ├── App/              entry point, AppEnvironment, menus and shortcuts
 ├── Core/
 │   ├── Jellyfin/     API client, DTOs, MusicRepository
+│   ├── YouTube/      InnerTube, YouTubeMusicRepository, web player, account
 │   ├── Cache/        ImagePipeline (memory + disk), BlurHash
 │   ├── Localization/ AppLanguage (interface language)
 │   ├── Persistence/  Keychain, library snapshot, favorites, playlists
@@ -153,6 +161,7 @@ Performance and stability (build Release with `SWIFT_ACTIVE_COMPILATION_CONDITIO
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): phases
 - [`docs/DECISIONS.md`](docs/DECISIONS.md): decisions and how to change them
 - [`docs/brand/`](docs/brand/): brand story and color system
+- [`docs/youtube/DESIGN.md`](docs/youtube/DESIGN.md): YouTube Music design and limits
 - [`docs/spikes/`](docs/spikes/): spike results
 
 Flione was formerly called Finify; internal type prefixes, the bundle id, settings keys, and launch arguments still use Finify.

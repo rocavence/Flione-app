@@ -29,10 +29,10 @@ struct ConnectView: View {
                     .font(.system(size: 15, weight: .semibold))
                     .tracking(8)
                     .foregroundStyle(FinifyColor.ink)
-                Text("Your music. Your server.")
+                Text("Your music, beautifully played.")
                     .finifyFont(.title)
                     .foregroundStyle(FinifyColor.ink)
-                Text(showsJellyfin ? "Connect to your Jellyfin server to bring your library in." : "Sign in with YouTube Music, or connect your own Jellyfin server.")
+                Text(showsJellyfin ? "Bring in the library on your Jellyfin server and browse it three ways." : "Bring in your YouTube Music library and browse it three ways.")
                     .finifyFont(.body)
                     .foregroundStyle(FinifyColor.muted)
             }
@@ -86,7 +86,7 @@ struct ConnectView: View {
             .opacity(contentShown ? 1 : 0)
 
             Spacer()
-            Text("Flione talks only to your server. No account, no tracking.")
+            Text("Flione connects only to the music source you choose. No Flione account, no tracking.")
                 .finifyFont(.caption)
                 .foregroundStyle(FinifyColor.faint)
                 .padding(.bottom, Spacing.s24)

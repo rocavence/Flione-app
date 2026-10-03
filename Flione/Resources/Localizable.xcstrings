@@ -576,6 +576,26 @@
         }
       }
     },
+    "Bring in the library on your Jellyfin server and browse it three ways.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帶進 Jellyfin 伺服器上的音樂庫，用三種方式瀏覽。"
+          }
+        }
+      }
+    },
+    "Bring in your YouTube Music library and browse it three ways.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帶進你的 YouTube Music 音樂庫，用三種方式瀏覽。"
+          }
+        }
+      }
+    },
     "By Genre": {
       "localizations": {
         "zh-Hant": {
@@ -812,16 +832,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "連線"
-          }
-        }
-      }
-    },
-    "Connect to your Jellyfin server to bring your library in.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連線到你的 Jellyfin 伺服器，把音樂庫帶進來。"
           }
         }
       }
@@ -1216,22 +1226,22 @@
     "Flione": {
       "shouldTranslate": false
     },
-    "Flione talks only to your Jellyfin server. It has no account, no analytics, and no tracking.": {
+    "Flione connects only to the music source you choose. No Flione account, no analytics, no tracking.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flione 只和你的 Jellyfin 伺服器連線。沒有帳號、沒有分析、也不追蹤。"
+            "value": "Flione 只連線到你選的音樂來源。不需要 Flione 帳號，沒有分析，也不追蹤你。"
           }
         }
       }
     },
-    "Flione talks only to your server. No account, no tracking.": {
+    "Flione connects only to the music source you choose. No Flione account, no tracking.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flione 只和你的伺服器連線。沒有帳號，也不追蹤。"
+            "value": "Flione 只連線到你選的音樂來源。不需要 Flione 帳號，也不追蹤你。"
           }
         }
       }
@@ -2653,16 +2663,6 @@
         }
       }
     },
-    "Sign in with YouTube Music, or connect your own Jellyfin server.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "用 YouTube Music 登入，或連線到你自己的 Jellyfin 伺服器。"
-          }
-        }
-      }
-    },
     "Sign in with your Google account.": {
       "localizations": {
         "zh-Hant": {
@@ -3283,22 +3283,12 @@
         }
       }
     },
-    "Your music, your server.": {
+    "Your music, beautifully played.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的音樂，你的伺服器。"
-          }
-        }
-      }
-    },
-    "Your music. Your server.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "你的音樂，你的伺服器。"
+            "value": "好好聽，也好好看。"
           }
         }
       }

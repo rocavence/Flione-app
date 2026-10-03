@@ -493,7 +493,7 @@ private struct AccountSettings: View {
                 }
             }
         }
-        Text("Flione talks only to your Jellyfin server. It has no account, no analytics, and no tracking.")
+        Text("Flione connects only to the music source you choose. No Flione account, no analytics, no tracking.")
             .finifyFont(.caption)
             .foregroundStyle(FinifyColor.faint)
             .frame(maxWidth: .infinity, alignment: .leading)

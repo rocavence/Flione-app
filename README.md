@@ -2,7 +2,7 @@
 
 **繁體中文** · [English](README.en.md)
 
-Jellyfin 的 macOS 原生音樂播放器。你的音樂、你的伺服器，用三種方式瀏覽。
+Jellyfin 與 YouTube Music 的 macOS 原生音樂播放器。好好聽，也好好看：用三種方式瀏覽你的音樂。
 
 <p align="center">
   <img src="Flione/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" width="160" alt="Flione icon">
@@ -10,7 +10,7 @@ Jellyfin 的 macOS 原生音樂播放器。你的音樂、你的伺服器，用�
 
 ## 它在做什麼
 
-Flione 連線到你自己的 Jellyfin 伺服器，把音樂庫變成三種平級的瀏覽方式，隨時用 ⌘1／⌘2／⌘3 或右上角切換：
+Flione 連線到你自己的 Jellyfin 伺服器或 YouTube Music，把音樂庫變成三種平級的瀏覽方式，隨時用 ⌘1／⌘2／⌘3 或右上角切換：
 
 - **Modern**：完整的音樂 app。首頁、音樂庫（專輯、藝人、歌曲、曲風、播放清單、最愛）、專輯與藝人頁、⌘K 搜尋、播放佇列與歌詞。專輯頁的背景帶上封面顏色的光暈，側欄半透明透出光暈。
 - **Infinity**：整個音樂庫鋪成一面封面牆。可雙指縮放、游標離開時緩慢漂移，也可開啟「自動捲動」讓牆一直移動；Magic 排序可依顏色、曲風、年代或隨機重新排列。
@@ -22,6 +22,13 @@ Flione 連線到你自己的 Jellyfin 伺服器，把音樂庫變成三種平級
 - 無縫換曲（AVQueuePlayer 預先緩衝下一首）、shuffle、Smart Shuffle（Jellyfin Instant Mix）、repeat
 - 媒體鍵、控制中心 Now Playing、Dock 選單、選單列播放器、浮動迷你播放器
 - 同步歌詞；伺服器沒有歌詞時可改查 LRCLIB（預設關閉）
+
+### 音樂來源
+
+- **Jellyfin**：自己的伺服器。無縫換曲、Smart Shuffle、曲風、編輯播放清單都只有 Jellyfin 支援
+- **YouTube Music**：在 Flione 內開 Google 登入視窗登入；收藏的專輯、喜歡的歌曲、播放清單、播放記錄、搜尋都接到原本的三種模式。播放由隱藏的網頁播放器負責
+- 登入畫面選擇來源；之後可在設定的「音樂來源」或側欄帳號選單切換。兩邊的登入都會保留，切換不用重新登入
+- YouTube Music 使用的是非官方的 InnerTube API，Google 改版可能失效，也不能上架 App Store，詳見 [`docs/youtube/DESIGN.md`](docs/youtube/DESIGN.md)
 - 重新開啟時恢復上次的播放佇列
 
 ### 外觀與語言
@@ -32,7 +39,7 @@ Flione 連線到你自己的 Jellyfin 伺服器，把音樂庫變成三種平級
 
 ## 為什麼是這個樣子
 
-- **只和你的伺服器連線**：沒有帳號、沒有分析、不追蹤。登入資訊存在鑰匙圈。
+- **只連線到你選的音樂來源**：不需要 Flione 帳號，沒有分析，不追蹤。Jellyfin 的登入資訊存在鑰匙圈，YouTube Music 的登入是 app 內 WebKit 的 cookie。
 - **原生**：SwiftUI 搭配 AppKit。封面牆與音樂庫格線用 `NSCollectionView` 重用 cell，1,400 張以上的專輯也能順暢捲動。
 - **封面是主角**：顏色取自封面的 BlurHash，不需要額外下載圖片就能做光暈與 Magic 排序。
 
@@ -47,14 +54,14 @@ Flione 連線到你自己的 Jellyfin 伺服器，把音樂庫變成三種平級
 - macOS 14 以上（Liquid Glass 效果需要 macOS 26）
 - Xcode 26 以上
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen)：`brew install xcodegen`
-- 一台 Jellyfin 伺服器（測試過 12.1）
+- 一台 Jellyfin 伺服器（測試過 12.1），或一個 YouTube Music 帳號
 
 ```sh
 xcodegen generate          # 由 project.yml 產生 Flione.xcodeproj
 open Flione.xcodeproj      # 選 Flione scheme 執行
 ```
 
-第一次啟動會要求連線 Jellyfin。伺服器欄位可以只填主機名稱（例如 `mediabox`），Flione 會自動嘗試 `http://mediabox:8096`。
+第一次啟動時在登入畫面選擇音樂來源。選 YouTube Music 會開 Google 的登入視窗（通行金鑰無法使用，請用密碼與兩步驟驗證）。選 Jellyfin 時，伺服器欄位可以只填主機名稱（例如 `mediabox`），Flione 會自動嘗試 `http://mediabox:8096`。
 
 `Flione.xcodeproj` 不進版控；修改專案設定請改 `project.yml`。程式碼簽章設定在 `project.yml`，用自己的憑證建置時請改 `CODE_SIGN_IDENTITY` 與 `DEVELOPMENT_TEAM`。
 
@@ -82,6 +89,7 @@ Flione/
 ├── App/              進入點、AppEnvironment、選單與快捷鍵
 ├── Core/
 │   ├── Jellyfin/     API client、DTO、MusicRepository
+│   ├── YouTube/      InnerTube、YouTubeMusicRepository、網頁播放器、帳號
 │   ├── Cache/        ImagePipeline（記憶體＋磁碟）、BlurHash
 │   ├── Localization/ AppLanguage（介面語言）
 │   ├── Persistence/  鑰匙圈、音樂庫快照、最愛、播放清單
@@ -153,6 +161,7 @@ App icon 與選單列 icon 由 `scripts/icon/make-icon.swift` 依 macOS icon 格
 - [`docs/ROADMAP.md`](docs/ROADMAP.md)：分期
 - [`docs/DECISIONS.md`](docs/DECISIONS.md)：規格未定義處的決策與修改方式
 - [`docs/brand/`](docs/brand/)：品牌故事與色彩系統
+- [`docs/youtube/DESIGN.md`](docs/youtube/DESIGN.md)：YouTube Music 的設計與限制
 - [`docs/spikes/`](docs/spikes/)：技術驗證結果
 
 Flione 舊名 Finify；程式內部的型別前綴、bundle id、設定鍵與啟動參數仍沿用 Finify。
