@@ -32,7 +32,6 @@ enum Reicon: String, CaseIterable, Sendable {
     case trash = "trash"
     case x = "x"
     case fullscreen = "fullscreen"
-    case exitFullscreen = "exit-fullscreen"
     case setting2 = "setting2"
     case infoCircle = "info-circle"
     case warning = "warning"

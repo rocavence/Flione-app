@@ -257,7 +257,9 @@ struct FullscreenButton: View {
         let label = isFullscreen ? "Exit Full Screen (⌃⌘F)" : "Enter Full Screen (⌃⌘F)"
         // 不用 FinifyIconButton：它的 hover 底是圓角方形，放在正圓按鈕裡會露出方角
         Button { window?.toggleFullScreen(nil) } label: {
-            FinifyIcon(isFullscreen ? .exitFullscreen : .fullscreen, size: .compact)
+            // 進入與離開全螢幕用同一個圖示；比一般 compact 圖示小 10%
+            FinifyIcon(.fullscreen, size: .compact)
+                .scaleEffect(0.9)
                 .foregroundStyle((overflow ? FinifyColor.Overflow.ink : FinifyColor.ink).opacity(hovering ? 1 : 0.72))
                 .frame(width: 38, height: 38)
                 .modifier(TopBarSurface(overflow: overflow, shape: Circle(),

@@ -40,7 +40,6 @@ x
 
 # Window
 fullscreen
-exit-fullscreen
 
 # System
 setting2
