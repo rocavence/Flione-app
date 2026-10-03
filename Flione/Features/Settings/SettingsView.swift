@@ -40,8 +40,8 @@ enum SettingsKey {
     static let flowRounded = "FinifyFlowRounded"
     /// Cover Flow 兩側封面變暗的程度（0 = 不變暗，預設 0.25）
     static let flowDim = "FinifyFlowDim"
-    /// Cover Flow 停下來後整個畫面暗下來的程度（0 = 不變暗，維持換張時的亮度）
-    static let flowSettleDim = "FinifyFlowSettleDim"
+    /// Cover Flow 背景光暈的亮度（0 = 關閉，0.9 = 最亮）
+    static let flowGlow = "FinifyFlowGlow"
     static let trackNotifications = "FinifyTrackNotifications"
     static let onlineLyrics = "FinifyOnlineLyrics"
 }
@@ -357,7 +357,7 @@ private struct InfinitySettings: View {
 private struct CoverFlowSettings: View {
     @AppStorage(SettingsKey.flowRounded) private var rounded = true
     @AppStorage(SettingsKey.flowDim) private var flowDim = 0.25
-    @AppStorage(SettingsKey.flowSettleDim) private var flowSettleDim = 0.3
+    @AppStorage(SettingsKey.flowGlow) private var flowGlow = 0.9
     @AppStorage("FinifyFlowSize") private var flowSize = -1
 
     var body: some View {
@@ -366,8 +366,8 @@ private struct CoverFlowSettings: View {
             PillMenu(title: "Cover size", selection: $flowSize,
                      options: [(-1, "Auto")] + (0..<AlbumFlowView.sizeSteps).map { ($0, "\($0 + 1) of \(AlbumFlowView.sizeSteps)") })
         }
-        SettingRow(title: "Glow brightness", detail: "The scene is brightest while you switch albums, then settles darker. Choose how dark it settles.") {
-            PillMenu(title: "Glow brightness", selection: $flowSettleDim, options: [(0, "Don't dim"), (0.15, "Subtle"), (0.3, "Medium"), (0.5, "Strong")])
+        SettingRow(title: "Glow brightness", detail: "The glow behind the covers, in the colors of the center album.") {
+            PillMenu(title: "Glow brightness", selection: $flowGlow, options: [(0.9, "Bright"), (0.6, "Medium"), (0.35, "Low"), (0, "Off")])
         }
         SettingRow(title: "Dim side covers", detail: "The center cover is always the brightest. Choose how dark the others get as they move away from it.") {
             PillMenu(title: "Dim side covers", selection: $flowDim, options: [(0, "Off"), (0.15, "Subtle"), (0.25, "Medium"), (0.45, "Strong")])

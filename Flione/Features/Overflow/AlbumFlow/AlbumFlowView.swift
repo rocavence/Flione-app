@@ -22,11 +22,8 @@ struct AlbumFlowView: View {
     @AppStorage(SettingsKey.flowRounded) private var rounded = true
     /// 兩側封面變暗的程度（設定 → Appearance → Cover Flow）
     @AppStorage(SettingsKey.flowDim) private var dim = 0.25
-    /// 停下來後整個畫面暗下來的程度（設定 → Appearance → Cover Flow → 光暈亮度）
-    @AppStorage(SettingsKey.flowSettleDim) private var settleDim = 0.3
-    /// 換張中為 false；停下約 1 秒後變 true，畫面慢慢暗下來
-    @State private var settled = false
-    @State private var settleTask: Task<Void, Never>?
+    /// 背景光暈的亮度（設定 → Cover Flow → 光暈亮度）
+    @AppStorage(SettingsKey.flowGlow) private var glow = 0.9
     @State private var centerID: String?
     /// 使用者手動移動過後，不再自動跳到正在播放的專輯
     @State private var userMoved = false
@@ -135,15 +132,7 @@ struct AlbumFlowView: View {
                 withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { resize(to: geo.size) }
             }
         }
-        .background { FlowBackdrop(artwork: centered?.artwork, horizon: 0.5) }
-        // 光暈亮度：換張時最亮，停下來後整個畫面（背景與封面）慢慢暗下來；換張時立刻亮回來
-        .overlay {
-            Color.black
-                .opacity(settled ? settleDim : 0)
-                .animation(reduceMotion ? nil : (settled ? .easeInOut(duration: 1.6) : .easeOut(duration: 0.25)), value: settled)
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
-        }
+        .background { FlowBackdrop(artwork: centered?.artwork, horizon: 0.5, glow: glow) }
         .onAppear {
             centerOnPlaying()
             realignToken += 1
@@ -161,16 +150,7 @@ struct AlbumFlowView: View {
             realignToken += 1
         }
         .background(FlowWindowReader { activeState.window = $0 })
-        .onChange(of: centerID) {
-            flippedID = nil
-            settled = false
-            settleTask?.cancel()
-            settleTask = Task {
-                try? await Task.sleep(for: .seconds(1))
-                guard !Task.isCancelled else { return }
-                settled = true
-            }
-        }
+        .onChange(of: centerID) { flippedID = nil }
         .onChange(of: centerOnPlayingToken) {
             userMoved = false
             withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { centerOnPlaying() }
@@ -326,25 +306,31 @@ private struct FlowReflection: View {
     }
 }
 
-/// Album Flow 的背景：目前置中專輯的封面放大、重度模糊，換張時緩慢交叉淡入；
+/// Album Flow 的背景：目前置中專輯封面的 BlurHash 放大、重度模糊，換張時緩慢交叉淡入；
 /// 再疊上暗角與「地面」漸層，讓封面像擺在展示台上。Reduce Motion 時直接切換
 private struct FlowBackdrop: View {
     let artwork: ArtworkRef?
     /// 地平線位置（0 = 頂端、1 = 底部），倒影落在這條線下方
     let horizon: CGFloat
+    /// 光暈亮度（0 = 不顯示，0.9 = 最亮）
+    var glow: Double = 0.9
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
             FinifyColor.Overflow.background
             Color.clear.overlay {
-                if let artwork {
-                    ArtworkView(artwork: artwork, cornerRadius: 0, elevation: .none)
+                // 一律用 BlurHash，不下載封面大圖：原本停下來後 1600px 大圖載完會取代 BlurHash，
+                // 背景明顯變暗（BlurHash 較亮、沒有暗部）；模糊 110 之後也看不出解析度的差別
+                if glow > 0, let hash = artwork?.blurHash, let image = BlurHash.image(hash, size: 32) {
+                    Image(decorative: image, scale: 1)
+                        .resizable()
+                        .interpolation(.medium)
                         .aspectRatio(contentMode: .fill)
                         .scaleEffect(1.6)
                         .blur(radius: 110, opaque: true)
                         .saturation(1.4)
-                        .opacity(0.9)
+                        .opacity(glow)
                         .id(artwork)
                         .transition(.opacity)
                 }

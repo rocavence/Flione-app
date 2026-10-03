@@ -516,6 +516,16 @@
         }
       }
     },
+    "Bright": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "亮"
+          }
+        }
+      }
+    },
     "By Genre": {
       "localizations": {
         "zh-Hant": {
@@ -1007,16 +1017,6 @@
         }
       }
     },
-    "Don't dim": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "不變暗"
-          }
-        }
-      }
-    },
     "Drift": {
       "localizations": {
         "zh-Hant": {
@@ -1395,6 +1395,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "由亮到暗"
+          }
+        }
+      }
+    },
+    "Low": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低"
           }
         }
       }
@@ -2733,6 +2743,16 @@
         }
       }
     },
+    "The glow behind the covers, in the colors of the center album.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面後方的光暈，顏色來自中間那張專輯。"
+          }
+        }
+      }
+    },
     "The language of menus, buttons, and messages.": {
       "localizations": {
         "zh-Hant": {
@@ -2749,16 +2769,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "播放清單會從音樂伺服器上刪除，歌曲仍留在音樂庫。"
-          }
-        }
-      }
-    },
-    "The scene is brightest while you switch albums, then settles darker. Choose how dark it settles.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "換張時畫面最亮，停下來後會慢慢暗下來。這裡設定暗下來的程度。"
           }
         }
       }
