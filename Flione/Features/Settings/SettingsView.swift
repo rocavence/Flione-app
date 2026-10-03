@@ -307,6 +307,7 @@ private struct GeneralSettings: View {
     @AppStorage(SettingsKey.onlineLyrics) private var onlineLyrics = false
 
     @State private var language = AppLanguage.saved
+    @AppStorage(SettingsKey.textComfort) private var comfort = TextComfort.standard
 
     var body: some View {
         @Bindable var app = app
@@ -321,6 +322,9 @@ private struct GeneralSettings: View {
             }
         }
         .onChange(of: language) { AppLanguage.save(language) }
+        SettingRow(title: "Eye comfort", detail: "Makes titles, menus, and song info a little larger in every view, so long listening sessions are easier on your eyes.") {
+            PillMenu(title: "Eye comfort", selection: $comfort, options: TextComfort.allCases.map { ($0, $0.title) })
+        }
         SettingRow(title: "Open Flione in", detail: "The view you see when Flione starts.") {
             PillMenu(title: "Open Flione in", selection: $app.viewMode, options: ViewMode.allCases.map { ($0, LocalizedStringResource(stringLiteral: $0.title)) })
         }
@@ -433,14 +437,10 @@ private struct ThemeSwatch: View {
 private struct ModernSettings: View {
     @AppStorage(SettingsKey.theme) private var theme: ThemePreference = .system
     @AppStorage(SettingsKey.ambient) private var ambient = true
-    @AppStorage(SettingsKey.textComfort) private var comfort = TextComfort.standard
 
     var body: some View {
         SettingRow(title: "Theme", detail: "Light or dark. Infinity and Cover Flow are always dark.") {
             PillMenu(title: "Theme", selection: $theme, options: ThemePreference.allCases.map { ($0, $0.title) })
-        }
-        SettingRow(title: "Eye comfort", detail: "Makes titles, menus, and song info a little larger, so long listening sessions are easier on your eyes.") {
-            PillMenu(title: "Eye comfort", selection: $comfort, options: TextComfort.allCases.map { ($0, $0.title) })
         }
         SettingToggle(title: "Ambient background", detail: "A glow in the colors of the album behind album and playlist pages.", isOn: $ambient)
     }

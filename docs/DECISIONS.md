@@ -301,8 +301,8 @@
 
 ## D41　Modern 的「睫狀肌舒適」文字放大
 
-* **選擇**：設定 → Modern 新增「睫狀肌舒適」，三級：預設（1×）、放鬆點（1.08×）、更放鬆（1.16×），記在 `FinifyTextComfort`。每級只放大一點點，例如內文 13 → 14 → 15pt、小字 11 → 12 → 12.8pt（四捨五入到 0.5pt）。
-* **範圍**：只在 Modern 套用，涵蓋側欄選單、頁面與區塊標題、專輯與歌曲資訊、佇列與歌詞面板、播放列。右上角的模式切換、搜尋、設定卡片維持原尺寸：它們的大小是固定的，放大會爆版。Infinity 與 Cover Flow 以封面為主，不套用。
+* **選擇**：設定 → 一般新增「睫狀肌舒適」（原本放在 Modern 分頁，後來改為三種模式都適用），三級：預設（1×）、放鬆點（1.08×）、更放鬆（1.16×），記在 `FinifyTextComfort`。每級只放大一點點，例如內文 13 → 14 → 15pt、小字 11 → 12 → 12.8pt（四捨五入到 0.5pt）。
+* **範圍**：三種模式都套用。Modern：側欄選單、頁面與區塊標題、專輯與歌曲資訊、佇列與歌詞面板、播放列。Infinity／Cover Flow：Cover Flow 的專輯標題、浮動播放列、專輯面板、佇列與歌詞面板。上方的控制列（排序、大小、模式切換）、搜尋、設定卡片維持原尺寸：它們的高度是固定的，放大會爆版。
 * **大標題**：`display`、`title` 本來就大，只放大一半的比例，避免撐破專輯頁固定高度的頁首。首頁 Hero 的大標題是固定字級，不放大。
 * **做法**：`finifyFont` 讀環境值 `finifyTextScale`，由 `StandardRootView` 依設定提供；所有走 `finifyFont` 的文字自動跟著放大，太長的名稱照原本的規則截斷。
-* **怎麼改**：倍率在 `FinifyFont.swift` 的 `TextComfort`；範圍在 `StandardRootView` 的 `.environment(\.finifyTextScale, …)`。
+* **怎麼改**：倍率在 `FinifyFont.swift` 的 `TextComfort`；範圍在 `StandardRootView` 與 `OverflowRootView` 的 `.environment(\.finifyTextScale, …)`。

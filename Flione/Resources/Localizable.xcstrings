@@ -1782,12 +1782,12 @@
         }
       }
     },
-    "Makes titles, menus, and song info a little larger, so long listening sessions are easier on your eyes.": {
+    "Makes titles, menus, and song info a little larger in every view, so long listening sessions are easier on your eyes.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "把標題、選單和歌曲資訊放大一點，聽久了眼睛比較不累。"
+            "value": "三種模式的標題、選單和歌曲資訊都放大一點，聽久了眼睛比較不累。"
           }
         }
       }

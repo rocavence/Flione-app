@@ -44,6 +44,7 @@ struct OverflowRootView: View {
     private var flowSizeBinding: Binding<Int> { Binding { flowSize } set: { flowSizeRaw = $0 } }
     private var densityStep: Binding<Int> { Binding { density.wrappedValue.rawValue } set: { densityRaw = $0 } }
     private var layout: OverflowLayout { app.overflowLayout }
+    @AppStorage(SettingsKey.textComfort) private var comfort = TextComfort.standard
 
     var body: some View {
         ZStack {
@@ -118,17 +119,23 @@ struct OverflowRootView: View {
             }
             .opacity(openAlbum == nil ? 1 : 0.25)
             .allowsHitTesting(openAlbum == nil)
+            // 睫狀肌舒適：封面標題、浮動播放列、專輯面板、佇列與歌詞放大；上方的控制列與搜尋維持原尺寸（D41）
+            .environment(\.finifyTextScale, comfort.scale)
 
             VStack(spacing: 0) {
                 topBar
                 Spacer()
-                if openAlbum == nil { NowPlayingPill(onOpen: openPlayingAlbum, onHeight: { pillHeight = $0 }) }
+                if openAlbum == nil {
+                    NowPlayingPill(onOpen: openPlayingAlbum, onHeight: { pillHeight = $0 })
+                        .environment(\.finifyTextScale, comfort.scale)
+                }
             }
 
             if let album = openAlbum {
                 Color.black.opacity(0.45)
                     .onTapGesture { openAlbum = nil }
                 OverflowAlbumPanel(album: album, onClose: { openAlbum = nil }, onOpenAlbum: { openAlbum = $0 })
+                    .environment(\.finifyTextScale, comfort.scale)
                     .transition(.scale(scale: 0.96).combined(with: .opacity))
                     .onExitCommand { openAlbum = nil }
             }
@@ -141,6 +148,7 @@ struct OverflowRootView: View {
                         .padding(.bottom, 108)
                         .padding(.trailing, Spacing.s16)
                 }
+                .environment(\.finifyTextScale, comfort.scale)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
 

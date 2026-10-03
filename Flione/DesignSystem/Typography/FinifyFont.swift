@@ -61,7 +61,7 @@ enum FinifyFont {
     }
 }
 
-/// 睫狀肌舒適：Modern 的文字放大程度（設定 → Modern）
+/// 睫狀肌舒適：三種模式的文字放大程度（設定 → 一般）
 enum TextComfort: Int, CaseIterable {
     case standard, relaxed, moreRelaxed
 
@@ -84,7 +84,7 @@ enum TextComfort: Int, CaseIterable {
 }
 
 extension EnvironmentValues {
-    /// finifyFont 的放大倍率；只在 Modern 設定（D41）
+    /// finifyFont 的放大倍率；由 StandardRootView／OverflowRootView 依設定提供（D41）
     @Entry var finifyTextScale: CGFloat = 1
 }
 
