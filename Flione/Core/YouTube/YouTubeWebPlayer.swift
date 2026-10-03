@@ -114,15 +114,15 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
         }
         hasTrack = true
         isPlaying = true
+        // 影片 ID 以參數傳入，不拼進程式碼：ID 來自 YouTube 回傳的資料，不能讓它被當成程式執行
         let script = """
-        (function () {
-            var app = document.querySelector('ytmusic-app');
-            if (!app || typeof app.resolveCommand !== 'function') { return false; }
-            app.resolveCommand({ watchEndpoint: { videoId: '\(videoId)' } });
-            return true;
-        })()
+        const app = document.querySelector('ytmusic-app');
+        if (!app || typeof app.resolveCommand !== 'function') { return false; }
+        app.resolveCommand({ watchEndpoint: { videoId: id } });
+        return true;
         """
-        webView.evaluateJavaScript(script) { [weak self] result, _ in
+        webView.callAsyncJavaScript(script, arguments: ["id": videoId], in: nil, in: .page) { [weak self] outcome in
+            let result: Any? = try? outcome.get()
             MainActor.assumeIsolated {
                 guard let self else { return }
                 #if DEBUG
