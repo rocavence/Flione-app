@@ -78,6 +78,12 @@ final class CastSession: RemotePlaybackEngine {
     }
 
     private func received(_ message: CastChannel.Message) {
+        // 只採用預期來源的訊息：接收器狀態來自 receiver-0，媒體狀態來自我們開啟的接收器
+        switch message.namespace {
+        case CastChannel.Namespace.receiver where message.source != "receiver-0": return
+        case CastChannel.Namespace.media where message.source != transportID: return
+        default: break
+        }
         let type = message.payload["type"] as? String
         switch message.namespace {
         case CastChannel.Namespace.receiver where type == "RECEIVER_STATUS":
