@@ -367,7 +367,7 @@ private struct CoverFlowSettings: View {
                      options: [(-1, "Auto")] + (0..<AlbumFlowView.sizeSteps).map { ($0, "\($0 + 1) of \(AlbumFlowView.sizeSteps)") })
         }
         SettingRow(title: "Glow brightness", detail: "The glow behind the covers is brightest while you move between albums. Choose how much it dims after you stop.") {
-            PillMenu(title: "Glow brightness", selection: $flowSettleDim, options: [(0, "Don't dim"), (0.3, "Subtle"), (0.5, "Medium"), (0.7, "Strong")])
+            PillMenu(title: "Glow brightness", selection: $flowSettleDim, options: [(0, "Don't dim"), (0.3, "Subtle"), (0.5, "Medium"), (0.9, "Strong")])
         }
         SettingRow(title: "Dim side covers", detail: "The center cover is always the brightest. Choose how dark the others get as they move away from it.") {
             PillMenu(title: "Dim side covers", selection: $flowDim, options: [(0, "Off"), (0.15, "Subtle"), (0.25, "Medium"), (0.45, "Strong")])
