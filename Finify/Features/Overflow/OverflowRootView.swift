@@ -112,7 +112,8 @@ struct OverflowRootView: View {
                         }
                     case .flow:
                         AlbumFlowView(albums: sortedAlbums, playingAlbumID: playingAlbumID, onPlay: play,
-                                      isActive: openAlbum == nil && !app.isSearchPresented && !app.isQueuePresented)
+                                      isActive: openAlbum == nil && !app.isSearchPresented && !app.isQueuePresented,
+                                      centerOnPlayingToken: scrollToPlaying)
                     }
                 }
             }
@@ -123,6 +124,30 @@ struct OverflowRootView: View {
                 topBar
                 Spacer()
                 if openAlbum == nil { NowPlayingPill(onOpen: openPlayingAlbum, onImmersive: enterImmersive) }
+            }
+
+            // 浮動按鈕：回到正在播放的專輯（封面牆與 Album Flow）
+            if openAlbum == nil, playingAlbumID != nil, layout != .recent {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button { scrollToPlaying += 1 } label: {
+                            FinifyIcon(.gps, weight: .filled, size: .standard)
+                                .foregroundStyle(FinifyColor.Overflow.ink)
+                                .frame(width: 44, height: 44)
+                                .background(Color(white: 0.08).opacity(0.86), in: Circle())
+                                .overlay { Circle().strokeBorder(.white.opacity(0.1), lineWidth: 1) }
+                                .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 16, y: 6))
+                        }
+                        .buttonStyle(PressScaleStyle())
+                        .help("Show what's playing")
+                        .accessibilityLabel("Show what's playing")
+                        .padding(.trailing, Spacing.s24)
+                        .padding(.bottom, Spacing.s32)
+                    }
+                }
+                .transition(.opacity)
             }
 
             if let album = openAlbum {
@@ -200,9 +225,6 @@ struct OverflowRootView: View {
             Spacer()
             SearchTrigger { app.isSearchPresented = true }
                 .frame(width: 260)
-            if playingAlbumID != nil && layout == .wall {
-                FinifyIconButton(icon: .musicNote, label: "Show what's playing") { scrollToPlaying += 1 }
-            }
             FinifyIconButton(icon: .fullscreen, label: "Fullscreen (⌃⌘F)", action: enterImmersive)
                 .keyboardShortcut("f", modifiers: [.command, .control])
             ModeSwitch()

@@ -9,6 +9,8 @@ struct AlbumFlowView: View {
     let onPlay: (Album) -> Void
     /// 上方有搜尋、佇列、專輯面板時為 false，滾輪交給那些面板
     var isActive = true
+    /// 值改變時回到正在播放的專輯
+    var centerOnPlayingToken = 0
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var centerID: String?
@@ -16,6 +18,8 @@ struct AlbumFlowView: View {
     @State private var userMoved = false
     /// 翻到背面的專輯；移到別張時自動翻回
     @State private var flippedID: String?
+    /// 這次拖曳已經移動了幾張
+    @State private var dragSteps = 0
     @State private var wheelMonitor: Any?
     /// monitor 的 closure 只在安裝時捕捉一次 view，用 reference 讀取最新的 isActive
     @State private var activeState = ActiveState()
@@ -45,6 +49,16 @@ struct AlbumFlowView: View {
                 .contentMargins(.horizontal, (geo.size.width - side) / 2, for: .scrollContent)
                 .scrollTargetBehavior(.viewAligned)
                 .scrollPosition(id: $centerID, anchor: .center)
+                // 滑鼠按住左右拖曳：每拖過一張封面的距離就移動一張
+                .simultaneousGesture(DragGesture(minimumDistance: 6)
+                    .onChanged { value in
+                        let target = Int((-value.translation.width / (side * 0.58)).rounded())
+                        if target != dragSteps {
+                            step(target - dragSteps)
+                            dragSteps = target
+                        }
+                    }
+                    .onEnded { _ in dragSteps = 0 })
                 .frame(height: side + 60)
                 .focusable()
                 .focusEffectDisabled()
@@ -71,6 +85,10 @@ struct AlbumFlowView: View {
         .onChange(of: albums.map(\.id), initial: true) { activeState.albums = albums }
         .background(FlowWindowReader { activeState.window = $0 })
         .onChange(of: centerID) { flippedID = nil }
+        .onChange(of: centerOnPlayingToken) {
+            userMoved = false
+            withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { centerOnPlaying() }
+        }
         .onChange(of: albums.count) { if !userMoved { centerOnPlaying() } }
     }
 

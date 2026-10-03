@@ -86,9 +86,16 @@ final class WallBenchmark: NSObject {
 
     private func scroll(to progress: Double) {
         guard let scroll = scrollView, let doc = scroll.documentView else { return }
-        let top = -scroll.contentInsets.top
-        let maxY = max(top, doc.frame.height - scroll.contentView.bounds.height + scroll.contentInsets.bottom)
-        scroll.contentView.scroll(to: NSPoint(x: 0, y: top + (maxY - top) * min(max(progress, 0), 1)))
+        let p = min(max(progress, 0), 1)
+        if doc.frame.width > scroll.contentView.bounds.width + 1 {
+            // 左右捲動的封面牆
+            let maxX = doc.frame.width - scroll.contentView.bounds.width
+            scroll.contentView.scroll(to: NSPoint(x: maxX * p, y: 0))
+        } else {
+            let top = -scroll.contentInsets.top
+            let maxY = max(top, doc.frame.height - scroll.contentView.bounds.height + scroll.contentInsets.bottom)
+            scroll.contentView.scroll(to: NSPoint(x: 0, y: top + (maxY - top) * p))
+        }
         scroll.reflectScrolledClipView(scroll.contentView)
     }
 

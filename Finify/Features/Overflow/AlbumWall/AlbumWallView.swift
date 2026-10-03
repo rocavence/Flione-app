@@ -51,9 +51,8 @@ struct AlbumWallView: NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
     func makeNSView(context: Context) -> NSScrollView {
-        // 依可用寬度調整封面尺寸，讓每列剛好填滿，封面之間維持細縫
-        let layout = AdaptiveGridLayout()
-        layout.captionHeight = 0
+        // 左右捲動：依可用高度決定列數，封面剛好填滿頂部列與底部播放列之間
+        let layout = WallRowsLayout()
         let collection = WallCollectionView()
         collection.collectionViewLayout = layout
         collection.dataSource = context.coordinator
@@ -64,23 +63,28 @@ struct AlbumWallView: NSViewRepresentable {
         collection.coordinator = context.coordinator
         collection.setAccessibilityLabel("Album wall")
 
-        let scroll = NSScrollView()
+        let scroll = WallScrollView()
         scroll.documentView = collection
         scroll.drawsBackground = false
-        scroll.hasVerticalScroller = true
+        // 以拖曳、滾輪捲動，不顯示捲軸（捲軸會蓋在底部播放列上）
+        scroll.hasHorizontalScroller = false
+        scroll.hasVerticalScroller = false
         scroll.autohidesScrollers = true
         scroll.scrollerStyle = .overlay
         scroll.automaticallyAdjustsContentInsets = false
-        scroll.contentInsets = NSEdgeInsets(top: 60, left: 0, bottom: 120, right: 0)
+        scroll.onUserScroll = { [weak coordinator = context.coordinator] in coordinator?.motion.noteActivity() }
 
         let pinch = NSMagnificationGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.pinch(_:)))
         collection.addGestureRecognizer(pinch)
 
         context.coordinator.collection = collection
         context.coordinator.applySize(density.side, animated: false)
-        // 有 content inset 時，初始位置要捲到 inset 之上，第一列才不會被頂部列擋住
-        scroll.contentView.scroll(to: NSPoint(x: 0, y: -scroll.contentInsets.top))
+        context.coordinator.motion.attach(to: collection)
         return scroll
+    }
+
+    static func dismantleNSView(_ scroll: NSScrollView, coordinator: Coordinator) {
+        coordinator.motion.detach()
     }
 
     func updateNSView(_ scroll: NSScrollView, context: Context) {
@@ -105,6 +109,8 @@ struct AlbumWallView: NSViewRepresentable {
     final class Coordinator: NSObject, NSCollectionViewDataSource, NSCollectionViewDelegate {
         var parent: AlbumWallView
         weak var collection: NSCollectionView?
+        /// 拖曳慣性與閒置時的緩慢漂移
+        let motion = WallMotion()
         var isPinching = false
         private var pinchStartSide: CGFloat = 148
         private(set) var currentSide: CGFloat = 148
@@ -118,7 +124,8 @@ struct AlbumWallView: NSViewRepresentable {
         func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
             let item = collectionView.makeItem(withIdentifier: WallItem.identifier, for: indexPath) as! WallItem
             let album = parent.albums[indexPath.item]
-            item.configure(album, side: currentSide, images: parent.images, isPlaying: album.id == parent.playingAlbumID, anyPlaying: parent.playingAlbumID != nil)
+            let side = (collectionView.collectionViewLayout as? NSCollectionViewFlowLayout)?.itemSize.width ?? currentSide
+            item.configure(album, side: side, images: parent.images, isPlaying: album.id == parent.playingAlbumID, anyPlaying: parent.playingAlbumID != nil)
             item.onClick = { [weak self] in self?.parent.onOpen(album) }
             item.onDoubleClick = { [weak self] in self?.parent.onPlay(album) }
             item.menuProvider = { [weak self] in self?.menu(for: album) }
@@ -135,13 +142,13 @@ struct AlbumWallView: NSViewRepresentable {
 
         func applySize(_ side: CGFloat, animated: Bool) {
             currentSide = side
-            guard let collection, let layout = collection.collectionViewLayout as? AdaptiveGridLayout else { return }
-            // 封面牆：間距隨尺寸縮放，小尺寸幾乎無縫
+            guard let collection, let layout = collection.collectionViewLayout as? WallRowsLayout else { return }
+            // 封面牆：間距隨尺寸縮放，小尺寸幾乎無縫；上下留給頂部列與底部播放列
             let gap = max(2, (side * 0.025).rounded())
-            layout.minItemWidth = side
+            layout.targetSide = side
             layout.minimumInteritemSpacing = gap
             layout.minimumLineSpacing = gap
-            layout.sectionInset = NSEdgeInsets(top: gap, left: 24, bottom: gap, right: 24)
+            layout.sectionInset = NSEdgeInsets(top: 56, left: 24, bottom: 100, right: 24)
             if animated && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
                 NSAnimationContext.runAnimationGroup { ctx in
                     ctx.duration = 0.28
@@ -157,6 +164,7 @@ struct AlbumWallView: NSViewRepresentable {
             switch gesture.state {
             case .began:
                 isPinching = true
+                motion.noteActivity()
                 pinchStartSide = currentSide
             case .changed:
                 let side = min(WallDensity.huge.side * 1.15, max(WallDensity.tiny.side * 0.85, pinchStartSide * (1 + gesture.magnification)))
@@ -179,7 +187,8 @@ struct AlbumWallView: NSViewRepresentable {
 
         func scrollToPlaying() {
             guard let id = parent.playingAlbumID, let index = parent.albums.firstIndex(where: { $0.id == id }) else { return }
-            collection?.animator().scrollToItems(at: [IndexPath(item: index, section: 0)], scrollPosition: .centeredVertically)
+            motion.noteActivity()
+            collection?.animator().scrollToItems(at: [IndexPath(item: index, section: 0)], scrollPosition: .centeredHorizontally)
         }
 
         /// 輸入文字跳到第一張專輯名或藝人以此開頭的專輯（像 Finder 的 type-to-select）
@@ -195,7 +204,7 @@ struct AlbumWallView: NSViewRepresentable {
             guard let index else { NSSound.beep(); return }
             let path = IndexPath(item: index, section: 0)
             collection.selectionIndexPaths = [path]
-            collection.scrollToItems(at: [path], scrollPosition: .centeredVertically)
+            collection.scrollToItems(at: [path], scrollPosition: .centeredHorizontally)
             self.collectionView(collection, didSelectItemsAt: [path])
         }
 
@@ -233,6 +242,7 @@ final class WallCollectionView: NSCollectionView {
     }
 
     override func keyDown(with event: NSEvent) {
+        coordinator?.motion.noteActivity()
         if event.keyCode == 36 || event.keyCode == 76 { coordinator?.playSelected(); return }
         // 還沒有選取時，第一次按方向鍵選取畫面上第一張
         let arrows: Set<UInt16> = [123, 124, 125, 126]
@@ -248,12 +258,7 @@ final class WallCollectionView: NSCollectionView {
             return
         }
         if arrows.contains(event.keyCode), modifiers.isEmpty, selectionIndexPaths.isEmpty {
-            // 扣掉頂部列與底部播放列擋住的範圍
-            var visible = visibleRect
-            if let insets = enclosingScrollView?.contentInsets {
-                visible.origin.y += insets.top
-                visible.size.height -= insets.top + insets.bottom
-            }
+            let visible = visibleRect
             if let first = indexPathsForVisibleItems().sorted().first(where: {
                 guard let frame = layoutAttributesForItem(at: $0)?.frame else { return false }
                 return visible.contains(frame)
@@ -265,6 +270,196 @@ final class WallCollectionView: NSCollectionView {
             }
         }
         super.keyDown(with: event)
+    }
+
+    /// 在封面之間的空白處按住拖曳也能捲動
+    override func mouseDown(with event: NSEvent) {
+        window?.makeFirstResponder(self)
+        deselectAll(nil)
+        trackPan(from: event, onClick: nil)
+    }
+
+    /// 按住滑鼠左右拖曳捲動；沒有移動超過幾點就視為點擊。放開時帶慣性
+    func trackPan(from event: NSEvent, onClick: (() -> Void)?) {
+        guard let window, let clip = enclosingScrollView?.contentView else { onClick?(); return }
+        coordinator?.motion.noteActivity()
+        coordinator?.motion.stopInertia()
+        var last = event.locationInWindow
+        var lastTime = event.timestamp
+        var travelled: CGFloat = 0
+        var velocity: CGFloat = 0
+        var panning = false
+        while let next = window.nextEvent(matching: [.leftMouseDragged, .leftMouseUp]) {
+            if next.type == .leftMouseUp { break }
+            let point = next.locationInWindow
+            let dx = point.x - last.x
+            travelled += abs(dx) + abs(point.y - last.y)
+            if travelled > 4 { panning = true }
+            if panning {
+                scrollHorizontally(clip, by: -dx)
+                let dt = max(next.timestamp - lastTime, 0.001)
+                // 平滑速度，避免最後一個事件決定一切
+                velocity = velocity * 0.6 + (-dx / CGFloat(dt)) * 0.4
+            }
+            last = point
+            lastTime = next.timestamp
+        }
+        coordinator?.motion.noteActivity()
+        if panning {
+            coordinator?.motion.startInertia(velocity: velocity)
+        } else {
+            onClick?()
+        }
+    }
+
+    func scrollHorizontally(_ clip: NSClipView, by delta: CGFloat) {
+        let maxX = max(0, frame.width - clip.bounds.width)
+        let x = min(max(0, clip.bounds.origin.x + delta), maxX)
+        clip.scroll(to: NSPoint(x: x, y: clip.bounds.origin.y))
+        enclosingScrollView?.reflectScrolledClipView(clip)
+    }
+}
+
+/// 左右捲動的封面牆：依可用高度決定列數，封面填滿上下之間
+final class WallRowsLayout: NSCollectionViewFlowLayout {
+    var targetSide: CGFloat = 148
+
+    override func prepare() {
+        scrollDirection = .horizontal
+        // 以可視區域（clip view）的高度計算；collection view 本身的高度由 layout 決定，不能拿來算
+        if let height = collectionView?.enclosingScrollView?.contentView.bounds.height, height > 0 {
+            let available = height - sectionInset.top - sectionInset.bottom
+            let rows = max(1, Int((available + minimumInteritemSpacing) / (targetSide + minimumInteritemSpacing)))
+            let side = floor((available - CGFloat(rows - 1) * minimumInteritemSpacing) / CGFloat(rows))
+            itemSize = NSSize(width: side, height: side)
+        }
+        super.prepare()
+    }
+
+    /// 版面上次計算時的可視高度；視窗高度改變時要重算列數
+    fileprivate var preparedHeight: CGFloat = 0
+}
+
+/// 垂直的滑鼠滾輪與觸控板滑動也讓封面牆左右移動
+final class WallScrollView: NSScrollView {
+    var onUserScroll: (() -> Void)?
+
+    // 不顯示捲軸：以拖曳、滾輪、漂移捲動（SwiftUI 會重設 scroller 設定，所以直接鎖住）
+    override var hasHorizontalScroller: Bool {
+        get { false }
+        set {}
+    }
+
+    /// 視窗高度改變時重算封面牆的列數與尺寸
+    override func tile() {
+        super.tile()
+        guard let layout = (documentView as? NSCollectionView)?.collectionViewLayout as? WallRowsLayout else { return }
+        let height = contentView.bounds.height
+        if height > 0, abs(height - layout.preparedHeight) > 0.5 {
+            layout.preparedHeight = height
+            layout.invalidateLayout()
+        }
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        onUserScroll?()
+        guard abs(event.scrollingDeltaY) > abs(event.scrollingDeltaX),
+              let wall = documentView as? WallCollectionView else {
+            super.scrollWheel(with: event)
+            return
+        }
+        // 滑鼠滾輪的 delta 是「行」，乘上一格的距離
+        let delta = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY : event.scrollingDeltaY * 24
+        wall.scrollHorizontally(contentView, by: -delta)
+    }
+}
+
+/// 封面牆的動態：拖曳放開後的慣性，以及滑鼠不在封面牆上時的緩慢漂移
+@MainActor
+final class WallMotion: NSObject {
+    /// 漂移的最高速度（點／秒）
+    static let driftSpeed: CGFloat = 22
+
+    private weak var collection: WallCollectionView?
+    private var link: CADisplayLink?
+    private var monitor: Any?
+    private var lastTick: CFTimeInterval = 0
+    private var inertia: CGFloat = 0
+    private var drift: CGFloat = 0
+    private var direction: CGFloat = 1
+
+    func attach(to collection: WallCollectionView) {
+        self.collection = collection
+        let link = collection.displayLink(target: self, selector: #selector(tick(_:)))
+        link.add(to: .main, forMode: .common)
+        self.link = link
+        // 滑鼠移動、點擊、按鍵都算操作（只看這個視窗的事件）
+        monitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved, .leftMouseDown, .rightMouseDown, .keyDown, .magnify]) { [weak self] event in
+            if event.window === self?.collection?.window { self?.noteActivity() }
+            return event
+        }
+    }
+
+    func detach() {
+        link?.invalidate()
+        link = nil
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
+    }
+
+    func noteActivity() {
+        drift = 0
+    }
+
+    func stopInertia() { inertia = 0 }
+
+    func startInertia(velocity: CGFloat) {
+        guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
+        inertia = max(-4000, min(4000, velocity))
+    }
+
+    @objc private func tick(_ link: CADisplayLink) {
+        let now = link.timestamp
+        let dt = lastTick == 0 ? 1.0 / 60 : min(now - lastTick, 0.05)
+        lastTick = now
+        guard let collection, let clip = collection.enclosingScrollView?.contentView else { return }
+
+        if abs(inertia) > 8 {
+            collection.scrollHorizontally(clip, by: inertia * CGFloat(dt))
+            inertia *= CGFloat(pow(0.92, dt * 60))
+            return
+        }
+        inertia = 0
+
+        // 滑鼠在封面牆上就停下來（速度歸零，再開始時重新緩緩加速）
+        guard shouldDrift, !isMouseOverWall else {
+            drift = 0
+            return
+        }
+        let maxX = collection.frame.width - clip.bounds.width
+        guard maxX > 0 else { return }
+        // 到邊緣就慢慢反向；速度用緩動逐漸增加，開始時不會突然動起來
+        let x = clip.bounds.origin.x
+        if (direction > 0 && x >= maxX - 1) || (direction < 0 && x <= 1) {
+            direction = -direction
+            drift = 0
+        }
+        drift = min(Self.driftSpeed, drift + Self.driftSpeed * CGFloat(dt) / 3)
+        collection.scrollHorizontally(clip, by: direction * drift * CGFloat(dt))
+    }
+
+    /// app 在背景時也漂移（例如邊工作邊放著封面牆），只要視窗看得到
+    /// 滑鼠是否在封面牆的可視範圍內（頂部列與底部播放列也算，避免操作控制項時封面在底下移動）
+    private var isMouseOverWall: Bool {
+        guard let window = collection?.window else { return false }
+        let point = window.mouseLocationOutsideOfEventStream
+        return window.contentView?.bounds.contains(point) == true && NSWindow.windowNumber(at: NSEvent.mouseLocation, belowWindowWithWindowNumber: 0) == window.windowNumber
+    }
+
+    private var shouldDrift: Bool {
+        collection?.window?.occlusionState.contains(.visible) == true
+            && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+            && (UserDefaults.standard.object(forKey: SettingsKey.wallDrift) as? Bool ?? true)
     }
 }
 
@@ -470,17 +665,21 @@ private final class WallItemView: NSView {
     override func mouseExited(with event: NSEvent) { item?.setHovering(false) }
 
     override func mouseDown(with event: NSEvent) {
-        super.mouseDown(with: event)
+        guard let wall = item?.collectionView as? WallCollectionView else { return }
+        wall.window?.makeFirstResponder(wall)
         // 焦點框只給鍵盤操作用，滑鼠點擊不留選取
-        item?.collectionView?.deselectAll(nil)
+        wall.deselectAll(nil)
         pendingClick?.cancel()
         if event.clickCount >= 2 {
             item?.doubleClicked()
             return
         }
-        let work = DispatchWorkItem { [weak self] in self?.item?.clicked() }
-        pendingClick = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + NSEvent.doubleClickInterval, execute: work)
+        // 按住拖曳是捲動；沒有拖曳才算點擊
+        wall.trackPan(from: event) { [weak self] in
+            let work = DispatchWorkItem { self?.item?.clicked() }
+            self?.pendingClick = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + NSEvent.doubleClickInterval, execute: work)
+        }
     }
 
     override func menu(for event: NSEvent) -> NSMenu? { item?.contextMenu() }
