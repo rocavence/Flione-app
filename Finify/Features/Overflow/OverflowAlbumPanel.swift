@@ -77,9 +77,7 @@ struct OverflowAlbumPanel: View {
             }
         }
         .padding(Spacing.s32)
-        .background(.black.opacity(0.55), in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-        .background(.ultraThinMaterial.opacity(0.6), in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-        .overlay { RoundedRectangle(cornerRadius: Radius.large, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
+        .modifier(AlbumPanelGlass())
         .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 60, y: 30))
         .environment(\.colorScheme, .dark)
         .task(id: album.id) {
@@ -147,5 +145,20 @@ private struct OverflowTrackRow: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityAction(.default, onPlay)
         .accessibilityAction(named: "Play", onPlay)
+    }
+}
+
+/// 專輯面板的底：macOS 26 以上用帶深色調的 Liquid Glass，舊系統維持原本的霧面深色
+private struct AlbumPanelGlass: ViewModifier {
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
+        if #available(macOS 26.0, *) {
+            content.glassEffect(.regular.tint(Color(hex: 0x080D20).opacity(0.6)), in: shape)
+        } else {
+            content
+                .background(.black.opacity(0.55), in: shape)
+                .background(.ultraThinMaterial.opacity(0.6), in: shape)
+                .overlay { shape.strokeBorder(.white.opacity(0.08), lineWidth: 1) }
+        }
     }
 }

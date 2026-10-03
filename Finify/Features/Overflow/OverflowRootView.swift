@@ -142,8 +142,7 @@ struct OverflowRootView: View {
                             FinifyIcon(.gps, weight: .filled, size: .standard)
                                 .foregroundStyle(FinifyColor.Overflow.ink)
                                 .frame(width: 44, height: 44)
-                                .background(Color(hex: 0x111D40).opacity(0.88), in: Circle())
-                                .overlay { Circle().strokeBorder(.white.opacity(0.1), lineWidth: 1) }
+                                .finifyGlass(in: Circle(), tint: Color(hex: 0x111D40).opacity(0.5), interactive: true, fallback: Color(hex: 0x111D40).opacity(0.88))
                                 .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 16, y: 6))
                         }
                         .buttonStyle(PressScaleStyle())
@@ -199,7 +198,7 @@ struct OverflowRootView: View {
                 }
             }
             .padding(2)
-            .background(FinifyColor.Overflow.control, in: RoundedRectangle(cornerRadius: Radius.ui + 2, style: .continuous))
+            .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.ui + 2, style: .continuous), tint: Color(hex: 0x111D40).opacity(0.4), fallback: FinifyColor.Overflow.control)
 
             if layout == .wall {
                 HStack(spacing: 2) {
@@ -343,8 +342,7 @@ private struct NowPlayingPill: View {
             }
             .padding(.horizontal, Spacing.s16)
             .padding(.vertical, Spacing.s8)
-            .background(Color(hex: 0x0D1633).opacity(0.88), in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-            .overlay { RoundedRectangle(cornerRadius: Radius.large, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
+            .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous), tint: Color(hex: 0x0D1633).opacity(0.55), fallback: Color(hex: 0x0D1633).opacity(0.88))
             .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 30, y: 12))
             .padding(.bottom, Spacing.s24)
             .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -385,8 +383,7 @@ private struct FlowSizeSlider: View {
         }
         .padding(.horizontal, Spacing.s16)
         .frame(height: 44)
-        .background(Color(hex: 0x111D40).opacity(0.88), in: Capsule())
-        .overlay { Capsule().strokeBorder(.white.opacity(0.1), lineWidth: 1) }
+        .finifyGlass(in: Capsule(), tint: Color(hex: 0x111D40).opacity(0.5), fallback: Color(hex: 0x111D40).opacity(0.88))
         .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 16, y: 6))
         .help("Cover size")
     }

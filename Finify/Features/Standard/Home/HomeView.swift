@@ -308,12 +308,26 @@ private struct HeroButton: View {
             .foregroundStyle(prominent ? Color(hex: 0x0D1633) : .white)
             .padding(.horizontal, Spacing.s20)
             .frame(height: 38)
-            .background(prominent ? AnyShapeStyle(FinifyColor.ice.opacity(hovering ? 0.9 : 1)) : AnyShapeStyle(.white.opacity(hovering ? 0.22 : 0.14)), in: Capsule())
+            .modifier(HeroButtonBackground(prominent: prominent, hovering: hovering))
             .contentShape(Capsule())
         }
         .buttonStyle(PressScaleStyle())
         .opacity(isEnabled ? 1 : 0.5)
         .onHover { hovering = $0 }
         .animation(Motion.micro, value: hovering)
+    }
+}
+
+/// Play 是實心冰白膠囊；Shuffle 在 macOS 26 以上是 Liquid Glass，舊系統是半透明白
+private struct HeroButtonBackground: ViewModifier {
+    let prominent: Bool
+    let hovering: Bool
+
+    func body(content: Content) -> some View {
+        if prominent {
+            content.background(FinifyColor.ice.opacity(hovering ? 0.9 : 1), in: Capsule())
+        } else {
+            content.finifyGlass(in: Capsule(), interactive: true, fallback: .white.opacity(hovering ? 0.22 : 0.14))
+        }
     }
 }

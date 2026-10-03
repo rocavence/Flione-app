@@ -114,3 +114,9 @@
 * **為什麼預設關閉**：查詢會把歌名、藝人送到外部網站。開關在設定 → General；歌詞面板沒有歌詞時也有「Search LRCLIB」按鈕，按下等於開啟。
 * **顯示**：來自 LRCLIB 的歌詞底部標示「Lyrics from LRCLIB」。外部查詢失敗時視為沒有歌詞，不顯示錯誤。
 * **怎麼改**：`Core/Lyrics/LRCLib.swift`（含 LRC 解析，測試在 `LRCLibTests`）、`LyricsPanel.load`。
+
+## D17　Liquid Glass 只用在浮在封面上的元件
+
+* **選擇**：macOS 26 以上，Overflow 的浮動播放列、頂部分段控制、Flow 大小滑桿、回到正在播放按鈕、專輯面板，以及 Standard Hero 上的 Shuffle，改用系統的 Liquid Glass（`.glassEffect`），並帶一點深藍色調，維持 Finity 的深色氣氛。macOS 14～15 退回原本的半透明深藍底加細邊。
+* **理由**：Finity 設計文件寫「玻璃是材質，不是裝飾」，且要避免每張卡片都像玻璃。這些元件都浮在封面上，玻璃能透出底下的顏色；一般頁面、側欄、清單維持實色。
+* **怎麼改**：`DesignSystem/Materials/Glass.swift` 的 `finifyGlass(in:tint:interactive:fallback:)`。
