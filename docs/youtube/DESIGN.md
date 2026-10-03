@@ -4,13 +4,16 @@
 
 ## 目標
 
-Flione 除了 Jellyfin，也可以用 Google 帳號登入 YouTube Music，用同樣的三種模式（Modern、Infinity、Cover Flow）瀏覽與播放。**只開放 YouTube Premium 帳號使用。**
+Flione 除了 Jellyfin，也可以用 Google 帳號登入 YouTube Music，用同樣的三種模式（Modern、Infinity、Cover Flow）瀏覽與播放。
 
-## 限制 Premium 的理由
+## 不限制 Premium
 
-- 非 Premium 帳號有廣告，網頁播放器會插播；Flione 的播放列無法也不應該處理廣告。
-- 非 Premium 帳號不能背景播放，與 Flione「關掉視窗也繼續播」的行為衝突。
-- 限定付費會員，等於只服務已經付費給 YouTube 的使用者，降低條款上的爭議（仍然不是官方用戶端，見「風險」）。
+原本規劃只開放 YouTube Premium 帳號，後來依使用者決定取消（2026-10-03）：登入成功就能使用。
+
+非 Premium 帳號可能遇到的限制（第二階段做播放時確認實際行為）：
+
+- 網頁播放器插播廣告；Flione 的播放列不處理廣告
+- 不能背景播放，可能與 Flione「關掉視窗也繼續播」的行為衝突
 
 ## 登入
 
@@ -25,16 +28,9 @@ Flione 除了 Jellyfin，也可以用 Google 帳號登入 YouTube Music，用同
 
 不使用 Safari：Safari 的 cookie 只屬於 Safari，Flione 讀不到，無法代表使用者呼叫 YouTube Music。
 
-## Premium 檢查
+## 登入後的帳號資訊
 
-YouTube 沒有公開「是否為 Premium」的 API。做法：
-
-1. 登入後呼叫 InnerTube 的帳號選單（`youtubei/v1/account/account_menu`，client `WEB_REMIX`），從回應中找出代表 Premium 會員的標記。
-2. **標記的確切位置尚未確認**，需要用真實的 Premium 帳號登入一次，看回應內容後再寫判斷。Debug 版會把回應存到 `/tmp/flione-youtube-account.json` 供分析。
-3. 判斷結果：
-   - Premium → 進入 Flione
-   - 不是 Premium → 顯示說明畫面：「Flione 的 YouTube Music 需要 YouTube Premium」，提供「前往 YouTube Premium」與「登出改用其他帳號」
-   - 無法判斷（網路錯誤、回應格式改變）→ 顯示錯誤與重試，不放行
+登入後呼叫 InnerTube 的帳號選單（`youtubei/v1/account/account_menu`，client `WEB_REMIX`）取得帳號名稱，同時確認 cookie 有效。呼叫失敗時顯示錯誤與重試。Debug 版會把回應存到 `/tmp/flione-youtube-account-account_menu.json` 供分析。
 
 ## 呼叫 YouTube Music
 
@@ -71,6 +67,6 @@ YouTube Music 使用者的收藏專輯通常比 Jellyfin 音樂庫少，Infinity
 
 | 階段 | 內容 | 狀態 |
 | ---- | ---- | ---- |
-| 1 | 登入畫面、瀏覽器登入視窗、登入判斷、Premium 檢查與阻擋畫面 | 進行中 |
+| 1 | 登入畫面、瀏覽器登入視窗、登入判斷、帳號資訊 | 完成（2026-10-03 實測登入成功） |
 | 2 | 網頁播放器引擎，在 Flione 播出一首歌 | 未開始 |
 | 3 | 音樂庫、搜尋、播放清單接上 Modern／Infinity／Cover Flow | 未開始 |

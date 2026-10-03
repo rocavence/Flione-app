@@ -17,16 +17,6 @@
         }
       }
     },
-    "%@ doesn't have YouTube Premium. Flione plays YouTube Music only for Premium members, without ads and with background playback.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ 沒有 YouTube Premium。Flione 只為 Premium 會員播放 YouTube Music：沒有廣告，也能在背景播放。"
-          }
-        }
-      }
-    },
     "%@ on %@": {
       "localizations": {
         "zh-Hant": {
@@ -586,12 +576,12 @@
         }
       }
     },
-    "Can't check your membership": {
+    "Can't connect to YouTube Music": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "無法確認會員資格"
+            "value": "無法連線到 YouTube Music"
           }
         }
       }
@@ -726,32 +716,12 @@
         }
       }
     },
-    "Check Again": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重新檢查"
-          }
-        }
-      }
-    },
     "Check your connection to the music server.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "請檢查與音樂伺服器的連線。"
-          }
-        }
-      }
-    },
-    "Checking your YouTube Premium membership…": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在確認你的 YouTube Premium 會員資格⋯"
           }
         }
       }
@@ -852,6 +822,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "已連線到 YouTube Music"
+          }
+        }
+      }
+    },
+    "Connecting to YouTube Music…": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在連線到 YouTube Music⋯"
           }
         }
       }
@@ -1226,16 +1206,6 @@
     "Flione": {
       "shouldTranslate": false
     },
-    "Flione can't confirm YouTube Premium yet. This check is still being built on this branch.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flione 還無法確認 YouTube Premium。這項檢查在這個分支還在開發中。"
-          }
-        }
-      }
-    },
     "Flione talks only to your Jellyfin server. It has no account, no analytics, and no tracking.": {
       "localizations": {
         "zh-Hant": {
@@ -1336,16 +1306,6 @@
         }
       }
     },
-    "Get YouTube Premium": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "取得 YouTube Premium"
-          }
-        }
-      }
-    },
     "Glacier": {
       "localizations": {
         "zh-Hant": {
@@ -1412,6 +1372,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "早安"
+          }
+        }
+      }
+    },
+    "Google's sign-in page opens in a separate window.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google 的登入頁會在另一個視窗打開。"
           }
         }
       }
@@ -2363,16 +2333,6 @@
         }
       }
     },
-    "Requires YouTube Premium. Google's sign-in page opens in a separate window.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "需要 YouTube Premium。Google 的登入頁會在另一個視窗打開。"
-          }
-        }
-      }
-    },
     "Restart": {
       "localizations": {
         "zh-Hant": {
@@ -2683,12 +2643,12 @@
         }
       }
     },
-    "Sign in with YouTube Music Premium, or connect your own Jellyfin server.": {
+    "Sign in with YouTube Music, or connect your own Jellyfin server.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "用 YouTube Music Premium 登入，或連線到你自己的 Jellyfin 伺服器。"
+            "value": "用 YouTube Music 登入，或連線到你自己的 Jellyfin 伺服器。"
           }
         }
       }
@@ -2703,22 +2663,12 @@
         }
       }
     },
-    "Signed in as %@": {
+    "Signed in as %@. Your library and playback are still being built on this branch.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已登入 %@"
-          }
-        }
-      }
-    },
-    "Signed in as %@ with YouTube Premium. Your library and playback are still being built on this branch.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已用 %@ 的 YouTube Premium 帳號登入。音樂庫與播放功能在這個分支還在開發中。"
+            "value": "已登入 %@。音樂庫與播放功能在這個分支還在開發中。"
           }
         }
       }
@@ -3259,16 +3209,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "隨時可以用 ⌘1、⌘2、⌘3，或右上角的按鈕切換。"
-          }
-        }
-      }
-    },
-    "YouTube Premium is required": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "需要 YouTube Premium"
           }
         }
       }

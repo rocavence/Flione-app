@@ -32,7 +32,7 @@ struct ConnectView: View {
                 Text("Your music. Your server.")
                     .finifyFont(.title)
                     .foregroundStyle(FinifyColor.ink)
-                Text(showsJellyfin ? "Connect to your Jellyfin server to bring your library in." : "Sign in with YouTube Music Premium, or connect your own Jellyfin server.")
+                Text(showsJellyfin ? "Connect to your Jellyfin server to bring your library in." : "Sign in with YouTube Music, or connect your own Jellyfin server.")
                     .finifyFont(.body)
                     .foregroundStyle(FinifyColor.muted)
             }
@@ -105,7 +105,7 @@ struct ConnectView: View {
                 GoogleSignIn.present { Task { await app.youtube.didSignIn() } }
             }
             .keyboardShortcut(.defaultAction)
-            Text("Requires YouTube Premium. Google's sign-in page opens in a separate window.")
+            Text("Google's sign-in page opens in a separate window.")
                 .finifyFont(.caption)
                 .foregroundStyle(FinifyColor.muted)
                 .multilineTextAlignment(.center)

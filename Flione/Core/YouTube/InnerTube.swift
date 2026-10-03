@@ -67,7 +67,7 @@ enum InnerTube {
             throw Failure.badResponse(status)
         }
         #if DEBUG
-        // 開發用：保留原始回應，分析 YouTube Music 的資料格式（例如找出 Premium 的標記）
+        // 開發用：保留原始回應，分析 YouTube Music 的資料格式
         try? data.write(to: URL(fileURLWithPath: "/tmp/flione-youtube-\(endpoint.replacingOccurrences(of: "/", with: "-")).json"))
         #endif
         return json
