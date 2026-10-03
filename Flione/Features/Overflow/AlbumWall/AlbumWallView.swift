@@ -457,7 +457,8 @@ final class WallMotion: NSObject {
         self.link = link
         // 滑鼠移動、點擊、按鍵都算操作（只看這個視窗的事件）
         monitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved, .leftMouseDown, .rightMouseDown, .keyDown, .magnify]) { [weak self] event in
-            if event.window === self?.collection?.window { self?.noteActivity() }
+            // 一直自動捲動時，移動滑鼠不會讓它停下
+            if event.window === self?.collection?.window, self?.autoScroll == false { self?.noteActivity() }
             return event
         }
     }
@@ -493,8 +494,8 @@ final class WallMotion: NSObject {
         }
         inertia = 0
 
-        // 滑鼠在封面牆上就停下來（速度歸零，再開始時重新緩緩加速）
-        guard shouldDrift, !isMouseOverWall else {
+        // 滑鼠在封面牆上就停下來（速度歸零，再開始時重新緩緩加速）；一直自動捲動時不停
+        guard shouldDrift, autoScroll || !isMouseOverWall else {
             drift = 0
             return
         }
@@ -519,10 +520,13 @@ final class WallMotion: NSObject {
         return window.contentView?.bounds.contains(point) == true && NSWindow.windowNumber(at: NSEvent.mouseLocation, belowWindowWithWindowNumber: 0) == window.windowNumber
     }
 
+    /// 頂部列的「自動捲動」開關：打開時一直捲動，滑鼠在牆上也不停
+    private var autoScroll: Bool { UserDefaults.standard.bool(forKey: SettingsKey.wallAutoScroll) }
+
     private var shouldDrift: Bool {
         collection?.window?.occlusionState.contains(.visible) == true
             && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-            && (UserDefaults.standard.object(forKey: SettingsKey.wallDrift) as? Bool ?? true)
+            && (autoScroll || (UserDefaults.standard.object(forKey: SettingsKey.wallDrift) as? Bool ?? true))
     }
 }
 

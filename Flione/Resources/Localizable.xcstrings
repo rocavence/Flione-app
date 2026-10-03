@@ -506,6 +506,36 @@
         }
       }
     },
+    "Auto-scroll": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動捲動"
+          }
+        }
+      }
+    },
+    "Auto-scroll is off. The wall moves only when the pointer is away.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動捲動已關閉：游標離開時封面牆才會漂移。"
+          }
+        }
+      }
+    },
+    "Auto-scroll is on. The wall keeps moving, even under the pointer.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動捲動已開啟：封面牆會一直移動，游標在上面也不停。"
+          }
+        }
+      }
+    },
     "Back": {
       "localizations": {
         "zh-Hant": {
@@ -1711,6 +1741,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "關閉"
+          }
+        }
+      }
+    },
+    "On": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開啟"
           }
         }
       }

@@ -30,6 +30,7 @@ struct OverflowRootView: View {
     @AppStorage("FinifyMagicSort") private var magicRaw = ""
     @AppStorage(SettingsKey.wallRounded) private var wallRounded = true
     @AppStorage(SettingsKey.wallAmbient) private var wallAmbient = true
+    @AppStorage(SettingsKey.wallAutoScroll) private var autoScroll = false
     private var magic: MagicSort? { MagicSort(rawValue: magicRaw) }
     @State private var openAlbum: Album?
     @State private var scrollToPlaying = 0
@@ -194,6 +195,8 @@ struct OverflowRootView: View {
             .help("Focus on the album that's playing")
             .accessibilityLabel("Focus on the album that's playing")
 
+            if layout == .wall { autoScrollToggle }
+
             Spacer()
             SearchTrigger { app.isSearchPresented = true }
                 .frame(width: 260)
@@ -202,6 +205,26 @@ struct OverflowRootView: View {
         .padding(.leading, Spacing.s16)
         .frame(height: ViewControls.barHeight)
         .background(LinearGradient(colors: [FinifyColor.Ocean.abyss.opacity(0.75), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
+    }
+
+    /// Infinity：封面牆一直自動捲動（滑鼠在牆上也不停）
+    private var autoScrollToggle: some View {
+        Button { autoScroll.toggle() } label: {
+            HStack(spacing: Spacing.s4) {
+                FinifyIcon(.infinite, weight: autoScroll ? .filled : .outline, size: .compact)
+                Text("Auto-scroll").finifyFont(.caption)
+            }
+            .foregroundStyle(autoScroll ? FinifyColor.accent : FinifyColor.Overflow.muted)
+            .padding(.horizontal, Spacing.s12)
+            .frame(height: 34)
+            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+            .overlay { if autoScroll { Capsule().strokeBorder(FinifyColor.accent.opacity(0.6), lineWidth: 1) } }
+            .contentShape(Capsule())
+        }
+        .buttonStyle(PressScaleStyle())
+        .help(autoScroll ? "Auto-scroll is on. The wall keeps moving, even under the pointer." : "Auto-scroll is off. The wall moves only when the pointer is away.")
+        .accessibilityLabel("Auto-scroll")
+        .accessibilityValue(autoScroll ? Text("On") : Text("Off"))
     }
 
     @ViewBuilder

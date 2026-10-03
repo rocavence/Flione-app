@@ -34,6 +34,8 @@ enum SettingsKey {
     static let wallDrift = "FinifyWallDrift"
     /// Infinity 漂移速度倍率（0.5／1／2）
     static let wallDriftSpeed = "FinifyWallDriftSpeed"
+    /// Infinity 一直自動捲動（滑鼠在牆上也不停）；頂部列的開關
+    static let wallAutoScroll = "FinifyWallAutoScroll"
     /// Infinity 封面圓角；關掉時封面之間也沒有間距
     static let wallRounded = "FinifyWallRounded"
     /// Cover Flow 封面圓角
