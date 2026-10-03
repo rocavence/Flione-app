@@ -80,9 +80,10 @@ struct AlbumFlowView: View {
                 Spacer(minLength: 0)
                 ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
+                    let centerIndex = albums.firstIndex { $0.id == centerID } ?? 0
                     LazyHStack(spacing: -side * 0.42) {
-                        ForEach(albums) { album in
-                            cover(album)
+                        ForEach(Array(albums.enumerated()), id: \.element.id) { index, album in
+                            cover(album, index: index, centerIndex: centerIndex)
                                 .id(album.id)
                         }
                     }
@@ -153,6 +154,20 @@ struct AlbumFlowView: View {
             realignToken += 1
             focused = true
             installWheelMonitor()
+            #if DEBUG
+            // -FinifyDemoFlowSteps <張數> -FinifyDemoFlowInterval <秒>：自動連續往右翻，重現快速翻頁時的交疊
+            let steps = UserDefaults.standard.integer(forKey: "FinifyDemoFlowSteps")
+            if steps > 0 {
+                let interval = UserDefaults.standard.double(forKey: "FinifyDemoFlowInterval")
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    for _ in 0..<steps {
+                        step(1, in: activeState.albums)
+                        try? await Task.sleep(for: .seconds(interval > 0 ? interval : 0.12))
+                    }
+                }
+            }
+            #endif
         }
         .onDisappear {
             if let wheelMonitor { NSEvent.removeMonitor(wheelMonitor) }
@@ -207,9 +222,7 @@ struct AlbumFlowView: View {
         centerID = playingAlbumID.flatMap { id in albums.first { $0.id == id }?.id } ?? centerID ?? albums.first?.id
     }
 
-    private func cover(_ album: Album) -> some View {
-        let reduceMotion = reduceMotion
-        let dim = dim
+    private func cover(_ album: Album, index: Int, centerIndex: Int) -> some View {
         let flipped = flippedID == album.id
         return VStack(spacing: 2) {
             AlbumFlipCard(album: album, isFlipped: flipped, side: side,
@@ -218,15 +231,8 @@ struct AlbumFlowView: View {
                 .opacity(flipped ? 0 : 1)
                 .animation(.easeInOut(duration: 0.25), value: flipped)
         }
-            .scrollTransition(axis: .horizontal) { content, phase in
-                content
-                    .rotation3DEffect(.degrees(reduceMotion ? 0 : phase.value * -58), axis: (x: 0, y: 1, z: 0), perspective: 0.45)
-                    .scaleEffect(1 - min(abs(phase.value), 1) * 0.28)
-                    // 兩側變暗：預設 dim 0.25 時與原本相同（透明度 −0.22、亮度 −0.25）
-                    .opacity(1 - min(abs(phase.value), 2) * dim * 0.88)
-                    .brightness(-min(abs(phase.value), 1) * dim)
-            }
-            .zIndex(album.id == centerID ? 1 : 0)
+            // 旋轉、縮小、變暗、前後順序都由「離中間幾張」決定（D40）
+            .modifier(FlowItemEffect(offset: index - centerIndex, dim: dim, reduceMotion: reduceMotion))
             .onTapGesture { tapped(album) }
             .accessibilityAction(.default) { tapped(album) }
             .accessibilityLabel("\(album.name), \(album.artistName)")
@@ -295,6 +301,27 @@ private struct SnapWhenIdle: ViewModifier {
         } else {
             content
         }
+    }
+}
+
+/// 一張封面的透視效果，由「離中間幾張」決定，越靠近中間的疊在越上面（D40）。
+/// 不用 scrollTransition：LazyHStack 臨時建立的封面拿到的 phase 有時是舊值（不旋轉、原尺寸），加上負間距就會蓋到中間那張
+private struct FlowItemEffect: ViewModifier {
+    let offset: Int
+    let dim: Double
+    let reduceMotion: Bool
+
+    func body(content: Content) -> some View {
+        let distance = CGFloat(abs(offset))
+        let near = min(distance, 1)
+        content
+            .rotation3DEffect(.degrees(reduceMotion ? 0 : -58 * CGFloat(max(-1, min(1, offset)))), axis: (x: 0, y: 1, z: 0), perspective: 0.45)
+            .scaleEffect(1 - near * 0.28)
+            // 兩側變暗：預設 dim 0.25 時透明度 −0.22、亮度 −0.25
+            .opacity(1 - min(distance, 2) * dim * 0.88)
+            .brightness(-near * dim)
+            .zIndex(-Double(distance))
+            .animation(reduceMotion ? nil : Motion.flow, value: offset)
     }
 }
 
