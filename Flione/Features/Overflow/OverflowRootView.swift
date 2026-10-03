@@ -29,6 +29,7 @@ struct OverflowRootView: View {
     /// Magic 排序（"" = 關閉）；選了會暫時取代一般排序
     @AppStorage("FinifyMagicSort") private var magicRaw = ""
     @AppStorage(SettingsKey.wallRounded) private var wallRounded = true
+    @AppStorage(SettingsKey.wallAmbient) private var wallAmbient = true
     private var magic: MagicSort? { MagicSort(rawValue: magicRaw) }
     @State private var openAlbum: Album?
     @State private var scrollToPlaying = 0
@@ -45,7 +46,7 @@ struct OverflowRootView: View {
 
     var body: some View {
         ZStack {
-            AmbientBackground(artwork: app.player.currentTrack?.artwork)
+            AmbientBackground(artwork: app.player.currentTrack?.artwork, enabled: wallAmbient)
             browse
         }
         .onGeometryChange(for: CGSize.self) { $0.size } action: { browseSize = $0 }

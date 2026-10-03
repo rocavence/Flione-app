@@ -25,7 +25,10 @@ enum ThemePreference: String, CaseIterable {
 /// 設定鍵集中定義，避免各處拼錯字串
 enum SettingsKey {
     static let theme = "FinifyTheme"
+    /// Modern 的背景光暈（迷你播放器也跟著這個）
     static let ambient = "FinifyAmbient"
+    /// Infinity 的模糊封面背景
+    static let wallAmbient = "FinifyWallAmbient"
     static let menuBar = "FinifyMenuBar"
     static let floatingOnTop = "FinifyFloatingOnTop"
     static let wallDrift = "FinifyWallDrift"
@@ -47,14 +50,15 @@ enum SettingsKey {
 /// 版面：標題、分頁膠囊、關閉鈕；每一列左邊是名稱與說明，右邊是控制項。
 struct SettingsCard: View {
     enum Tab: String, CaseIterable {
-        case general = "General"
-        case appearance = "Appearance"
-        case jellyfin = "Jellyfin"
+        case general, modern, infinity, coverFlow, jellyfin
 
         var title: LocalizedStringResource {
             switch self {
             case .general: "General"
-            case .appearance: "Appearance"
+            // 模式名稱是產品名，不翻譯
+            case .modern: LocalizedStringResource(stringLiteral: ViewMode.standard.title)
+            case .infinity: LocalizedStringResource(stringLiteral: ViewMode.infinity.title)
+            case .coverFlow: LocalizedStringResource(stringLiteral: ViewMode.coverFlow.title)
             case .jellyfin: "Jellyfin"
             }
         }
@@ -65,22 +69,24 @@ struct SettingsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ZStack {
-                HStack {
-                    Text("Settings").finifyFont(.title).foregroundStyle(FinifyColor.ink)
-                        .accessibilityAddTraits(.isHeader)
-                    Spacer()
-                    CloseButton { app.isSettingsPresented = false }
-                }
-                TabPicker(selection: $tab)
+            HStack {
+                Text("Settings").finifyFont(.title).foregroundStyle(FinifyColor.ink)
+                    .accessibilityAddTraits(.isHeader)
+                Spacer()
+                CloseButton { app.isSettingsPresented = false }
             }
             .padding(.bottom, Spacing.s16)
+            // 五個分頁放在標題下方一整列，不和標題擠在一起
+            TabPicker(selection: $tab)
+                .padding(.bottom, Spacing.s8)
 
             ScrollView {
                 VStack(spacing: 0) {
                     switch tab {
                     case .general: GeneralSettings()
-                    case .appearance: AppearanceSettings()
+                    case .modern: ModernSettings()
+                    case .infinity: InfinitySettings()
+                    case .coverFlow: CoverFlowSettings()
                     case .jellyfin: AccountSettings()
                     }
                 }
@@ -310,17 +316,24 @@ private struct GeneralSettings: View {
     }
 }
 
-private struct AppearanceSettings: View {
+private struct ModernSettings: View {
     @AppStorage(SettingsKey.theme) private var theme: ThemePreference = .system
     @AppStorage(SettingsKey.ambient) private var ambient = true
+
+    var body: some View {
+        SettingRow(title: "Theme", detail: "Light or dark. Infinity and Cover Flow are always dark.") {
+            PillMenu(title: "Theme", selection: $theme, options: ThemePreference.allCases.map { ($0, $0.title) })
+        }
+        SettingToggle(title: "Ambient background", detail: "A glow in the colors of the album behind album and playlist pages.", isOn: $ambient)
+    }
+}
+
+private struct InfinitySettings: View {
+    @AppStorage(SettingsKey.wallAmbient) private var ambient = true
+    @AppStorage(SettingsKey.wallRounded) private var rounded = true
     @AppStorage(SettingsKey.wallDrift) private var wallDrift = true
     @AppStorage(SettingsKey.wallDriftSpeed) private var wallDriftSpeed = 1.0
-    @AppStorage(SettingsKey.wallRounded) private var wallRounded = true
-    @AppStorage(SettingsKey.flowRounded) private var flowRounded = true
-    @AppStorage(SettingsKey.flowDim) private var flowDim = 0.25
-    @AppStorage(SettingsKey.flowSettleDim) private var flowSettleDim = 0.3
     @AppStorage("FinifyWallDensity") private var density = -1
-    @AppStorage("FinifyFlowSize") private var flowSize = -1
 
     /// 漂移：關閉＝0，其餘是速度倍率
     private var drift: Binding<Double> {
@@ -329,16 +342,7 @@ private struct AppearanceSettings: View {
     }
 
     var body: some View {
-        SettingsSectionHeader(title: "Modern")
-        SettingRow(title: "Theme", detail: "Light or dark for Modern. Infinity and Cover Flow are always dark.") {
-            PillMenu(title: "Theme", selection: $theme, options: ThemePreference.allCases.map { ($0, $0.title) })
-        }
-        SettingToggle(title: "Ambient background",
-                      detail: "A glow in the colors of the album behind Modern, and blurred artwork behind Infinity and Cover Flow.",
-                      isOn: $ambient)
-
-        SettingsSectionHeader(title: "Infinity")
-        SettingToggle(title: "Rounded covers", detail: "Turn off for square covers that touch each other, with no gaps.", isOn: $wallRounded)
+        SettingToggle(title: "Rounded covers", detail: "Turn off for square covers that touch each other, with no gaps.", isOn: $rounded)
         SettingRow(title: "Album size", detail: "How large the covers are.") {
             PillMenu(title: "Album size", selection: $density,
                      options: [(-1, "Auto")] + WallDensity.allCases.map { ($0.rawValue, $0.label) })
@@ -346,35 +350,28 @@ private struct AppearanceSettings: View {
         SettingRow(title: "Drift", detail: "How fast the wall moves on its own when the pointer is away.") {
             PillMenu(title: "Drift", selection: drift, options: [(0, "Off"), (0.5, "Slow"), (1, "Normal"), (2, "Fast")])
         }
+        SettingToggle(title: "Ambient background", detail: "The blurred cover of the song that's playing, behind the wall.", isOn: $ambient)
+    }
+}
 
-        SettingsSectionHeader(title: "Cover Flow")
-        SettingToggle(title: "Rounded covers", detail: "Turn off for square covers.", isOn: $flowRounded)
+private struct CoverFlowSettings: View {
+    @AppStorage(SettingsKey.flowRounded) private var rounded = true
+    @AppStorage(SettingsKey.flowDim) private var flowDim = 0.25
+    @AppStorage(SettingsKey.flowSettleDim) private var flowSettleDim = 0.3
+    @AppStorage("FinifyFlowSize") private var flowSize = -1
+
+    var body: some View {
+        SettingToggle(title: "Rounded covers", detail: "Turn off for square covers.", isOn: $rounded)
         SettingRow(title: "Cover size", detail: "How large the center album is.") {
             PillMenu(title: "Cover size", selection: $flowSize,
                      options: [(-1, "Auto")] + (0..<AlbumFlowView.sizeSteps).map { ($0, "\($0 + 1) of \(AlbumFlowView.sizeSteps)") })
         }
-        SettingRow(title: "Dim side covers", detail: "The center cover is always the brightest. Choose how dark the others get as they move away from it.") {
-            PillMenu(title: "Dim side covers", selection: $flowDim, options: [(0, "Off"), (0.15, "Subtle"), (0.25, "Medium"), (0.45, "Strong")])
-        }
         SettingRow(title: "Glow brightness", detail: "The scene is brightest while you switch albums, then settles darker. Choose how dark it settles.") {
             PillMenu(title: "Glow brightness", selection: $flowSettleDim, options: [(0, "Don't dim"), (0.15, "Subtle"), (0.3, "Medium"), (0.5, "Strong")])
         }
-    }
-}
-
-/// 分頁內的小標題（例如 Appearance 裡的 Modern／Infinity／Cover Flow）
-private struct SettingsSectionHeader: View {
-    let title: LocalizedStringKey
-
-    var body: some View {
-        Text(title)
-            .finifyFont(.micro)
-            .textCase(.uppercase)
-            .foregroundStyle(FinifyColor.faint)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, Spacing.s24)
-            .padding(.bottom, Spacing.s4)
-            .accessibilityAddTraits(.isHeader)
+        SettingRow(title: "Dim side covers", detail: "The center cover is always the brightest. Choose how dark the others get as they move away from it.") {
+            PillMenu(title: "Dim side covers", selection: $flowDim, options: [(0, "Off"), (0.15, "Subtle"), (0.25, "Medium"), (0.45, "Strong")])
+        }
     }
 }
 

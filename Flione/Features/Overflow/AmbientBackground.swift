@@ -6,9 +6,10 @@ struct AmbientBackground: View {
     let artwork: ArtworkRef?
     /// 0–1，越高越亮（Fullscreen 用較亮的版本）
     var intensity: Double = 0.55
+    /// 關掉時只留深色底（設定 → Infinity → 背景光暈）
+    var enabled = true
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @AppStorage(SettingsKey.ambient) private var enabled = true
 
     var body: some View {
         ZStack {

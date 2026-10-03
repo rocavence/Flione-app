@@ -316,12 +316,12 @@
         }
       }
     },
-    "A glow in the colors of the album behind Modern, and blurred artwork behind Infinity and Cover Flow.": {
+    "A glow in the colors of the album behind album and playlist pages.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modern 的背景帶上專輯的顏色；Infinity 和 Cover Flow 的背景是模糊的封面。"
+            "value": "專輯頁和播放清單頁的背景，帶上專輯封面的顏色。"
           }
         }
       }
@@ -462,16 +462,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "背景光暈"
-          }
-        }
-      }
-    },
-    "Appearance": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "外觀"
           }
         }
       }
@@ -1392,12 +1382,12 @@
         }
       }
     },
-    "Light or dark for Modern. Infinity and Cover Flow are always dark.": {
+    "Light or dark. Infinity and Cover Flow are always dark.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modern 的淺色或深色。Infinity 和 Cover Flow 固定是深色。"
+            "value": "淺色或深色。Infinity 和 Cover Flow 固定是深色。"
           }
         }
       }
@@ -2722,6 +2712,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "使用者名稱或密碼不正確。請確認後再試一次。"
+          }
+        }
+      }
+    },
+    "The blurred cover of the song that's playing, behind the wall.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面牆後方顯示正在播放歌曲的模糊封面。"
           }
         }
       }

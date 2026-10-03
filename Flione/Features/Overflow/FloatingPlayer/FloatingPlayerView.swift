@@ -3,6 +3,7 @@ import SwiftUI
 
 /// 獨立的浮動播放器：工作時放在螢幕角落。可設定永遠在最上層。
 struct FloatingPlayerView: View {
+    @AppStorage(SettingsKey.ambient) private var ambient = true
     @Environment(AppEnvironment.self) private var app
     @AppStorage(SettingsKey.floatingOnTop) private var alwaysOnTop = true
     @State private var hovering = false
@@ -11,7 +12,7 @@ struct FloatingPlayerView: View {
     var body: some View {
         let track = app.player.currentTrack
         ZStack(alignment: .bottom) {
-            AmbientBackground(artwork: track?.artwork, intensity: 0.9)
+            AmbientBackground(artwork: track?.artwork, intensity: 0.9, enabled: ambient)
             ArtworkView(artwork: track?.artwork, cornerRadius: 0, elevation: .none, fallbackTitle: track?.albumName)
                 .aspectRatio(1, contentMode: .fit)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
