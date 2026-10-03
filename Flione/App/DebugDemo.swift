@@ -9,12 +9,18 @@ import AVFoundation
 ///     -FinifyDemoOpen "<專輯名>"     打開該專輯頁
 ///     -FinifyDemoSearch "<關鍵字>"   打開 ⌘K 並搜尋
 ///     -FinifyDemoSeekToEnd 5        播放後跳到第一首結尾前 5 秒
+///     -FinifyLatencyProbe <檔案>     量測按下播放到出聲的時間（-FinifyDemoPlay 指定專輯，沒指定時隨機）
 @MainActor
 enum DebugDemo {
     static var defaults: UserDefaults { .standard }
 
     static func run(app: AppEnvironment, openAlbum: @escaping (Album) -> Void) async {
         if defaults.bool(forKey: "FinifyMuted") { app.player.muteForTesting() }
+        if defaults.string(forKey: "FinifyLatencyProbe") != nil {
+            for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
+            await latencyProbe(app: app)
+            return
+        }
         if defaults.string(forKey: "FinifyGaplessProbe") != nil {
             for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
             await gaplessProbe(app: app)
@@ -64,6 +70,22 @@ enum DebugDemo {
                 try? lines.joined(separator: "\n").write(toFile: path, atomically: true, encoding: .utf8)
             }
         }
+        NSApp.terminate(nil)
+    }
+
+    /// -FinifyLatencyProbe <輸出檔>：按下播放專輯後，畫面進入播放狀態、取回曲目、真正出聲各花多久（D26）
+    static func latencyProbe(app: AppEnvironment) async {
+        guard let path = defaults.string(forKey: "FinifyLatencyProbe"),
+              let album = defaults.string(forKey: "FinifyDemoPlay").flatMap({ find($0, in: app) }) ?? app.library.albums.randomElement() else { return }
+        let start = CACurrentMediaTime()
+        func ms() -> String { String(format: "%.0f ms", (CACurrentMediaTime() - start) * 1000) }
+        app.player.play(album: album)
+        var lines = ["ui playing: \(ms()), showing “\(app.player.currentTrack?.name ?? "-")”"]
+        while app.player.pending != nil, CACurrentMediaTime() - start < 10 { try? await Task.sleep(for: .milliseconds(2)) }
+        lines.append("tracks loaded: \(ms())")
+        while app.player.debugQueuePlayer.timeControlStatus != .playing, CACurrentMediaTime() - start < 10 { try? await Task.sleep(for: .milliseconds(2)) }
+        lines.append("audio playing: \(ms())")
+        try? lines.joined(separator: "\n").write(toFile: path, atomically: true, encoding: .utf8)
         NSApp.terminate(nil)
     }
 

@@ -234,10 +234,7 @@ struct OverflowRootView: View {
     }
 
     private func play(_ album: Album) {
-        Task {
-            guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
-            app.player.play(tracks)
-        }
+        app.player.play(album: album)
     }
 
 

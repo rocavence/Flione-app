@@ -192,3 +192,12 @@
 * **名稱**：對外名稱改為 Flione（Flione.app、Dock、選單、登入畫面、設定、User-Agent、`flione://` 網址；舊的 `finify://` 仍可用）。模式選擇畫面的說明依《Flione Three Browsing Modes》改為 Presence／Depth／Visual。
 * **保留**：bundle id `app.finify.Finify`、UserDefaults 鍵名與鑰匙圈 service 不變。改這些會讓所有設定、音樂庫快取與登入資訊遺失。
 * **自動登入**：Debug 版與 `scripts/build-release.sh` 建出的測試版（`DEV_LOGIN`），啟動時若找得到這份原始碼 repo 的 `.secrets/`，就直接用它登入，不顯示登入畫面。只記路徑，不把登入資訊打包進 app；其他電腦上沒有這個路徑，照常顯示登入畫面。要建給別人的版本用 `FINIFY_PUBLIC=1 scripts/build-release.sh`。
+
+## D26　按下播放立刻有反應（樂觀播放）
+
+* **背景**：跨格式換曲的 0.1 秒停頓不處理（`docs/spikes/S2-gapless.md` 的「接受現況」）。改為縮短「按下播放到有反應」的等待：以前播放專輯要先等 server 回傳曲目（實測 0.3–1.7 秒），這段時間畫面完全沒變化。
+* **做法**：`PlayerManager.play(album:)` 一按下就暫停目前的歌、用專輯資訊暫代目前曲目（`pending`），播放列、封面牆的「正在播放」、Now Playing 立刻換成這張專輯，按鈕顯示暫停；曲目取回後才真正開始播。緩衝中也算「播放中」，按鈕不會跳回「播放」。
+* **出問題時才提示**：取不到曲目時顯示「Couldn't play …」並恢復成暫停；已開始播但緩衝超過 8 秒時提示檢查連線（不跳歌，連線恢復會自己播）。
+* **暫代曲目**：id 以 `pending:` 開頭（`Track.isPlaceholder`），不能加愛心、不查歌詞；這段時間按暫停會取消這次播放，上一首／下一首不動作。
+* **實測**（`-FinifyLatencyProbe`，隨機 5 張專輯）：畫面進入播放狀態 0–2 ms；取回曲目 0.3–1.7 秒；出聲 1.4–2.8 秒。
+* **範圍**：專輯的播放按鈕（Home、Library、藝人頁、Infinity／Cover Flow）。藝人「全部播放」、曲風與音樂庫隨機播放、`flione://` 仍是取回後才播。

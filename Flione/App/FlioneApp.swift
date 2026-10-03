@@ -118,7 +118,7 @@ struct FinifyCommands: Commands {
                 .keyboardShortcut("s", modifiers: [.command, .option])
             Button("Repeat") { app.player.cycleRepeat() }
                 .keyboardShortcut("r", modifiers: [.command, .option])
-            Button("Favorite Current Song") { if let id = app.player.currentTrack?.id { app.favorites.toggle(id) } }
+            Button("Favorite Current Song") { if let track = app.player.currentTrack, !track.isPlaceholder { app.favorites.toggle(track.id) } }
                 .keyboardShortcut("f", modifiers: [.command, .shift])
                 .disabled(app.player.currentTrack == nil)
             Divider()

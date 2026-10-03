@@ -184,10 +184,7 @@ struct AlbumShelf: View {
     }
 
     private func play(_ album: Album) {
-        Task {
-            guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
-            app.player.play(tracks)
-        }
+        app.player.play(album: album)
     }
 }
 
@@ -275,10 +272,7 @@ private struct HomeHero: View {
 
     private func playAlbum() {
         guard let album else { return }
-        Task {
-            guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
-            app.player.play(tracks)
-        }
+        app.player.play(album: album)
     }
 
     private func shuffleLibrary() {

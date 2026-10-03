@@ -90,6 +90,7 @@ struct LyricsPanel: View {
     private func load(_ track: Track?) async {
         guard let track, let repository = app.repository else { return }
         lyrics = .loading
+        guard !track.isPlaceholder else { return }
         fromLRCLib = false
         do {
             var result = try await repository.lyrics(for: track.id)

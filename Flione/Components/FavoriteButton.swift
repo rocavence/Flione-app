@@ -14,5 +14,6 @@ struct FavoriteButton: View {
             Haptics.perform(.toggle)
             app.favorites.toggle(itemID)
         }
+        .disabled(itemID.hasPrefix(Track.placeholderPrefix))
     }
 }

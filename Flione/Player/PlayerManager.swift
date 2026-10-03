@@ -34,7 +34,10 @@ final class PlayerManager {
         }
     }
 
-    var currentTrack: Track? { queue.current }
+    /// 點播放後、曲目還在向 server 取得時，用專輯資訊暫代目前曲目，畫面立刻進入播放狀態（D26）
+    private(set) var pending: Track?
+    @ObservationIgnored private var pendingTask: Task<Void, Never>?
+    var currentTrack: Track? { pending ?? queue.current }
     var isShuffled: Bool { queue.isShuffled }
     /// Smart Shuffle：shuffle 之外，每隔幾首插入 Jellyfin Instant Mix 推薦的歌（見 D18）
     private(set) var isSmartShuffle = false
@@ -63,9 +66,14 @@ final class PlayerManager {
         }
         observations.append(player.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
             let status = player.timeControlStatus
+            // 佇列播完時 rate 仍是 1，狀態會停在 waiting（noItemToPlay），這不算播放中
+            let waiting = status == .waitingToPlayAtSpecifiedRate && player.reasonForWaitingToPlay != .noItemToPlay
             Task { @MainActor in
-                self?.isPlaying = status == .playing
-                self?.isBuffering = status == .waitingToPlayAtSpecifiedRate
+                guard let self else { return }
+                // 按下播放就算播放中，緩衝不讓按鈕跳回「播放」；正在取曲目時維持使用者按下的狀態
+                if self.pending == nil { self.isPlaying = status == .playing || waiting }
+                self.isBuffering = waiting
+                self.watchStall(waiting)
             }
         })
         observations.append(player.observe(\.currentItem, options: [.new]) { [weak self] _, _ in
@@ -120,6 +128,7 @@ final class PlayerManager {
 
     func play(_ tracks: [Track], startAt index: Int = 0, shuffled: Bool = false) {
         guard !tracks.isEmpty else { return }
+        cancelPending()
         reportStopped()
         let mode = queue.repeatMode
         isSmartShuffle = false
@@ -127,31 +136,77 @@ final class PlayerManager {
         queue.repeatMode = mode
         consecutiveFailures = 0
         rebuildPlayer()
+        start()
+    }
+
+    /// 播放專輯：不等 server 回傳曲目，先暫停目前的歌、把專輯顯示為正在播放；取不到曲目時才提示
+    func play(album: Album, shuffled: Bool = false) {
+        guard let repository else { return }
+        cancelPending()
+        pending = Track(id: Track.placeholderPrefix + album.id, name: album.name, albumID: album.id, albumName: album.name,
+                        artistName: album.artistName, artistID: album.artistID, trackNumber: nil, discNumber: nil,
+                        duration: 0, container: nil, artwork: album.artwork)
+        player.pause()
+        isPlaying = true
+        currentTime = 0
+        duration = 0
+        notice = nil
+        pendingTask = Task {
+            let tracks = try? await repository.tracks(inAlbum: album.id)
+            guard !Task.isCancelled else { return }
+            if let tracks, !tracks.isEmpty {
+                play(tracks, shuffled: shuffled)
+            } else {
+                cancelPending()
+                isPlaying = false
+                notice = PlayerNotice(message: tracks == nil
+                    ? "Couldn't play “\(album.name)”. Check that your music server is reachable."
+                    : "“\(album.name)” has no songs to play.")
+            }
+        }
+    }
+
+    private func cancelPending() {
+        pendingTask?.cancel()
+        pendingTask = nil
+        pending = nil
+    }
+
+    /// 呼叫 player.play() 後 timeControlStatus 要等一下才更新，先讓按鈕顯示播放中
+    private func start() {
         player.play()
+        isPlaying = true
     }
 
     func togglePlayPause() {
+        // 還在取曲目時按暫停：取消這次播放
+        if pending != nil { cancelPending(); isPlaying = false; return }
         // 緩衝中（rate ≠ 0 但尚未出聲）也要能暫停
-        if player.rate != 0 || isPlaying { player.pause(); return }
+        if player.rate != 0 || isPlaying { pause(); return }
         guard currentTrack != nil else { return }
         // 佇列已播完時，從目前曲目重新開始
         if player.currentItem == nil { rebuildPlayer() }
         // 恢復的佇列第一次按播放時才回報
         if reportedTrack == nil { trackStarted() }
-        player.play()
+        start()
     }
 
-    func pause() { player.pause() }
+    func pause() {
+        if pending != nil { cancelPending() }
+        player.pause()
+        isPlaying = false
+    }
 
     func next() {
-        guard queue.advance(automatic: false) != nil else { return }
+        guard pending == nil, queue.advance(automatic: false) != nil else { return }
         reportStopped()
         rebuildPlayer()
-        player.play()
+        start()
     }
 
     /// 播放超過 3 秒時回到開頭；否則上一首
     func previous() {
+        guard pending == nil else { return }
         if currentTime > 3 || queue.index == 0 && repeatMode != .all {
             seek(to: 0)
             return
@@ -159,14 +214,15 @@ final class PlayerManager {
         reportStopped()
         queue.goBack()
         rebuildPlayer()
-        player.play()
+        start()
     }
 
     func jump(toQueuePosition position: Int) {
+        cancelPending()
         reportStopped()
         queue.jump(to: position)
         rebuildPlayer()
-        player.play()
+        start()
     }
 
     func seek(to seconds: TimeInterval) {
@@ -332,7 +388,24 @@ final class PlayerManager {
         notice = PlayerNotice(message: canSkip
             ? "Couldn't play “\(track.name)”. Skipping to the next song."
             : "Couldn't play “\(track.name)”. Check that your music server is reachable.")
-        if canSkip { next() } else { player.pause() }
+        if canSkip { next() } else { pause() }
+    }
+
+    /// 已經按下播放卻一直在緩衝（server 很慢或連不到）時提示；不自動跳歌，連線恢復後會自己開始播
+    @ObservationIgnored private var stallTask: Task<Void, Never>?
+    private static let stallNoticeDelay: Duration = .seconds(8)
+
+    private func watchStall(_ waiting: Bool) {
+        guard waiting else { stallTask?.cancel(); stallTask = nil; return }
+        guard stallTask == nil else { return }
+        let item = activeItem
+        stallTask = Task {
+            try? await Task.sleep(for: Self.stallNoticeDelay)
+            guard !Task.isCancelled else { return }
+            stallTask = nil
+            guard isBuffering, activeItem == item, let track = currentTrack else { return }
+            notice = PlayerNotice(message: "“\(track.name)” is taking a while to load. Check your connection to the music server.")
+        }
     }
 
     func dismissNotice() { notice = nil }
@@ -352,6 +425,7 @@ final class PlayerManager {
 
     /// 登出或切換帳號時：停止播放、清空佇列與 Now Playing
     func stop() {
+        cancelPending()
         reportStopped()
         player.removeAllItems()
         itemEntries.removeAll()
@@ -388,4 +462,10 @@ final class PlayerManager {
         #endif
         Task { await repository?.reportPlaybackStopped(track, position: position) }
     }
+}
+
+extension Track {
+    static let placeholderPrefix = "pending:"
+    /// 曲目還沒取回時暫代的項目（PlayerManager.pending），不能加愛心、查歌詞
+    var isPlaceholder: Bool { id.hasPrefix(Self.placeholderPrefix) }
 }

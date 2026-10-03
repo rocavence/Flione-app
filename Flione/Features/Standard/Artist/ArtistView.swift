@@ -118,12 +118,7 @@ struct AlbumGrid: View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 156, maximum: 220), spacing: Spacing.s20, alignment: .top)], alignment: .leading, spacing: Spacing.s24) {
             if let albums {
                 ForEach(albums) { album in
-                    AlbumCard(album: album, subtitle: subtitle?(album), onOpen: { router.openAlbum(album) }, onPlay: {
-                        Task {
-                            guard let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
-                            app.player.play(tracks)
-                        }
-                    })
+                    AlbumCard(album: album, subtitle: subtitle?(album), onOpen: { router.openAlbum(album) }, onPlay: { app.player.play(album: album) })
                 }
             } else {
                 ForEach(0..<12, id: \.self) { _ in
