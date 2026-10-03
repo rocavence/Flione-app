@@ -17,8 +17,8 @@ struct ModePickerView: View {
             }
             HStack(spacing: Spacing.s24) {
                 ModeCard(mode: .standard, title: "Standard", subtitle: "Your library, organized.\nBrowse, search, and build a queue.") { app.viewMode = .standard }
-                ModeCard(mode: .overflow, title: "Infinity", subtitle: "Your library as an endless wall of albums.\nArtwork first.") { app.viewMode = .infinity }
-                ModeCard(mode: .overflow, title: "Cover Flow", subtitle: "Flip through your albums one by one.\nBig covers, soft reflections.") { app.viewMode = .coverFlow }
+                ModeCard(mode: .infinity, title: "Infinity", subtitle: "Your library as an endless wall of albums.\nArtwork first.") { app.viewMode = .infinity }
+                ModeCard(mode: .coverFlow, title: "Cover Flow", subtitle: "Flip through your albums one by one.\nBig covers, soft reflections.") { app.viewMode = .coverFlow }
             }
             Toggle("Remember my choice", isOn: $app.rememberMode)
                 .toggleStyle(.checkbox)
@@ -32,7 +32,7 @@ struct ModePickerView: View {
 }
 
 private struct ModeCard: View {
-    let mode: AppMode
+    let mode: ViewMode
     let title: String
     let subtitle: String
     let choose: () -> Void
@@ -95,7 +95,9 @@ private struct ModeCard: View {
             .padding(Spacing.s20)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(FinifyColor.paper)
-        case .overflow:
+        case .coverFlow:
+            CoverFlowPreview(albums: Array(sample.prefix(5)))
+        case .infinity:
             // 示意：封面牆
             let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 8)
             LazyVGrid(columns: columns, spacing: 4) {
@@ -107,5 +109,51 @@ private struct ModeCard: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(FinifyColor.Overflow.background)
         }
+    }
+}
+
+/// 示意：Cover Flow——中間一張正面，兩側斜放，下方有淡淡的倒影
+private struct CoverFlowPreview: View {
+    let albums: [Album]
+    private let side: CGFloat = 80
+
+    var body: some View {
+        ZStack {
+            FinifyColor.Overflow.background
+            RadialGradient(colors: [FinifyColor.accent.opacity(0.18), .clear], center: .center, startRadius: 0, endRadius: 150)
+            ZStack {
+                // 由外往內畫，中間那張疊在最上面
+                ForEach([-2, 2, -1, 1, 0], id: \.self) { offset in
+                    if let album = album(at: offset) { cover(album, offset: offset) }
+                }
+            }
+            .offset(y: 10)
+        }
+    }
+
+    private func album(at offset: Int) -> Album? {
+        let index = offset + 2
+        return albums.indices.contains(index) ? albums[index] : nil
+    }
+
+    private func cover(_ album: Album, offset: Int) -> some View {
+        let distance = CGFloat(abs(offset))
+        let x = offset == 0 ? 0 : CGFloat(offset.signum()) * (side * 0.8 + (distance - 1) * side * 0.42)
+        return VStack(spacing: 2) {
+            ArtworkView(artwork: album.artwork, cornerRadius: 3, elevation: .none)
+                .frame(width: side, height: side)
+            // 倒影
+            ArtworkView(artwork: album.artwork, cornerRadius: 3, elevation: .none)
+                .frame(width: side, height: side)
+                .scaleEffect(x: 1, y: -1)
+                .mask(LinearGradient(colors: [.white.opacity(0.28), .clear], startPoint: .top, endPoint: .center))
+                .frame(height: side * 0.4, alignment: .top)
+                .clipped()
+        }
+        .rotation3DEffect(.degrees(Double(-offset.signum()) * 52), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
+        .scaleEffect(offset == 0 ? 1 : 0.84)
+        .brightness(-0.12 * Double(distance))
+        .offset(x: x)
+        .zIndex(-Double(distance))
     }
 }
