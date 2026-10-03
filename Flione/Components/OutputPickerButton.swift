@@ -52,9 +52,11 @@ private struct RoutePicker: NSViewRepresentable {
 final class ScreenAnchor {
     fileprivate weak var view: NSView?
 
+    /// WebKit 的選單依附在主視窗，層級比選單列展開的視窗低；錨點放在展開視窗的下緣，選單往下展開時才不會被蓋住
     var screenPoint: CGPoint? {
         guard let view, let window = view.window else { return nil }
-        return window.convertPoint(toScreen: view.convert(CGPoint(x: view.bounds.midX, y: view.bounds.midY), to: nil))
+        let center = window.convertPoint(toScreen: view.convert(CGPoint(x: view.bounds.midX, y: view.bounds.midY), to: nil))
+        return CGPoint(x: center.x, y: window.frame.minY - 6)
     }
 }
 
