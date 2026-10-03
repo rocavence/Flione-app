@@ -129,7 +129,8 @@ struct AlbumShelf: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s16) {
-            HStack(alignment: .firstTextBaseline) {
+            // 置中對齊：左右箭頭沒有文字基線，用基線對齊會和「重新推薦」上下錯開
+            HStack(alignment: .center) {
                 SectionHeader(title: title, action: action, actionIcon: action == nil ? nil : .refresh)
                 if albums.count > visibleCount {
                     HStack(spacing: Spacing.s4) {

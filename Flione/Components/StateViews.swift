@@ -9,7 +9,8 @@ struct SectionHeader: View {
     var actionIcon: Reicon?
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        // 置中對齊：右側動作按鈕與旁邊的箭頭按鈕同高，用基線對齊會比箭頭低
+        HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).finifyFont(.heading).foregroundStyle(FinifyColor.ink)
                 if let subtitle {
@@ -44,7 +45,8 @@ struct SkeletonBlock: View {
     }
 }
 
-/// 區塊標題右側的動作：小膠囊按鈕（例如「重新推薦」「顯示全部」）
+/// 區塊標題右側的動作（例如「重新推薦」「顯示全部」）：與旁邊的左右箭頭（FinifyIconButton）同一套樣式，
+/// 平常沒有框也沒有底，只有圖示與文字；hover 時出現同樣的圓角底色
 private struct SectionActionButton: View {
     let title: LocalizedStringResource
     let icon: Reicon?
@@ -53,16 +55,15 @@ private struct SectionActionButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: Spacing.s4) {
-                if let icon { FinifyIcon(icon, size: .compact).scaleEffect(0.85) }
-                Text(title).finifyFont(.caption)
+            HStack(spacing: 6) {
+                if let icon { FinifyIcon(icon, size: .compact) }
+                Text(title).finifyFont(.bodyEmphasis)
             }
-            .foregroundStyle(hovering ? FinifyColor.ink : FinifyColor.muted)
-            .padding(.horizontal, Spacing.s12)
+            .foregroundStyle(FinifyColor.ink.opacity(hovering ? 1 : 0.72))
+            .padding(.horizontal, Spacing.s8)
             .frame(height: 28)
-            .background(hovering ? FinifyColor.glassHighlight : FinifyColor.glass, in: Capsule())
-            .overlay(Capsule().strokeBorder(FinifyColor.hairline, lineWidth: 1))
-            .contentShape(Capsule())
+            .background(hovering ? FinifyColor.surface : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+            .contentShape(Rectangle())
         }
         .buttonStyle(PressScaleStyle())
         .onHover { hovering = $0 }
