@@ -6,6 +6,35 @@ import WebKit
 enum GoogleSignIn {
     /// 用 Safari 的 User-Agent，避免 Google 判定為「不安全的瀏覽器」而拒絕登入
     static let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+    /// 藏起通行金鑰（WebAuthn）：一般 app 的 WKWebView 沒有 Apple 只發給瀏覽器的
+    /// `com.apple.developer.web-browser.public-key-credential` 權限，Google 偵測到通行金鑰支援就會走那條路，
+    /// 系統在背景拒絕後頁面停在「請稍候片刻」。拿掉 API，Google 會改走密碼與兩步驟驗證。做法出自 Kaset（MIT）的 LoginPasskeySuppression
+    @MainActor static var hidePasskeys: WKUserScript { WKUserScript(source: """
+        (function () {
+            "use strict";
+            try {
+                delete window.PublicKeyCredential;
+                Object.defineProperty(window, "PublicKeyCredential", { value: undefined, writable: false, configurable: false });
+            } catch (error) {}
+            try {
+                var credentials = window.navigator && window.navigator.credentials;
+                if (!credentials) { return; }
+                var prototype = Object.getPrototypeOf(credentials);
+                var wrap = function (original) {
+                    if (typeof original !== "function") { return original; }
+                    return function (options) {
+                        if (options && options.publicKey) {
+                            return Promise.reject(new DOMException("Passkeys are not available in this app.", "NotAllowedError"));
+                        }
+                        return original.apply(this, arguments);
+                    };
+                };
+                prototype.get = wrap(prototype.get);
+                prototype.create = wrap(prototype.create);
+            } catch (error) {}
+        })();
+        """, injectionTime: .atDocumentStart, forMainFrameOnly: false) }
+
     static let url = URL(string: "https://accounts.google.com/ServiceLogin?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Ddesktop%26next%3Dhttps%253A%252F%252Fmusic.youtube.com%252F")!
 
     @MainActor private static var current: GoogleSignInWindowController?
@@ -32,7 +61,9 @@ private final class GoogleSignInWindowController: NSWindowController, WKNavigati
 
     init(completion: @escaping (Bool) -> Void) {
         self.completion = completion
-        let webView = WKWebView(frame: NSRect(x: 0, y: 0, width: 480, height: 640), configuration: WKWebViewConfiguration())
+        let configuration = WKWebViewConfiguration()
+        configuration.userContentController.addUserScript(GoogleSignIn.hidePasskeys)
+        let webView = WKWebView(frame: NSRect(x: 0, y: 0, width: 480, height: 640), configuration: configuration)
         webView.customUserAgent = GoogleSignIn.userAgent
         let window = NSWindow(contentRect: webView.frame, styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
         window.title = String(localized: "Sign in to YouTube Music")

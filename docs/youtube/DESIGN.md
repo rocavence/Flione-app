@@ -17,8 +17,9 @@ Flione 除了 Jellyfin，也可以用 Google 帳號登入 YouTube Music，用同
 1. 登入畫面的主要按鈕是「用 Google 帳號登入 YouTube Music」；「改用 Jellyfin 伺服器」是次要選項，點了才展開原本的表單。
 2. 按下主要按鈕，開一個獨立的瀏覽器視窗（WKWebView），載入 Google 正式登入頁：
    `accounts.google.com/ServiceLogin?service=youtube…&continue=…music.youtube.com`
-   兩步驟驗證、通行金鑰等都由 Google 的頁面處理。
+   兩步驟驗證由 Google 的頁面處理；通行金鑰無法使用（見下一點）。
 3. 視窗使用 Safari 的 User-Agent，避免 Google 判定為「不安全的瀏覽器」而拒絕登入。
+   頁面載入前先藏起通行金鑰（WebAuthn）API：一般 app 的 WKWebView 沒有 Apple 只發給瀏覽器的通行金鑰權限，Google 偵測到支援就會走通行金鑰，系統在背景拒絕後頁面停在「請稍候片刻」（實測）。藏起來後 Google 改走密碼與兩步驟驗證。
 4. 頁面導到 `music.youtube.com`，且 cookie 中有 `SAPISID` 時，視為登入成功，視窗自動關閉。
 5. 登入資訊就是這些 cookie，存在 app 自己的 WebKit 資料（`WKWebsiteDataStore.default()`），不另外保存密碼。登出時清除 Google 與 YouTube 的 cookie。
 
