@@ -1,5 +1,6 @@
 // 產生 Flione 的 app icon 與選單列 icon（Finity 設計）
 // app icon：設計稿 scripts/icon/finity-icon-source.png 依 macOS icon 格線標準化——824×824 圓角方形置中於 1024 畫布，加上標準陰影。
+//   正方形設計稿整張等比放入，底色取設計稿角落的顏色。
 // 選單列：scripts/icon/menubar-glyph.svg（由 menubar-source.png 以 potrace 描出的向量路徑）。
 // 用法：
 //   swift scripts/icon/make-icon.swift app <設計稿 PNG> <輸出 1024px PNG>
@@ -98,9 +99,18 @@ func contentRect(of image: CGImage) -> CGRect {
     return CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1)
 }
 
+/// 設計稿左上角的顏色，當作圓角方形的底色（白底設計稿就是白色）
+func cornerColor(of image: CGImage) -> CGColor {
+    let ctx = makeContext(1, 1)
+    ctx.draw(image, in: CGRect(x: 0, y: -CGFloat(image.height) + 1, width: CGFloat(image.width), height: CGFloat(image.height)))
+    let p = ctx.data!.assumingMemoryBound(to: UInt8.self)
+    return CGColor(srgbRed: CGFloat(p[0]) / 255, green: CGFloat(p[1]) / 255, blue: CGFloat(p[2]) / 255, alpha: 1)
+}
+
 func appIcon(source: String) -> CGImage {
     let src = NSImage(contentsOfFile: source)!.cgImage(forProposedRect: nil, context: nil, hints: nil)!
-    let art = src.cropping(to: contentRect(of: src))!
+    // 正方形設計稿整張等比放入（白底、留白都保留）；不是正方形的才裁掉四周白邊，避免拉伸變形
+    let art = src.width == src.height ? src : src.cropping(to: contentRect(of: src))!
     let size = 1024
     // macOS icon 格線：824×824 的圓角方形，置中，下方留陰影空間
     let body = CGRect(x: 100, y: 110, width: 824, height: 824)
@@ -109,15 +119,16 @@ func appIcon(source: String) -> CGImage {
     ctx.interpolationQuality = .high
     ctx.saveGState()
     ctx.setShadow(offset: CGSize(width: 0, height: -12), blur: 28, color: color(0x000000, 0.35))
-    ctx.addPath(bodyPath); ctx.setFillColor(color(0x050A1E)); ctx.fillPath()
+    ctx.addPath(bodyPath); ctx.setFillColor(cornerColor(of: art)); ctx.fillPath()
     ctx.restoreGState()
     ctx.saveGState()
     ctx.addPath(bodyPath); ctx.clip()
     ctx.draw(art, in: body)
     ctx.restoreGState()
-    // 細亮邊，讓深色 icon 在深色 Dock 上有輪廓
+    // 細邊：深色 icon 用亮邊、淺色 icon 用暗邊，在 Dock 上都有輪廓
+    let light = (cornerColor(of: art).components?.first ?? 0) > 0.5
     ctx.addPath(CGPath(roundedRect: body.insetBy(dx: 1, dy: 1), cornerWidth: 184, cornerHeight: 184, transform: nil))
-    ctx.setStrokeColor(color(0xFFFFFF, 0.12)); ctx.setLineWidth(2); ctx.strokePath()
+    ctx.setStrokeColor(light ? color(0x000000, 0.08) : color(0xFFFFFF, 0.12)); ctx.setLineWidth(2); ctx.strokePath()
     return ctx.makeImage()!
 }
 
