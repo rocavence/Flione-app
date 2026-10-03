@@ -6,6 +6,7 @@ struct StandardRootView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var router = StandardRouter()
+    @AppStorage(SettingsKey.textComfort) private var comfort = TextComfort.standard
     /// 使用者是否想看到右側 Now Playing 面板（記住上次的選擇）
 
     private var panelVisible: Bool { app.isQueuePresented || app.isLyricsPresented }
@@ -37,6 +38,8 @@ struct StandardRootView: View {
             .animation(Motion.respecting(reduceMotion, Motion.ui), value: panelVisible)
             PlayerBar(onOpenAlbum: openAlbum(id:), onOpenArtist: { router.openArtist(id: $0, name: $1) })
         }
+        // 睫狀肌舒適：側欄、內容、佇列與歌詞、播放列的文字放大；右上角控制與搜尋維持原尺寸
+        .environment(\.finifyTextScale, comfort.scale)
         // 模式切換固定在視窗右上角，位置與 Infinity／Cover Flow 完全相同
         .overlay(alignment: .topTrailing) { ViewControls() }
         .overlay {

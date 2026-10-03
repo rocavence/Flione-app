@@ -46,6 +46,8 @@ enum SettingsKey {
     static let flowSettleDim = "FinifyFlowSettleDim"
     static let trackNotifications = "FinifyTrackNotifications"
     static let onlineLyrics = "FinifyOnlineLyrics"
+    /// 睫狀肌舒適：Modern 文字放大的級數（TextComfort）
+    static let textComfort = "FinifyTextComfort"
 }
 
 /// 設定卡片：浮在主視窗上（⌘, 或側欄齒輪打開，Esc 或點外面關閉）。
@@ -431,10 +433,14 @@ private struct ThemeSwatch: View {
 private struct ModernSettings: View {
     @AppStorage(SettingsKey.theme) private var theme: ThemePreference = .system
     @AppStorage(SettingsKey.ambient) private var ambient = true
+    @AppStorage(SettingsKey.textComfort) private var comfort = TextComfort.standard
 
     var body: some View {
         SettingRow(title: "Theme", detail: "Light or dark. Infinity and Cover Flow are always dark.") {
             PillMenu(title: "Theme", selection: $theme, options: ThemePreference.allCases.map { ($0, $0.title) })
+        }
+        SettingRow(title: "Eye comfort", detail: "Makes titles, menus, and song info a little larger, so long listening sessions are easier on your eyes.") {
+            PillMenu(title: "Eye comfort", selection: $comfort, options: TextComfort.allCases.map { ($0, $0.title) })
         }
         SettingToggle(title: "Ambient background", detail: "A glow in the colors of the album behind album and playlist pages.", isOn: $ambient)
     }

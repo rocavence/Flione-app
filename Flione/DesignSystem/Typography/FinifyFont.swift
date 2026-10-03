@@ -19,18 +19,35 @@ enum FinifyFont {
     /// 小型標籤
     case micro
 
-    var font: Font {
+    var font: Font { font(scale: 1) }
+
+    /// 依「睫狀肌舒適」放大；大標題本來就大，只放大一半的比例，避免撐破固定高度的頁首
+    func font(scale: CGFloat) -> Font {
+        let factor = isLarge ? 1 + (scale - 1) / 2 : scale
+        return .system(size: (size * factor * 2).rounded() / 2, weight: weight)
+    }
+
+    private var size: CGFloat {
         switch self {
-        case .display: .system(size: 44, weight: .semibold)
-        case .title: .system(size: 28, weight: .semibold)
-        case .heading: .system(size: 19, weight: .semibold)
-        case .subheading: .system(size: 14, weight: .medium)
-        case .body: .system(size: 13, weight: .regular)
-        case .bodyEmphasis: .system(size: 13, weight: .medium)
-        case .caption: .system(size: 11, weight: .regular)
-        case .micro: .system(size: 10, weight: .medium)
+        case .display: 44
+        case .title: 28
+        case .heading: 19
+        case .subheading: 14
+        case .body, .bodyEmphasis: 13
+        case .caption: 11
+        case .micro: 10
         }
     }
+
+    private var weight: Font.Weight {
+        switch self {
+        case .display, .title, .heading: .semibold
+        case .subheading, .bodyEmphasis, .micro: .medium
+        case .body, .caption: .regular
+        }
+    }
+
+    private var isLarge: Bool { self == .display || self == .title }
 
     /// 大字收緊字距，小字維持預設
     var tracking: CGFloat {
@@ -44,8 +61,44 @@ enum FinifyFont {
     }
 }
 
+/// 睫狀肌舒適：Modern 的文字放大程度（設定 → Modern）
+enum TextComfort: Int, CaseIterable {
+    case standard, relaxed, moreRelaxed
+
+    /// 每一級放大一點點
+    var scale: CGFloat {
+        switch self {
+        case .standard: 1
+        case .relaxed: 1.08
+        case .moreRelaxed: 1.16
+        }
+    }
+
+    var title: LocalizedStringResource {
+        switch self {
+        case .standard: "Default"
+        case .relaxed: "Relaxed"
+        case .moreRelaxed: "More relaxed"
+        }
+    }
+}
+
+extension EnvironmentValues {
+    /// finifyFont 的放大倍率；只在 Modern 設定（D41）
+    @Entry var finifyTextScale: CGFloat = 1
+}
+
 extension View {
     func finifyFont(_ style: FinifyFont) -> some View {
-        font(style.font).tracking(style.tracking)
+        modifier(FinifyFontModifier(style: style))
+    }
+}
+
+private struct FinifyFontModifier: ViewModifier {
+    let style: FinifyFont
+    @Environment(\.finifyTextScale) private var scale
+
+    func body(content: Content) -> some View {
+        content.font(style.font(scale: scale)).tracking(style.tracking)
     }
 }

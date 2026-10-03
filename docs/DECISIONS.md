@@ -298,3 +298,11 @@
 * **代價**：用觸控板自由滑動時，透視效果跟著「目前置中的那張」逐張變化（有動畫），不是隨手指連續變化。
 * **驗證**：DEBUG 參數 `-FinifyDemoFlowSteps <張數> -FinifyDemoFlowInterval <秒>` 會在 Cover Flow 自動連續往右翻。
 * **怎麼改**：`AlbumFlowView.swift` 的 `FlowItemEffect`。
+
+## D41　Modern 的「睫狀肌舒適」文字放大
+
+* **選擇**：設定 → Modern 新增「睫狀肌舒適」，三級：預設（1×）、放鬆點（1.08×）、更放鬆（1.16×），記在 `FinifyTextComfort`。每級只放大一點點，例如內文 13 → 14 → 15pt、小字 11 → 12 → 12.8pt（四捨五入到 0.5pt）。
+* **範圍**：只在 Modern 套用，涵蓋側欄選單、頁面與區塊標題、專輯與歌曲資訊、佇列與歌詞面板、播放列。右上角的模式切換、搜尋、設定卡片維持原尺寸：它們的大小是固定的，放大會爆版。Infinity 與 Cover Flow 以封面為主，不套用。
+* **大標題**：`display`、`title` 本來就大，只放大一半的比例，避免撐破專輯頁固定高度的頁首。首頁 Hero 的大標題是固定字級，不放大。
+* **做法**：`finifyFont` 讀環境值 `finifyTextScale`，由 `StandardRootView` 依設定提供；所有走 `finifyFont` 的文字自動跟著放大，太長的名稱照原本的規則截斷。
+* **怎麼改**：倍率在 `FinifyFont.swift` 的 `TextComfort`；範圍在 `StandardRootView` 的 `.environment(\.finifyTextScale, …)`。

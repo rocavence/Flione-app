@@ -1127,6 +1127,16 @@
         }
       }
     },
+    "Default": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "預設"
+          }
+        }
+      }
+    },
     "Delete Playlist": {
       "localizations": {
         "zh-Hant": {
@@ -1226,6 +1236,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Flione 介面上的每一個 icon 都來自 Reicon。"
+          }
+        }
+      }
+    },
+    "Eye comfort": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "睫狀肌舒適"
           }
         }
       }
@@ -1762,6 +1782,16 @@
         }
       }
     },
+    "Makes titles, menus, and song info a little larger, so long listening sessions are easier on your eyes.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把標題、選單和歌曲資訊放大一點，聽久了眼睛比較不累。"
+          }
+        }
+      }
+    },
     "Medium": {
       "localizations": {
         "zh-Hant": {
@@ -1811,6 +1841,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ 的其他專輯"
+          }
+        }
+      }
+    },
+    "More relaxed": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更放鬆"
           }
         }
       }
@@ -2399,6 +2439,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "重新整理中⋯"
+          }
+        }
+      }
+    },
+    "Relaxed": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "放鬆點"
           }
         }
       }
