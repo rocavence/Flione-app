@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Standard mode 右側的 Now Playing 面板：大封面、曲名、愛心、進度、控制，下方分頁為 Up Next／Lyrics。
+/// Standard mode 右側的 Now Playing 面板：大封面、曲名、愛心，下方分頁為 Up Next／Lyrics。
+/// 進度與播放控制只放在底部播放列，這裡不重複。
 /// 顯示哪個分頁由 app.isQueuePresented／isLyricsPresented 決定（與播放列上的按鈕同步）。
 struct NowPlayingPanel: View {
     let onOpenAlbum: (String?) -> Void
@@ -23,7 +24,7 @@ struct NowPlayingPanel: View {
             if let track = player.currentTrack {
                 VStack(alignment: .leading, spacing: Spacing.s16) {
                     ArtworkView(artwork: track.artwork, elevation: .playing, fallbackTitle: track.albumName)
-                        .frame(maxWidth: 220)
+                        .frame(maxWidth: 280)
                         .frame(maxWidth: .infinity)
                         .onTapGesture { onOpenAlbum(track.albumID) }
                         .accessibilityAddTraits(.isButton)
@@ -43,20 +44,6 @@ struct NowPlayingPanel: View {
                         Spacer(minLength: 0)
                         FavoriteButton(itemID: track.id, name: track.name, size: .standard)
                     }
-                    VStack(spacing: 2) {
-                        ProgressBar(value: player.progress) { player.seek(to: $0 * player.duration) }
-                            .accessibilityLabel("Playback position")
-                        HStack {
-                            Text(player.currentTime.formattedDuration)
-                            Spacer()
-                            Text(player.duration.formattedDuration)
-                        }
-                        .finifyFont(.caption)
-                        .monospacedDigit()
-                        .foregroundStyle(FinifyColor.faint)
-                    }
-                    PlaybackControls()
-                        .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, Spacing.s20)
                 .padding(.bottom, Spacing.s16)
