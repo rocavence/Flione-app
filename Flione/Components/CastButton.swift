@@ -7,6 +7,8 @@ struct CastButton: View {
 
     var body: some View {
         let youtube = app.session?.isYouTube == true
+        // 不能用時（YouTube Music、還沒找到裝置）停用，外觀與其他停用的按鈕一致
+        let unavailable = app.cast.activeDevice == nil && (youtube || app.cast.devices.isEmpty)
         Menu {
             if youtube {
                 Text("Casting works with Jellyfin only")
@@ -35,10 +37,14 @@ struct CastButton: View {
                 .frame(width: 32, height: 32)
                 .contentShape(Rectangle())
         }
-        .menuStyle(.borderlessButton)
+        // borderlessButton 會把圖示畫成系統預設的黑色；button＋plain 才照 Flione 的顏色畫
+        .menuStyle(.button)
+        .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
-        .help(Text(app.cast.activeDevice.map { "Casting to \($0.name)" } ?? "Cast"))
+        .disabled(unavailable)
+        .opacity(unavailable ? 0.35 : 1)
+        .help(Text(youtube ? "Casting works with Jellyfin only" : app.cast.activeDevice.map { "Casting to \($0.name)" } ?? (app.cast.devices.isEmpty ? "Looking for cast devices…" : "Cast")))
         .accessibilityLabel(Text("Cast"))
         .onAppear { app.cast.startDiscovery() }
     }

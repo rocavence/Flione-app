@@ -105,6 +105,16 @@ struct RootView: View {
                 .transition(.opacity)
             }
         }
+        #if DEBUG
+        // -FinifyDemoMenuBar YES：把選單列展開的畫面疊在主視窗右上角，方便截圖檢查（選單列無法自動點開）
+        .overlay(alignment: .topTrailing) {
+            if UserDefaults.standard.bool(forKey: "FinifyDemoMenuBar") {
+                MenuBarPlayer()
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .padding(Spacing.s48)
+            }
+        }
+        #endif
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isSettingsPresented)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.player.notice)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.mode)
