@@ -91,22 +91,6 @@ final class AppEnvironment {
     var newPlaylistTracks: [Track]?
     /// `finify://album/<id>` 要打開的專輯；由目前的 mode 打開後清掉
     var requestedAlbumID: String?
-    /// 從 Standard 進入 Fullscreen 時記住原本的 mode，離開時回去
-    var fullscreenReturnMode: AppMode?
-
-    /// 從任何 mode 進入 Overflow 的 Fullscreen
-    func enterFullscreenPlayer() {
-        guard player.currentTrack != nil else { return }
-        if mode != .overflow {
-            fullscreenReturnMode = mode
-            mode = .overflow
-        }
-        isFullscreenRequested = true
-    }
-
-    var isFullscreenRequested = false
-    /// Overflow 的 Fullscreen 播放器是否開著
-    var isImmersive = false
     var isQueuePresented = false {
         didSet { if isQueuePresented { isLyricsPresented = false } }
     }

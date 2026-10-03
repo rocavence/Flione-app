@@ -146,7 +146,7 @@
   * Infinity：原本 Overflow 的封面牆（Wall）。
   * Cover Flow：原本 Overflow 的 Flow。
 * **位置固定**：三段切換＋全螢幕（`ViewControls`）在三種模式都固定在視窗右上角，頂部列高度同為 52pt、右邊距 16pt。Standard 的 Now Playing 面板打開時也不會把它往左推；面板的關閉鈕因此移到面板左上角。
-* **全螢幕**：按鈕讓整個視窗照目前的畫面進入 macOS 全螢幕（等同 ⌃⌘F），不再是只顯示一首歌的畫面。只顯示一首歌的大畫面仍保留，改名「Now Playing view」，入口在播放列（圖示與全螢幕不同）。
+* **全螢幕**：按鈕讓整個視窗照目前的畫面進入 macOS 全螢幕（等同 ⌃⌘F）。原本「只顯示一首歌的全螢幕」（Immersive／Now Playing view）依使用者要求整個移除，連同播放列上的入口、Esc 處理與「全螢幕時隱藏控制項」設定。
 * **移除**：Overflow 原本的 Wall／Flow／Recent 分段控制、側欄的 Overflow 項目、設定裡的 Layout 選項。Recent（最近播放專輯牆）不在三種模式內，先移除；首頁的 Recently Played 仍在。
 * **程式**：內部仍是 `AppMode.standard／overflow` 加 `OverflowLayout.wall／flow`，使用者看到的是 `ViewMode`（`AppEnvironment.viewMode`）。
 * **怎麼改**：`ModeSwitch`、`FullscreenButton`（`StandardRootView.swift`）、`ViewMode`（`AppEnvironment.swift`）。

@@ -10,7 +10,7 @@ enum Motion {
     static let artwork = Animation.spring(response: 0.45, dampingFraction: 0.86)
     /// Ambient 背景（2–8 s）
     static let ambient = Animation.easeInOut(duration: 3.0)
-    /// Fullscreen 控制項淡出
+    /// 迷你播放器控制項淡入淡出
     static let controlsFade = Animation.easeInOut(duration: 0.6)
 
     /// Reduce Motion 時以短 crossfade 取代

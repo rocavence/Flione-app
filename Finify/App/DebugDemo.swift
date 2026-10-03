@@ -8,13 +8,12 @@ import AVFoundation
 ///     -FinifyDemoPlay "<專輯名>"     播放該專輯
 ///     -FinifyDemoOpen "<專輯名>"     打開該專輯頁
 ///     -FinifyDemoSearch "<關鍵字>"   打開 ⌘K 並搜尋
-///     -FinifyDemoImmersive YES      Overflow 進入 Fullscreen
 ///     -FinifyDemoSeekToEnd 5        播放後跳到第一首結尾前 5 秒
 @MainActor
 enum DebugDemo {
     static var defaults: UserDefaults { .standard }
 
-    static func run(app: AppEnvironment, openAlbum: @escaping (Album) -> Void, immersive: (() -> Void)? = nil) async {
+    static func run(app: AppEnvironment, openAlbum: @escaping (Album) -> Void) async {
         if defaults.bool(forKey: "FinifyMuted") { app.player.muteForTesting() }
         if defaults.string(forKey: "FinifyGaplessProbe") != nil {
             for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
@@ -50,10 +49,6 @@ enum DebugDemo {
             if let root = NSApp.windows.first(where: \.isVisible)?.contentView { dump(root, depth: 0) }
         }
         if defaults.string(forKey: "FinifySoak") != nil { await soak(app: app) }
-        if defaults.bool(forKey: "FinifyDemoImmersive") {
-            try? await Task.sleep(for: .seconds(1))
-            immersive?()
-        }
     }
 
     /// -FinifySoak <輸出檔>：連續換曲 40 次（每 8 秒一次），記錄記憶體，用來找長時間使用的洩漏

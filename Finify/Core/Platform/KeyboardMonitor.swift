@@ -20,11 +20,6 @@ final class KeyboardMonitor {
                 if app.isSearchPresented { app.isSearchPresented = false; return nil }
                 if app.isQueuePresented { app.isQueuePresented = false; return nil }
                 if app.isLyricsPresented { app.isLyricsPresented = false; return nil }
-                // Fullscreen 播放器裡沒有取得焦點的元件，onExitCommand 收不到 Esc，由這裡離開全螢幕
-                if app.isImmersive, let window = NSApp.keyWindow, window.styleMask.contains(.fullScreen) {
-                    window.toggleFullScreen(nil)
-                    return nil
-                }
                 return event
             default:
                 return event

@@ -17,7 +17,6 @@ struct OverflowRootView: View {
     /// 排序結果只在專輯清單或排序方式改變時重算
     @State private var sortedAlbums: [Album] = []
     @State private var openAlbum: Album?
-    @State private var immersive = false
     @State private var scrollToPlaying = 0
     @State private var browseWidth: CGFloat = 1360
 
@@ -31,27 +30,18 @@ struct OverflowRootView: View {
     var body: some View {
         ZStack {
             AmbientBackground(artwork: app.player.currentTrack?.artwork)
-            if immersive {
-                ImmersiveView(onExit: exitImmersive)
-                    .transition(.opacity)
-            } else {
-                browse
-                    .transition(.opacity)
-            }
+            browse
         }
         .environment(\.overflowStyle, true)
         .environment(\.colorScheme, .dark)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { browseWidth = $0 }
-        .animation(Motion.respecting(reduceMotion, Motion.ui), value: immersive)
-        .onChange(of: immersive, initial: true) { app.isImmersive = immersive }
-        .onDisappear { app.isImmersive = false }
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
         .task { await app.library.refreshIfNeeded() }
         .onChange(of: app.library.albums, initial: true) { sortedAlbums = sort.apply(to: app.library.albums) }
         .onChange(of: sort) { sortedAlbums = sort.apply(to: app.library.albums) }
         #if DEBUG || BENCHMARK
-        .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }, immersive: enterImmersive) }
+        .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }) }
         #endif
         .onChange(of: app.requestedAlbumID, initial: true) {
             guard let id = app.requestedAlbumID else { return }
@@ -61,14 +51,6 @@ struct OverflowRootView: View {
             } else {
                 Task { if let album = try? await app.repository?.album(id: id) { openAlbum = album } }
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { _ in
-            if immersive { exitImmersive() }
-        }
-        .onChange(of: app.isFullscreenRequested, initial: true) {
-            guard app.isFullscreenRequested else { return }
-            app.isFullscreenRequested = false
-            enterImmersive()
         }
     }
 
@@ -107,7 +89,7 @@ struct OverflowRootView: View {
             VStack(spacing: 0) {
                 topBar
                 Spacer()
-                if openAlbum == nil { NowPlayingPill(onOpen: openPlayingAlbum, onImmersive: enterImmersive) }
+                if openAlbum == nil { NowPlayingPill(onOpen: openPlayingAlbum) }
             }
 
             // 右下角：Flow 的封面大小滑桿、回到正在播放的專輯（封面牆與 Album Flow）
@@ -266,27 +248,11 @@ struct OverflowRootView: View {
         guard let id = playingAlbumID else { return }
         openAlbum = app.library.albums.first { $0.id == id }
     }
-
-    private func enterImmersive() {
-        immersive = true
-        if let window = NSApp.keyWindow, !window.styleMask.contains(.fullScreen) { window.toggleFullScreen(nil) }
-    }
-
-    private func exitImmersive() {
-        immersive = false
-        if let window = NSApp.keyWindow, window.styleMask.contains(.fullScreen) { window.toggleFullScreen(nil) }
-        // 從 Standard 進來的就回到 Standard
-        if let previous = app.fullscreenReturnMode {
-            app.fullscreenReturnMode = nil
-            app.mode = previous
-        }
-    }
 }
 
 /// Overflow 底部浮動的 now playing：封面、曲名、控制、進度
 private struct NowPlayingPill: View {
     let onOpen: () -> Void
-    let onImmersive: () -> Void
     @Environment(AppEnvironment.self) private var app
 
     var body: some View {
@@ -307,7 +273,6 @@ private struct NowPlayingPill: View {
                         .frame(width: 300)
                 }
                 FinifyIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) { app.isQueuePresented.toggle() }
-                FinifyIconButton(icon: .maximizeSquare, label: "Now Playing view", action: onImmersive)
                 VolumeControl()
             }
             .padding(.horizontal, Spacing.s16)

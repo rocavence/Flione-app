@@ -73,4 +73,3 @@ power
 gps
 infinite
 carousel-h
-maximize-square

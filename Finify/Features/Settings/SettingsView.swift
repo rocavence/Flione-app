@@ -18,7 +18,6 @@ enum ThemePreference: String, CaseIterable {
 enum SettingsKey {
     static let theme = "FinifyTheme"
     static let ambient = "FinifyAmbient"
-    static let autoHideControls = "FinifyAutoHideControls"
     static let menuBar = "FinifyMenuBar"
     static let floatingOnTop = "FinifyFloatingOnTop"
     static let wallDrift = "FinifyWallDrift"
@@ -80,7 +79,6 @@ private struct GeneralSettings: View {
 private struct AppearanceSettings: View {
     @AppStorage(SettingsKey.theme) private var theme: ThemePreference = .system
     @AppStorage(SettingsKey.ambient) private var ambient = true
-    @AppStorage(SettingsKey.autoHideControls) private var autoHide = true
     @AppStorage(SettingsKey.wallDrift) private var wallDrift = true
     @AppStorage("FinifyWallDensity") private var density = WallDensity.medium.rawValue
 
@@ -100,7 +98,6 @@ private struct AppearanceSettings: View {
                 }
                 Toggle("Ambient background", isOn: $ambient)
                 Toggle("Drift album wall when the pointer is away", isOn: $wallDrift)
-                Toggle("Hide controls in fullscreen", isOn: $autoHide)
             }
         }
         .formStyle(.grouped)
