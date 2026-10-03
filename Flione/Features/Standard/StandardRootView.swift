@@ -21,8 +21,9 @@ struct StandardRootView: View {
                 // 中間欄吃掉剩餘寬度，不讓子視圖把側欄和面板擠出視窗
                 .frame(minWidth: 0, maxWidth: .infinity)
                 .clipped()
-                .background(ContentGlow(artwork: glowArtwork))
             }
+            // 光暈鋪在側欄與內容底下：側欄是半透明的，底色跟著內容頁變（與 Kaset 相同）
+            .background(ContentGlow(artwork: glowArtwork))
             // 佇列與歌詞：與 Infinity／Cover Flow 相同的浮層，浮在內容右側
             .overlay(alignment: .trailing) {
                 if panelVisible {

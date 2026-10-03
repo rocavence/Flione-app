@@ -205,7 +205,7 @@
 ## D27　Modern 的背景光暈與側欄帳號區（參考 Kaset）
 
 * **光暈**：主要內容後面依封面上色，做法參考 Kaset 的 `AccentBackground`。深色模式頂端是封面主色往下淡出，左上角再疊一層放射光；淺色模式只在頂端淡淡上色。顏色從 BlurHash 解成 2×1 取左右兩色，不額外下載圖片。
-* **顏色來源**：只有專輯頁、playlist 頁，用該頁封面（與 Kaset 相同）。其他頁不上色：曾試過用正在播放的歌，封面偏灰時首頁整片變髒，也和首頁 Hero 衝突。只在主要內容區，側欄與播放列維持原本的面板色。
+* **顏色來源**：只有專輯頁、playlist 頁，用該頁封面（與 Kaset 相同）。其他頁不上色：曾試過用正在播放的歌，封面偏灰時首頁整片變髒，也和首頁 Hero 衝突。光暈鋪在側欄與內容底下，側欄是半透明材質（ultraThinMaterial ＋ 30% 面板色），底色跟著內容頁的光暈變（與 Kaset 相同）；播放列維持原本的面板色。
 * **開關**：沿用設定的「Ambient background」，Modern 與 Infinity／Cover Flow 共用。
 * **側欄底部**：登入者頭像（Jellyfin 使用者圖片，沒有時顯示名字第一個字）、名稱、server 名稱；點一下打開帳號選單（重新整理音樂庫、設定、登出）。設定入口只放在選單裡，側欄不另放齒輪。
 * **怎麼改**：`Features/Standard/ContentGlow.swift`、`StandardSidebar.swift` 的 `SidebarProfile`。

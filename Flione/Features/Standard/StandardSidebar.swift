@@ -11,7 +11,13 @@ struct StandardSidebar: View {
             SidebarProfile()
         }
         .frame(width: 220)
-        .background(FinifyColor.panel)
+        // 半透明：透出底下內容頁的背景光暈（D27）
+        .background {
+            ZStack {
+                Rectangle().fill(.ultraThinMaterial)
+                FinifyColor.panel.opacity(0.3)
+            }
+        }
         .overlay(alignment: .trailing) { FinifyColor.hairline.frame(width: 1) }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Sidebar")
