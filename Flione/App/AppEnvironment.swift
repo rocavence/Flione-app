@@ -35,6 +35,19 @@ enum ViewMode: CaseIterable, Sendable {
     }
 }
 
+/// 音樂來源（D39）：Jellyfin 伺服器或 YouTube Music，可隨時切換，兩邊的登入都保留
+enum MusicSource: String, CaseIterable, Sendable {
+    case jellyfin, youtube
+
+    /// 產品名稱，不翻譯
+    var title: String {
+        switch self {
+        case .jellyfin: "Jellyfin"
+        case .youtube: "YouTube Music"
+        }
+    }
+}
+
 /// App 層的狀態與依賴：登入、repository、artwork、播放器、目前 mode。
 @MainActor @Observable
 final class AppEnvironment {
@@ -123,8 +136,16 @@ final class AppEnvironment {
         let notifier = TrackNotifier { [weak self] in self?.images }
         self.notifier = notifier
         player.onTrackChange = { notifier.trackChanged($0) }
-        if let session = sessionStore.load() { activate(session) }
-        else { Task { await restoreYouTube() } }
+        // 第一次開啟：有 Jellyfin 登入就用 Jellyfin，沒有就用 YouTube Music
+        let stored = sessionStore.load()
+        source = UserDefaults.standard.string(forKey: Self.sourceKey).flatMap(MusicSource.init) ?? (stored != nil ? .jellyfin : .youtube)
+        if source == .jellyfin, let stored {
+            activate(stored)
+            // 背景確認 YouTube Music 是否也登入著（設定裡顯示、切換用）；沒登入過的話不會連網
+            Task { await youtube.restore() }
+        } else {
+            Task { await restoreYouTube() }
+        }
         expiryObserver = NotificationCenter.default.addObserver(forName: .finifySessionExpired, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, self.session != nil else { return }
@@ -178,13 +199,37 @@ final class AppEnvironment {
     }
 
     func signIn(_ session: JellyfinSession) throws {
-        if self.session?.isYouTube == true { signOut() }
+        // 切換來源不登出另一邊（YouTube 的 cookie 保留）
+        if self.session != nil { deactivate() }
         try sessionStore.save(session)
         signOutReason = nil
         activate(session)
     }
 
-    // MARK: - YouTube Music（youtube-music 分支）
+    // MARK: - 音樂來源（D39）
+
+    private static let sourceKey = "FinifySource"
+
+    /// 使用者選的音樂來源；沒登入時登入畫面也顯示這一邊
+    var source: MusicSource = .youtube {
+        didSet { UserDefaults.standard.set(source.rawValue, forKey: Self.sourceKey) }
+    }
+
+    /// Jellyfin 是否有保存的登入（切換時不用重新登入）
+    var hasJellyfinAccount: Bool { sessionStore.load() != nil }
+
+    /// 切換音樂來源：暫停目前這一邊（不登出），已登入過的那一邊直接連線，沒登入過就顯示它的登入畫面
+    func switchSource(to target: MusicSource) async {
+        guard session == nil || source != target else { return }
+        if session != nil { deactivate() }
+        source = target
+        switch target {
+        case .jellyfin: if let stored = sessionStore.load() { activate(stored) }
+        case .youtube: await restoreYouTube()
+        }
+    }
+
+    // MARK: - YouTube Music
 
     /// 登入視窗完成後：確認帳號並切到 YouTube Music
     func signInYouTube() async {
@@ -204,12 +249,17 @@ final class AppEnvironment {
                                  userName: name, accessToken: "", source: "youtube", avatar: avatar))
     }
 
+    /// 登出目前的音樂來源；另一邊的登入保留
     func signOut(reason: String? = nil) {
         signOutReason = reason
-        if session?.isYouTube == true { Task { await youtube.signOut() } }
-        player.stop()
+        if session?.isYouTube == true { Task { await youtube.signOut() } } else { sessionStore.clear() }
         try? FileManager.default.removeItem(at: playbackFile)
-        sessionStore.clear()
+        deactivate()
+    }
+
+    /// 停止播放、清掉目前來源的資料，但不清除登入
+    private func deactivate() {
+        player.stop()
         session = nil
         repository = nil
         images = nil
@@ -247,6 +297,7 @@ final class AppEnvironment {
 
     private func activate(_ session: JellyfinSession) {
         self.session = session
+        source = session.isYouTube ? .youtube : .jellyfin
         let repository: any MusicRepository
         if session.isYouTube {
             repository = YouTubeMusicRepository()

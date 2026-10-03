@@ -14,6 +14,11 @@ final class YouTubeAccount {
 
     private(set) var state: State = .signedOut
 
+    var isFailed: Bool {
+        if case .failed = state { return true }
+        return false
+    }
+
     var isActive: Bool {
         if case .connected = state { return true }
         return false

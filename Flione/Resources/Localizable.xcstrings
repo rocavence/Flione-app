@@ -27,6 +27,16 @@
         }
       }
     },
+    "%@ on %@ (%@)": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%2$@ 上的 %1$@（%3$@）"
+          }
+        }
+      }
+    },
     "%@ on this Mac. Covers download again when needed.": {
       "localizations": {
         "zh-Hant": {
@@ -202,7 +212,7 @@
         }
       }
     },
-    "%lld albums. Refresh after adding music on the server.": {
+    "%lld albums. Refresh after adding music.": {
       "localizations": {
         "en": {
           "variations": {
@@ -210,13 +220,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "%lld album. Refresh after adding music on the server."
+                  "value": "%lld album. Refresh after adding music."
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "%lld albums. Refresh after adding music on the server."
+                  "value": "%lld albums. Refresh after adding music."
                 }
               }
             }
@@ -225,7 +235,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 張專輯。在伺服器加入新音樂後請重新整理。"
+            "value": "%lld 張專輯。加入新音樂後請重新整理。"
           }
         }
       }
@@ -432,16 +442,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "專輯"
-          }
-        }
-      }
-    },
-    "Albums in your library": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "音樂庫中的專輯"
           }
         }
       }
@@ -822,6 +822,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "連線到你的 Jellyfin 伺服器，把音樂庫帶進來。"
+          }
+        }
+      }
+    },
+    "Connect your own Jellyfin server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線到你自己的 Jellyfin 伺服器。"
           }
         }
       }
@@ -1446,6 +1456,16 @@
         }
       }
     },
+    "In use": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用中"
+          }
+        }
+      }
+    },
     "Infinity": {
       "shouldTranslate": false
     },
@@ -1535,16 +1555,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "由亮到暗"
-          }
-        }
-      }
-    },
-    "Liked songs": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "喜歡的歌曲"
           }
         }
       }
@@ -1695,6 +1705,16 @@
         }
       }
     },
+    "Music Source": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音樂來源"
+          }
+        }
+      }
+    },
     "Mute": {
       "localizations": {
         "zh-Hant": {
@@ -1811,16 +1831,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "一般"
-          }
-        }
-      }
-    },
-    "Not connected": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "尚未連線"
           }
         }
       }
@@ -2473,16 +2483,6 @@
         }
       }
     },
-    "Server address": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "伺服器位址"
-          }
-        }
-      }
-    },
     "Settings": {
       "localizations": {
         "zh-Hant": {
@@ -2603,6 +2603,16 @@
         }
       }
     },
+    "Sign In": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入"
+          }
+        }
+      }
+    },
     "Sign Out": {
       "localizations": {
         "zh-Hant": {
@@ -2643,16 +2653,6 @@
         }
       }
     },
-    "Sign in to your Jellyfin server first.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "請先登入你的 Jellyfin 伺服器。"
-          }
-        }
-      }
-    },
     "Sign in with YouTube Music, or connect your own Jellyfin server.": {
       "localizations": {
         "zh-Hant": {
@@ -2663,22 +2663,42 @@
         }
       }
     },
-    "Sign out": {
+    "Sign in with your Google account.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "登出"
+            "value": "用你的 Google 帳號登入。"
           }
         }
       }
     },
-    "Signed in to %@": {
+    "Sign out of %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出 %@"
+          }
+        }
+      }
+    },
+    "Signed in as %@": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "已登入 %@"
+          }
+        }
+      }
+    },
+    "Signed in. Switch to play from your server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已登入。切換後就能播放伺服器上的音樂。"
           }
         }
       }
@@ -2843,12 +2863,12 @@
         }
       }
     },
-    "Stops playback and returns to the sign-in screen.": {
+    "Stops playback. Your other music source stays signed in.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "停止播放並回到登入畫面。"
+            "value": "停止播放。另一個音樂來源的登入會保留。"
           }
         }
       }
@@ -2889,6 +2909,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "智慧隨機播放推薦的歌曲"
+          }
+        }
+      }
+    },
+    "Switch": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切換"
+          }
+        }
+      }
+    },
+    "Switch to %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切換到 %@"
           }
         }
       }
@@ -3133,16 +3173,6 @@
         }
       }
     },
-    "Use a Jellyfin server instead": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "改用 Jellyfin 伺服器"
-          }
-        }
-      }
-    },
     "Username": {
       "localizations": {
         "zh-Hant": {
@@ -3212,9 +3242,6 @@
           }
         }
       }
-    },
-    "YouTube Music": {
-      "shouldTranslate": false
     },
     "Your library is empty.": {
       "localizations": {

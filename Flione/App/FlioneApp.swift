@@ -63,10 +63,11 @@ struct RootView: View {
         Group {
             if app.session == nil {
                 // youtube-music 分支：沒有 Jellyfin 時，YouTube Music 登入後的狀態另外處理
-                if app.youtube.state == .signedOut {
-                    ConnectView()
-                } else {
+                // YouTube Music 連線中或連線失敗時顯示狀態畫面；其他情況（含 Jellyfin）是登入畫面
+                if app.source == .youtube, app.youtube.state == .checking || app.youtube.isFailed {
                     YouTubeGateView()
+                } else {
+                    ConnectView()
                 }
             } else if let mode = app.mode {
                 switch mode {
@@ -77,8 +78,8 @@ struct RootView: View {
                 ModePickerView()
             }
         }
-        // 換配色：重建畫面，所有顏色依新配色重新取值
-        .id(app.colorTheme)
+        // 換配色或切換音樂來源：重建畫面，顏色重新取值、各頁用新的資料來源重新載入（例如首頁）
+        .id("\(app.colorTheme)|\(app.session?.source ?? "jellyfin")|\(app.session?.userID ?? "")")
         .transition(.opacity)
         .overlay(alignment: .bottom) {
             if let message = app.favorites.failureMessage {

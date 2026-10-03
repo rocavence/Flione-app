@@ -14,8 +14,8 @@ struct ConnectView: View {
     @State private var emblemShown = false
     @State private var contentShown = false
     @State private var breathing = false
-    /// 這個分支以 YouTube Music 為主要登入方式；Jellyfin 表單點「改用 Jellyfin 伺服器」才展開
-    @State private var showsJellyfin = false
+    /// 目前選的音樂來源（上方的二選一切換，選擇會記住，D39）
+    private var showsJellyfin: Bool { app.source == .jellyfin }
 
     private enum Field { case server, user, password }
 
@@ -39,6 +39,10 @@ struct ConnectView: View {
             .padding(.bottom, Spacing.s40)
             .opacity(contentShown ? 1 : 0)
             .offset(y: contentShown ? 0 : 6)
+
+            SourcePicker()
+                .padding(.bottom, Spacing.s24)
+                .opacity(contentShown ? 1 : 0)
 
             Group {
             if showsJellyfin {
@@ -109,14 +113,6 @@ struct ConnectView: View {
                 .finifyFont(.caption)
                 .foregroundStyle(FinifyColor.muted)
                 .multilineTextAlignment(.center)
-            Button("Use a Jellyfin server instead") {
-                withAnimation(Motion.ui) { showsJellyfin = true }
-                focus = server.isEmpty ? .server : .user
-            }
-            .buttonStyle(.plain)
-            .finifyFont(.body)
-            .foregroundStyle(FinifyColor.accent)
-            .padding(.top, Spacing.s8)
         }
         .frame(width: 320)
     }
@@ -195,5 +191,33 @@ struct ConnectView: View {
                 errorMessage = String(localized: "The server answered, but something went wrong. Try again in a moment.")
             }
         }
+    }
+}
+
+/// 登入畫面上方的音樂來源二選一：YouTube Music｜Jellyfin
+private struct SourcePicker: View {
+    @Environment(AppEnvironment.self) private var app
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(MusicSource.allCases.reversed(), id: \.self) { source in
+                let selected = app.source == source
+                Button {
+                    withAnimation(Motion.ui) { app.source = source }
+                } label: {
+                    Text(verbatim: source.title)
+                        .finifyFont(selected ? .bodyEmphasis : .body)
+                        .foregroundStyle(selected ? FinifyColor.onPrimary : FinifyColor.muted)
+                        .padding(.horizontal, Spacing.s16)
+                        .frame(height: 30)
+                        .background(selected ? FinifyColor.primary : .clear, in: Capsule())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selected ? .isSelected : [])
+            }
+        }
+        .padding(3)
+        .background(FinifyColor.glassHighlight, in: Capsule())
     }
 }

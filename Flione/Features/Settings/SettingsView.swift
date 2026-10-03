@@ -61,13 +61,19 @@ struct SettingsCard: View {
             case .modern: LocalizedStringResource(stringLiteral: ViewMode.standard.title)
             case .infinity: LocalizedStringResource(stringLiteral: ViewMode.infinity.title)
             case .coverFlow: LocalizedStringResource(stringLiteral: ViewMode.coverFlow.title)
-            case .jellyfin: "Server"
+            case .jellyfin: "Music Source"
             }
         }
     }
 
     @Environment(AppEnvironment.self) private var app
-    @State private var tab: Tab = .general
+    @State private var tab: Tab = {
+        #if DEBUG
+        // -FinifyDemoSettingsTab <分頁>：截圖用，直接打開指定分頁
+        if let raw = UserDefaults.standard.string(forKey: "FinifyDemoSettingsTab"), let tab = Tab(rawValue: raw) { return tab }
+        #endif
+        return .general
+    }()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -468,32 +474,67 @@ private struct CoverFlowSettings: View {
     }
 }
 
+/// 音樂來源（D39）：YouTube Music 與 Jellyfin 各一列，目前使用的標「使用中」，另一邊可切換；登入都保留
 private struct AccountSettings: View {
     @Environment(AppEnvironment.self) private var app
 
     var body: some View {
-        if let session = app.session {
-            SettingRow(title: "\(session.userName)", detail: "Signed in to \(session.serverName)") {
-                UserAvatar(session: session, size: 40)
-            }
-            SettingRow(title: "Server address", detail: "\(session.serverURL.absoluteString)") { EmptyView() }
-            SettingRow(title: "Library", detail: "\(app.library.albums.count) albums. Refresh after adding music on the server.") {
+        sourceRow(.youtube)
+        sourceRow(.jellyfin)
+        if app.session != nil {
+            SettingRow(title: "Library", detail: "\(app.library.albums.count) albums. Refresh after adding music.") {
                 PillButton(title: app.library.state == .loading ? "Refreshing…" : "Refresh") { Task { await app.library.refresh() } }
                     .disabled(app.library.state == .loading)
             }
-            SettingRow(title: "Sign out", detail: "Stops playback and returns to the sign-in screen.") {
+            SettingRow(title: "Sign out of \(app.source.title)", detail: "Stops playback. Your other music source stays signed in.") {
                 PillButton(title: "Sign Out", destructive: true) {
                     app.isSettingsPresented = false
                     app.signOut()
                 }
             }
-        } else {
-            SettingRow(title: "Not connected", detail: "Sign in to your Jellyfin server first.") { EmptyView() }
         }
         Text("Flione talks only to your Jellyfin server. It has no account, no analytics, and no tracking.")
             .finifyFont(.caption)
             .foregroundStyle(FinifyColor.faint)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, Spacing.s16)
+    }
+
+    private func sourceRow(_ source: MusicSource) -> some View {
+        let active = app.session != nil && app.source == source
+        return SettingRow(title: "\(source.title)", detail: detail(for: source)) {
+            if active {
+                Text("In use")
+                    .finifyFont(.bodyEmphasis)
+                    .foregroundStyle(FinifyColor.muted)
+                    .padding(.horizontal, Spacing.s16)
+                    .frame(height: 32)
+            } else {
+                PillButton(title: isSignedIn(source) ? "Switch" : "Sign In") {
+                    app.isSettingsPresented = false
+                    Task { await app.switchSource(to: source) }
+                }
+            }
+        }
+    }
+
+    private func isSignedIn(_ source: MusicSource) -> Bool {
+        switch source {
+        case .youtube: if case .connected = app.youtube.state { return true } else { return false }
+        case .jellyfin: return app.hasJellyfinAccount
+        }
+    }
+
+    private func detail(for source: MusicSource) -> LocalizedStringResource {
+        if let session = app.session, app.source == source {
+            return source == .youtube ? "Signed in as \(session.userName)" : "\(session.userName) on \(session.serverName) (\(session.serverURL.host() ?? ""))"
+        }
+        switch source {
+        case .youtube:
+            if case .connected(let name, _) = app.youtube.state { return "Signed in as \(name)" }
+            return "Sign in with your Google account."
+        case .jellyfin:
+            return app.hasJellyfinAccount ? "Signed in. Switch to play from your server." : "Connect your own Jellyfin server."
+        }
     }
 }

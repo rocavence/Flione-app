@@ -215,6 +215,9 @@ private struct AccountPopover: View {
             }
             .disabled(app.library.state == .loading)
             row("Settings…", icon: .setting2) { app.isSettingsPresented = true }
+            // 切換音樂來源（D39）：另一邊的登入保留
+            let other: MusicSource = app.source == .youtube ? .jellyfin : .youtube
+            row("Switch to \(other.title)", icon: .refresh) { Task { await app.switchSource(to: other) } }
             Divider().padding(.vertical, Spacing.s4)
             row("Sign Out", icon: .power, role: .destructive) { app.signOut() }
         }

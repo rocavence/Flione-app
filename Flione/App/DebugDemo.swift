@@ -78,6 +78,14 @@ enum DebugDemo {
 
     /// -FinifyDemoSwitchTo coverFlow|infinity|modern -FinifyDemoSwitchAfter <秒>：啟動後幾秒切換模式，用來重現切換時的問題
     static func scheduleModeSwitch(app: AppEnvironment) {
+        // -FinifyDemoSwitchSource youtube|jellyfin：幾秒後切換音樂來源（-FinifyDemoSwitchAfter 秒數）
+        if let raw = defaults.string(forKey: "FinifyDemoSwitchSource"), let source = MusicSource(rawValue: raw) {
+            let delay = defaults.double(forKey: "FinifyDemoSwitchAfter")
+            Task {
+                try? await Task.sleep(for: .seconds(delay > 0 ? delay : 6))
+                await app.switchSource(to: source)
+            }
+        }
         guard let target = defaults.string(forKey: "FinifyDemoSwitchTo") else { return }
         let mode: ViewMode = switch target { case "coverFlow": .coverFlow; case "infinity": .infinity; default: .standard }
         let delay = defaults.double(forKey: "FinifyDemoSwitchAfter")
