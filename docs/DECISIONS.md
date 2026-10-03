@@ -157,3 +157,11 @@
 * **選擇**：Finify 與測試 target 改用 `Apple Development: you@example.com`（Team `XXXXXXXXXX`）手動簽章。簽章的身分固定為「app.finify.Finify＋這張憑證」，在提示中按一次「永遠允許」後，之後重建也不會再問。
 * **限制**：仍未經 Apple 公證；給其他人用時第一次打開仍要在 Finder 按右鍵 → 打開。換電腦建置時，該電腦要有這張憑證，或改回 `"-"`。
 * **怎麼改**：`project.yml` 的 `CODE_SIGN_IDENTITY`、`DEVELOPMENT_TEAM`。
+
+## D22　佇列與歌詞共用浮層；Infinity／Cover Flow 的控制移到左上角
+
+* **浮層**：三種模式的佇列與歌詞都用同一個浮在右側的 Liquid Glass 面板（`PlayerSidePanel`），頂部是「Up Next｜Lyrics」分頁、Clear（佇列分頁）與關閉。播放列上的歌詞、佇列按鈕切換分頁；切換模式時面板保持開啟。
+* **移除**：Standard 原本的右側 Now Playing 欄（大封面、曲名、愛心）。封面與曲名在播放列上已有，佇列與歌詞改由浮層顯示。
+* **左上角**：Infinity 與 Cover Flow 的左上角依序是「Sort by」、「Size」滑軌（Infinity 是封面牆 5 段密度，Cover Flow 是 6 段封面大小）、「Now Playing」（捲到正在播放的專輯）。原本右下角的大小滑桿與定位按鈕、Infinity 的 −／+ 移除。
+* **滑軌**：hover／拖曳時軌道 1.5 倍（3 → 4.5pt）、圓點 160%（11 → 18pt）。
+* **怎麼改**：`Components/PlayerSidePanel.swift`、`OverflowRootView.topBar`、`SizeSlider`、`ProgressBar`。

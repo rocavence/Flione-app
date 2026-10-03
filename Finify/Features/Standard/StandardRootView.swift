@@ -7,7 +7,6 @@ struct StandardRootView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var router = StandardRouter()
     /// 使用者是否想看到右側 Now Playing 面板（記住上次的選擇）
-    @AppStorage("FinifyNowPlayingPanel") private var wantsPanel = true
 
     private var panelVisible: Bool { app.isQueuePresented || app.isLyricsPresented }
 
@@ -16,22 +15,28 @@ struct StandardRootView: View {
             HStack(spacing: 0) {
                 StandardSidebar()
                 VStack(spacing: 0) {
-                    StandardTopBar(router: router, reservesViewControls: !panelVisible)
+                    StandardTopBar(router: router)
                     content
                 }
                 // 中間欄吃掉剩餘寬度，不讓子視圖把側欄和面板擠出視窗
                 .frame(minWidth: 0, maxWidth: .infinity)
                 .clipped()
                 .background(FinifyColor.paper)
+            }
+            // 佇列與歌詞：與 Infinity／Cover Flow 相同的浮層，浮在內容右側
+            .overlay(alignment: .trailing) {
                 if panelVisible {
-                    NowPlayingPanel(onOpenAlbum: openAlbum(id:), onOpenArtist: { router.openArtist(id: $0, name: $1) })
+                    PlayerSidePanel(onOpenAlbum: openAlbum(id:))
+                        .padding(.top, ViewControls.barHeight + Spacing.s8)
+                        .padding(.bottom, Spacing.s16)
+                        .padding(.trailing, Spacing.s16)
                         .transition(.move(edge: .trailing).combined(with: .opacity))
                 }
             }
             .animation(Motion.respecting(reduceMotion, Motion.ui), value: panelVisible)
             PlayerBar(onOpenAlbum: openAlbum(id:), onOpenArtist: { router.openArtist(id: $0, name: $1) })
         }
-        // 模式切換固定在視窗右上角，位置與 Infinity／Cover Flow 完全相同，不受 Now Playing 面板影響
+        // 模式切換固定在視窗右上角，位置與 Infinity／Cover Flow 完全相同
         .overlay(alignment: .topTrailing) { ViewControls() }
         .overlay {
             if app.isSearchPresented {
@@ -48,9 +53,6 @@ struct StandardRootView: View {
         .background(FinifyColor.paper)
         .environment(router)
         .task { await app.library.refreshIfNeeded() }
-        .onAppear { if wantsPanel && !panelVisible { app.isQueuePresented = true } }
-        // 只在 Standard 裡記住面板開關（切到 Overflow 時旗標會被清掉，不算使用者的選擇）
-        .onChange(of: panelVisible) { if app.mode == .standard { wantsPanel = panelVisible } }
         .onChange(of: app.requestedAlbumID, initial: true) {
             guard let id = app.requestedAlbumID else { return }
             app.requestedAlbumID = nil
@@ -114,8 +116,6 @@ struct StandardRootView: View {
 
 private struct StandardTopBar: View {
     let router: StandardRouter
-    /// 右側沒有 Now Playing 面板時，模式切換浮在這一列的右端，要留位置給它
-    let reservesViewControls: Bool
     @Environment(AppEnvironment.self) private var app
 
     var body: some View {
@@ -132,7 +132,8 @@ private struct StandardTopBar: View {
             SearchTrigger { app.isSearchPresented = true }
                 .frame(maxWidth: 400)
             Spacer(minLength: Spacing.s16)
-            if reservesViewControls { Color.clear.frame(width: ViewControls.width) }
+            // 模式切換浮在這一列的右端（ViewControls），留位置給它
+            Color.clear.frame(width: ViewControls.width)
         }
         .padding(.horizontal, Spacing.s16)
         .frame(height: ViewControls.barHeight)

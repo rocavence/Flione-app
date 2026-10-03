@@ -160,13 +160,9 @@ struct VolumeControl: View {
     }
 }
 
-/// 右側滑出的播放佇列
+/// 播放佇列的內容（正在播放＋接下來）；外框、標題與分頁由 PlayerSidePanel 提供
 struct QueuePanel: View {
     let onOpenAlbum: (String?) -> Void
-    /// 放在 Now Playing 面板裡時不顯示自己的標題列與「正在播放」
-    var embedded = false
-    /// 浮在畫面上（Infinity／Cover Flow 的佇列浮層）：不畫自己的底，由外層的 Liquid Glass 提供
-    var floating = false
     @Environment(AppEnvironment.self) private var app
     @State private var isTargeted = false
     /// 拖曳中的列（upcoming 內的位置）
@@ -175,26 +171,15 @@ struct QueuePanel: View {
     var body: some View {
         let player = app.player
         VStack(alignment: .leading, spacing: 0) {
-            if !embedded {
-            HStack {
-                Text("Queue").finifyFont(.heading).foregroundStyle(FinifyColor.ink)
-                Spacer()
-                if !player.queue.upcoming.isEmpty {
-                    FinifyButton(title: "Clear", kind: .ghost) { player.clearUpcoming() }
-                }
-                FinifyIconButton(icon: .x, label: "Close queue") { app.isQueuePresented = false }
-            }
-            .padding(Spacing.s16)
-            }
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.s4) {
-                    if !embedded, let current = player.currentTrack {
+                    if let current = player.currentTrack {
                         label("Now playing")
                         TrackRow(track: current, showsArtwork: true, onPlay: { player.togglePlayPause() }, onOpenAlbum: { onOpenAlbum(current.albumID) })
                     }
                     if !player.queue.upcoming.isEmpty {
-                        label("Next").padding(.top, embedded ? 0 : Spacing.s16)
+                        label("Next").padding(.top, Spacing.s16)
                         ForEach(Array(player.queue.upcomingEntries.enumerated()), id: \.element.id) { offset, entry in
                             let track = entry.track
                             TrackRow(track: track, showsArtwork: true, suggested: entry.suggested,
@@ -226,8 +211,6 @@ struct QueuePanel: View {
                 .padding(.bottom, Spacing.s16)
             }
         }
-        .background(embedded || floating ? Color.clear : FinifyColor.elevated)
-        .overlay(alignment: .leading) { if !embedded && !floating { FinifyColor.hairline.frame(width: 1) } }
         // 從專輯卡片拖進來：加到佇列結尾
         .overlay {
             if isTargeted {

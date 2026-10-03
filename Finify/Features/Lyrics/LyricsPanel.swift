@@ -1,9 +1,7 @@
 import SwiftUI
 
-/// 歌詞面板。同步歌詞會亮起目前這一行並自動捲動；點任一行跳到該時間。
+/// 歌詞內容（外框、標題與分頁由 PlayerSidePanel 提供）。同步歌詞會亮起目前這一行並自動捲動；點任一行跳到該時間。
 struct LyricsPanel: View {
-    /// 放在 Now Playing 面板裡時不顯示自己的標題列與背景
-    var embedded = false
     @Environment(AppEnvironment.self) private var app
     @Environment(\.overflowStyle) private var overflow
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -15,15 +13,6 @@ struct LyricsPanel: View {
     var body: some View {
         let track = app.player.currentTrack
         VStack(alignment: .leading, spacing: 0) {
-            if !embedded {
-                HStack {
-                    Text("Lyrics").finifyFont(.heading).foregroundStyle(ink)
-                    Spacer()
-                    FinifyIconButton(icon: .x, label: "Close lyrics") { app.isLyricsPresented = false }
-                }
-                .padding(Spacing.s16)
-            }
-
             Group {
                 if track == nil {
                     MessageState(title: "Nothing playing", message: "Play a song to see its lyrics.", icon: .microphone)
@@ -33,7 +22,6 @@ struct LyricsPanel: View {
             }
             .frame(maxHeight: .infinity, alignment: .top)
         }
-        .background(embedded ? Color.clear : (overflow ? Color(white: 0.07) : FinifyColor.elevated))
         .task(id: track?.id) { await load(track) }
     }
 

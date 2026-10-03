@@ -49,11 +49,6 @@ final class AppEnvironment {
     /// nil = 尚未選擇（首次登入後顯示 mode picker）
     var mode: AppMode? {
         didSet {
-            // 佇列與歌詞在兩個 mode 的呈現方式不同（Standard 是側面板、Overflow 是浮層），切換時收起
-            if oldValue != mode, oldValue != nil {
-                isQueuePresented = false
-                isLyricsPresented = false
-            }
             if rememberMode { UserDefaults.standard.set(mode?.rawValue, forKey: Self.modeKey) }
         }
     }

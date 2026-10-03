@@ -99,7 +99,7 @@ struct ProgressBar: View {
         GeometryReader { geo in
             let shown = dragValue ?? value
             let active = hovering || dragValue != nil
-            // 軌道粗細固定；hover／拖曳時圓點放大到 160%（11 → 18）
+            // hover／拖曳時圓點放大到 160%（11 → 18）
             let knob: CGFloat = active ? 18 : 11
             ZStack(alignment: .leading) {
                 Capsule().fill(overflow ? Color.white.opacity(0.18) : FinifyColor.hairline)
@@ -108,8 +108,8 @@ struct ProgressBar: View {
                     .fill(!overflow || hovering || dragValue != nil ? FinifyColor.accent : FinifyColor.Overflow.ink)
                     .frame(width: max(0, min(1, shown)) * geo.size.width)
             }
-            // 軌道固定 3pt；圓點放在 overlay，不參與排版，放大時不會把軌道撐粗
-            .frame(height: 3)
+            // 軌道 3pt，hover／拖曳時 1.5 倍；圓點放在 overlay，不參與排版
+            .frame(height: active ? 4.5 : 3)
             .overlay(alignment: .leading) {
                 if onSeek != nil, active || alwaysShowsKnob {
                     Circle()

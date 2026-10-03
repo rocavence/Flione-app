@@ -18,7 +18,6 @@ struct OverflowRootView: View {
     @State private var sortedAlbums: [Album] = []
     @State private var openAlbum: Album?
     @State private var scrollToPlaying = 0
-    @State private var browseWidth: CGFloat = 1360
 
     private var density: Binding<WallDensity> {
         Binding { WallDensity(rawValue: densityRaw) ?? .medium } set: { densityRaw = $0.rawValue }
@@ -34,9 +33,9 @@ struct OverflowRootView: View {
         }
         .environment(\.overflowStyle, true)
         .environment(\.colorScheme, .dark)
-        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { browseWidth = $0 }
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
+        .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isLyricsPresented)
         .task { await app.library.refreshIfNeeded() }
         .onChange(of: app.library.albums, initial: true) { sortedAlbums = sort.apply(to: app.library.albums) }
         .onChange(of: sort) { sortedAlbums = sort.apply(to: app.library.albums) }
@@ -77,7 +76,7 @@ struct OverflowRootView: View {
                         )
                     case .flow:
                         AlbumFlowView(albums: sortedAlbums, playingAlbumID: playingAlbumID, onPlay: play,
-                                      isActive: openAlbum == nil && !app.isSearchPresented && !app.isQueuePresented,
+                                      isActive: openAlbum == nil && !app.isSearchPresented && !app.isQueuePresented && !app.isLyricsPresented,
                                       centerOnPlayingToken: scrollToPlaying,
                                       sizeStep: flowSize)
                     }
@@ -92,33 +91,6 @@ struct OverflowRootView: View {
                 if openAlbum == nil { NowPlayingPill(onOpen: openPlayingAlbum) }
             }
 
-            // 右下角：Flow 的封面大小滑桿、回到正在播放的專輯（封面牆與 Album Flow）
-            if openAlbum == nil {
-                VStack {
-                    Spacer()
-                    HStack(spacing: Spacing.s12) {
-                        Spacer()
-                        if layout == .flow { FlowSizeSlider(step: $flowSize) }
-                        if playingAlbumID != nil {
-                        Button { scrollToPlaying += 1 } label: {
-                            FinifyIcon(.gps, weight: .filled, size: .standard)
-                                .foregroundStyle(FinifyColor.Overflow.ink)
-                                .frame(width: 44, height: 44)
-                                .finifyGlass(in: Circle(), tint: Color(hex: 0x111D40).opacity(0.5), interactive: true, fallback: Color(hex: 0x111D40).opacity(0.88))
-                                .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 16, y: 6))
-                        }
-                        .buttonStyle(PressScaleStyle())
-                        .help("Show what's playing")
-                        .accessibilityLabel("Show what's playing")
-                        }
-                    }
-                    .padding(.trailing, Spacing.s24)
-                    // 視窗窄時，右下角控制項會壓到置中的播放列，改放到播放列上方
-                    .padding(.bottom, browseWidth < 1300 ? 104 : Spacing.s32)
-                }
-                .transition(.opacity)
-            }
-
             if let album = openAlbum {
                 Color.black.opacity(0.45)
                     .onTapGesture { openAlbum = nil }
@@ -127,11 +99,11 @@ struct OverflowRootView: View {
                     .onExitCommand { openAlbum = nil }
             }
 
-            if app.isQueuePresented {
+            if app.isQueuePresented || app.isLyricsPresented {
                 HStack {
                     Spacer()
-                    OverflowQueue(onOpenAlbum: { id in openAlbum = app.library.albums.first { $0.id == id } })
-                        .padding(.top, 60)
+                    PlayerSidePanel(onOpenAlbum: { id in openAlbum = app.library.albums.first { $0.id == id } })
+                        .padding(.top, ViewControls.barHeight + Spacing.s8)
                         .padding(.bottom, 108)
                         .padding(.trailing, Spacing.s16)
                 }
@@ -147,41 +119,52 @@ struct OverflowRootView: View {
     private var topBar: some View {
         HStack(spacing: Spacing.s12) {
             Color.clear.frame(width: 64)
-            if layout == .wall {
-                HStack(spacing: 2) {
-                    FinifyIconButton(icon: .minus, label: "Smaller albums", size: .compact) { stepDensity(-1) }
-                        .disabled(density.wrappedValue == WallDensity.allCases.first)
-                    Text(density.wrappedValue.label)
-                        .finifyFont(.caption)
-                        .foregroundStyle(FinifyColor.Overflow.muted)
-                        .frame(width: 52)
-                    FinifyIconButton(icon: .plus, label: "Larger albums", size: .compact) { stepDensity(1) }
-                        .disabled(density.wrappedValue == WallDensity.allCases.last)
+            // 左上角：排序、大小、回到正在播放（Infinity 與 Cover Flow 共用）
+            Menu {
+                Picker("Sort by", selection: $sort) {
+                    ForEach(AlbumSort.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                 }
-                .padding(.horizontal, Spacing.s4)
-                .frame(height: 34)
-                .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
-                .help("Pinch to resize")
+                .pickerStyle(.inline)
+            } label: {
+                Text("Sort by: \(sort.rawValue)")
+                    .finifyFont(.caption)
+                    .foregroundStyle(FinifyColor.Overflow.muted)
             }
-            Group {
-                Menu {
-                    Picker("Sort by", selection: $sort) {
-                        ForEach(AlbumSort.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                    }
-                    .pickerStyle(.inline)
-                } label: {
-                    Text("Sort: \(sort.rawValue)")
-                        .finifyFont(.caption)
-                        .foregroundStyle(FinifyColor.Overflow.muted)
+            .menuStyle(.borderlessButton)
+            .tint(FinifyColor.Overflow.muted)
+            .fixedSize()
+            .padding(.horizontal, Spacing.s12)
+            .frame(height: 34)
+            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+            .accessibilityLabel("Sort albums, \(sort.rawValue)")
+
+            if layout == .wall {
+                SizeSlider(step: $densityRaw, count: WallDensity.allCases.count, label: "Album size",
+                           valueText: density.wrappedValue.label)
+                    .help("Album size (pinch to resize)")
+            } else {
+                SizeSlider(step: $flowSize, count: AlbumFlowView.sizeSteps, label: "Cover size",
+                           valueText: "\(flowSize + 1) of \(AlbumFlowView.sizeSteps)")
+                    .help("Cover size")
+            }
+
+            Button { scrollToPlaying += 1 } label: {
+                HStack(spacing: Spacing.s4) {
+                    FinifyIcon(.gps, size: .compact)
+                    Text("Now Playing").finifyFont(.caption)
                 }
-                .menuStyle(.borderlessButton)
-                .tint(FinifyColor.Overflow.muted)
-                .fixedSize()
+                .foregroundStyle(FinifyColor.Overflow.muted)
                 .padding(.horizontal, Spacing.s12)
                 .frame(height: 34)
                 .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
-                .accessibilityLabel("Sort albums, \(sort.rawValue)")
+                .contentShape(Capsule())
             }
+            .buttonStyle(PressScaleStyle())
+            .disabled(playingAlbumID == nil)
+            .opacity(playingAlbumID == nil ? 0.4 : 1)
+            .help("Focus on the album that's playing")
+            .accessibilityLabel("Focus on the album that's playing")
+
             Spacer()
             SearchTrigger { app.isSearchPresented = true }
                 .frame(width: 260)
@@ -222,11 +205,6 @@ struct OverflowRootView: View {
             .padding(.top, 96)
         }
         .transition(.opacity)
-    }
-
-    private func stepDensity(_ delta: Int) {
-        let next = WallDensity(rawValue: density.wrappedValue.rawValue + delta) ?? density.wrappedValue
-        density.wrappedValue = next
     }
 
     private func play(_ album: Album) {
@@ -272,6 +250,7 @@ private struct NowPlayingPill: View {
                     ProgressBar(value: app.player.progress) { app.player.seek(to: $0 * app.player.duration) }
                         .frame(width: 300)
                 }
+                FinifyIconButton(icon: .microphone, label: "Lyrics", isActive: app.isLyricsPresented) { app.isLyricsPresented.toggle() }
                 FinifyIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) { app.isQueuePresented.toggle() }
                 VolumeControl()
             }
@@ -285,45 +264,30 @@ private struct NowPlayingPill: View {
     }
 }
 
-/// Overflow 中的播放佇列：與 Standard 相同內容，浮在封面牆上方的深色面板
-struct OverflowQueue: View {
-    let onOpenAlbum: (String?) -> Void
 
-    var body: some View {
-        QueuePanel(onOpenAlbum: onOpenAlbum, floating: true)
-            .frame(width: 360)
-            .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-            .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous), tint: Color(hex: 0x0D1633).opacity(0.6),
-                         fallback: FinifyColor.elevated)
-            .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 40, y: 16))
-            // 佇列內的元件使用一般深色配色，不是 Overflow 的半透明樣式
-            .environment(\.overflowStyle, false)
-    }
-}
-
-/// Album Flow 的封面大小：6 段滑桿，拖動時即時縮放
-private struct FlowSizeSlider: View {
+/// 頂部的大小滑桿：分段吸附，拖曳時即時縮放。Infinity 是封面牆密度，Cover Flow 是封面大小
+private struct SizeSlider: View {
     @Binding var step: Int
+    let count: Int
+    let label: String
+    let valueText: String
 
     var body: some View {
+        let last = Double(count - 1)
         HStack(spacing: Spacing.s8) {
-            FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.faint).scaleEffect(0.75)
-            // 與播放進度同一個滑桿（hover 時圓點放大），分段吸附
-            let last = Double(AlbumFlowView.sizeSteps - 1)
-            ProgressBar(value: Double(step) / last, continuous: true, steps: AlbumFlowView.sizeSteps, alwaysShowsKnob: true) {
+            FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.faint).scaleEffect(0.7)
+            ProgressBar(value: Double(step) / last, continuous: true, steps: count, alwaysShowsKnob: true) {
                 let next = Int(($0 * last).rounded())
                 if next != step { Haptics.perform(.step) }
                 step = next
             }
-                .frame(width: 110)
-                .accessibilityLabel("Cover size")
-                .accessibilityValue("\(step + 1) of \(AlbumFlowView.sizeSteps)")
+                .frame(width: 96)
+                .accessibilityLabel(label)
+                .accessibilityValue(valueText)
             FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.muted)
         }
-        .padding(.horizontal, Spacing.s16)
-        .frame(height: 44)
-        .finifyGlass(in: Capsule(), tint: Color(hex: 0x111D40).opacity(0.5), fallback: Color(hex: 0x111D40).opacity(0.88))
-        .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 16, y: 6))
-        .help("Cover size")
+        .padding(.horizontal, Spacing.s12)
+        .frame(height: 34)
+        .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
     }
 }
