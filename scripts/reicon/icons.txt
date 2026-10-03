@@ -65,3 +65,9 @@ chevron-left
 chevron-right
 chevron-up
 chevron-down
+
+# Window / menu bar
+window
+pip
+power
+gps

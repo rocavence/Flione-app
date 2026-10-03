@@ -53,4 +53,8 @@ enum Reicon: String, CaseIterable, Sendable {
     case chevronRight = "chevron-right"
     case chevronUp = "chevron-up"
     case chevronDown = "chevron-down"
+    case window = "window"
+    case pip = "pip"
+    case power = "power"
+    case gps = "gps"
 }

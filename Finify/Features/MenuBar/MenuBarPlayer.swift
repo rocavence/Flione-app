@@ -39,14 +39,15 @@ struct MenuBarPlayer: View {
                     .padding(.vertical, Spacing.s16)
             }
             FinifyColor.hairline.frame(height: 1)
-            HStack {
-                FinifyButton(title: "Open Finify", kind: .ghost) {
+            // icon 按鈕：文字按鈕在 300pt 寬的面板裡會換行爆版
+            HStack(spacing: Spacing.s4) {
+                FinifyIconButton(icon: .window, label: "Open Finify") {
                     openWindow(id: "main")
                     NSApp.activate()
                 }
-                FinifyButton(title: "Mini Player", kind: .ghost) { openWindow(id: "floating") }
+                FinifyIconButton(icon: .pip, label: "Mini Player") { openWindow(id: "floating") }
                 Spacer()
-                FinifyButton(title: "Quit", kind: .ghost) { NSApp.terminate(nil) }
+                FinifyIconButton(icon: .power, label: "Quit Finify") { NSApp.terminate(nil) }
             }
         }
         .padding(Spacing.s16)
