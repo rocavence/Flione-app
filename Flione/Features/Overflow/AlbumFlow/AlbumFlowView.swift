@@ -91,6 +91,11 @@ struct AlbumFlowView: View {
                 .contentMargins(.horizontal, (geo.size.width - side) / 2, for: .scrollContent)
                 .scrollTargetBehavior(.viewAligned)
                 .scrollPosition(id: $centerID, anchor: .center)
+                // 捲動一停下來就對齊到標題那一張：動畫被打斷、資料更新等任何原因造成的錯位（兩張交疊）都會歸位
+                .modifier(SnapWhenIdle { 
+                    guard let id = centerID else { return }
+                    withAnimation(Motion.respecting(reduceMotion, Motion.flow)) { proxy.scrollTo(id, anchor: .center) }
+                })
                 // 切換進來或專輯順序改變後：centerID 對了，但捲動位置可能還停在別處，造成兩張封面交疊
                 .onChange(of: realignToken) {
                     guard let id = centerID else { return }
@@ -275,6 +280,21 @@ struct AlbumFlowView: View {
         let next = min(max(0, index + delta), albums.count - 1)
         userMoved = true
         withAnimation(Motion.respecting(reduceMotion, Motion.flow)) { centerID = albums[next].id }
+    }
+}
+
+/// 捲動停下（idle）時呼叫；macOS 15 以上才有捲動階段的 API，舊系統不做
+private struct SnapWhenIdle: ViewModifier {
+    let snap: () -> Void
+
+    func body(content: Content) -> some View {
+        if #available(macOS 15.0, *) {
+            content.onScrollPhaseChange { _, phase in
+                if phase == .idle { snap() }
+            }
+        } else {
+            content
+        }
     }
 }
 

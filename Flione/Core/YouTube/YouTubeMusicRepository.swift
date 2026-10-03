@@ -24,7 +24,7 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
         let json = try await InnerTube.post("browse", body: ["browseId": "FEmusic_history"])
         var seen = Set<String>()
         var albums: [Album] = []
-        for row in Parse.all("musicResponsiveListItemRenderer", in: json) {
+        for row in Parse.all("musicResponsiveListItemRenderer", in: json) where Parse.isSong(row) {
             guard let track = Parse.track(row), let albumID = track.albumID, seen.insert(albumID).inserted else { continue }
             albums.append(Album(id: albumID, name: track.albumName, artistName: track.artistName, artistID: track.artistID,
                                 year: nil, artwork: track.artwork, dateAdded: nil))
@@ -116,9 +116,11 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
 
     // MARK: - 封面、播放
 
-    /// 封面參照：itemID 是去掉尺寸後綴的網址，依需要的大小補上 `=w…-h…`
+    /// 封面參照：可調尺寸的網址（googleusercontent，tag "yt"）依需要的大小補上 `=w…-h…`；
+    /// 影片縮圖（i.ytimg.com）與 YouTube 的固定圖（gstatic，tag "ytfixed"）照原網址
     func artworkURL(_ ref: ArtworkRef, maxPixelSize: Int) -> URL {
-        URL(string: "\(ref.itemID)=w\(maxPixelSize)-h\(maxPixelSize)-l90-rj") ?? URL(string: InnerTube.origin)!
+        let url = ref.tag == "yt" ? "\(ref.itemID)=w\(maxPixelSize)-h\(maxPixelSize)-l90-rj" : ref.itemID
+        return URL(string: url) ?? URL(string: InnerTube.origin)!
     }
 
     /// YouTube Music 不提供可直接播放的網址；播放由網頁播放器負責（PlayerManager 的 web 引擎）
@@ -145,12 +147,32 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
 
     // MARK: - 播放清單
 
+    /// 音樂庫的播放清單，最前面加上「最近播放」；拿掉 Podcast 的「稍後觀看的集數」（VLSE）
     func playlists() async throws -> [Playlist] {
-        try await pages(browseId: "FEmusic_liked_playlists", item: "musicTwoRowItemRenderer").compactMap(Parse.playlist)
+        let library = try await pages(browseId: "FEmusic_liked_playlists", item: "musicTwoRowItemRenderer")
+            .compactMap(Parse.playlist).filter { $0.id != "VLSE" }
+        let recent = try? await recentSongs()
+        let recentList = Playlist(id: Self.recentID, name: String(localized: "Recently Played"), trackCount: recent?.count ?? 0,
+                                  duration: recent?.reduce(0) { $0 + $1.duration } ?? 0, artwork: recent?.first?.artwork)
+        return [recentList] + library
     }
 
     func playlistTracks(_ playlistID: String) async throws -> [Track] {
-        try await pages(browseId: playlistID, item: "musicResponsiveListItemRenderer").compactMap { Parse.track($0) }
+        if playlistID == Self.recentID { return try await recentSongs() }
+        return try await pages(browseId: playlistID, item: "musicResponsiveListItemRenderer").compactMap { Parse.track($0) }
+    }
+
+    /// 「最近播放」清單的 id（播放記錄）
+    static let recentID = "FEmusic_history"
+
+    /// 播放記錄中的歌曲：只取 YouTube Music 的歌，排除影片、Podcast；同一首只留最近一次
+    private func recentSongs() async throws -> [Track] {
+        let json = try await InnerTube.post("browse", body: ["browseId": Self.recentID])
+        var seen = Set<String>()
+        return Parse.all("musicResponsiveListItemRenderer", in: json)
+            .filter(Parse.isSong)
+            .compactMap { Parse.track($0) }
+            .filter { seen.insert($0.id).inserted }
     }
 
     func playlist(id: String) async throws -> Playlist {
@@ -228,8 +250,11 @@ enum Parse {
     static func artwork(_ renderer: Any?) -> ArtworkRef? {
         guard let thumbnails = find("thumbnails", in: renderer ?? [:]) as? [[String: Any]],
               let url = thumbnails.last?["url"] as? String else { return nil }
-        let base = url.range(of: "=w", options: .backwards).map { String(url[..<$0.lowerBound]) } ?? url
-        return ArtworkRef(itemID: base, tag: "yt", blurHash: nil)
+        guard let resize = url.range(of: "=w", options: .backwards) ?? url.range(of: "=s", options: .backwards),
+              url.contains("googleusercontent.com") || url.contains("ggpht.com") else {
+            return ArtworkRef(itemID: url, tag: "ytfixed", blurHash: nil)
+        }
+        return ArtworkRef(itemID: String(url[..<resize.lowerBound]), tag: "yt", blurHash: nil)
     }
 
     /// 列（musicResponsiveListItemRenderer）本身連到的頁面類型（藝人、專輯、播放清單）；歌曲沒有
@@ -311,6 +336,13 @@ enum Parse {
     static func playlistRow(_ row: [String: Any]) -> Playlist? {
         guard let target = browse(row), let title = columns(row).first?.compactMap({ $0["text"] as? String }).joined() else { return nil }
         return Playlist(id: target.id, name: title, trackCount: 0, duration: 0, artwork: artwork(row["thumbnail"]))
+    }
+
+    /// 是 YouTube Music 的歌（ATV），不是影片（官方 MV、一般影片）或 Podcast
+    static func isSong(_ row: [String: Any]) -> Bool {
+        let watch = find("watchEndpoint", in: row) as? [String: Any]
+        let config = (watch?["watchEndpointMusicSupportedConfigs"] as? [String: Any])?["watchEndpointMusicConfig"] as? [String: Any]
+        return config?["musicVideoType"] as? String == "MUSIC_VIDEO_TYPE_ATV"
     }
 
     static func continuation(_ json: [String: Any]) -> String? {

@@ -5,6 +5,8 @@ struct SectionHeader: View {
     let title: LocalizedStringResource
     var subtitle: LocalizedStringResource?
     var action: (title: LocalizedStringResource, run: () -> Void)?
+    /// 動作按鈕前的圖示（例如「重新推薦」的重新整理）
+    var actionIcon: Reicon?
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
@@ -16,10 +18,7 @@ struct SectionHeader: View {
             }
             Spacer()
             if let action {
-                Button(action: action.run) { Text(action.title) }
-                    .buttonStyle(.plain)
-                    .finifyFont(.caption)
-                    .foregroundStyle(FinifyColor.muted)
+                SectionActionButton(title: action.title, icon: actionIcon, action: action.run)
             }
         }
         .accessibilityAddTraits(.isHeader)
@@ -42,6 +41,32 @@ struct SkeletonBlock: View {
                 withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) { dim = true }
             }
             .accessibilityHidden(true)
+    }
+}
+
+/// 區塊標題右側的動作：小膠囊按鈕（例如「重新推薦」「顯示全部」）
+private struct SectionActionButton: View {
+    let title: LocalizedStringResource
+    let icon: Reicon?
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Spacing.s4) {
+                if let icon { FinifyIcon(icon, size: .compact).scaleEffect(0.85) }
+                Text(title).finifyFont(.caption)
+            }
+            .foregroundStyle(hovering ? FinifyColor.ink : FinifyColor.muted)
+            .padding(.horizontal, Spacing.s12)
+            .frame(height: 28)
+            .background(hovering ? FinifyColor.glassHighlight : FinifyColor.glass, in: Capsule())
+            .overlay(Capsule().strokeBorder(FinifyColor.hairline, lineWidth: 1))
+            .contentShape(Capsule())
+        }
+        .buttonStyle(PressScaleStyle())
+        .onHover { hovering = $0 }
+        .animation(Motion.micro, value: hovering)
     }
 }
 

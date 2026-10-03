@@ -130,7 +130,7 @@ struct AlbumShelf: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s16) {
             HStack(alignment: .firstTextBaseline) {
-                SectionHeader(title: title, action: action)
+                SectionHeader(title: title, action: action, actionIcon: action == nil ? nil : .refresh)
                 if albums.count > visibleCount {
                     HStack(spacing: Spacing.s4) {
                         FinifyIconButton(icon: .chevronLeft, label: "Scroll \(title) left", size: .compact) { page(-1) }
