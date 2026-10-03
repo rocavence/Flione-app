@@ -78,6 +78,7 @@ enum DebugDemo {
 
     /// -FinifyDemoSwitchTo coverFlow|infinity|modern -FinifyDemoSwitchAfter <秒>：啟動後幾秒切換模式，用來重現切換時的問題
     static func scheduleModeSwitch(app: AppEnvironment) {
+        scheduleSnapshot()
         // -FinifyDemoSwitchSource youtube|jellyfin：幾秒後切換音樂來源（-FinifyDemoSwitchAfter 秒數）
         if let raw = defaults.string(forKey: "FinifyDemoSwitchSource"), let source = MusicSource(rawValue: raw) {
             let delay = defaults.double(forKey: "FinifyDemoSwitchAfter")
@@ -148,6 +149,21 @@ enum DebugDemo {
         app.player.pause()
         try? lines.joined(separator: "\n").write(toFile: path, atomically: true, encoding: .utf8)
         NSApp.terminate(nil)
+    }
+
+    /// -FinifySnapshot <png> -FinifySnapshotAfter <秒>：幾秒後把主視窗內容存成 PNG 並結束，螢幕鎖定時也能截圖
+    static func scheduleSnapshot() {
+        guard let path = defaults.string(forKey: "FinifySnapshot") else { return }
+        let delay = defaults.double(forKey: "FinifySnapshotAfter")
+        Task {
+            try? await Task.sleep(for: .seconds(delay > 0 ? delay : 8))
+            if let view = NSApp.windows.first(where: { $0.isVisible && $0.contentView != nil && $0.frame.width > 400 })?.contentView,
+               let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) {
+                view.cacheDisplay(in: view.bounds, to: rep)
+                try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
+            }
+            NSApp.terminate(nil)
+        }
     }
 
     private static func dump(_ view: NSView, depth: Int) {
