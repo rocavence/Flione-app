@@ -331,7 +331,7 @@ private struct ThemePicker: View {
                     .finifyFont(.body).foregroundStyle(FinifyColor.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            HStack(spacing: Spacing.s12) {
+            HStack(spacing: 10) {
                 ForEach(ColorTheme.allCases, id: \.self) { theme in
                     ThemeSwatch(theme: theme, selected: theme == selection) { selection = theme }
                 }
@@ -361,7 +361,7 @@ private struct ThemeSwatch: View {
                         Spacer(minLength: 0)
                     }
                     .padding(5)
-                    .frame(width: 26)
+                    .frame(width: 22)
                     .frame(maxHeight: .infinity)
                     .background(Color(hex: p.surface1))
                     VStack(alignment: .leading, spacing: 5) {
@@ -379,7 +379,7 @@ private struct ThemeSwatch: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(hex: p.abyss))
                 }
-                .frame(width: 84, height: 58)
+                .frame(width: 70, height: 50)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 10, style: .continuous)

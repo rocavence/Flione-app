@@ -2593,6 +2593,16 @@
         }
       }
     },
+    "Silence": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寂靜"
+          }
+        }
+      }
+    },
     "Slow": {
       "localizations": {
         "zh-Hant": {

@@ -5,7 +5,7 @@ import Foundation
 /// 播放用的橘色、狀態色不隨主題改變：橘色代表「正在播放」，在每個主題都要一眼認得出來。
 /// 新增配色：加一個 case 和一組 `Palette`。避開琥珀／橘色系，免得和播放中的橘色混淆。
 enum ColorTheme: String, CaseIterable, Sendable {
-    case deepOcean, midnight, aurora, emerald, bordeaux, glacier
+    case deepOcean, silence, midnight, aurora, emerald, bordeaux, glacier
 
     struct Palette: Sendable {
         // 深色環境（Modern 深色、Infinity、Cover Flow）
@@ -36,6 +36,7 @@ enum ColorTheme: String, CaseIterable, Sendable {
     var title: LocalizedStringResource {
         switch self {
         case .deepOcean: "Deep Ocean"
+        case .silence: "Silence"
         case .midnight: "Midnight"
         case .aurora: "Aurora"
         case .emerald: "Emerald"
@@ -53,8 +54,15 @@ enum ColorTheme: String, CaseIterable, Sendable {
                     paperLight: 0xF4F6FC, panelLight: 0xEAEEF8, surfaceLight: 0xE3E8F5, activeLight: 0xDCE6FF, deepLight: 0xDDE3F2,
                     inkLight: 0x0B1B33, mutedLight: 0x4A5878, faintLight: 0x7185AA,
                     accent: 0x2F6BFF, sky: 0x6AA8FF, ice: 0xEAF2FF)
+        case .silence:
+            // 寂靜：完全中性的灰黑，不帶色調；互動色也是中性灰，像系統預設的石墨色
+            Palette(abyss: 0x0E0E10, surface1: 0x161618, surface2: 0x1D1D20, surface3: 0x252528, active: 0x323236, deepOcean: 0x1A1A1D,
+                    mutedDark: 0xB8B8BD, faintDark: 0x7C7C82, disabledDark: 0x505055,
+                    paperLight: 0xF5F5F6, panelLight: 0xECECEE, surfaceLight: 0xE4E4E7, activeLight: 0xDEDEE2, deepLight: 0xE2E2E5,
+                    inkLight: 0x18181A, mutedLight: 0x56565C, faintLight: 0x7C7C82,
+                    accent: 0x8E8E93, sky: 0xC7C7CC, ice: 0xF2F2F7)
         case .midnight:
-            // 石墨黑：最中性、最低調
+            // 石墨黑：偏冷，互動色是長春花藍
             Palette(abyss: 0x0B0D12, surface1: 0x13161D, surface2: 0x1A1E27, surface3: 0x222733, active: 0x2C3342, deepOcean: 0x181C25,
                     mutedDark: 0xB4BACA, faintDark: 0x7A8293, disabledDark: 0x4F5666,
                     paperLight: 0xF5F6F8, panelLight: 0xECEEF1, surfaceLight: 0xE4E7EB, activeLight: 0xE0E5F0, deepLight: 0xE1E4E9,
