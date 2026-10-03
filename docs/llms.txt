@@ -3,7 +3,7 @@
 > Flione is a native macOS music player for Jellyfin and YouTube Music. Tagline: "Listen well. Collect well." It offers three peer ways to browse a music library: Modern, Infinity, and Cover Flow.
 
 - Platform: macOS 14 (Sonoma) or later
-- Version: 0.8.1
+- Version: 0.8.2
 - Price: Free
 - Download: https://github.com/rocavence/Flione-app/releases/latest (.dmg; not notarized; run `xattr -dr com.apple.quarantine /Applications/Flione.app && open /Applications/Flione.app` in Terminal before first launch)
 - Author: rocavence (https://github.com/rocavence)
