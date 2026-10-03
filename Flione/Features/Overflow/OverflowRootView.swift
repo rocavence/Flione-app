@@ -284,7 +284,8 @@ private struct NowPlayingPill: View {
             // 左右最邊緣留較寬的內距，控制不貼邊
             .padding(.horizontal, Spacing.s32)
             .padding(.vertical, Spacing.s8)
-            .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous), tint: FinifyColor.Ocean.surface1.opacity(0.55), fallback: FinifyColor.Ocean.surface1.opacity(0.88))
+            // 膠囊形：兩側全圓角
+            .finifyGlass(in: Capsule(), tint: FinifyColor.Ocean.surface1.opacity(0.55), fallback: FinifyColor.Ocean.surface1.opacity(0.88))
             .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 30, y: 12))
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { onHeight($0) }
             .padding(.bottom, Self.bottomMargin)
