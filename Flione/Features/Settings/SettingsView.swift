@@ -5,6 +5,14 @@ enum ThemePreference: String, CaseIterable {
     case light = "Light"
     case dark = "Dark"
 
+    var title: LocalizedStringResource {
+        switch self {
+        case .system: "System"
+        case .light: "Light"
+        case .dark: "Dark"
+        }
+    }
+
     var colorScheme: ColorScheme? {
         switch self {
         case .system: nil
@@ -21,6 +29,14 @@ enum SettingsKey {
     static let menuBar = "FinifyMenuBar"
     static let floatingOnTop = "FinifyFloatingOnTop"
     static let wallDrift = "FinifyWallDrift"
+    /// Infinity 漂移速度倍率（0.5／1／2）
+    static let wallDriftSpeed = "FinifyWallDriftSpeed"
+    /// Infinity 封面圓角；關掉時封面之間也沒有間距
+    static let wallRounded = "FinifyWallRounded"
+    /// Cover Flow 封面圓角
+    static let flowRounded = "FinifyFlowRounded"
+    /// Cover Flow 兩側封面變暗的程度（0 = 不變暗，預設 0.25）
+    static let flowDim = "FinifyFlowDim"
     static let trackNotifications = "FinifyTrackNotifications"
     static let onlineLyrics = "FinifyOnlineLyrics"
 }
@@ -32,6 +48,14 @@ struct SettingsCard: View {
         case general = "General"
         case appearance = "Appearance"
         case jellyfin = "Jellyfin"
+
+        var title: LocalizedStringResource {
+            switch self {
+            case .general: "General"
+            case .appearance: "Appearance"
+            case .jellyfin: "Jellyfin"
+            }
+        }
     }
 
     @Environment(AppEnvironment.self) private var app
@@ -62,9 +86,8 @@ struct SettingsCard: View {
             .scrollBounceBehavior(.basedOnSize)
         }
         .padding(Spacing.s32)
-        .frame(width: 640)
-        .frame(maxHeight: 620)
-        .fixedSize(horizontal: false, vertical: true)
+        // 固定大小：切換分頁時卡片不會因為內容長短而上下跳動
+        .frame(width: 640, height: 600)
         .background {
             ZStack {
                 FinifyColor.elevated
@@ -84,8 +107,8 @@ struct SettingsCard: View {
 
 /// 一列設定：左邊名稱與說明，右邊控制項；列與列之間用細線分隔
 private struct SettingRow<Control: View>: View {
-    let title: String
-    var detail: String?
+    let title: LocalizedStringResource
+    var detail: LocalizedStringResource?
     @ViewBuilder let control: Control
 
     var body: some View {
@@ -107,13 +130,13 @@ private struct SettingRow<Control: View>: View {
 }
 
 private struct SettingToggle: View {
-    let title: String
-    var detail: String?
+    let title: LocalizedStringResource
+    var detail: LocalizedStringResource?
     @Binding var isOn: Bool
 
     var body: some View {
         SettingRow(title: title, detail: detail) {
-            Toggle(title, isOn: $isOn).labelsHidden().toggleStyle(PillSwitchStyle())
+            Toggle(isOn: $isOn) { Text(title) }.labelsHidden().toggleStyle(PillSwitchStyle())
         }
     }
 }
@@ -141,7 +164,7 @@ private struct PillSwitchStyle: ToggleStyle {
 
 /// 右側的膠囊按鈕（例如 Clear、Refresh）：淡淡的 accent 底
 private struct PillButton: View {
-    let title: String
+    let title: LocalizedStringResource
     var destructive = false
     let action: () -> Void
     @Environment(\.isEnabled) private var isEnabled
@@ -168,20 +191,20 @@ private struct PillButton: View {
 
 /// 右側的選單（目前值＋上下箭頭），外觀與 PillButton 一致
 private struct PillMenu<Value: Hashable>: View {
-    let title: String
+    let title: LocalizedStringResource
     @Binding var selection: Value
-    let options: [(Value, String)]
+    let options: [(Value, LocalizedStringResource)]
 
     var body: some View {
         Menu {
-            Picker(title, selection: $selection) {
+            Picker(selection: $selection) {
                 ForEach(options, id: \.0) { Text($0.1).tag($0.0) }
-            }
+            } label: { Text(title) }
             .pickerStyle(.inline)
             .labelsHidden()
         } label: {
             HStack(spacing: Spacing.s4) {
-                Text(options.first { $0.0 == selection }?.1 ?? "")
+                if let current = options.first(where: { $0.0 == selection }) { Text(current.1) }
                 FinifyIcon(.chevronDown, size: .compact).scaleEffect(0.75)
             }
             .finifyFont(.bodyEmphasis)
@@ -195,7 +218,7 @@ private struct PillMenu<Value: Hashable>: View {
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
-        .accessibilityLabel(title)
+        .accessibilityLabel(Text(title))
     }
 }
 
@@ -208,7 +231,7 @@ private struct TabPicker: View {
             ForEach(SettingsCard.Tab.allCases, id: \.self) { tab in
                 let selected = tab == selection
                 Button { selection = tab } label: {
-                    Text(tab.rawValue)
+                    Text(tab.title)
                         .finifyFont(selected ? .bodyEmphasis : .body)
                         .foregroundStyle(selected ? FinifyColor.onPrimary : FinifyColor.muted)
                         .padding(.horizontal, Spacing.s16)
@@ -252,10 +275,22 @@ private struct GeneralSettings: View {
     @AppStorage(SettingsKey.trackNotifications) private var trackNotifications = true
     @AppStorage(SettingsKey.onlineLyrics) private var onlineLyrics = false
 
+    @State private var language = AppLanguage.saved
+
     var body: some View {
         @Bindable var app = app
+        SettingRow(title: "Language",
+                   detail: language == AppLanguage.launched ? "The language of menus, buttons, and messages." : "Restart Flione to switch languages.") {
+            HStack(spacing: Spacing.s8) {
+                if language != AppLanguage.launched {
+                    PillButton(title: "Restart") { AppLanguage.relaunch() }
+                }
+                PillMenu(title: "Language", selection: $language, options: AppLanguage.allCases.map { ($0, $0.title) })
+            }
+        }
+        .onChange(of: language) { AppLanguage.save(language) }
         SettingRow(title: "Open Flione in", detail: "The view you see when Flione starts.") {
-            PillMenu(title: "Open Flione in", selection: $app.viewMode, options: ViewMode.allCases.map { ($0, $0.title) })
+            PillMenu(title: "Open Flione in", selection: $app.viewMode, options: ViewMode.allCases.map { ($0, LocalizedStringResource(stringLiteral: $0.title)) })
         }
         SettingToggle(title: "Remember my choice", detail: "Start in the view you used last.", isOn: $app.rememberMode)
         SettingToggle(title: "Menu bar player", detail: "Control playback from the menu bar.", isOn: $showsMenuBar)
@@ -277,25 +312,63 @@ private struct AppearanceSettings: View {
     @AppStorage(SettingsKey.theme) private var theme: ThemePreference = .system
     @AppStorage(SettingsKey.ambient) private var ambient = true
     @AppStorage(SettingsKey.wallDrift) private var wallDrift = true
+    @AppStorage(SettingsKey.wallDriftSpeed) private var wallDriftSpeed = 1.0
+    @AppStorage(SettingsKey.wallRounded) private var wallRounded = true
+    @AppStorage(SettingsKey.flowRounded) private var flowRounded = true
+    @AppStorage(SettingsKey.flowDim) private var flowDim = 0.25
     @AppStorage("FinifyWallDensity") private var density = -1
     @AppStorage("FinifyFlowSize") private var flowSize = -1
 
+    /// 漂移：關閉＝0，其餘是速度倍率
+    private var drift: Binding<Double> {
+        Binding(get: { wallDrift ? wallDriftSpeed : 0 },
+                set: { wallDrift = $0 > 0; if $0 > 0 { wallDriftSpeed = $0 } })
+    }
+
     var body: some View {
-        SettingRow(title: "Theme", detail: "Infinity and Cover Flow are always dark.") {
-            PillMenu(title: "Theme", selection: $theme, options: ThemePreference.allCases.map { ($0, $0.rawValue) })
+        SettingsSectionHeader(title: "Modern")
+        SettingRow(title: "Theme", detail: "Light or dark for Modern. Infinity and Cover Flow are always dark.") {
+            PillMenu(title: "Theme", selection: $theme, options: ThemePreference.allCases.map { ($0, $0.title) })
         }
         SettingToggle(title: "Ambient background",
                       detail: "A glow in the colors of the album behind Modern, and blurred artwork behind Infinity and Cover Flow.",
                       isOn: $ambient)
-        SettingRow(title: "Album size", detail: "How large the covers are in Infinity.") {
+
+        SettingsSectionHeader(title: "Infinity")
+        SettingToggle(title: "Rounded covers", detail: "Turn off for square covers that touch each other, with no gaps.", isOn: $wallRounded)
+        SettingRow(title: "Album size", detail: "How large the covers are.") {
             PillMenu(title: "Album size", selection: $density,
                      options: [(-1, "Auto")] + WallDensity.allCases.map { ($0.rawValue, $0.label) })
         }
-        SettingRow(title: "Cover Flow size", detail: "How large the center album is in Cover Flow.") {
-            PillMenu(title: "Cover Flow size", selection: $flowSize,
+        SettingRow(title: "Drift", detail: "How fast the wall moves on its own when the pointer is away.") {
+            PillMenu(title: "Drift", selection: drift, options: [(0, "Off"), (0.5, "Slow"), (1, "Normal"), (2, "Fast")])
+        }
+
+        SettingsSectionHeader(title: "Cover Flow")
+        SettingToggle(title: "Rounded covers", detail: "Turn off for square covers.", isOn: $flowRounded)
+        SettingRow(title: "Cover size", detail: "How large the center album is.") {
+            PillMenu(title: "Cover size", selection: $flowSize,
                      options: [(-1, "Auto")] + (0..<AlbumFlowView.sizeSteps).map { ($0, "\($0 + 1) of \(AlbumFlowView.sizeSteps)") })
         }
-        SettingToggle(title: "Drifting album wall", detail: "The wall in Infinity slowly moves when the pointer is away.", isOn: $wallDrift)
+        SettingRow(title: "Dim side covers", detail: "How much the covers beside the center one fade into the dark.") {
+            PillMenu(title: "Dim side covers", selection: $flowDim, options: [(0, "Off"), (0.15, "Subtle"), (0.25, "Medium"), (0.45, "Strong")])
+        }
+    }
+}
+
+/// 分頁內的小標題（例如 Appearance 裡的 Modern／Infinity／Cover Flow）
+private struct SettingsSectionHeader: View {
+    let title: LocalizedStringKey
+
+    var body: some View {
+        Text(title)
+            .finifyFont(.micro)
+            .textCase(.uppercase)
+            .foregroundStyle(FinifyColor.faint)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, Spacing.s24)
+            .padding(.bottom, Spacing.s4)
+            .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -304,10 +377,10 @@ private struct AccountSettings: View {
 
     var body: some View {
         if let session = app.session {
-            SettingRow(title: session.userName, detail: "Signed in to \(session.serverName)") {
+            SettingRow(title: "\(session.userName)", detail: "Signed in to \(session.serverName)") {
                 UserAvatar(session: session, size: 40)
             }
-            SettingRow(title: "Server address", detail: session.serverURL.absoluteString) { EmptyView() }
+            SettingRow(title: "Server address", detail: "\(session.serverURL.absoluteString)") { EmptyView() }
             SettingRow(title: "Library", detail: "\(app.library.albums.count) albums. Refresh after adding music on the server.") {
                 PillButton(title: app.library.state == .loading ? "Refreshing…" : "Refresh") { Task { await app.library.refresh() } }
                     .disabled(app.library.state == .loading)

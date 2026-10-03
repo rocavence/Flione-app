@@ -28,6 +28,7 @@ struct OverflowRootView: View {
     @State private var sortedAlbums: [Album] = []
     /// Magic 排序（"" = 關閉）；選了會暫時取代一般排序
     @AppStorage("FinifyMagicSort") private var magicRaw = ""
+    @AppStorage(SettingsKey.wallRounded) private var wallRounded = true
     private var magic: MagicSort? { MagicSort(rawValue: magicRaw) }
     @State private var openAlbum: Album?
     @State private var scrollToPlaying = 0
@@ -93,7 +94,8 @@ struct OverflowRootView: View {
                             scrollToPlayingToken: scrollToPlaying,
                             acceptsKeyboard: openAlbum == nil && !app.isSearchPresented,
                             typeToSelectByTitle: sort == .title,
-                            bottomInset: wallBottomInset
+                            bottomInset: wallBottomInset,
+                            rounded: wallRounded
                         )
                     case .flow:
                         AlbumFlowView(albums: sortedAlbums, playingAlbumID: playingAlbumID, onPlay: play,
@@ -143,11 +145,11 @@ struct OverflowRootView: View {
             // 左上角：排序、大小、回到正在播放（Infinity 與 Cover Flow 共用）
             Menu {
                 Picker("Sort by", selection: $sort) {
-                    ForEach(AlbumSort.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    ForEach(AlbumSort.allCases, id: \.self) { Text($0.title).tag($0) }
                 }
                 .pickerStyle(.inline)
             } label: {
-                Text("Sort by: \(sort.rawValue)")
+                Text("Sort by: \(sort.title)")
                     .finifyFont(.caption)
                     .foregroundStyle(FinifyColor.Overflow.muted)
             }
@@ -157,7 +159,7 @@ struct OverflowRootView: View {
             .padding(.horizontal, Spacing.s12)
             .frame(height: 34)
             .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
-            .accessibilityLabel("Sort albums, \(sort.rawValue)")
+            .accessibilityLabel(Text("Sort albums, \(sort.title)"))
 
             MagicSortMenu(selection: magic) { choice in
                 magicRaw = choice?.rawValue ?? ""
@@ -296,8 +298,8 @@ private struct NowPlayingPill: View {
 private struct SizeSlider: View {
     @Binding var step: Int
     let count: Int
-    let label: String
-    let valueText: String
+    let label: LocalizedStringResource
+    let valueText: LocalizedStringResource
 
     var body: some View {
         let last = Double(count - 1)
@@ -310,8 +312,8 @@ private struct SizeSlider: View {
                 step = next
             }
                 .frame(width: 96)
-                .accessibilityLabel(label)
-                .accessibilityValue(valueText)
+                .accessibilityLabel(Text(label))
+                .accessibilityValue(Text(valueText))
             FinifyIconButton(icon: .plus, label: "Larger", size: .compact) { change(1) }
                 .disabled(step >= count - 1)
         }
@@ -340,7 +342,7 @@ private struct MagicSortMenu: View {
             ForEach(MagicSort.allCases, id: \.self) { option in
                 // Toggle 在選單裡會顯示勾選；再點一次同一項也會重新套用（Shuffle 重洗）
                 Toggle(isOn: Binding(get: { selection == option }, set: { _ in onSelect(option) })) {
-                    Text(option.rawValue)
+                    Text(option.title)
                     Text(option.subtitle)
                 }
             }
@@ -351,7 +353,7 @@ private struct MagicSortMenu: View {
         } label: {
             HStack(spacing: Spacing.s4) {
                 FinifyIcon(.wandSparkle, weight: selection == nil ? .outline : .filled, size: .compact)
-                Text(selection?.rawValue ?? "Magic").finifyFont(.caption)
+                (selection.map { Text($0.title) } ?? Text("Magic")).finifyFont(.caption)
             }
             .foregroundStyle(selection == nil ? FinifyColor.Overflow.muted : FinifyColor.Overflow.ink)
             .padding(.horizontal, Spacing.s12)
@@ -366,6 +368,6 @@ private struct MagicSortMenu: View {
         .menuIndicator(.hidden)
         .fixedSize()
         .help("Magic sort: rearrange your library by color, genre, era, or chance")
-        .accessibilityLabel(selection.map { "Magic sort, \($0.rawValue)" } ?? "Magic sort")
+        .accessibilityLabel(selection.map { Text("Magic sort, \($0.title)") } ?? Text("Magic sort"))
     }
 }

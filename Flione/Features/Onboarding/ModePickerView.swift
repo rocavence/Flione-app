@@ -33,8 +33,8 @@ struct ModePickerView: View {
 
 private struct ModeCard: View {
     let mode: ViewMode
-    let title: String
-    let subtitle: String
+    let title: LocalizedStringResource
+    let subtitle: LocalizedStringResource
     let choose: () -> Void
 
     @Environment(AppEnvironment.self) private var app

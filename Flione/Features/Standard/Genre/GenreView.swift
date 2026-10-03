@@ -16,7 +16,7 @@ struct GenreView: View {
                         Text("Genre").finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
                         Text(genre.name).finifyFont(.display).foregroundStyle(FinifyColor.ink).lineLimit(2).minimumScaleFactor(0.6)
                         if case .loaded(let list) = albums {
-                            Text("\(list.count) \(list.count == 1 ? "album" : "albums")").finifyFont(.body).foregroundStyle(FinifyColor.muted)
+                            Text("\(list.count) albums").finifyFont(.body).foregroundStyle(FinifyColor.muted)
                         }
                         FinifyButton(title: "Shuffle", icon: .shuffle, kind: .primary) {
                             Task {

@@ -1,0 +1,3090 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "": {
+      "shouldTranslate": false
+    },
+    "%@": {
+      "shouldTranslate": false
+    },
+    "%@ (⌘%@)": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@（⌘%2$@）"
+          }
+        }
+      }
+    },
+    "%@ on %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 在 %2$@"
+          }
+        }
+      }
+    },
+    "%@ on this Mac. Covers download again when needed.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這台 Mac 上占用 %@，需要時會重新下載封面。"
+          }
+        }
+      }
+    },
+    "%@, %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@，%2$@"
+          }
+        }
+      }
+    },
+    "%@, %@, %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@，%2$@，%3$@"
+          }
+        }
+      }
+    },
+    "%@, genre": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@，曲風"
+          }
+        }
+      }
+    },
+    "%@, playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@，播放清單"
+          }
+        }
+      }
+    },
+    "%@, playlist, %lld songs": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$@, playlist, %2$lld song"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$@, playlist, %2$lld songs"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@，播放清單，%2$lld 首歌"
+          }
+        }
+      }
+    },
+    "%@: %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@：%2$@"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "shouldTranslate": false
+    },
+    "%lld albums": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld album"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld albums"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 張專輯"
+          }
+        }
+      }
+    },
+    "%lld albums on %@, ready when you are.": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$lld album on %2$@, ready when you are."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$lld albums on %2$@, ready when you are."
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%2$@ 上有 %1$lld 張專輯，隨時可以聽。"
+          }
+        }
+      }
+    },
+    "%lld albums, ready when you are.": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld album, ready when you are."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld albums, ready when you are."
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 張專輯，隨時可以聽。"
+          }
+        }
+      }
+    },
+    "%lld albums. Refresh after adding music on the server.": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld album. Refresh after adding music on the server."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld albums. Refresh after adding music on the server."
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 張專輯。在伺服器加入新音樂後請重新整理。"
+          }
+        }
+      }
+    },
+    "%lld of %lld": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第 %1$lld 段，共 %2$lld 段"
+          }
+        }
+      }
+    },
+    "%lld percent": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    },
+    "%lld songs": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld song"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld songs"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 首歌"
+          }
+        }
+      }
+    },
+    "%lld songs · %@": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$lld song · %2$@"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$lld songs · %2$@"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 首歌 · %2$@"
+          }
+        }
+      }
+    },
+    "A fresh random order every time": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每次都重新隨機排列"
+          }
+        }
+      }
+    },
+    "A glow in the colors of the album behind Modern, and blurred artwork behind Infinity and Cover Flow.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern 的背景帶上專輯的顏色；Infinity 和 Cover Flow 的背景是模糊的封面。"
+          }
+        }
+      }
+    },
+    "Add %@ to Favorites": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將「%@」加入最愛"
+          }
+        }
+      }
+    },
+    "Add .lrc or .txt lyric files next to your music on the server, or search LRCLIB, a free online lyrics database.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在伺服器的音樂檔旁放上 .lrc 或 .txt 歌詞檔，或搜尋 LRCLIB（免費的線上歌詞資料庫）。"
+          }
+        }
+      }
+    },
+    "Add music to your Jellyfin server and it will appear here.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Jellyfin 伺服器加入音樂後，就會出現在這裡。"
+          }
+        }
+      }
+    },
+    "Add to Favorites": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入最愛"
+          }
+        }
+      }
+    },
+    "Add to Playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入播放清單"
+          }
+        }
+      }
+    },
+    "Add to Queue": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入播放佇列"
+          }
+        }
+      }
+    },
+    "Album": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "專輯"
+          }
+        }
+      }
+    },
+    "Album size": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "專輯大小"
+          }
+        }
+      }
+    },
+    "Album size (pinch to resize)": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "專輯大小（可用雙指縮放）"
+          }
+        }
+      }
+    },
+    "Album · %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "專輯 · %@"
+          }
+        }
+      }
+    },
+    "Albums": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "專輯"
+          }
+        }
+      }
+    },
+    "Albums tagged with this genre on your server will show up here.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器上標記為這個曲風的專輯會出現在這裡。"
+          }
+        }
+      }
+    },
+    "Albums you play will show up here.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放過的專輯會出現在這裡。"
+          }
+        }
+      }
+    },
+    "Ambient background": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景光暈"
+          }
+        }
+      }
+    },
+    "Appearance": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外觀"
+          }
+        }
+      }
+    },
+    "Artist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "藝人"
+          }
+        }
+      }
+    },
+    "Artists": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "藝人"
+          }
+        }
+      }
+    },
+    "Artwork cache": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面快取"
+          }
+        }
+      }
+    },
+    "Auto": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上一頁"
+          }
+        }
+      }
+    },
+    "By Genre": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "依曲風"
+          }
+        }
+      }
+    },
+    "Can't find a music server at that address. Check the address, and that this Mac can reach it.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這個位址找不到音樂伺服器。請確認位址正確，以及這台 Mac 連得到它。"
+          }
+        }
+      }
+    },
+    "Can't load albums.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入專輯。"
+          }
+        }
+      }
+    },
+    "Can't load genres.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入曲風。"
+          }
+        }
+      }
+    },
+    "Can't load lyrics.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入歌詞。"
+          }
+        }
+      }
+    },
+    "Can't load songs.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入歌曲。"
+          }
+        }
+      }
+    },
+    "Can't load this album.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入這張專輯。"
+          }
+        }
+      }
+    },
+    "Can't load this genre.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入這個曲風。"
+          }
+        }
+      }
+    },
+    "Can't load this playlist.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入這個播放清單。"
+          }
+        }
+      }
+    },
+    "Can't load tracks.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入曲目。"
+          }
+        }
+      }
+    },
+    "Can't load your favorites.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入你的最愛。"
+          }
+        }
+      }
+    },
+    "Can't reach your music server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連不到你的音樂伺服器。"
+          }
+        }
+      }
+    },
+    "Can't search right now.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前無法搜尋。"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "Check your connection to the music server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請檢查與音樂伺服器的連線。"
+          }
+        }
+      }
+    },
+    "Choose your experience": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇你的瀏覽方式"
+          }
+        }
+      }
+    },
+    "Clear": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除"
+          }
+        }
+      }
+    },
+    "Clear search": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除搜尋"
+          }
+        }
+      }
+    },
+    "Close": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉"
+          }
+        }
+      }
+    },
+    "Close (Esc)": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉（Esc）"
+          }
+        }
+      }
+    },
+    "Close Settings": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉設定"
+          }
+        }
+      }
+    },
+    "Connect": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線"
+          }
+        }
+      }
+    },
+    "Connect to your Jellyfin server to bring your library in.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線到你的 Jellyfin 伺服器，把音樂庫帶進來。"
+          }
+        }
+      }
+    },
+    "Connecting…": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線中⋯"
+          }
+        }
+      }
+    },
+    "Control playback from the menu bar.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從選單列控制播放。"
+          }
+        }
+      }
+    },
+    "Couldn't add to “%@”. Check your connection to the music server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法加入「%@」。請檢查與音樂伺服器的連線。"
+          }
+        }
+      }
+    },
+    "Couldn't create the playlist. Check your connection to the music server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法建立播放清單。請檢查與音樂伺服器的連線。"
+          }
+        }
+      }
+    },
+    "Couldn't delete “%@”. Check your connection to the music server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法刪除「%@」。請檢查與音樂伺服器的連線。"
+          }
+        }
+      }
+    },
+    "Couldn't play “%@”. Check that your music server is reachable.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法播放「%@」。請確認連得到音樂伺服器。"
+          }
+        }
+      }
+    },
+    "Couldn't play “%@”. Skipping to the next song.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法播放「%@」，跳到下一首。"
+          }
+        }
+      }
+    },
+    "Couldn't save “%@”. Check your connection to the music server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法儲存「%@」。請檢查與音樂伺服器的連線。"
+          }
+        }
+      }
+    },
+    "Couldn't update your favorites. Check your connection to the music server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法更新你的最愛。請檢查與音樂伺服器的連線。"
+          }
+        }
+      }
+    },
+    "Cover": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面"
+          }
+        }
+      }
+    },
+    "Cover Flow": {
+      "shouldTranslate": false
+    },
+    "Cover size": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面大小"
+          }
+        }
+      }
+    },
+    "Covers flow through the color wheel": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面依色相排成彩虹"
+          }
+        }
+      }
+    },
+    "Create": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建立"
+          }
+        }
+      }
+    },
+    "Create Playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建立播放清單"
+          }
+        }
+      }
+    },
+    "Create a playlist with %lld songs.": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Create a playlist with %lld song."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Create a playlist with %lld songs."
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用 %lld 首歌建立播放清單。"
+          }
+        }
+      }
+    },
+    "Create an empty playlist.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建立空的播放清單。"
+          }
+        }
+      }
+    },
+    "Create your first playlist and make the library yours.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建立第一個播放清單，讓音樂庫更像你的。"
+          }
+        }
+      }
+    },
+    "Dark": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深色"
+          }
+        }
+      }
+    },
+    "Delete Playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除播放清單"
+          }
+        }
+      }
+    },
+    "Delete playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除播放清單"
+          }
+        }
+      }
+    },
+    "Delete “%@”?": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要刪除「%@」嗎？"
+          }
+        }
+      }
+    },
+    "Depth. An ocean of albums with no edge;\nkeep swimming and discover.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深度。沒有邊際的專輯之海，\n一直游下去，一直發現。"
+          }
+        }
+      }
+    },
+    "Dim side covers": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "兩側封面變暗"
+          }
+        }
+      }
+    },
+    "Disc %lld": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第 %lld 片"
+          }
+        }
+      }
+    },
+    "Drift": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "漂移"
+          }
+        }
+      }
+    },
+    "English": {
+      "shouldTranslate": false
+    },
+    "FLIONE": {
+      "shouldTranslate": false
+    },
+    "Fast": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快"
+          }
+        }
+      }
+    },
+    "Favorite Current Song": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將目前歌曲加入最愛"
+          }
+        }
+      }
+    },
+    "Favorites": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最愛"
+          }
+        }
+      }
+    },
+    "Find": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尋找"
+          }
+        }
+      }
+    },
+    "Find missing lyrics online": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "線上尋找缺少的歌詞"
+          }
+        }
+      }
+    },
+    "Flione": {
+      "shouldTranslate": false
+    },
+    "Flione talks only to your Jellyfin server. It has no account, no analytics, and no tracking.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flione 只和你的 Jellyfin 伺服器連線。沒有帳號、沒有分析、也不追蹤。"
+          }
+        }
+      }
+    },
+    "Flione talks only to your server. No account, no tracking.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flione 只和你的伺服器連線。沒有帳號，也不追蹤。"
+          }
+        }
+      }
+    },
+    "Flip to see tracks": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翻面看曲目"
+          }
+        }
+      }
+    },
+    "Focus on the album that's playing": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移到正在播放的專輯"
+          }
+        }
+      }
+    },
+    "Forward": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一頁"
+          }
+        }
+      }
+    },
+    "From the brightest covers to the darkest": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從最亮的封面排到最暗"
+          }
+        }
+      }
+    },
+    "From the oldest records to the newest": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從最舊的唱片排到最新"
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一般"
+          }
+        }
+      }
+    },
+    "Genre": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "曲風"
+          }
+        }
+      }
+    },
+    "Genres": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "曲風"
+          }
+        }
+      }
+    },
+    "Go to Album": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前往專輯"
+          }
+        }
+      }
+    },
+    "Go to Artist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前往藝人"
+          }
+        }
+      }
+    },
+    "Good afternoon": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "午安"
+          }
+        }
+      }
+    },
+    "Good evening": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "晚安"
+          }
+        }
+      }
+    },
+    "Good morning": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "早安"
+          }
+        }
+      }
+    },
+    "Grouped by genre": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "依曲風分組"
+          }
+        }
+      }
+    },
+    "Home": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首頁"
+          }
+        }
+      }
+    },
+    "How fast the wall moves on its own when the pointer is away.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "游標離開時，封面牆自己移動的速度。"
+          }
+        }
+      }
+    },
+    "How large the center album is.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中間那張專輯的大小。"
+          }
+        }
+      }
+    },
+    "How large the covers are.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面的大小。"
+          }
+        }
+      }
+    },
+    "How much the covers beside the center one fade into the dark.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中間以外的封面變暗的程度。"
+          }
+        }
+      }
+    },
+    "Huge": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特大"
+          }
+        }
+      }
+    },
+    "Infinity": {
+      "shouldTranslate": false
+    },
+    "Jellyfin": {
+      "shouldTranslate": false
+    },
+    "Keep on top": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保持在最上層"
+          }
+        }
+      }
+    },
+    "Language": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "語言"
+          }
+        }
+      }
+    },
+    "Large": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大"
+          }
+        }
+      }
+    },
+    "Larger": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "放大"
+          }
+        }
+      }
+    },
+    "Late night listening": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深夜聽歌時間"
+          }
+        }
+      }
+    },
+    "Library": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音樂庫"
+          }
+        }
+      }
+    },
+    "Light": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "淺色"
+          }
+        }
+      }
+    },
+    "Light or dark for Modern. Infinity and Cover Flow are always dark.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern 的淺色或深色。Infinity 和 Cover Flow 固定是深色。"
+          }
+        }
+      }
+    },
+    "Light to Dark": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由亮到暗"
+          }
+        }
+      }
+    },
+    "Lyrics": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "歌詞"
+          }
+        }
+      }
+    },
+    "Lyrics from LRCLIB": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "歌詞來自 LRCLIB"
+          }
+        }
+      }
+    },
+    "Magic": {
+      "shouldTranslate": false
+    },
+    "Magic sort": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic 排序"
+          }
+        }
+      }
+    },
+    "Magic sort, %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic 排序，%@"
+          }
+        }
+      }
+    },
+    "Magic sort: rearrange your library by color, genre, era, or chance": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic 排序：依顏色、曲風、年代或隨機重新排列音樂庫"
+          }
+        }
+      }
+    },
+    "Medium": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中等"
+          }
+        }
+      }
+    },
+    "Menu bar player": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選單列播放器"
+          }
+        }
+      }
+    },
+    "Mini Player": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "迷你播放器"
+          }
+        }
+      }
+    },
+    "Modern": {
+      "shouldTranslate": false
+    },
+    "More by %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 的其他專輯"
+          }
+        }
+      }
+    },
+    "Move Down": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下移"
+          }
+        }
+      }
+    },
+    "Move Up": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上移"
+          }
+        }
+      }
+    },
+    "Move to center": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移到中間"
+          }
+        }
+      }
+    },
+    "Music": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音樂"
+          }
+        }
+      }
+    },
+    "Mute": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "靜音"
+          }
+        }
+      }
+    },
+    "Neither your server nor LRCLIB has lyrics for it.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的伺服器和 LRCLIB 都沒有這首歌的歌詞。"
+          }
+        }
+      }
+    },
+    "New Playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新增播放清單"
+          }
+        }
+      }
+    },
+    "New Playlist…": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新增播放清單⋯"
+          }
+        }
+      }
+    },
+    "New albums on your server will show up here.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器上的新專輯會出現在這裡。"
+          }
+        }
+      }
+    },
+    "New on %@: %@ by %@.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 新加入：%3$@ 的《%2$@》。"
+          }
+        }
+      }
+    },
+    "Next": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一首"
+          }
+        }
+      }
+    },
+    "No albums in %@.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 沒有專輯。"
+          }
+        }
+      }
+    },
+    "No favorites yet.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "還沒有最愛的歌。"
+          }
+        }
+      }
+    },
+    "No lyrics for this song.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這首歌沒有歌詞。"
+          }
+        }
+      }
+    },
+    "No matches for “%@”": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找不到「%@」"
+          }
+        }
+      }
+    },
+    "Normal": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一般"
+          }
+        }
+      }
+    },
+    "Not connected": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未連線"
+          }
+        }
+      }
+    },
+    "Nothing playing": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有播放中的歌曲"
+          }
+        }
+      }
+    },
+    "Nothing up next. Add songs with “Add to Queue”.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接下來沒有歌曲。用「加入播放佇列」加入歌曲。"
+          }
+        }
+      }
+    },
+    "Now Playing": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在播放"
+          }
+        }
+      }
+    },
+    "Now playing: %@ by %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在播放：%2$@ 的〈%1$@〉"
+          }
+        }
+      }
+    },
+    "Off": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉"
+          }
+        }
+      }
+    },
+    "Open %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開「%@」"
+          }
+        }
+      }
+    },
+    "Open Album": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開專輯"
+          }
+        }
+      }
+    },
+    "Open Flione": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開 Flione"
+          }
+        }
+      }
+    },
+    "Open Flione in": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "啟動時顯示"
+          }
+        }
+      }
+    },
+    "Opens the album": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開專輯"
+          }
+        }
+      }
+    },
+    "Password": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密碼"
+          }
+        }
+      }
+    },
+    "Pause": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暫停"
+          }
+        }
+      }
+    },
+    "Pause (Space)": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暫停（空白鍵）"
+          }
+        }
+      }
+    },
+    "Play": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放"
+          }
+        }
+      }
+    },
+    "Play %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放「%@」"
+          }
+        }
+      }
+    },
+    "Play (Space)": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放（空白鍵）"
+          }
+        }
+      }
+    },
+    "Play Next": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一首播放"
+          }
+        }
+      }
+    },
+    "Play a song to see its lyrics.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放歌曲後就能看到歌詞。"
+          }
+        }
+      }
+    },
+    "Play an album or a song and it will show up here.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放專輯或歌曲後，就會出現在這裡。"
+          }
+        }
+      }
+    },
+    "Playback": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放"
+          }
+        }
+      }
+    },
+    "Playback position": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放位置"
+          }
+        }
+      }
+    },
+    "Playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放清單"
+          }
+        }
+      }
+    },
+    "Playlist name": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放清單名稱"
+          }
+        }
+      }
+    },
+    "Playlist · %lld songs": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Playlist · %lld song"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Playlist · %lld songs"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放清單 · %lld 首歌"
+          }
+        }
+      }
+    },
+    "Playlists": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放清單"
+          }
+        }
+      }
+    },
+    "Popular": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "熱門"
+          }
+        }
+      }
+    },
+    "Presence. Drift through your music,\nalways knowing where you are.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "臨場。在音樂裡漫遊，\n始終知道自己在哪裡。"
+          }
+        }
+      }
+    },
+    "Previous": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上一首"
+          }
+        }
+      }
+    },
+    "Queue": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放佇列"
+          }
+        }
+      }
+    },
+    "Quick Picks": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "精選推薦"
+          }
+        }
+      }
+    },
+    "Quit Flione": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "結束 Flione"
+          }
+        }
+      }
+    },
+    "Rainbow": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "彩虹"
+          }
+        }
+      }
+    },
+    "Recently Added": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近加入"
+          }
+        }
+      }
+    },
+    "Recently Played": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近播放"
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新整理"
+          }
+        }
+      }
+    },
+    "Refresh Library": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新整理音樂庫"
+          }
+        }
+      }
+    },
+    "Refreshing…": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新整理中⋯"
+          }
+        }
+      }
+    },
+    "Remember my choice": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記住我的選擇"
+          }
+        }
+      }
+    },
+    "Remove %@ from Favorites": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將「%@」從最愛移除"
+          }
+        }
+      }
+    },
+    "Remove from Favorites": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從最愛移除"
+          }
+        }
+      }
+    },
+    "Remove from Playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從播放清單移除"
+          }
+        }
+      }
+    },
+    "Remove from Queue": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從播放佇列移除"
+          }
+        }
+      }
+    },
+    "Rename": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新命名"
+          }
+        }
+      }
+    },
+    "Rename Playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新命名播放清單"
+          }
+        }
+      }
+    },
+    "Rename playlist": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新命名播放清單"
+          }
+        }
+      }
+    },
+    "Repeat": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重複播放"
+          }
+        }
+      }
+    },
+    "Repeat all": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部重複"
+          }
+        }
+      }
+    },
+    "Repeat off": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重複播放：關閉"
+          }
+        }
+      }
+    },
+    "Repeat one": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "單曲重複"
+          }
+        }
+      }
+    },
+    "Restart": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新啟動"
+          }
+        }
+      }
+    },
+    "Resume": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繼續播放"
+          }
+        }
+      }
+    },
+    "Retry": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重試"
+          }
+        }
+      }
+    },
+    "Right-click any song or album and choose Add to Playlist.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在任何歌曲或專輯上按右鍵，選擇「加入播放清單」。"
+          }
+        }
+      }
+    },
+    "Rounded covers": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面圓角"
+          }
+        }
+      }
+    },
+    "Scroll %@ left": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」往左捲動"
+          }
+        }
+      }
+    },
+    "Scroll %@ right": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」往右捲動"
+          }
+        }
+      }
+    },
+    "Search": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋"
+          }
+        }
+      }
+    },
+    "Search LRCLIB": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋 LRCLIB"
+          }
+        }
+      }
+    },
+    "Search artists, albums, and songs": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋藝人、專輯和歌曲"
+          }
+        }
+      }
+    },
+    "Search your music": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋你的音樂"
+          }
+        }
+      }
+    },
+    "Searches LRCLIB when your server has no lyrics. Sends the song title and artist to lrclib.net.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器沒有歌詞時改查 LRCLIB，會把歌名和藝人送到 lrclib.net。"
+          }
+        }
+      }
+    },
+    "Server": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器"
+          }
+        }
+      }
+    },
+    "Server address": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器位址"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
+        }
+      }
+    },
+    "Settings…": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定⋯"
+          }
+        }
+      }
+    },
+    "Show Album": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示專輯"
+          }
+        }
+      }
+    },
+    "Show Queue": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示播放佇列"
+          }
+        }
+      }
+    },
+    "Show all": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示全部"
+          }
+        }
+      }
+    },
+    "Show the song when a new one starts and Flione is in the background.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flione 在背景時，換歌會顯示通知。"
+          }
+        }
+      }
+    },
+    "Shows account options": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示帳號選項"
+          }
+        }
+      }
+    },
+    "Shuffle": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隨機播放"
+          }
+        }
+      }
+    },
+    "Shuffle off": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隨機播放：關閉"
+          }
+        }
+      }
+    },
+    "Shuffle on": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隨機播放：開啟"
+          }
+        }
+      }
+    },
+    "Shuffle picks": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新推薦"
+          }
+        }
+      }
+    },
+    "Sidebar": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "側欄"
+          }
+        }
+      }
+    },
+    "Sign Out": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出"
+          }
+        }
+      }
+    },
+    "Sign Out of Jellyfin…": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出 Jellyfin⋯"
+          }
+        }
+      }
+    },
+    "Sign in to your Jellyfin server first.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請先登入你的 Jellyfin 伺服器。"
+          }
+        }
+      }
+    },
+    "Sign out": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出"
+          }
+        }
+      }
+    },
+    "Signed in to %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已登入 %@"
+          }
+        }
+      }
+    },
+    "Slow": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "慢"
+          }
+        }
+      }
+    },
+    "Small": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小"
+          }
+        }
+      }
+    },
+    "Smaller": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "縮小"
+          }
+        }
+      }
+    },
+    "Smart": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智慧型"
+          }
+        }
+      }
+    },
+    "Smart Shuffle": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智慧隨機播放"
+          }
+        }
+      }
+    },
+    "Smart Shuffle on (adds similar songs)": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智慧隨機播放：開啟（會加入相似的歌曲）"
+          }
+        }
+      }
+    },
+    "Song notifications": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "歌曲通知"
+          }
+        }
+      }
+    },
+    "Song · %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "歌曲 · %@"
+          }
+        }
+      }
+    },
+    "Songs": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "歌曲"
+          }
+        }
+      }
+    },
+    "Sort": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排序"
+          }
+        }
+      }
+    },
+    "Sort albums, %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "專輯排序，%@"
+          }
+        }
+      }
+    },
+    "Sort by": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排序方式"
+          }
+        }
+      }
+    },
+    "Sort by: %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排序：%@"
+          }
+        }
+      }
+    },
+    "Start in the view you used last.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "啟動時回到上次使用的畫面。"
+          }
+        }
+      }
+    },
+    "Stop keeping on top": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不再保持在最上層"
+          }
+        }
+      }
+    },
+    "Stops playback and returns to the sign-in screen.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止播放並回到登入畫面。"
+          }
+        }
+      }
+    },
+    "Strong": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "強"
+          }
+        }
+      }
+    },
+    "Subtle": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輕微"
+          }
+        }
+      }
+    },
+    "Suggested": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "推薦"
+          }
+        }
+      }
+    },
+    "Suggested by Smart Shuffle": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智慧隨機播放推薦的歌曲"
+          }
+        }
+      }
+    },
+    "System": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟隨系統"
+          }
+        }
+      }
+    },
+    "Tap the heart next to a song and it will show up here.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點歌曲旁的愛心，就會出現在這裡。"
+          }
+        }
+      }
+    },
+    "That username and password didn't work. Check them and try again.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用者名稱或密碼不正確。請確認後再試一次。"
+          }
+        }
+      }
+    },
+    "The language of menus, buttons, and messages.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選單、按鈕與訊息使用的語言。"
+          }
+        }
+      }
+    },
+    "The playlist is removed from your music server. The songs stay in your library.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放清單會從音樂伺服器上刪除，歌曲仍留在音樂庫。"
+          }
+        }
+      }
+    },
+    "The server answered, but something went wrong. Try again in a moment.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器有回應，但發生問題。請稍後再試。"
+          }
+        }
+      }
+    },
+    "The view you see when Flione starts.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flione 啟動時顯示的畫面。"
+          }
+        }
+      }
+    },
+    "Theme": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主題"
+          }
+        }
+      }
+    },
+    "This playlist is empty.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這個播放清單是空的。"
+          }
+        }
+      }
+    },
+    "Time Travel": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時光旅行"
+          }
+        }
+      }
+    },
+    "Tiny": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "迷你"
+          }
+        }
+      }
+    },
+    "Title": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標題"
+          }
+        }
+      }
+    },
+    "Tracks": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "曲目"
+          }
+        }
+      }
+    },
+    "Try a different spelling, or search for an artist or album name.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "換個拼法試試，或改搜尋藝人、專輯名稱。"
+          }
+        }
+      }
+    },
+    "Turn Off Magic": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉 Magic"
+          }
+        }
+      }
+    },
+    "Turn Off Shuffle": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉隨機播放"
+          }
+        }
+      }
+    },
+    "Turn off for square covers that touch each other, with no gaps.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉後封面是直角，彼此緊貼、沒有間距。"
+          }
+        }
+      }
+    },
+    "Turn off for square covers.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉後封面是直角。"
+          }
+        }
+      }
+    },
+    "Unmute": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消靜音"
+          }
+        }
+      }
+    },
+    "Up Next": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接下來播放"
+          }
+        }
+      }
+    },
+    "Username": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用者名稱"
+          }
+        }
+      }
+    },
+    "Visual. Glide between floating covers\nand pick what draws you in.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "視覺。在浮動的封面間滑行，\n挑出吸引你的那張。"
+          }
+        }
+      }
+    },
+    "Volume": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音量"
+          }
+        }
+      }
+    },
+    "Volume Down": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "降低音量"
+          }
+        }
+      }
+    },
+    "Volume Up": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提高音量"
+          }
+        }
+      }
+    },
+    "Year": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "年份"
+          }
+        }
+      }
+    },
+    "You can switch anytime with ⌘1, ⌘2, and ⌘3, or from the top-right corner.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隨時可以用 ⌘1、⌘2、⌘3，或右上角的按鈕切換。"
+          }
+        }
+      }
+    },
+    "Your library is empty.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的音樂庫是空的。"
+          }
+        }
+      }
+    },
+    "Your library will appear as soon as the connection is back.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線恢復後，音樂庫就會出現。"
+          }
+        }
+      }
+    },
+    "Your library will appear here as soon as the connection is back.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線恢復後，音樂庫就會出現在這裡。"
+          }
+        }
+      }
+    },
+    "Your music server isn't responding.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的音樂伺服器沒有回應。"
+          }
+        }
+      }
+    },
+    "Your music, your server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的音樂，你的伺服器。"
+          }
+        }
+      }
+    },
+    "Your music. Your server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的音樂，你的伺服器。"
+          }
+        }
+      }
+    },
+    "Your playlists are empty.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你還沒有播放清單。"
+          }
+        }
+      }
+    },
+    "Your queue is empty": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放佇列是空的"
+          }
+        }
+      }
+    },
+    "Your session with the music server ended. Sign in again to keep listening.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "與音樂伺服器的連線階段已結束。請重新登入以繼續聆聽。"
+          }
+        }
+      }
+    },
+    "mediabox or 192.168.1.10:8096": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mediabox 或 192.168.1.10:8096"
+          }
+        }
+      }
+    },
+    "“%@” has no songs to play.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」沒有可以播放的歌曲。"
+          }
+        }
+      }
+    },
+    "“%@” is taking a while to load. Check your connection to the music server.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」載入得比較久。請檢查與音樂伺服器的連線。"
+          }
+        }
+      }
+    },
+    "↩": {
+      "shouldTranslate": false
+    },
+    "⌘K": {
+      "shouldTranslate": false
+    },
+    "繁體中文": {
+      "shouldTranslate": false
+    }
+  },
+  "version": "1.0"
+}

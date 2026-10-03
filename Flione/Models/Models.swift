@@ -104,6 +104,15 @@ enum AlbumSort: String, CaseIterable, Sendable {
     case recentlyAdded = "Recently Added"
     case year = "Year"
 
+    var title: LocalizedStringResource {
+        switch self {
+        case .artist: "Artist"
+        case .title: "Title"
+        case .recentlyAdded: "Recently Added"
+        case .year: "Year"
+        }
+    }
+
     /// 音樂庫本身已依藝人排序（server 端），artist 直接回傳
     func apply(to albums: [Album]) -> [Album] {
         switch self {

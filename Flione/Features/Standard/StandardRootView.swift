@@ -148,7 +148,7 @@ private struct StandardTopBar: View {
 /// 上一頁／下一頁的圓形按鈕
 private struct CircleNavButton: View {
     let icon: Reicon
-    let label: String
+    let label: LocalizedStringResource
     let action: () -> Void
     @Environment(\.isEnabled) private var isEnabled
     @State private var hovering = false
@@ -164,8 +164,8 @@ private struct CircleNavButton: View {
         .buttonStyle(PressScaleStyle())
         .opacity(isEnabled ? 1 : 0.35)
         .onHover { hovering = $0 }
-        .help(label)
-        .accessibilityLabel(label)
+        .help(Text(label))
+        .accessibilityLabel(Text(label))
     }
 }
 

@@ -163,11 +163,11 @@ struct FinifyCommands: Commands {
 
 /// 選單中開啟其他視窗（Commands 裡不能直接用 openWindow environment）
 private struct OpenWindowButton: View {
-    let title: String
+    let title: LocalizedStringResource
     let windowID: String
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        Button(title) { openWindow(id: windowID) }
+        Button { openWindow(id: windowID) } label: { Text(title) }
     }
 }

@@ -7,14 +7,14 @@ extension AppEnvironment {
             self?.favorites.toggle(album.id)
         }
 
-        let playlistsItem = NSMenuItem(title: "Add to Playlist", action: nil, keyEquivalent: "")
+        let playlistsItem = NSMenuItem(title: String(localized: "Add to Playlist"), action: nil, keyEquivalent: "")
         let submenu = NSMenu()
         submenu.addItem(ClosureMenuItem("New Playlist…") { [weak self] in
             Task { @MainActor in self?.newPlaylistTracks = (try? await self?.repository?.tracks(inAlbum: album.id)) ?? [] }
         })
         if !playlists.playlists.isEmpty { submenu.addItem(.separator()) }
         for playlist in playlists.playlists {
-            submenu.addItem(ClosureMenuItem(playlist.name) { [weak self] in
+            submenu.addItem(ClosureMenuItem(verbatim: playlist.name) { [weak self] in
                 Task { @MainActor in
                     guard let self else { return }
                     let tracks = (try? await self.repository?.tracks(inAlbum: album.id)) ?? []

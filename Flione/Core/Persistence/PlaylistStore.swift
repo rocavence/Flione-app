@@ -68,7 +68,7 @@ final class PlaylistStore {
             playlists.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             return playlist
         } catch {
-            failureMessage = "Couldn't create the playlist. Check your connection to the music server."
+            failureMessage = String(localized: "Couldn't create the playlist. Check your connection to the music server.")
             return nil
         }
     }
@@ -89,7 +89,7 @@ final class PlaylistStore {
                 revisions[playlist.id, default: 0] += 1
                 updateSummary(playlist.id, name: name, tracks: current + tracks)
             } catch {
-                failureMessage = "Couldn't add to “\(playlist.name)”. Check your connection to the music server."
+                failureMessage = String(localized: "Couldn't add to “\(playlist.name)”. Check your connection to the music server.")
             }
         }
     }
@@ -106,7 +106,7 @@ final class PlaylistStore {
                 updateSummary(playlist.id, name: name, tracks: tracks)
                 succeeded = true
             } catch {
-                failureMessage = "Couldn't save “\(name)”. Check your connection to the music server."
+                failureMessage = String(localized: "Couldn't save “\(name)”. Check your connection to the music server.")
             }
         }
         return succeeded
@@ -121,7 +121,7 @@ final class PlaylistStore {
                 playlists.removeAll { $0.id == playlist.id }
                 succeeded = true
             } catch {
-                failureMessage = "Couldn't delete “\(playlist.name)”. Check your connection to the music server."
+                failureMessage = String(localized: "Couldn't delete “\(playlist.name)”. Check your connection to the music server.")
             }
         }
         return succeeded

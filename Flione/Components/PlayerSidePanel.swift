@@ -54,7 +54,7 @@ struct PlayerSidePanel: View {
         .padding(.vertical, Spacing.s12)
     }
 
-    private func tab(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+    private func tab(_ title: LocalizedStringResource, selected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
                 .finifyFont(selected ? .bodyEmphasis : .body)

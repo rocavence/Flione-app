@@ -9,7 +9,17 @@ enum MagicSort: String, CaseIterable, Sendable {
     case genre = "By Genre"
     case timeTravel = "Time Travel"
 
-    var subtitle: String {
+    var title: LocalizedStringResource {
+        switch self {
+        case .shuffle: "Shuffle"
+        case .rainbow: "Rainbow"
+        case .lightToDark: "Light to Dark"
+        case .genre: "By Genre"
+        case .timeTravel: "Time Travel"
+        }
+    }
+
+    var subtitle: LocalizedStringResource {
         switch self {
         case .shuffle: "A fresh random order every time"
         case .rainbow: "Covers flow through the color wheel"

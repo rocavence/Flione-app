@@ -70,7 +70,7 @@ struct HomeView: View {
         return nil
     }
 
-    private var greeting: String {
+    private var greeting: LocalizedStringResource {
         switch Calendar.current.component(.hour, from: .now) {
         case 5..<12: "Good morning"
         case 12..<18: "Good afternoon"
@@ -94,7 +94,7 @@ struct HomeView: View {
     }
 
     @ViewBuilder
-    private func shelf(_ title: String, _ state: Loadable<[Album]>, empty: String?, refresh: (() -> Void)? = nil) -> some View {
+    private func shelf(_ title: LocalizedStringResource, _ state: Loadable<[Album]>, empty: LocalizedStringResource?, refresh: (() -> Void)? = nil) -> some View {
         switch state {
         case .loaded(let albums) where albums.isEmpty:
             if let empty {
@@ -113,9 +113,9 @@ struct HomeView: View {
 
 /// 一列可橫向捲動的專輯。標題右側的箭頭讓沒有觸控板的使用者也能翻頁。
 struct AlbumShelf: View {
-    let title: String
+    let title: LocalizedStringResource
     let state: Loadable<[Album]>
-    var action: (title: String, run: () -> Void)?
+    var action: (title: LocalizedStringResource, run: () -> Void)?
     var cardWidth: CGFloat = 168
     @Environment(AppEnvironment.self) private var app
     @Environment(StandardRouter.self) private var router
@@ -190,7 +190,7 @@ struct AlbumShelf: View {
 
 /// 首頁 Hero：最新加入專輯的封面模糊成背景，疊上 Finity Aurora 漸層；Play 播放這張，Shuffle 隨機播放整個音樂庫
 private struct HomeHero: View {
-    let greeting: String
+    let greeting: LocalizedStringResource
     let album: Album?
     @Environment(AppEnvironment.self) private var app
     @Environment(StandardRouter.self) private var router
@@ -201,7 +201,8 @@ private struct HomeHero: View {
             background
             HStack(alignment: .center, spacing: Spacing.s32) {
                 VStack(alignment: .leading, spacing: Spacing.s12) {
-                    Text(greeting.uppercased())
+                    Text(greeting)
+                        .textCase(.uppercase)
                         .finifyFont(.micro)
                         .foregroundStyle(FinifyColor.ice.opacity(0.85))
                     Text("Your music, your server.")
@@ -242,9 +243,9 @@ private struct HomeHero: View {
         .environment(\.colorScheme, .dark)
     }
 
-    private var subtitle: String {
+    private var subtitle: LocalizedStringResource {
         let count = app.library.albums.count
-        let server = app.session?.serverName ?? "your server"
+        guard let server = app.session?.serverName else { return "\(count) albums, ready when you are." }
         guard let album else { return "\(count) albums on \(server), ready when you are." }
         return "New on \(server): \(album.name) by \(album.artistName)."
     }
@@ -285,7 +286,7 @@ private struct HomeHero: View {
 
 /// Hero 上的按鈕：Play 為白底膠囊，Shuffle 為半透明玻璃
 private struct HeroButton: View {
-    let title: String
+    let title: LocalizedStringResource
     let icon: Reicon
     let prominent: Bool
     let action: () -> Void

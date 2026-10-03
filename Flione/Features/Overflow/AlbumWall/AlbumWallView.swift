@@ -46,7 +46,7 @@ enum WallDensity: Int, CaseIterable, Sendable {
         }
     }
 
-    var label: String {
+    var label: LocalizedStringResource {
         switch self {
         case .tiny: "Tiny"
         case .small: "Small"
@@ -77,6 +77,8 @@ struct AlbumWallView: NSViewRepresentable {
     var typeToSelectByTitle = false
     /// 下方留白：與浮動播放列之間的距離＝播放列到視窗底的距離
     var bottomInset: CGFloat = 100
+    /// 封面圓角；關掉時封面之間也沒有間距（設定 → Appearance → Infinity）
+    var rounded = true
 
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
@@ -124,7 +126,12 @@ struct AlbumWallView: NSViewRepresentable {
         let densityChanged = coordinator.currentRows != density.rows || coordinator.parent.bottomInset != bottomInset
         let playingChanged = coordinator.parent.playingAlbumID != playingAlbumID
         let scrollRequested = coordinator.parent.scrollToPlayingToken != scrollToPlayingToken
+        let roundedChanged = coordinator.parent.rounded != rounded
         coordinator.parent = self
+        if roundedChanged {
+            coordinator.applySize(coordinator.currentSide, rows: coordinator.currentRows, animated: true)
+            coordinator.collection?.reloadData()
+        }
         if albumsChanged {
             // 排序或內容改變後，同一個位置已是另一張專輯
             coordinator.collection?.deselectAll(nil)
@@ -157,7 +164,8 @@ struct AlbumWallView: NSViewRepresentable {
             let item = collectionView.makeItem(withIdentifier: WallItem.identifier, for: indexPath) as! WallItem
             let album = parent.albums[indexPath.item]
             let side = (collectionView.collectionViewLayout as? NSCollectionViewFlowLayout)?.itemSize.width ?? currentSide
-            item.configure(album, side: side, images: parent.images, isPlaying: album.id == parent.playingAlbumID, anyPlaying: parent.playingAlbumID != nil)
+            item.configure(album, side: side, images: parent.images, isPlaying: album.id == parent.playingAlbumID, anyPlaying: parent.playingAlbumID != nil,
+                           rounded: parent.rounded)
             #if DEBUG
             // -FinifyDemoHoverAll YES：所有封面都呈現 hover 狀態，截圖檢查 hover 效果
             if UserDefaults.standard.bool(forKey: "FinifyDemoHoverAll") {
@@ -190,7 +198,7 @@ struct AlbumWallView: NSViewRepresentable {
             guard let collection, let layout = collection.collectionViewLayout as? WallRowsLayout else { return }
             layout.targetRows = rows
             // 封面牆：間距隨尺寸縮放，小尺寸幾乎無縫；上下留給頂部列與底部播放列
-            let gap = max(2, (side * 0.025).rounded())
+            let gap = parent.rounded ? max(2, (side * 0.025).rounded()) : 0
             layout.targetSide = side
             layout.minimumInteritemSpacing = gap
             layout.minimumLineSpacing = gap
@@ -429,6 +437,10 @@ final class WallScrollView: NSScrollView {
 final class WallMotion: NSObject {
     /// 漂移的最高速度（點／秒）
     static let driftSpeed: CGFloat = 22
+    /// 設定的速度倍率（0.5 慢、1 一般、2 快）
+    private var speedMultiplier: CGFloat {
+        CGFloat(UserDefaults.standard.object(forKey: SettingsKey.wallDriftSpeed) as? Double ?? 1)
+    }
 
     private weak var collection: WallCollectionView?
     private var link: CADisplayLink?
@@ -494,7 +506,8 @@ final class WallMotion: NSObject {
             direction = -direction
             drift = 0
         }
-        drift = min(Self.driftSpeed, drift + Self.driftSpeed * CGFloat(dt) / 3)
+        let speed = Self.driftSpeed * speedMultiplier
+        drift = min(speed, drift + speed * CGFloat(dt) / 3)
         collection.scrollHorizontally(clip, by: direction * drift * CGFloat(dt))
     }
 
@@ -539,6 +552,7 @@ final class WallItem: NSCollectionViewItem {
     private weak var images: ImagePipeline?
     private var album: Album?
     private var side: CGFloat = 148
+    private var rounded = true
 
     override func loadView() {
         let view = WallItemView()
@@ -587,7 +601,7 @@ final class WallItem: NSCollectionViewItem {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         artwork.frame = view.bounds
-        artwork.cornerRadius = Radius.artwork(for: view.bounds.width)
+        artwork.cornerRadius = rounded ? Radius.artwork(for: view.bounds.width) : 0
         let inset = max(6, view.bounds.width * 0.07)
         titleLayer.frame = view.bounds.insetBy(dx: inset, dy: inset)
         titleLayer.fontSize = max(9, view.bounds.width * 0.085)
@@ -606,8 +620,12 @@ final class WallItem: NSCollectionViewItem {
         CATransaction.commit()
     }
 
-    func configure(_ album: Album, side: CGFloat, images: ImagePipeline?, isPlaying: Bool, anyPlaying: Bool) {
+    func configure(_ album: Album, side: CGFloat, images: ImagePipeline?, isPlaying: Bool, anyPlaying: Bool, rounded: Bool = true) {
         task?.cancel()
+        if self.rounded != rounded {
+            self.rounded = rounded
+            view.needsLayout = true
+        }
         self.album = album
         self.images = images
         self.side = side
@@ -790,7 +808,12 @@ private final class WallItemView: NSView {
 final class ClosureMenuItem: NSMenuItem {
     private let handler: () -> Void
 
-    init(_ title: String, handler: @escaping () -> Void) {
+    convenience init(_ title: LocalizedStringResource, handler: @escaping () -> Void) {
+        self.init(verbatim: String(localized: title), handler: handler)
+    }
+
+    /// 不翻譯的標題（歌單名稱這類使用者資料）
+    init(verbatim title: String, handler: @escaping () -> Void) {
         self.handler = handler
         super.init(title: title, action: #selector(run), keyEquivalent: "")
         target = self

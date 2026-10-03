@@ -160,8 +160,8 @@ final class PlayerManager {
                 cancelPending()
                 isPlaying = false
                 notice = PlayerNotice(message: tracks == nil
-                    ? "Couldn't play “\(album.name)”. Check that your music server is reachable."
-                    : "“\(album.name)” has no songs to play.")
+                    ? String(localized: "Couldn't play “\(album.name)”. Check that your music server is reachable.")
+                    : String(localized: "“\(album.name)” has no songs to play."))
             }
         }
     }
@@ -386,8 +386,8 @@ final class PlayerManager {
         // 恢復的佇列尚未按下播放（reportedTrack == nil）時不自動跳歌，避免啟動就開始播放
         let canSkip = reportedTrack != nil && queue.nextIndex(automatic: false) != nil && consecutiveFailures < queue.entries.count
         notice = PlayerNotice(message: canSkip
-            ? "Couldn't play “\(track.name)”. Skipping to the next song."
-            : "Couldn't play “\(track.name)”. Check that your music server is reachable.")
+            ? String(localized: "Couldn't play “\(track.name)”. Skipping to the next song.")
+            : String(localized: "Couldn't play “\(track.name)”. Check that your music server is reachable."))
         if canSkip { next() } else { pause() }
     }
 
@@ -404,7 +404,7 @@ final class PlayerManager {
             guard !Task.isCancelled else { return }
             stallTask = nil
             guard isBuffering, activeItem == item, let track = currentTrack else { return }
-            notice = PlayerNotice(message: "“\(track.name)” is taking a while to load. Check your connection to the music server.")
+            notice = PlayerNotice(message: String(localized: "“\(track.name)” is taking a while to load. Check your connection to the music server."))
         }
     }
 

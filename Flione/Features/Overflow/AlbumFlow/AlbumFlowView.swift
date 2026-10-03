@@ -19,6 +19,9 @@ struct AlbumFlowView: View {
     private static let reflectionRatio: CGFloat = 0.32
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(SettingsKey.flowRounded) private var rounded = true
+    /// 兩側封面變暗的程度（設定 → Appearance → Cover Flow）
+    @AppStorage(SettingsKey.flowDim) private var dim = 0.25
     @State private var centerID: String?
     /// 使用者手動移動過後，不再自動跳到正在播放的專輯
     @State private var userMoved = false
@@ -180,11 +183,12 @@ struct AlbumFlowView: View {
 
     private func cover(_ album: Album) -> some View {
         let reduceMotion = reduceMotion
+        let dim = dim
         let flipped = flippedID == album.id
         return VStack(spacing: 2) {
             AlbumFlipCard(album: album, isFlipped: flipped, side: side,
-                          elevation: album.id == playingAlbumID ? .playing : .standard)
-            FlowReflection(album: album, side: side, ratio: Self.reflectionRatio)
+                          elevation: album.id == playingAlbumID ? .playing : .standard, rounded: rounded)
+            FlowReflection(album: album, side: side, ratio: Self.reflectionRatio, rounded: rounded)
                 .opacity(flipped ? 0 : 1)
                 .animation(.easeInOut(duration: 0.25), value: flipped)
         }
@@ -192,8 +196,9 @@ struct AlbumFlowView: View {
                 content
                     .rotation3DEffect(.degrees(reduceMotion ? 0 : phase.value * -58), axis: (x: 0, y: 1, z: 0), perspective: 0.45)
                     .scaleEffect(1 - min(abs(phase.value), 1) * 0.28)
-                    .opacity(1 - min(abs(phase.value), 2) * 0.22)
-                    .brightness(-min(abs(phase.value), 1) * 0.25)
+                    // 兩側變暗：預設 dim 0.25 時與原本相同（透明度 −0.22、亮度 −0.25）
+                    .opacity(1 - min(abs(phase.value), 2) * dim * 0.88)
+                    .brightness(-min(abs(phase.value), 1) * dim)
             }
             .zIndex(album.id == centerID ? 1 : 0)
             .onTapGesture { tapped(album) }
@@ -278,9 +283,10 @@ private struct FlowReflection: View {
     let album: Album
     let side: CGFloat
     let ratio: CGFloat
+    var rounded = true
 
     var body: some View {
-        ArtworkView(artwork: album.artwork, elevation: .none, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
+        ArtworkView(artwork: album.artwork, cornerRadius: rounded ? nil : 0, elevation: .none, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
             .frame(width: side, height: side)
             .scaleEffect(x: 1, y: -1)
             .blur(radius: 1.5)

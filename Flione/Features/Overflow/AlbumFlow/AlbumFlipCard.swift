@@ -6,6 +6,7 @@ struct AlbumFlipCard: View {
     let isFlipped: Bool
     let side: CGFloat
     let elevation: ArtworkView.Elevation
+    var rounded = true
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -14,20 +15,20 @@ struct AlbumFlipCard: View {
             // 背面會載入曲目，沒翻面時不要建立
             ZStack {
                 if isFlipped {
-                    AlbumBack(album: album, side: side).transition(.opacity)
+                    AlbumBack(album: album, side: side, rounded: rounded).transition(.opacity)
                 } else {
                     front.transition(.opacity)
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: isFlipped)
         } else {
-            FlipView(angle: isFlipped ? 180 : 0, front: front, back: AlbumBack(album: album, side: side))
+            FlipView(angle: isFlipped ? 180 : 0, front: front, back: AlbumBack(album: album, side: side, rounded: rounded))
                 .animation(.spring(response: 0.6, dampingFraction: 0.78), value: isFlipped)
         }
     }
 
     private var front: some View {
-        ArtworkView(artwork: album.artwork, elevation: elevation, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
+        ArtworkView(artwork: album.artwork, cornerRadius: rounded ? nil : 0, elevation: elevation, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
             .frame(width: side, height: side)
     }
 }
@@ -59,6 +60,7 @@ private struct FlipView<Front: View, Back: View>: View, Animatable {
 private struct AlbumBack: View {
     let album: Album
     let side: CGFloat
+    var rounded = true
     @Environment(AppEnvironment.self) private var app
     @State private var tracks: Loadable<[Track]> = .loading
 
@@ -92,8 +94,8 @@ private struct AlbumBack: View {
         }
         .padding(Spacing.s20)
         .frame(width: side, height: side, alignment: .topLeading)
-        .background(backColor, in: RoundedRectangle(cornerRadius: Radius.artwork(for: side), style: .continuous))
-        .overlay { RoundedRectangle(cornerRadius: Radius.artwork(for: side), style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
+        .background(backColor, in: RoundedRectangle(cornerRadius: rounded ? Radius.artwork(for: side) : 0, style: .continuous))
+        .overlay { RoundedRectangle(cornerRadius: rounded ? Radius.artwork(for: side) : 0, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
         .finifyShadow(FinifyShadow.playing)
         .environment(\.overflowStyle, true)
         .task(id: album.id) {

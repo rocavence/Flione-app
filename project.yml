@@ -1,6 +1,7 @@
 name: Flione
 options:
   bundleIdPrefix: app.finify
+  developmentLanguage: en
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
@@ -36,6 +37,9 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Flione
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # 介面翻譯用 String Catalog（Resources/Localizable.xcstrings）；建置時抽出 Swift 裡的可翻譯字串
+        SWIFT_EMIT_LOC_STRINGS: YES
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
         # 用固定的開發者憑證簽章：ad-hoc（"-"）每次建置簽章都不同，鑰匙圈會一直要求輸入密碼（D21）
         CODE_SIGN_STYLE: Manual
         CODE_SIGN_IDENTITY: "Apple Development: you@example.com (XXXXXXXXXX)"

@@ -11,7 +11,7 @@ struct FinifyButton: View {
         case ghost
     }
 
-    let title: String
+    let title: LocalizedStringResource
     var icon: Reicon?
     var kind: Kind = .secondary
     var isLoading = false
@@ -90,7 +90,7 @@ struct FinifyButtonStyle: ButtonStyle {
 /// 只有 icon 的按鈕。`isActive` 時改用 Filled + `activeColor`（預設 Flione Blue；shuffle、repeat 用橘色）。
 struct FinifyIconButton: View {
     let icon: Reicon
-    let label: String
+    let label: LocalizedStringResource
     var size: FinifyIcon.Size = .standard
     var isActive = false
     var activeColor: Color = FinifyColor.accent
@@ -114,8 +114,8 @@ struct FinifyIconButton: View {
         .opacity(isEnabled ? 1 : 0.35)
         .onHover { hovering = $0 }
         .animation(Motion.micro, value: hovering)
-        .help(label)
-        .accessibilityLabel(label)
+        .help(Text(label))
+        .accessibilityLabel(Text(label))
     }
 
     private var foreground: Color {

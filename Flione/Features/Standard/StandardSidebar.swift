@@ -57,13 +57,13 @@ struct StandardSidebar: View {
         }
     }
 
-    private func item(_ title: String, icon: Reicon, tab: StandardTab) -> some View {
+    private func item(_ title: LocalizedStringResource, icon: Reicon, tab: StandardTab) -> some View {
         SidebarRow(title: title, icon: icon, isSelected: router.tab == tab && router.path.isEmpty) {
             if router.tab == tab { router.popToRoot() } else { router.tab = tab }
         }
     }
 
-    private func header(_ title: String) -> some View {
+    private func header(_ title: LocalizedStringResource) -> some View {
         Text(title)
             .finifyFont(.caption)
             .foregroundStyle(FinifyColor.faint)
@@ -75,7 +75,7 @@ struct StandardSidebar: View {
 }
 
 private struct SidebarRow: View {
-    let title: String
+    let title: LocalizedStringResource
     let icon: Reicon
     let isSelected: Bool
     let action: () -> Void
@@ -222,7 +222,7 @@ private struct AccountPopover: View {
         .frame(width: 260)
     }
 
-    private func row(_ title: String, icon: Reicon, role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
+    private func row(_ title: LocalizedStringResource, icon: Reicon, role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
         PopoverRow(title: title, icon: icon, destructive: role == .destructive) {
             dismiss()
             action()
@@ -231,7 +231,7 @@ private struct AccountPopover: View {
 }
 
 private struct PopoverRow: View {
-    let title: String
+    let title: LocalizedStringResource
     let icon: Reicon
     let destructive: Bool
     let action: () -> Void

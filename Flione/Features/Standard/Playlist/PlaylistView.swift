@@ -53,7 +53,7 @@ struct PlaylistView: View {
             VStack(alignment: .leading, spacing: Spacing.s12) {
                 Text("Playlist").finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
                 Text(name).finifyFont(.display).foregroundStyle(FinifyColor.ink).lineLimit(2).minimumScaleFactor(0.6)
-                Text("\(list.count) \(list.count == 1 ? "song" : "songs") · \(list.reduce(0) { $0 + $1.duration }.formattedDuration)")
+                Text("\(list.count) songs · \(list.reduce(0) { $0 + $1.duration }.formattedDuration)")
                     .finifyFont(.body)
                     .foregroundStyle(FinifyColor.muted)
                 HStack(spacing: Spacing.s8) {

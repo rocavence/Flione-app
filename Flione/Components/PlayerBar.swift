@@ -108,7 +108,7 @@ struct PlaybackControls: View {
                     Circle().fill(FinifyColor.orange).frame(width: 5, height: 5).offset(x: -4, y: 5).allowsHitTesting(false)
                 }
             }
-            .help(shuffleLabel)
+            .help(Text(shuffleLabel))
             // shuffle、repeat 與主要控制（上一首、播放／暫停、下一首）拉開距離
             .padding(.trailing, Spacing.s16)
             FinifyIconButton(icon: .skipPrev, label: "Previous", size: size) {
@@ -132,12 +132,12 @@ struct PlaybackControls: View {
         .disabled(player.currentTrack == nil)
     }
 
-    private var shuffleLabel: String {
+    private var shuffleLabel: LocalizedStringResource {
         let player = app.player
         return player.isSmartShuffle ? "Smart Shuffle on (adds similar songs)" : player.isShuffled ? "Shuffle on" : "Shuffle off"
     }
 
-    private var repeatLabel: String {
+    private var repeatLabel: LocalizedStringResource {
         switch app.player.repeatMode {
         case .off: "Repeat off"
         case .all: "Repeat all"

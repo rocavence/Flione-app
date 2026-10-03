@@ -119,7 +119,7 @@ final class AppEnvironment {
         expiryObserver = NotificationCenter.default.addObserver(forName: .finifySessionExpired, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, self.session != nil else { return }
-                self.signOut(reason: "Your session with the music server ended. Sign in again to keep listening.")
+                self.signOut(reason: String(localized: "Your session with the music server ended. Sign in again to keep listening."))
             }
         }
         pathMonitor.pathUpdateHandler = { [weak self] path in

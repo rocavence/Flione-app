@@ -110,7 +110,7 @@ struct TrackRow: View {
     var onOpenAlbum: (() -> Void)?
     var onOpenArtist: (() -> Void)?
     /// 頁面專屬的右鍵選單項目（例如 playlist 頁的「Remove from Playlist」）
-    var extraMenu: [(title: String, action: () -> Void)] = []
+    var extraMenu: [(title: LocalizedStringResource, action: () -> Void)] = []
 
     @Environment(AppEnvironment.self) private var app
     @State private var hovering = false
@@ -199,7 +199,7 @@ struct TrackRow: View {
             AddToPlaylistMenu { [track] }
             if !extraMenu.isEmpty {
                 Divider()
-                ForEach(Array(extraMenu.enumerated()), id: \.offset) { _, item in Button(item.title, action: item.action) }
+                ForEach(Array(extraMenu.enumerated()), id: \.offset) { _, item in Button(action: item.action) { Text(item.title) } }
             }
             if let onOpenAlbum { Divider(); Button("Go to Album", action: onOpenAlbum) }
             if let onOpenArtist { Button("Go to Artist", action: onOpenArtist) }
@@ -225,7 +225,7 @@ struct PlaylistCard: View {
             ArtworkView(artwork: playlist.artwork, interactive: true, fallbackTitle: playlist.name)
             VStack(alignment: .leading, spacing: 2) {
                 Text(playlist.name).finifyFont(.subheading).foregroundStyle(FinifyColor.ink).lineLimit(1)
-                Text("\(playlist.trackCount) \(playlist.trackCount == 1 ? "song" : "songs")")
+                Text("\(playlist.trackCount) songs")
                     .finifyFont(.caption).foregroundStyle(FinifyColor.muted)
             }
         }

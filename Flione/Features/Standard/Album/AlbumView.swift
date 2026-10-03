@@ -93,7 +93,7 @@ struct AlbumView: View {
         var parts: [String] = []
         if let year = album.year { parts.append(String(year)) }
         if !tracks.isEmpty {
-            parts.append("\(tracks.count) \(tracks.count == 1 ? "song" : "songs")")
+            parts.append(String(localized: "\(tracks.count) songs"))
             parts.append(tracks.reduce(0) { $0 + $1.duration }.formattedDuration)
         }
         return parts.map { "· \($0)" }.joined(separator: " ")

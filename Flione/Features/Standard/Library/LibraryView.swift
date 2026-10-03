@@ -7,6 +7,17 @@ enum LibrarySection: String, CaseIterable, Sendable {
     case genres = "Genres"
     case playlists = "Playlists"
     case favorites = "Favorites"
+
+    var title: LocalizedStringResource {
+        switch self {
+        case .albums: "Albums"
+        case .artists: "Artists"
+        case .songs: "Songs"
+        case .genres: "Genres"
+        case .playlists: "Playlists"
+        case .favorites: "Favorites"
+        }
+    }
 }
 
 
@@ -16,13 +27,13 @@ struct LibraryView: View {
     /// 由側欄決定
     let section: LibrarySection
     /// 標題（例如「Recently Added」）；nil 時用分頁名稱
-    var title: String?
+    var title: LocalizedStringResource?
     @State var sort: AlbumSort = .artist
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: Spacing.s24) {
-                Text(title ?? section.rawValue).finifyFont(.title).foregroundStyle(FinifyColor.ink)
+                Text(title ?? section.title).finifyFont(.title).foregroundStyle(FinifyColor.ink)
                     .accessibilityAddTraits(.isHeader)
                 Spacer()
                 if section == .playlists {
@@ -30,7 +41,7 @@ struct LibraryView: View {
                 }
                 if section == .albums {
                     Picker("Sort", selection: $sort) {
-                        ForEach(AlbumSort.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                        ForEach(AlbumSort.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
                     .pickerStyle(.menu)
                     .fixedSize()

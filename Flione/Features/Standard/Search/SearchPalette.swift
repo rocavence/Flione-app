@@ -176,7 +176,7 @@ struct SearchPalette: View {
     }
 
     @ViewBuilder
-    private func section(_ title: String, count: Int) -> some View {
+    private func section(_ title: LocalizedStringResource, count: Int) -> some View {
         if count > 0 {
             Text(title)
                 .finifyFont(.micro)
@@ -215,7 +215,7 @@ struct SearchPalette: View {
         .contentShape(Rectangle())
     }
 
-    private func text(_ title: String, _ subtitle: String) -> some View {
+    private func text(_ title: String, _ subtitle: LocalizedStringResource) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(title).finifyFont(.body).foregroundStyle(FinifyColor.ink).lineLimit(1)
             Text(subtitle).finifyFont(.caption).foregroundStyle(FinifyColor.muted).lineLimit(1)

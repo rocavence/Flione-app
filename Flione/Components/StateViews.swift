@@ -2,9 +2,9 @@ import SwiftUI
 
 /// 區塊標題
 struct SectionHeader: View {
-    let title: String
-    var subtitle: String?
-    var action: (title: String, run: () -> Void)?
+    let title: LocalizedStringResource
+    var subtitle: LocalizedStringResource?
+    var action: (title: LocalizedStringResource, run: () -> Void)?
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
@@ -16,7 +16,7 @@ struct SectionHeader: View {
             }
             Spacer()
             if let action {
-                Button(action.title, action: action.run)
+                Button(action: action.run) { Text(action.title) }
                     .buttonStyle(.plain)
                     .finifyFont(.caption)
                     .foregroundStyle(FinifyColor.muted)
@@ -47,11 +47,11 @@ struct SkeletonBlock: View {
 
 /// 空狀態與錯誤狀態：說明發生什麼事，並給下一步。
 struct MessageState: View {
-    let title: String
-    let message: String
+    let title: LocalizedStringResource
+    let message: LocalizedStringResource
     var icon: Reicon = .musicNote
-    var primary: (title: String, run: () -> Void)?
-    var secondary: (title: String, run: () -> Void)?
+    var primary: (title: LocalizedStringResource, run: () -> Void)?
+    var secondary: (title: LocalizedStringResource, run: () -> Void)?
     @Environment(\.overflowStyle) private var overflow
 
     var body: some View {

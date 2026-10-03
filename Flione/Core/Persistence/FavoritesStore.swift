@@ -39,7 +39,7 @@ final class FavoritesStore {
             } catch {
                 // 還原成 server 上的狀態
                 if serverState[id] == true { ids.insert(id) } else { ids.remove(id) }
-                failureMessage = "Couldn't update your favorites. Check your connection to the music server."
+                failureMessage = String(localized: "Couldn't update your favorites. Check your connection to the music server.")
                 return
             }
         }

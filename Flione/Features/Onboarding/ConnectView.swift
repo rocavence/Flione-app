@@ -74,7 +74,7 @@ struct ConnectView: View {
         .onAppear { focus = server.isEmpty ? .server : .user }
     }
 
-    private func field(_ label: String, text: Binding<String>, prompt: String, field: Field, secure: Bool = false) -> some View {
+    private func field(_ label: LocalizedStringResource, text: Binding<String>, prompt: LocalizedStringResource, field: Field, secure: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: Spacing.s4) {
             Text(label).finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
             Group {
@@ -110,11 +110,11 @@ struct ConnectView: View {
                 let session = try await client.authenticate(user: user, password: password, serverName: info.serverName ?? url.host ?? "Jellyfin")
                 try app.signIn(session)
             } catch JellyfinError.invalidCredentials {
-                errorMessage = "That username and password didn't work. Check them and try again."
+                errorMessage = String(localized: "That username and password didn't work. Check them and try again.")
             } catch JellyfinError.unreachable {
-                errorMessage = "Can't find a music server at that address. Check the address, and that this Mac can reach it."
+                errorMessage = String(localized: "Can't find a music server at that address. Check the address, and that this Mac can reach it.")
             } catch {
-                errorMessage = "The server answered, but something went wrong. Try again in a moment."
+                errorMessage = String(localized: "The server answered, but something went wrong. Try again in a moment.")
             }
         }
     }

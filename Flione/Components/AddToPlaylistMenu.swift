@@ -41,7 +41,7 @@ struct NewPlaylistPrompt: ViewModifier {
             Button("Cancel", role: .cancel) { name = "" }
         } message: {
             let count = app.newPlaylistTracks?.count ?? 0
-            Text(count == 0 ? "Create an empty playlist." : "Create a playlist with \(count) \(count == 1 ? "song" : "songs").")
+            Text(count == 0 ? "Create an empty playlist." : "Create a playlist with \(count) songs.")
         }
     }
 }

@@ -241,3 +241,17 @@
 * **選擇**：依使用者要求，hover 不再放大（取代 D24 的 1.12 倍）。改成封面四周泛出白色外光暈（半徑 18、85%）加一道 85% 白、1.5pt 的細邊，用 D31 的柔和曲線淡入（0.55 秒）淡出（0.7 秒）。hover 時仍會浮到上層，光暈才會蓋在相鄰封面上。
 * **不變**：正在播放的專輯仍放大 1.08 倍加黑色陰影；鍵盤焦點的藍框不變。
 * **怎麼改**：`AlbumWallView.swift` 的 `WallItem`（`glowLayer`、`edgeLayer`、`applyState`）。
+
+## D33　中英雙語（String Catalog），保留多語系接口
+
+* **做法**：介面文字用 String Catalog（`Resources/Localizable.xcstrings`），英文是原文，另有繁體中文（台灣用語）。建置時由 `SWIFT_EMIT_LOC_STRINGS` 抽出字串。自訂元件（按鈕、設定列、提示、選單項目）的文字參數改成 `LocalizedStringResource`，字面字串自動可翻譯；歌名、專輯名這類資料照原樣顯示。英文的單複數用 catalog 的 plural variation。
+* **不翻譯**：Modern、Infinity、Cover Flow、Magic、Jellyfin、LRCLIB 等名稱，以及語言名稱本身（English、繁體中文）。
+* **切換**：設定 → 一般 → 語言（跟隨系統／English／繁體中文）。選擇存在 `FinifyLanguage`，並寫進 app 自己的 `AppleLanguages`，所以會記住；macOS 在啟動時套用語言，因此切換後出現「重新啟動」按鈕。
+* **新增語言**：在 catalog 補上該語言的翻譯，再在 `AppLanguage`（`Core/Localization/AppLanguage.swift`）加一個 case。
+
+## D34　外觀設定依模式分區；設定卡片固定大小
+
+* **分區**：外觀分成 Modern（主題、背景光暈）、Infinity（封面圓角、專輯大小、漂移速度）、Cover Flow（封面圓角、封面大小、兩側封面變暗）。深淺色只影響 Modern。
+* **Infinity 圓角**：關掉時封面是直角，封面之間沒有間距。**漂移**：關閉／慢（0.5×）／一般／快（2×）。
+* **Cover Flow 變暗**：關閉／輕微／中等／強（0／0.15／0.25／0.45）。中等就是原本的效果。
+* **設定卡片**：固定 640×600，切換分頁時位置不變。
