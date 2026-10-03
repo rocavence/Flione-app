@@ -19,6 +19,7 @@ struct FlioneApp: App {
                     #if DEBUG || BENCHMARK
                     LaunchMark.record("window")
                     WallBenchmark.startIfRequested()
+                    DebugDemo.scheduleModeSwitch(app: app)
                     #endif
                 }
         }

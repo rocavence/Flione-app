@@ -40,6 +40,8 @@ struct AlbumFlowView: View {
     /// 封面邊長，隨視窗大小調整（扣掉頂部列、標題與底部播放列）
     @State private var side: CGFloat = 340
     @State private var resizeAnchor: String?
+    /// 值改變時，等版面排好後把捲動位置校正到 centerID（切換到 Cover Flow、Magic 改變順序時）
+    @State private var realignToken = 0
 
     /// 視窗放得下的最大封面（扣掉頂部列、倒影、標題、底部播放列）
     private static func maximumSide(for size: CGSize) -> CGFloat {
@@ -78,6 +80,12 @@ struct AlbumFlowView: View {
                 .contentMargins(.horizontal, (geo.size.width - side) / 2, for: .scrollContent)
                 .scrollTargetBehavior(.viewAligned)
                 .scrollPosition(id: $centerID, anchor: .center)
+                // 切換進來或專輯順序改變後：centerID 對了，但捲動位置可能還停在別處，造成兩張封面交疊
+                .onChange(of: realignToken) {
+                    guard let id = centerID else { return }
+                    DispatchQueue.main.async { proxy.scrollTo(id, anchor: .center) }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { proxy.scrollTo(id, anchor: .center) }
+                }
                 // 尺寸改變後 scroll view 不會自動保持置中，等版面更新後重新捲到目前的專輯
                 .onChange(of: side) {
                     guard let id = resizeAnchor ?? centerID else { return }
@@ -122,6 +130,7 @@ struct AlbumFlowView: View {
         .background { FlowBackdrop(artwork: centered?.artwork, horizon: 0.5) }
         .onAppear {
             centerOnPlaying()
+            realignToken += 1
             focused = true
             installWheelMonitor()
         }
@@ -131,7 +140,10 @@ struct AlbumFlowView: View {
         }
         .onChange(of: playingAlbumID) { if !userMoved { centerOnPlaying() } }
         .onChange(of: isActive, initial: true) { activeState.value = isActive }
-        .onChange(of: albums.map(\.id), initial: true) { activeState.albums = albums }
+        .onChange(of: albums.map(\.id), initial: true) {
+            activeState.albums = albums
+            realignToken += 1
+        }
         .background(FlowWindowReader { activeState.window = $0 })
         .onChange(of: centerID) { flippedID = nil }
         .onChange(of: centerOnPlayingToken) {
@@ -142,8 +154,11 @@ struct AlbumFlowView: View {
     }
 
     private func resize(to size: CGSize) {
-        // 先記下目前置中的專輯：改尺寸時 scroll view 會回報新的位置，蓋掉原本的專輯
-        if resizeAnchor == nil { resizeAnchor = centerID }
+        // 先記下目前置中的專輯：改尺寸時 scroll view 會回報新的位置，蓋掉原本的專輯。
+        // 剛切換進來時 centerID 可能還沒設定（onAppear 在這之後），先用正在播放的專輯，避免跳過校正
+        if resizeAnchor == nil {
+            resizeAnchor = centerID ?? playingAlbumID.flatMap { id in albums.first { $0.id == id }?.id } ?? albums.first?.id
+        }
         side = Self.side(for: size, step: sizeStep)
     }
 

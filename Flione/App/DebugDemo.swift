@@ -9,6 +9,7 @@ import AVFoundation
 ///     -FinifyDemoOpen "<專輯名>"     打開該專輯頁
 ///     -FinifyDemoSearch "<關鍵字>"   打開 ⌘K 並搜尋
 ///     -FinifyDemoSettings YES       打開設定卡片
+///     -FinifyDemoSwitchTo coverFlow  幾秒後切換模式（-FinifyDemoSwitchAfter 秒數）
 ///     -FinifyDemoSeekToEnd 5        播放後跳到第一首結尾前 5 秒
 ///     -FinifyLatencyProbe <檔案>     量測按下播放到出聲的時間（-FinifyDemoPlay 指定專輯，沒指定時隨機）
 @MainActor
@@ -73,6 +74,17 @@ enum DebugDemo {
             }
         }
         NSApp.terminate(nil)
+    }
+
+    /// -FinifyDemoSwitchTo coverFlow|infinity|modern -FinifyDemoSwitchAfter <秒>：啟動後幾秒切換模式，用來重現切換時的問題
+    static func scheduleModeSwitch(app: AppEnvironment) {
+        guard let target = defaults.string(forKey: "FinifyDemoSwitchTo") else { return }
+        let mode: ViewMode = switch target { case "coverFlow": .coverFlow; case "infinity": .infinity; default: .standard }
+        let delay = defaults.double(forKey: "FinifyDemoSwitchAfter")
+        Task {
+            try? await Task.sleep(for: .seconds(delay > 0 ? delay : 6))
+            app.viewMode = mode
+        }
     }
 
     /// -FinifyLatencyProbe <輸出檔>：按下播放專輯後，畫面進入播放狀態、取回曲目、真正出聲各花多久（D26）
