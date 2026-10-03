@@ -166,6 +166,8 @@ struct QueuePanel: View {
     let onOpenAlbum: (String?) -> Void
     /// 放在 Now Playing 面板裡時不顯示自己的標題列與「正在播放」
     var embedded = false
+    /// 浮在畫面上（Infinity／Cover Flow 的佇列浮層）：不畫自己的底，由外層的 Liquid Glass 提供
+    var floating = false
     @Environment(AppEnvironment.self) private var app
     @State private var isTargeted = false
     /// 拖曳中的列（upcoming 內的位置）
@@ -225,8 +227,8 @@ struct QueuePanel: View {
                 .padding(.bottom, Spacing.s16)
             }
         }
-        .background(embedded ? Color.clear : FinifyColor.elevated)
-        .overlay(alignment: .leading) { if !embedded { FinifyColor.hairline.frame(width: 1) } }
+        .background(embedded || floating ? Color.clear : FinifyColor.elevated)
+        .overlay(alignment: .leading) { if !embedded && !floating { FinifyColor.hairline.frame(width: 1) } }
         // 從專輯卡片拖進來：加到佇列結尾
         .overlay {
             if isTargeted {

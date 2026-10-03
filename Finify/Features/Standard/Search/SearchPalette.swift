@@ -84,8 +84,8 @@ struct SearchPalette: View {
             }
         }
         .frame(width: 640)
-        .background(FinifyColor.elevated, in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
-        .overlay { RoundedRectangle(cornerRadius: Radius.card, style: .continuous).strokeBorder(FinifyColor.hairline, lineWidth: 1) }
+        .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous), tint: FinifyColor.elevated.opacity(0.4), backing: FinifyColor.elevated.opacity(0.75),
+                     fallback: FinifyColor.elevated)
         .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.3), radius: 40, y: 20))
         .onAppear {
             fieldFocused = true

@@ -55,6 +55,9 @@ struct ImmersiveView: View {
                                     app.isQueuePresented.toggle()
                                 }
                             }
+                            .padding(.horizontal, Spacing.s24)
+                            .padding(.vertical, Spacing.s8)
+                            .finifyGlass(in: Capsule(), tint: Color(hex: 0x0D1633).opacity(0.45), fallback: Color(hex: 0x0D1633).opacity(0.7))
                         }
                         .opacity(controlsVisible ? 1 : 0)
                     }
@@ -89,6 +92,9 @@ struct ImmersiveView: View {
                     HStack {
                         Spacer()
                         FinifyIconButton(icon: .exitFullscreen, label: "Exit fullscreen (Esc)", size: .primary, action: onExit)
+                            .frame(width: 48, height: 48)
+                            .finifyGlass(in: Circle(), tint: Color(hex: 0x0D1633).opacity(0.45), interactive: true,
+                                         fallback: Color(hex: 0x0D1633).opacity(0.7))
                     }
                     Spacer()
                 }

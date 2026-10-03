@@ -18,8 +18,8 @@ struct Toast: View {
         .padding(.horizontal, Spacing.s16)
         .padding(.vertical, Spacing.s12)
         .frame(maxWidth: 460)
-        .background(FinifyColor.elevated, in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
-        .overlay { RoundedRectangle(cornerRadius: Radius.card, style: .continuous).strokeBorder(FinifyColor.hairline, lineWidth: 1) }
+        .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous), tint: FinifyColor.elevated.opacity(0.4), backing: FinifyColor.elevated.opacity(0.75),
+                     fallback: FinifyColor.elevated)
         .finifyShadow(FinifyShadow.elevated)
         .onTapGesture(perform: onDismiss)
         .task {

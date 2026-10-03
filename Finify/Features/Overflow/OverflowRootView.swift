@@ -176,6 +176,9 @@ struct OverflowRootView: View {
                     FinifyIconButton(icon: .plus, label: "Larger albums", size: .compact) { stepDensity(1) }
                         .disabled(density.wrappedValue == WallDensity.allCases.last)
                 }
+                .padding(.horizontal, Spacing.s4)
+                .frame(height: 34)
+                .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
                 .help("Pinch to resize")
             }
             Group {
@@ -192,6 +195,9 @@ struct OverflowRootView: View {
                 .menuStyle(.borderlessButton)
                 .tint(FinifyColor.Overflow.muted)
                 .fixedSize()
+                .padding(.horizontal, Spacing.s12)
+                .frame(height: 34)
+                .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
                 .accessibilityLabel("Sort albums, \(sort.rawValue)")
             }
             Spacer()
@@ -320,10 +326,11 @@ struct OverflowQueue: View {
     let onOpenAlbum: (String?) -> Void
 
     var body: some View {
-        QueuePanel(onOpenAlbum: onOpenAlbum)
+        QueuePanel(onOpenAlbum: onOpenAlbum, floating: true)
             .frame(width: 360)
             .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-            .overlay { RoundedRectangle(cornerRadius: Radius.large, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
+            .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous), tint: Color(hex: 0x0D1633).opacity(0.6),
+                         fallback: FinifyColor.elevated)
             .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 40, y: 16))
             // 佇列內的元件使用一般深色配色，不是 Overflow 的半透明樣式
             .environment(\.overflowStyle, false)

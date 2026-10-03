@@ -149,7 +149,7 @@ private struct CircleNavButton: View {
             FinifyIcon(icon, size: .compact)
                 .foregroundStyle(FinifyColor.ink)
                 .frame(width: 30, height: 30)
-                .background(hovering ? FinifyColor.glassHighlight : FinifyColor.glass, in: Circle())
+                .modifier(TopBarSurface(overflow: false, shape: Circle(), fallback: hovering ? FinifyColor.glassHighlight : FinifyColor.glass))
                 .contentShape(Circle())
         }
         .buttonStyle(PressScaleStyle())
@@ -180,7 +180,7 @@ struct SearchTrigger: View {
             .foregroundStyle(overflow ? FinifyColor.Overflow.muted : FinifyColor.muted)
             .padding(.horizontal, Spacing.s16)
             .frame(height: 34)
-            .background(background, in: Capsule())
+            .modifier(TopBarSurface(overflow: overflow, shape: Capsule(), fallback: background))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -205,8 +205,8 @@ struct ModeSwitch: View {
             ForEach(ViewMode.allCases, id: \.self) { segment($0) }
         }
         .padding(3)
-        // 與搜尋框相同的膠囊外形
-        .background(overflow ? FinifyColor.Overflow.control : FinifyColor.surface, in: Capsule())
+        // 與搜尋框相同的膠囊外形；Infinity／Cover Flow 浮在封面上，用 Liquid Glass
+        .modifier(TopBarSurface(overflow: overflow, shape: Capsule(), fallback: overflow ? FinifyColor.Overflow.control : FinifyColor.surface))
     }
 
     private func segment(_ mode: ViewMode) -> some View {
@@ -227,6 +227,7 @@ struct ModeSwitch: View {
 
 /// 視窗全螢幕：照目前的畫面放大到整個螢幕（和選單的「進入全螢幕」⌃⌘F 相同）
 struct FullscreenButton: View {
+    @Environment(\.overflowStyle) private var overflow
     /// 按鈕所在的視窗（不用 keyWindow：app 不在前景時 keyWindow 是 nil）
     @State private var window: NSWindow?
     @State private var isFullscreen = false
@@ -236,6 +237,8 @@ struct FullscreenButton: View {
                          label: isFullscreen ? "Exit Full Screen (⌃⌘F)" : "Enter Full Screen (⌃⌘F)", size: .compact) {
             window?.toggleFullScreen(nil)
         }
+        .frame(width: 34, height: 34)
+        .modifier(TopBarSurface(overflow: overflow, shape: Circle(), fallback: .clear, strokeFallback: false))
         .background(WindowAccessor { window = $0; isFullscreen = $0?.styleMask.contains(.fullScreen) ?? false })
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) {
             if $0.object as? NSWindow === window { isFullscreen = true }
@@ -243,5 +246,19 @@ struct FullscreenButton: View {
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) {
             if $0.object as? NSWindow === window { isFullscreen = false }
         }
+    }
+}
+
+/// 頂部控制的底：macOS 26 以上一律用 Liquid Glass（像系統工具列按鈕），舊系統用原本的色塊。
+/// Infinity／Cover Flow 浮在封面上，帶深藍色調；Standard 帶目前主題的表面色，淺色模式也自然。
+struct TopBarSurface<S: InsettableShape>: ViewModifier {
+    let overflow: Bool
+    let shape: S
+    let fallback: Color
+    var strokeFallback = true
+
+    func body(content: Content) -> some View {
+        content.finifyGlass(in: shape, tint: overflow ? Color(hex: 0x111D40).opacity(0.45) : FinifyColor.surface.opacity(0.5),
+                            interactive: true, fallback: fallback)
     }
 }

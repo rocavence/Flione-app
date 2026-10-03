@@ -114,11 +114,15 @@
 * **顯示**：來自 LRCLIB 的歌詞底部標示「Lyrics from LRCLIB」。外部查詢失敗時視為沒有歌詞，不顯示錯誤。
 * **怎麼改**：`Core/Lyrics/LRCLib.swift`（含 LRC 解析，測試在 `LRCLibTests`）、`LyricsPanel.load`。
 
-## D17　Liquid Glass 只用在浮在封面上的元件
+## D17　Liquid Glass 用在浮在內容上的元件與頂部控制
 
-* **選擇**：macOS 26 以上，Overflow 的浮動播放列、頂部分段控制、Flow 大小滑桿、回到正在播放按鈕、專輯面板，以及 Standard Hero 上的 Shuffle，改用系統的 Liquid Glass（`.glassEffect`），並帶一點深藍色調，維持 Finity 的深色氣氛。macOS 14～15 退回原本的半透明深藍底加細邊。
-* **理由**：Finity 設計文件寫「玻璃是材質，不是裝飾」，且要避免每張卡片都像玻璃。這些元件都浮在封面上，玻璃能透出底下的顏色；一般頁面、側欄、清單維持實色。
-* **怎麼改**：`DesignSystem/Materials/Glass.swift` 的 `finifyGlass(in:tint:interactive:fallback:)`。
+* **選擇**：macOS 26 以上使用系統的 Liquid Glass（`.glassEffect`）；macOS 14～15 退回原本的半透明底色加細邊。
+  * Infinity／Cover Flow：浮動播放列、頂部搜尋框、三段模式切換、全螢幕按鈕、封面大小 −／+、排序、Cover Flow 大小滑桿、回到正在播放、專輯面板、佇列浮層。帶深藍色調，維持 Finity 的深色氣氛。
+  * Standard：頂部的上一頁／下一頁、搜尋框、三段模式切換、全螢幕按鈕，像系統工具列按鈕；帶目前主題的表面色，淺色模式也自然。首頁 Hero 的 Shuffle。
+  * 共用：⌘K 搜尋面板、Toast、Now Playing view 的控制列與離開按鈕。
+* **文字面板加底**：⌘K 面板與 Toast 在玻璃上墊一層 75% 的表面色，否則後面的畫面透出來，結果難以閱讀（實測）。
+* **不用玻璃**：側欄、清單列、專輯卡片、Standard 底部播放列、Up Next／Lyrics 分頁。它們貼在實色底上，玻璃沒有效果，也符合設計文件「不要每張卡片都像玻璃」。
+* **怎麼改**：`DesignSystem/Materials/Glass.swift` 的 `finifyGlass`、頂部控制的 `TopBarSurface`（`StandardRootView.swift`）。
 
 ## D18　Smart Shuffle 用 Jellyfin Instant Mix
 
