@@ -8,6 +8,8 @@ enum Motion {
     static let ui = Animation.easeInOut(duration: 0.24)
     /// Artwork 轉場（300–600 ms）
     static let artwork = Animation.spring(response: 0.45, dampingFraction: 0.86)
+    /// Cover Flow 換張：較長、無回彈，明暗與位置一起緩慢沉靜地過渡
+    static let flow = Animation.timingCurve(0.22, 0.61, 0.36, 1, duration: 0.9)
     /// Ambient 背景（2–8 s）
     static let ambient = Animation.easeInOut(duration: 3.0)
     /// 迷你播放器控制項淡入淡出

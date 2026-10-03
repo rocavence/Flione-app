@@ -58,4 +58,5 @@ enum Reicon: String, CaseIterable, Sendable {
     case gps = "gps"
     case infinite = "infinite"
     case carouselH = "carousel-h"
+    case wandSparkle = "wand-sparkle"
 }

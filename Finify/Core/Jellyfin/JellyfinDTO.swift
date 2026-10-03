@@ -42,6 +42,7 @@ struct BaseItemDTO: Decodable, Sendable {
     let imageTags: [String: String]?
     let imageBlurHashes: [String: [String: String]]?
     let dateCreated: Date?
+    let genres: [String]?
     let userData: UserDataDTO?
     let playlistItemID: String?
     let childCount: Int?
@@ -52,7 +53,7 @@ struct BaseItemDTO: Decodable, Sendable {
         case albumPrimaryImageTag = "AlbumPrimaryImageTag", productionYear = "ProductionYear"
         case indexNumber = "IndexNumber", parentIndexNumber = "ParentIndexNumber"
         case runTimeTicks = "RunTimeTicks", container = "Container", imageTags = "ImageTags"
-        case imageBlurHashes = "ImageBlurHashes", dateCreated = "DateCreated", userData = "UserData"
+        case imageBlurHashes = "ImageBlurHashes", dateCreated = "DateCreated", userData = "UserData", genres = "Genres"
         case playlistItemID = "PlaylistItemId", childCount = "ChildCount"
     }
 
@@ -83,7 +84,8 @@ struct BaseItemDTO: Decodable, Sendable {
             artistID: artist?.id,
             year: productionYear,
             artwork: primaryArtwork,
-            dateAdded: dateCreated
+            dateAdded: dateCreated,
+            genres: genres
         )
     }
 

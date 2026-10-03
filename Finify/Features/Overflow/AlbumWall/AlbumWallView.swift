@@ -15,12 +15,12 @@ enum WallDensity: Int, CaseIterable, Sendable {
         }
     }
 
-    /// 封面牆可用高度（扣掉上下留給頂部列與播放列的空間）
-    static let verticalInset: CGFloat = 56 + 100
+    /// 封面牆上方留給頂部列的空間；下方由播放列高度決定（AlbumWallView.bottomInset）
+    static let topInset: CGFloat = 56
 
     /// 依可用高度挑最好看的大小：封面邊長最接近 200pt 的列數
-    static func auto(forHeight height: CGFloat) -> WallDensity {
-        let available = max(200, height - verticalInset)
+    static func auto(forHeight height: CGFloat, bottomInset: CGFloat) -> WallDensity {
+        let available = max(200, height - topInset - bottomInset)
         return allCases.min { abs(available / CGFloat($0.rows) - 200) < abs(available / CGFloat($1.rows) - 200) }!
     }
 
@@ -30,8 +30,8 @@ enum WallDensity: Int, CaseIterable, Sendable {
     }
 
     /// 這個密度在指定可用高度下的封面邊長
-    func side(forHeight height: CGFloat) -> CGFloat {
-        let available = max(100, height - Self.verticalInset)
+    func side(forHeight height: CGFloat, bottomInset: CGFloat) -> CGFloat {
+        let available = max(100, height - Self.topInset - bottomInset)
         return available / CGFloat(rows)
     }
 
@@ -75,6 +75,8 @@ struct AlbumWallView: NSViewRepresentable {
     var acceptsKeyboard = true
     /// 輸入文字跳轉時優先比對專輯名（依標題排序時）或藝人名
     var typeToSelectByTitle = false
+    /// 下方留白：與浮動播放列之間的距離＝播放列到視窗底的距離
+    var bottomInset: CGFloat = 100
 
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
@@ -119,7 +121,7 @@ struct AlbumWallView: NSViewRepresentable {
         let coordinator = context.coordinator
         let albumsChanged = coordinator.parent.albums.map(\.id) != albums.map(\.id)
         // binding 讀的是即時值，不能拿舊的 parent 比；改與目前實際尺寸比較
-        let densityChanged = coordinator.currentRows != density.rows
+        let densityChanged = coordinator.currentRows != density.rows || coordinator.parent.bottomInset != bottomInset
         let playingChanged = coordinator.parent.playingAlbumID != playingAlbumID
         let scrollRequested = coordinator.parent.scrollToPlayingToken != scrollToPlayingToken
         coordinator.parent = self
@@ -173,7 +175,7 @@ struct AlbumWallView: NSViewRepresentable {
         /// 依密度（列數）套用：封面邊長由可視高度決定，剛好填滿上下
         func applyDensity(_ density: WallDensity, animated: Bool) {
             let height = collection?.enclosingScrollView?.contentView.bounds.height ?? 0
-            applySize(density.side(forHeight: height), rows: density.rows, animated: animated)
+            applySize(density.side(forHeight: height, bottomInset: parent.bottomInset), rows: density.rows, animated: animated)
         }
 
         func applySize(_ side: CGFloat, rows: Int?, animated: Bool) {
@@ -186,7 +188,7 @@ struct AlbumWallView: NSViewRepresentable {
             layout.targetSide = side
             layout.minimumInteritemSpacing = gap
             layout.minimumLineSpacing = gap
-            layout.sectionInset = NSEdgeInsets(top: 56, left: 24, bottom: 100, right: 24)
+            layout.sectionInset = NSEdgeInsets(top: WallDensity.topInset, left: 24, bottom: parent.bottomInset, right: 24)
             if animated && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
                 NSAnimationContext.runAnimationGroup { ctx in
                     ctx.duration = 0.28
@@ -211,7 +213,7 @@ struct AlbumWallView: NSViewRepresentable {
                 isPinching = false
                 // 放開時吸附到最接近的列數
                 let height = collection?.enclosingScrollView?.contentView.bounds.height ?? 0
-                let snapped = WallDensity.nearest(rows: max(1, height - WallDensity.verticalInset) / max(1, currentSide))
+                let snapped = WallDensity.nearest(rows: max(1, height - WallDensity.topInset - parent.bottomInset) / max(1, currentSide))
                 applyDensity(snapped, animated: true)
                 if parent.density != snapped { parent.density = snapped }
             }
@@ -643,6 +645,12 @@ final class WallItem: NSCollectionViewItem {
     }
 
     fileprivate func setHovering(_ hovering: Bool) {
+        // 一次只會有一張在 hover：捲動或漂移時可能漏掉 mouseExited，先清掉其他張，避免一整排停在放大狀態
+        if hovering {
+            for other in collectionView?.visibleItems() ?? [] where other !== self {
+                if let item = other as? WallItem, item.hovering { item.hovering = false; item.applyState(animated: true) }
+            }
+        }
         self.hovering = hovering
         applyState(animated: true)
     }
@@ -651,7 +659,7 @@ final class WallItem: NSCollectionViewItem {
     private func applyState(animated: Bool) {
         guard let layer = view.layer else { return }
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-        let scale: CGFloat = isPlaying ? 1.08 : (hovering ? 1.04 : 1)
+        let scale: CGFloat = isPlaying ? 1.08 : (hovering ? 1.12 : 1)
         CATransaction.begin()
         CATransaction.setAnimationDuration(animated && !reduceMotion ? 0.35 : 0)
         CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
@@ -663,8 +671,8 @@ final class WallItem: NSCollectionViewItem {
         layer.sublayerTransform = transform
         layer.zPosition = isPlaying ? 20 : (hovering ? 10 : 0)
         shadowLayer.opacity = isPlaying || hovering ? 1 : 0
-        // 小尺寸（Tiny／Small）封面太小，不顯示文字，只靠 tooltip
-        captionGradient.opacity = hovering && bounds.width >= 120 && titleLayer.string == nil ? 1 : 0
+        // 專輯資訊一律點了才看（打開專輯面板），hover 只放大
+        captionGradient.opacity = 0
         shadowLayer.shadowOpacity = isPlaying ? 0.7 : 0.5
         shadowLayer.shadowRadius = isPlaying ? 24 : 12
         artwork.opacity = anyPlaying && !isPlaying && !hovering ? 0.82 : 1

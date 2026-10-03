@@ -64,7 +64,7 @@ final class JellyfinRepository: MusicRepository {
         return try await client.get(userPath, query: base.map { URLQueryItem(name: $0.key, value: $0.value) })
     }
 
-    private static let albumFields = "DateCreated,ProductionYear"
+    private static let albumFields = "DateCreated,ProductionYear,Genres"
     private static let trackFields = "ProductionYear"
 
     func allAlbums() async throws -> [Album] {

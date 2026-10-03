@@ -17,13 +17,23 @@ struct OverflowRootView: View {
     @AppStorage("FinifyFlowSize") private var flowSizeRaw = -1
     /// 封面牆／Cover Flow 可用的大小，用來算 Auto 預設
     @State private var browseSize = CGSize(width: 1360, height: 860)
+    /// 浮動播放列的實際高度（量測），封面牆下方留白依它計算
+    @State private var pillHeight: CGFloat = 0
+    /// 封面牆與播放列的距離＝播放列到視窗底的距離；沒在播放時只留這段距離
+    private var wallBottomInset: CGFloat {
+        let margin = NowPlayingPill.bottomMargin
+        return app.player.currentTrack == nil ? margin : margin + pillHeight + margin
+    }
     /// 排序結果只在專輯清單或排序方式改變時重算
     @State private var sortedAlbums: [Album] = []
+    /// Magic 排序（"" = 關閉）；選了會暫時取代一般排序
+    @AppStorage("FinifyMagicSort") private var magicRaw = ""
+    private var magic: MagicSort? { MagicSort(rawValue: magicRaw) }
     @State private var openAlbum: Album?
     @State private var scrollToPlaying = 0
 
     private var density: Binding<WallDensity> {
-        Binding { WallDensity(rawValue: densityRaw) ?? WallDensity.auto(forHeight: browseSize.height) } set: { densityRaw = $0.rawValue }
+        Binding { WallDensity(rawValue: densityRaw) ?? WallDensity.auto(forHeight: browseSize.height, bottomInset: wallBottomInset) } set: { densityRaw = $0.rawValue }
     }
 
     private var playingAlbumID: String? { app.player.currentTrack?.albumID }
@@ -44,8 +54,11 @@ struct OverflowRootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isLyricsPresented)
         .task { await app.library.refreshIfNeeded() }
-        .onChange(of: app.library.albums, initial: true) { sortedAlbums = sort.apply(to: app.library.albums) }
-        .onChange(of: sort) { sortedAlbums = sort.apply(to: app.library.albums) }
+        .onChange(of: app.library.albums, initial: true) { resort() }
+        .onChange(of: sort) {
+            magicRaw = ""
+            resort()
+        }
         #if DEBUG || BENCHMARK
         .task { await DebugDemo.run(app: app, openAlbum: { openAlbum = $0 }) }
         #endif
@@ -79,7 +92,8 @@ struct OverflowRootView: View {
                             extraMenu: app.albumMenuItems,
                             scrollToPlayingToken: scrollToPlaying,
                             acceptsKeyboard: openAlbum == nil && !app.isSearchPresented,
-                            typeToSelectByTitle: sort == .title
+                            typeToSelectByTitle: sort == .title,
+                            bottomInset: wallBottomInset
                         )
                     case .flow:
                         AlbumFlowView(albums: sortedAlbums, playingAlbumID: playingAlbumID, onPlay: play,
@@ -95,7 +109,7 @@ struct OverflowRootView: View {
             VStack(spacing: 0) {
                 topBar
                 Spacer()
-                if openAlbum == nil { NowPlayingPill(onOpen: openPlayingAlbum) }
+                if openAlbum == nil { NowPlayingPill(onOpen: openPlayingAlbum, onHeight: { pillHeight = $0 }) }
             }
 
             if let album = openAlbum {
@@ -144,6 +158,11 @@ struct OverflowRootView: View {
             .frame(height: 34)
             .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
             .accessibilityLabel("Sort albums, \(sort.rawValue)")
+
+            MagicSortMenu(selection: magic) { choice in
+                magicRaw = choice?.rawValue ?? ""
+                resort()  // 再選一次 Shuffle 也會重洗
+            }
 
             if layout == .wall {
                 SizeSlider(step: densityStep, count: WallDensity.allCases.count, label: "Album size",
@@ -229,6 +248,10 @@ struct OverflowRootView: View {
         }
     }
 
+    private func resort() {
+        sortedAlbums = magic?.apply(to: app.library.albums) ?? sort.apply(to: app.library.albums)
+    }
+
     private func openPlayingAlbum() {
         guard let id = playingAlbumID else { return }
         openAlbum = app.library.albums.first { $0.id == id }
@@ -237,7 +260,10 @@ struct OverflowRootView: View {
 
 /// Overflow 底部浮動的 now playing：封面、曲名、控制、進度
 private struct NowPlayingPill: View {
+    /// 播放列到視窗底的距離；封面牆與播放列之間也用同樣的距離
+    static let bottomMargin = Spacing.s24
     let onOpen: () -> Void
+    let onHeight: (CGFloat) -> Void
     @Environment(AppEnvironment.self) private var app
 
     var body: some View {
@@ -261,11 +287,13 @@ private struct NowPlayingPill: View {
                 FinifyIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) { app.isQueuePresented.toggle() }
                 VolumeControl()
             }
-            .padding(.horizontal, Spacing.s16)
+            // 左右最邊緣留較寬的內距，控制不貼邊
+            .padding(.horizontal, Spacing.s32)
             .padding(.vertical, Spacing.s8)
             .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous), tint: FinifyColor.Ocean.surface1.opacity(0.55), fallback: FinifyColor.Ocean.surface1.opacity(0.88))
             .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 30, y: 12))
-            .padding(.bottom, Spacing.s24)
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { onHeight($0) }
+            .padding(.bottom, Self.bottomMargin)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
@@ -281,8 +309,9 @@ private struct SizeSlider: View {
 
     var body: some View {
         let last = Double(count - 1)
-        HStack(spacing: Spacing.s8) {
-            FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.faint).scaleEffect(0.7)
+        HStack(spacing: Spacing.s4) {
+            FinifyIconButton(icon: .minus, label: "Smaller", size: .compact) { change(-1) }
+                .disabled(step <= 0)
             ProgressBar(value: Double(step) / last, continuous: true, steps: count, alwaysShowsKnob: true, isPlayback: false) {
                 let next = Int(($0 * last).rounded())
                 if next != step { Haptics.perform(.step) }
@@ -291,10 +320,61 @@ private struct SizeSlider: View {
                 .frame(width: 96)
                 .accessibilityLabel(label)
                 .accessibilityValue(valueText)
-            FinifyIcon(.cd, size: .compact).foregroundStyle(FinifyColor.Overflow.muted)
+            FinifyIconButton(icon: .plus, label: "Larger", size: .compact) { change(1) }
+                .disabled(step >= count - 1)
         }
+        .padding(.horizontal, Spacing.s4)
+        .frame(height: 34)
+        .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+    }
+
+    /// 兩端的 − ＋：一次一段
+    private func change(_ delta: Int) {
+        let next = min(count - 1, max(0, step + delta))
+        guard next != step else { return }
+        Haptics.perform(.step)
+        step = next
+    }
+}
+
+/// 「Magic」排序選單：好玩的排列條件；啟用時按鈕顯示目前的條件
+private struct MagicSortMenu: View {
+    let selection: MagicSort?
+    let onSelect: (MagicSort?) -> Void
+
+    var body: some View {
+        // 外觀自己畫（borderless Menu 會把圖示染成黑色），Menu 只負責點擊與選單
+        HStack(spacing: Spacing.s4) {
+            FinifyIcon(.wandSparkle, weight: selection == nil ? .outline : .filled, size: .compact)
+            Text(selection?.rawValue ?? "Magic").finifyFont(.caption)
+        }
+        .foregroundStyle(selection == nil ? FinifyColor.Overflow.muted : FinifyColor.Overflow.ink)
         .padding(.horizontal, Spacing.s12)
         .frame(height: 34)
         .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+        // 啟用中：膠囊外圈一道細橘光
+        .overlay { if selection != nil { Capsule().strokeBorder(FinifyColor.orange.opacity(0.7), lineWidth: 1).finifyGlow(radius: 5) } }
+        .overlay {
+            Menu {
+                ForEach(MagicSort.allCases, id: \.self) { option in
+                    // Toggle 在選單裡會顯示勾選；再點一次同一項也會重新套用（Shuffle 重洗）
+                    Toggle(isOn: Binding(get: { selection == option }, set: { _ in onSelect(option) })) {
+                        Text(option.rawValue)
+                        Text(option.subtitle)
+                    }
+                }
+                if selection != nil {
+                    Divider()
+                    Button("Turn Off Magic") { onSelect(nil) }
+                }
+            } label: {
+                Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+        }
+        .help("Magic sort: rearrange your library by color, genre, era, or chance")
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(selection.map { "Magic sort, \($0.rawValue)" } ?? "Magic sort")
     }
 }

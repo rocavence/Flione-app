@@ -44,7 +44,7 @@ struct PlayerBar: View {
             }
             .frame(width: 280, alignment: .trailing)
         }
-        .padding(.horizontal, Spacing.s16)
+        .padding(.horizontal, Spacing.s24)
         .frame(height: 80)
         .background(FinifyColor.panel)
         .overlay(alignment: .top) { FinifyColor.hairline.frame(height: 1) }

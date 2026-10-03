@@ -21,6 +21,8 @@ struct Album: Identifiable, Hashable, Sendable, Codable {
     let year: Int?
     let artwork: ArtworkRef?
     let dateAdded: Date?
+    /// 曲風（Magic sort 的「By Genre」用）；舊的快取沒有這個欄位時為 nil
+    var genres: [String]? = nil
 }
 
 struct Track: Identifiable, Hashable, Sendable, Codable {

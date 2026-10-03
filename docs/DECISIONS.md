@@ -176,3 +176,13 @@
 ## D23　Standard 改名為 Modern
 
 * **選擇**：使用者看到的模式名稱由「Standard」改為「Modern」（右上角切換的提示、選單 ⌘1、設定「Open Finify in」、首次的模式選擇畫面）。程式內部仍叫 `standard`（`AppMode.standard`、`ViewMode.standard`、`StandardRootView`），避免大範圍改檔；先前決策紀錄中的「Standard」即指 Modern。
+
+## D24　Infinity／Cover Flow 細節與 Magic sort
+
+* **Cover Flow 換張**：位置與明暗一起用 0.9 秒、無回彈的曲線過渡（`Motion.flow`），標題淡入淡出 0.7 秒，營造沉靜感。
+* **Infinity hover**：hover 不再顯示專輯資訊（資訊一律點了在專輯面板看），放大由 1.04 提高到 1.12。捲動或漂移時可能漏掉 mouseExited，造成一整排停在 hover 狀態；現在進入新的一張時會先清掉其他張。
+* **播放列內距**：Modern 底部播放列與 Infinity／Cover Flow 浮動播放列的左右內距加大（16 → 24／32pt）。
+* **封面牆與播放列的距離**：等於播放列到視窗底的距離（24pt），依播放列實際高度計算；沒在播放時只留 24pt。
+* **大小滑軌**：兩端加 −／＋，一次一段。
+* **Magic sort**：排序旁一顆「Magic」，條件有 Shuffle（隨機，再選一次重洗）、Rainbow（依封面平均色的色相排成彩虹，黑白灰放最後）、Light to Dark（依封面亮度）、By Genre（依曲風分群）、Time Travel（由最舊到最新）。封面顏色取自 BlurHash，不需下載圖片；曲風來自 Jellyfin 專輯的 Genres（舊快取在下次重新整理音樂庫後才有）。選了 Magic 會暫時取代一般排序，改一般排序時自動關閉。
+* **怎麼改**：`Models/MagicSort.swift`（測試在 `MagicSortTests`）、`OverflowRootView` 的 `MagicSortMenu`、`SizeSlider`。

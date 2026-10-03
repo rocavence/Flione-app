@@ -72,3 +72,4 @@ power
 gps
 infinite
 carousel-h
+wand-sparkle

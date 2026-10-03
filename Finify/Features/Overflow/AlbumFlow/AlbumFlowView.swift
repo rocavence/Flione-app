@@ -155,7 +155,7 @@ struct AlbumFlowView: View {
             flippedID = flippedID == album.id ? nil : album.id
         } else {
             userMoved = true
-            withAnimation(Motion.artwork) { centerID = album.id }
+            withAnimation(Motion.respecting(reduceMotion, Motion.flow)) { centerID = album.id }
         }
     }
 
@@ -210,7 +210,7 @@ struct AlbumFlowView: View {
             .padding(.horizontal, Spacing.s48)
             .id(album.id)
             .transition(.opacity)
-            .animation(Motion.ui, value: centerID)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.7), value: centerID)
         }
     }
 
@@ -233,7 +233,7 @@ struct AlbumFlowView: View {
         guard let index = albums.firstIndex(where: { $0.id == centerID }) else { return }
         let next = min(max(0, index + delta), albums.count - 1)
         userMoved = true
-        withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { centerID = albums[next].id }
+        withAnimation(Motion.respecting(reduceMotion, Motion.flow)) { centerID = albums[next].id }
     }
 }
 
