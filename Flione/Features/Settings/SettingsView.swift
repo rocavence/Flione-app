@@ -37,6 +37,8 @@ enum SettingsKey {
     static let flowRounded = "FinifyFlowRounded"
     /// Cover Flow 兩側封面變暗的程度（0 = 不變暗，預設 0.25）
     static let flowDim = "FinifyFlowDim"
+    /// Cover Flow 背景模糊封面的亮度（0 = 不顯示，預設 0.9）
+    static let flowGlow = "FinifyFlowGlow"
     static let trackNotifications = "FinifyTrackNotifications"
     static let onlineLyrics = "FinifyOnlineLyrics"
 }
@@ -316,6 +318,7 @@ private struct AppearanceSettings: View {
     @AppStorage(SettingsKey.wallRounded) private var wallRounded = true
     @AppStorage(SettingsKey.flowRounded) private var flowRounded = true
     @AppStorage(SettingsKey.flowDim) private var flowDim = 0.25
+    @AppStorage(SettingsKey.flowGlow) private var flowGlow = 0.9
     @AppStorage("FinifyWallDensity") private var density = -1
     @AppStorage("FinifyFlowSize") private var flowSize = -1
 
@@ -350,8 +353,11 @@ private struct AppearanceSettings: View {
             PillMenu(title: "Cover size", selection: $flowSize,
                      options: [(-1, "Auto")] + (0..<AlbumFlowView.sizeSteps).map { ($0, "\($0 + 1) of \(AlbumFlowView.sizeSteps)") })
         }
-        SettingRow(title: "Dim side covers", detail: "How much the covers beside the center one fade into the dark.") {
+        SettingRow(title: "Dim side covers", detail: "The center cover is always the brightest. Choose how dark the others get as they move away from it.") {
             PillMenu(title: "Dim side covers", selection: $flowDim, options: [(0, "Off"), (0.15, "Subtle"), (0.25, "Medium"), (0.45, "Strong")])
+        }
+        SettingRow(title: "Background glow", detail: "How bright the blurred cover behind the albums is. It changes color as you move to another album.") {
+            PillMenu(title: "Background glow", selection: $flowGlow, options: [(0, "Off"), (0.35, "Low"), (0.6, "Medium"), (0.9, "Bright")])
         }
     }
 }

@@ -22,6 +22,8 @@ struct AlbumFlowView: View {
     @AppStorage(SettingsKey.flowRounded) private var rounded = true
     /// 兩側封面變暗的程度（設定 → Appearance → Cover Flow）
     @AppStorage(SettingsKey.flowDim) private var dim = 0.25
+    /// 背景模糊封面的亮度（設定 → Appearance → Cover Flow）
+    @AppStorage(SettingsKey.flowGlow) private var glow = 0.9
     @State private var centerID: String?
     /// 使用者手動移動過後，不再自動跳到正在播放的專輯
     @State private var userMoved = false
@@ -130,7 +132,7 @@ struct AlbumFlowView: View {
                 withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { resize(to: geo.size) }
             }
         }
-        .background { FlowBackdrop(artwork: centered?.artwork, horizon: 0.5) }
+        .background { FlowBackdrop(artwork: centered?.artwork, horizon: 0.5, glow: glow) }
         .onAppear {
             centerOnPlaying()
             realignToken += 1
@@ -310,19 +312,21 @@ private struct FlowBackdrop: View {
     let artwork: ArtworkRef?
     /// 地平線位置（0 = 頂端、1 = 底部），倒影落在這條線下方
     let horizon: CGFloat
+    /// 模糊封面的亮度；0 時只留深色底
+    var glow: Double = 0.9
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
             FinifyColor.Overflow.background
             Color.clear.overlay {
-                if let artwork {
+                if let artwork, glow > 0 {
                     ArtworkView(artwork: artwork, cornerRadius: 0, elevation: .none)
                         .aspectRatio(contentMode: .fill)
                         .scaleEffect(1.6)
                         .blur(radius: 110, opaque: true)
                         .saturation(1.4)
-                        .opacity(0.9)
+                        .opacity(glow)
                         .id(artwork)
                         .transition(.opacity)
                 }
