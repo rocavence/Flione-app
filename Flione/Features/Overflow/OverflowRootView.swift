@@ -159,7 +159,7 @@ struct OverflowRootView: View {
             .tint(FinifyColor.Overflow.muted)
             .fixedSize()
             .padding(.horizontal, Spacing.s12)
-            .frame(height: 34)
+            .frame(height: ViewControls.controlHeight)
             .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
             .accessibilityLabel(Text("Sort albums, \(sort.title)"))
 
@@ -185,7 +185,7 @@ struct OverflowRootView: View {
                 }
                 .foregroundStyle(FinifyColor.Overflow.muted)
                 .padding(.horizontal, Spacing.s12)
-                .frame(height: 34)
+                .frame(height: ViewControls.controlHeight)
                 .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
                 .contentShape(Capsule())
             }
@@ -216,7 +216,7 @@ struct OverflowRootView: View {
             }
             .foregroundStyle(autoScroll ? FinifyColor.accent : FinifyColor.Overflow.muted)
             .padding(.horizontal, Spacing.s12)
-            .frame(height: 34)
+            .frame(height: ViewControls.controlHeight)
             .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
             .overlay { if autoScroll { Capsule().strokeBorder(FinifyColor.accent.opacity(0.6), lineWidth: 1) } }
             .contentShape(Capsule())
@@ -343,7 +343,7 @@ private struct SizeSlider: View {
                 .disabled(step >= count - 1)
         }
         .padding(.horizontal, Spacing.s4)
-        .frame(height: 34)
+        .frame(height: ViewControls.controlHeight)
         .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
     }
 
@@ -382,7 +382,7 @@ private struct MagicSortMenu: View {
             }
             .foregroundStyle(selection == nil ? FinifyColor.Overflow.muted : FinifyColor.Overflow.ink)
             .padding(.horizontal, Spacing.s12)
-            .frame(height: 34)
+            .frame(height: ViewControls.controlHeight)
             .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
             // 啟用中：膠囊外圈一道細橘光
             .overlay { if selection != nil { Capsule().strokeBorder(FinifyColor.orange.opacity(0.7), lineWidth: 1).finifyGlow(radius: 5) } }

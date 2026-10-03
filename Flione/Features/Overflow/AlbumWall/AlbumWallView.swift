@@ -16,7 +16,8 @@ enum WallDensity: Int, CaseIterable, Sendable {
     }
 
     /// 封面牆上方留給頂部列的空間；下方由播放列高度決定（AlbumWallView.bottomInset）
-    static let topInset: CGFloat = 56
+    /// 封面牆從頂部列下方 4pt 開始
+    static var topInset: CGFloat { ViewControls.barHeight + 4 }
 
     /// 依可用高度挑最好看的大小：封面邊長最接近 200pt 的列數
     static func auto(forHeight height: CGFloat, bottomInset: CGFloat) -> WallDensity {

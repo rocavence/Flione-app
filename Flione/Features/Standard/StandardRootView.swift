@@ -157,7 +157,7 @@ private struct CircleNavButton: View {
         Button(action: action) {
             FinifyIcon(icon, size: .compact)
                 .foregroundStyle(FinifyColor.ink)
-                .frame(width: 30, height: 30)
+                .frame(width: ViewControls.controlHeight, height: ViewControls.controlHeight)
                 .modifier(TopBarSurface(overflow: false, shape: Circle(), fallback: hovering ? FinifyColor.glassHighlight : FinifyColor.glass, interactive: false))
                 .contentShape(Circle())
         }
@@ -188,7 +188,7 @@ struct SearchTrigger: View {
             }
             .foregroundStyle(overflow ? FinifyColor.Overflow.muted : FinifyColor.muted)
             .padding(.horizontal, Spacing.s16)
-            .frame(height: 34)
+            .frame(height: ViewControls.controlHeight)
             .modifier(TopBarSurface(overflow: overflow, shape: Capsule(), fallback: background))
             .contentShape(Rectangle())
         }
@@ -237,7 +237,10 @@ struct ModeSwitch: View {
 /// 右上角的模式切換＋全螢幕。三種模式共用，位置固定在視窗右上角
 struct ViewControls: View {
     /// 頂部列高度，Standard 與 Infinity／Cover Flow 相同
-    static let barHeight: CGFloat = 52
+    /// 頂部列所有控制項的高度（模式切換、全螢幕、搜尋、上一頁／下一頁、Infinity 的排序等）
+    static let controlHeight: CGFloat = 38
+    /// 頂部列高度：控制項上下各留 11pt（原本上一頁按鈕到邊緣的距離）
+    static let barHeight: CGFloat = controlHeight + 22
     /// 三段切換（3 × 42 + 6）＋ 間距 12 ＋ 全螢幕 40
     static let width: CGFloat = 132 + 12 + 40
 
