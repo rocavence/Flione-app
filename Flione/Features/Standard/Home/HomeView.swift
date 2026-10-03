@@ -206,7 +206,7 @@ private struct HomeHero: View {
                         .textCase(.uppercase)
                         .finifyFont(.micro)
                         .foregroundStyle(FinifyColor.ice.opacity(0.85))
-                    Text("Your music, beautifully played.")
+                    Text("Listen well. Collect well.")
                         .font(.system(size: 36, weight: .bold))
                         .tracking(-0.8)
                         .foregroundStyle(.white)

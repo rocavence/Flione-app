@@ -336,6 +336,26 @@
         }
       }
     },
+    "A native YouTube Music app for macOS. It inspired Flione's sidebar glow, YouTube Music support, lyrics lookup, Dock menu, and more. MIT License.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原生的 macOS YouTube Music app。Flione 的側欄光暈、YouTube Music 支援、歌詞查詢、Dock 選單等做法都受它啟發。MIT 授權。"
+          }
+        }
+      }
+    },
+    "About": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關於"
+          }
+        }
+      }
+    },
     "Add %@ to Favorites": {
       "localizations": {
         "zh-Hant": {
@@ -476,6 +496,16 @@
         }
       }
     },
+    "And it needed the original Cover Flow from early Mac OS X back, the feeling of flipping through covers one by one. That's Cover Flow.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "也要找回最早 OS X 的 Cover Flow，一張一張翻過封面的那種沉浸感。這是 Cover Flow。"
+          }
+        }
+      }
+    },
     "Artist": {
       "localizations": {
         "zh-Hant": {
@@ -512,6 +542,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "極光"
+          }
+        }
+      }
+    },
+    "Author · GitHub": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "作者 · GitHub"
           }
         }
       }
@@ -576,22 +616,22 @@
         }
       }
     },
-    "Bring in the library on your Jellyfin server and browse it three ways.": {
+    "Bring in the library on your Jellyfin server. Browse it the modern way, and get lost in the album covers.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "帶進 Jellyfin 伺服器上的音樂庫，用三種方式瀏覽。"
+            "value": "帶進 Jellyfin 伺服器上的音樂庫，用現代化的方式瀏覽，沉浸在音樂封面之中。"
           }
         }
       }
     },
-    "Bring in your YouTube Music library and browse it three ways.": {
+    "Bring in your YouTube Music library. Browse it the modern way, and get lost in the album covers.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "帶進你的 YouTube Music 音樂庫，用三種方式瀏覽。"
+            "value": "帶進你的 YouTube Music 音樂庫，用現代化的方式瀏覽，沉浸在音樂封面之中。"
           }
         }
       }
@@ -969,6 +1009,16 @@
     "Cover Flow": {
       "shouldTranslate": false
     },
+    "Cover colors for glows, placeholders, and Magic sort.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面顏色的來源，用在光暈、載入前的色塊與 Magic 排序。"
+          }
+        }
+      }
+    },
     "Cover size": {
       "localizations": {
         "zh-Hant": {
@@ -1170,6 +1220,16 @@
     "English": {
       "shouldTranslate": false
     },
+    "Every icon in Flione's interface comes from Reicon.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flione 介面上的每一個 icon 都來自 Reicon。"
+          }
+        }
+      }
+    },
     "FLIONE": {
       "shouldTranslate": false
     },
@@ -1226,6 +1286,26 @@
     "Flione": {
       "shouldTranslate": false
     },
+    "Flione = Jellyfin + Infinity + Clione. Jellyfin and Infinity share \"fin\", which gives the F; \"lione\" comes from Clione, the sea angel. The three views are three ways a sea angel moves through an ocean of music: Modern is everyday drifting, Infinity heads into the deep, and Cover Flow glides through a floating swarm.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flione = Jellyfin + Infinity + Clione。Jellyfin 和 Infinity 都有「fin」，取它的 F；「lione」來自 Clione，也就是海天使。三種模式是海天使在音樂海洋裡的三種動態：Modern 是日常的漂浮，Infinity 游向深海，Cover Flow 穿梭在漂浮的群落之間。"
+          }
+        }
+      }
+    },
+    "Flione began with a self-hosted Jellyfin server. An iTunes library built over twenty-some years was re-imported and became a private music stream.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flione 的起點是一台自己架設的 Jellyfin。累積二十幾年的 iTunes 音樂庫重新整理入庫，成了私人的音樂串流。"
+          }
+        }
+      }
+    },
     "Flione connects only to the music source you choose. No Flione account, no analytics, no tracking.": {
       "localizations": {
         "zh-Hant": {
@@ -1242,6 +1322,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Flione 只連線到你選的音樂來源。不需要 Flione 帳號，也不追蹤你。"
+          }
+        }
+      }
+    },
+    "Flione is a renaissance for collecting music: truly owning your music, not just streaming it.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flione 想讓收藏音樂這件事文藝復興：真正擁有你的音樂，而不只是串流。"
           }
         }
       }
@@ -1302,6 +1392,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "一般"
+          }
+        }
+      }
+    },
+    "Generates the Xcode project.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "產生 Xcode 專案。"
           }
         }
       }
@@ -1436,6 +1536,16 @@
         }
       }
     },
+    "How it started": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開發的故事"
+          }
+        }
+      }
+    },
     "How large the center album is.": {
       "localizations": {
         "zh-Hant": {
@@ -1478,6 +1588,26 @@
     },
     "Infinity": {
       "shouldTranslate": false
+    },
+    "It needed a sidebar like Spotify's, for managing the whole library with ease. That's Modern.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "它要有 Spotify 那樣的側欄，俐落地管理整個音樂庫。這是 Modern。"
+          }
+        }
+      }
+    },
+    "It needed a wall of covers that lays out years of collecting and taste, drifting slowly so you can wander through it. That's Infinity.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要有一面封面牆，攤開多年的收藏與品味，緩緩流動，讓人在裡面徜徉。這是 Infinity。"
+          }
+        }
+      }
     },
     "Keep on top": {
       "localizations": {
@@ -1565,6 +1695,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "由亮到暗"
+          }
+        }
+      }
+    },
+    "Listen well. Collect well.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好好聽歌，也要好好蒐藏。"
           }
         }
       }
@@ -1941,6 +2081,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "啟動時顯示"
+          }
+        }
+      }
+    },
+    "Open lyrics database, used when your server has no lyrics.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開放的歌詞資料庫，伺服器沒有歌詞時使用。"
+          }
+        }
+      }
+    },
+    "Open source": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開源專案"
           }
         }
       }
@@ -2843,6 +3003,16 @@
         }
       }
     },
+    "Special thanks": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特別感謝"
+          }
+        }
+      }
+    },
     "Start in the view you used last.": {
       "localizations": {
         "zh-Hant": {
@@ -2993,6 +3163,16 @@
         }
       }
     },
+    "The free media server Flione was first built for.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免費的媒體伺服器，Flione 最早就是為它而做。"
+          }
+        }
+      }
+    },
     "The glow behind the covers is brightest while you move between albums. Choose how much it dims after you stop.": {
       "localizations": {
         "zh-Hant": {
@@ -3009,6 +3189,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "選單、按鈕與訊息使用的語言。"
+          }
+        }
+      }
+    },
+    "The music was back, but the players that worked with it looked plain and dated. So Flione was made.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音樂都回來了，能用的播放器卻都不太好看，也不夠現代。於是有了 Flione。"
+          }
+        }
+      }
+    },
+    "The name": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命名的故事"
           }
         }
       }
@@ -3089,6 +3289,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "標題"
+          }
+        }
+      }
+    },
+    "Traced the menu bar icon.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "描出選單列 icon 的形狀。"
           }
         }
       }
@@ -3179,6 +3389,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "使用者名稱"
+          }
+        }
+      }
+    },
+    "Version %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本 %@"
           }
         }
       }
@@ -3283,16 +3503,6 @@
         }
       }
     },
-    "Your music, beautifully played.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "好好聽，也好好看。"
-          }
-        }
-      }
-    },
     "Your playlists are empty.": {
       "localizations": {
         "zh-Hant": {
@@ -3329,6 +3539,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "mediabox 或 192.168.1.10:8096"
+          }
+        }
+      }
+    },
+    "rocavence on GitHub": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rocavence 的 GitHub"
           }
         }
       }

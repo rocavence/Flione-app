@@ -2,7 +2,7 @@
 
 [繁體中文](README.md) · **English**
 
-A native macOS music player for Jellyfin and YouTube Music. Your music, beautifully played, and browsed three ways.
+A native macOS music player for Jellyfin and YouTube Music. Listen well, collect well: browse your music the modern way, and get lost in the album covers.
 
 <p align="center">
   <img src="Flione/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" width="160" alt="Flione icon">

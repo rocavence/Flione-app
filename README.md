@@ -2,7 +2,7 @@
 
 **繁體中文** · [English](README.en.md)
 
-Jellyfin 與 YouTube Music 的 macOS 原生音樂播放器。好好聽，也好好看：用三種方式瀏覽你的音樂。
+Jellyfin 與 YouTube Music 的 macOS 原生音樂播放器。好好聽歌，也要好好蒐藏：用現代化的方式瀏覽，沉浸在音樂封面之中。
 
 <p align="center">
   <img src="Flione/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" width="160" alt="Flione icon">

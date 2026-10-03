@@ -29,10 +29,10 @@ struct ConnectView: View {
                     .font(.system(size: 15, weight: .semibold))
                     .tracking(8)
                     .foregroundStyle(FinifyColor.ink)
-                Text("Your music, beautifully played.")
+                Text("Listen well. Collect well.")
                     .finifyFont(.title)
                     .foregroundStyle(FinifyColor.ink)
-                Text(showsJellyfin ? "Bring in the library on your Jellyfin server and browse it three ways." : "Bring in your YouTube Music library and browse it three ways.")
+                Text(showsJellyfin ? "Bring in the library on your Jellyfin server. Browse it the modern way, and get lost in the album covers." : "Bring in your YouTube Music library. Browse it the modern way, and get lost in the album covers.")
                     .finifyFont(.body)
                     .foregroundStyle(FinifyColor.muted)
             }

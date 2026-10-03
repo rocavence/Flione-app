@@ -52,7 +52,7 @@ enum SettingsKey {
 /// 版面：標題、分頁膠囊、關閉鈕；每一列左邊是名稱與說明，右邊是控制項。
 struct SettingsCard: View {
     enum Tab: String, CaseIterable {
-        case general, modern, infinity, coverFlow, jellyfin
+        case general, modern, infinity, coverFlow, jellyfin, about
 
         var title: LocalizedStringResource {
             switch self {
@@ -62,6 +62,7 @@ struct SettingsCard: View {
             case .infinity: LocalizedStringResource(stringLiteral: ViewMode.infinity.title)
             case .coverFlow: LocalizedStringResource(stringLiteral: ViewMode.coverFlow.title)
             case .jellyfin: "Music Source"
+            case .about: "About"
             }
         }
     }
@@ -84,10 +85,11 @@ struct SettingsCard: View {
                 CloseButton { app.isSettingsPresented = false }
             }
             .padding(.bottom, Spacing.s16)
-            // 五個分頁放在標題下方一整列，不和標題擠在一起
+            // 分頁放在標題下方一整列，不和標題擠在一起
             TabPicker(selection: $tab)
                 .padding(.bottom, Spacing.s8)
 
+            ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: 0) {
                     switch tab {
@@ -96,10 +98,21 @@ struct SettingsCard: View {
                     case .infinity: InfinitySettings()
                     case .coverFlow: CoverFlowSettings()
                     case .jellyfin: AccountSettings()
+                    case .about: AboutSettings()
                     }
+                    Color.clear.frame(height: 0).id("bottom")
                 }
             }
             .scrollBounceBehavior(.basedOnSize)
+            #if DEBUG
+            // -FinifyDemoSettingsScroll YES：截圖用，打開後捲到最下面
+            .task {
+                guard UserDefaults.standard.bool(forKey: "FinifyDemoSettingsScroll") else { return }
+                try? await Task.sleep(for: .seconds(1))
+                proxy.scrollTo("bottom", anchor: .bottom)
+            }
+            #endif
+            }
         }
         .padding(Spacing.s32)
         // 固定大小：切換分頁時卡片不會因為內容長短而上下跳動
@@ -475,6 +488,139 @@ private struct CoverFlowSettings: View {
 }
 
 /// 音樂來源（D39）：YouTube Music 與 Jellyfin 各一列，目前使用的標「使用中」，另一邊可切換；登入都保留
+/// 關於：版本、開發與命名的故事、特別感謝與用到的開源專案
+private struct AboutSettings: View {
+    private var version: String {
+        let info = Bundle.main.infoDictionary
+        return "\(info?["CFBundleShortVersionString"] as? String ?? "") (\(info?["CFBundleVersion"] as? String ?? ""))"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.s24) {
+            DeveloperCard()
+                .padding(.top, Spacing.s16)
+            HStack(spacing: Spacing.s16) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 64, height: 64)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: Spacing.s4) {
+                    Text(verbatim: "Flione").finifyFont(.subheading).foregroundStyle(FinifyColor.ink)
+                    Text("Listen well. Collect well.").finifyFont(.body).foregroundStyle(FinifyColor.muted)
+                    Text("Version \(version)").finifyFont(.caption).foregroundStyle(FinifyColor.faint)
+                }
+            }
+
+            section("How it started", [
+                "Flione began with a self-hosted Jellyfin server. An iTunes library built over twenty-some years was re-imported and became a private music stream.",
+                "The music was back, but the players that worked with it looked plain and dated. So Flione was made.",
+                "It needed a sidebar like Spotify's, for managing the whole library with ease. That's Modern.",
+                "It needed a wall of covers that lays out years of collecting and taste, drifting slowly so you can wander through it. That's Infinity.",
+                "And it needed the original Cover Flow from early Mac OS X back, the feeling of flipping through covers one by one. That's Cover Flow.",
+                "Flione is a renaissance for collecting music: truly owning your music, not just streaming it.",
+            ])
+            section("The name", [
+                    "Flione = Jellyfin + Infinity + Clione. Jellyfin and Infinity share \"fin\", which gives the F; \"lione\" comes from Clione, the sea angel. The three views are three ways a sea angel moves through an ocean of music: Modern is everyday drifting, Infinity heads into the deep, and Cover Flow glides through a floating swarm."])
+
+            VStack(alignment: .leading, spacing: Spacing.s12) {
+                heading("Special thanks")
+                credit("Kaset", url: "https://github.com/sozercan/kaset",
+                       detail: "A native YouTube Music app for macOS. It inspired Flione's sidebar glow, YouTube Music support, lyrics lookup, Dock menu, and more. MIT License.")
+                credit("Reicon", url: "https://github.com/dqev/reicon",
+                       detail: "Every icon in Flione's interface comes from Reicon.")
+            }
+
+
+            VStack(alignment: .leading, spacing: Spacing.s12) {
+                heading("Open source")
+                credit("Jellyfin", url: "https://jellyfin.org", detail: "The free media server Flione was first built for.")
+                credit("BlurHash", url: "https://github.com/woltapp/blurhash", detail: "Cover colors for glows, placeholders, and Magic sort.")
+                credit("LRCLIB", url: "https://lrclib.net", detail: "Open lyrics database, used when your server has no lyrics.")
+                credit("XcodeGen", url: "https://github.com/yonaskolb/XcodeGen", detail: "Generates the Xcode project.")
+                credit("Potrace", url: "https://potrace.sourceforge.net", detail: "Traced the menu bar icon.")
+            }
+        }
+        .padding(.bottom, Spacing.s16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func heading(_ title: LocalizedStringResource) -> some View {
+        Text(title).finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
+    }
+
+    private func section(_ title: LocalizedStringResource, _ paragraphs: [LocalizedStringResource]) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.s8) {
+            heading(title)
+            ForEach(paragraphs.indices, id: \.self) { index in
+                Text(paragraphs[index]).finifyFont(.body).foregroundStyle(FinifyColor.ink.opacity(0.85))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineSpacing(3)
+            }
+        }
+    }
+
+    private func credit(_ name: String, url: String, detail: LocalizedStringResource) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.s4) {
+            Link(destination: URL(string: url)!) {
+                HStack(spacing: Spacing.s4) {
+                    Text(verbatim: name).finifyFont(.bodyEmphasis)
+                    Text(verbatim: "↗").finifyFont(.caption)
+                }
+                .foregroundStyle(FinifyColor.accent)
+            }
+            .buttonStyle(.plain)
+            Text(detail).finifyFont(.body).foregroundStyle(FinifyColor.muted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+/// 作者小卡：與 Findly 介紹頁同款的膠囊卡片，點了開 GitHub 個人頁。頭像打包在 app 裡，不連網載入
+private struct DeveloperCard: View {
+    @State private var hovering = false
+
+    var body: some View {
+        Link(destination: URL(string: "https://github.com/rocavence")!) {
+            HStack(spacing: Spacing.s12) {
+                Image("DeveloperAvatar")
+                    .resizable()
+                    .frame(width: 42, height: 42)
+                    .clipShape(Circle())
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: "@rocavence").font(.system(size: 15, weight: .semibold)).foregroundStyle(FinifyColor.ink)
+                    Text("Author · GitHub").font(.system(size: 12.5)).foregroundStyle(FinifyColor.muted)
+                }
+            }
+            .padding(.leading, Spacing.s8)
+            .padding(.trailing, Spacing.s16)
+            .padding(.vertical, Spacing.s8)
+            .overlay(CapsuleRing().fill(hovering ? Color.white.opacity(0.2) : FinifyColor.hairline, style: FillStyle(eoFill: true)))
+            .contentShape(Capsule())
+            .background {
+                // 陰影只在 hover 時出現，平時不留陰影圖層
+                if hovering { Capsule().fill(FinifyColor.elevated).shadow(color: .black.opacity(0.3), radius: 16, y: 8) }
+            }
+            .offset(y: hovering ? -2 : 0)
+        }
+        .buttonStyle(.plain)
+        .focusEffectDisabled()
+        .onHover { hovering = $0 }
+        .animation(.easeOut(duration: 0.2), value: hovering)
+        .accessibilityLabel("rocavence on GitHub")
+    }
+}
+
+/// 1pt 的膠囊外框，用內外兩個膠囊相減填色畫出；strokeBorder 在大圓角時左右兩端會多畫出直線
+private struct CapsuleRing: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path(roundedRect: rect, cornerRadius: rect.height / 2)
+        let inner = rect.insetBy(dx: 1, dy: 1)
+        path.addPath(Path(roundedRect: inner, cornerRadius: inner.height / 2))
+        return path
+    }
+}
+
 private struct AccountSettings: View {
     @Environment(AppEnvironment.self) private var app
 
