@@ -168,7 +168,8 @@ private struct SidebarProfile: View {
                     FinifyIcon(.chevronUp, size: .compact)
                         .foregroundStyle(FinifyColor.faint)
                 }
-                .padding(.horizontal, Spacing.s8)
+                // 與上方選單項目相同：外層 12 ＋ 內層 12，頭像與歌單縮圖對齊在 24pt
+                .padding(.horizontal, Spacing.s12)
                 .frame(height: 48)
                 .background(hovering ? FinifyColor.glassHighlight : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
                 .contentShape(Rectangle())
@@ -182,7 +183,7 @@ private struct SidebarProfile: View {
                 AccountPopover(session: session) { showsAccount = false }
                     .environment(app)
             }
-            .padding(.horizontal, Spacing.s8)
+            .padding(.horizontal, Spacing.s12)
             .padding(.vertical, Spacing.s8)
             .overlay(alignment: .top) { FinifyColor.hairline.opacity(0.25).frame(height: 1) }
         }

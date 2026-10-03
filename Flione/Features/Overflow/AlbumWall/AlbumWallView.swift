@@ -158,6 +158,12 @@ struct AlbumWallView: NSViewRepresentable {
             let album = parent.albums[indexPath.item]
             let side = (collectionView.collectionViewLayout as? NSCollectionViewFlowLayout)?.itemSize.width ?? currentSide
             item.configure(album, side: side, images: parent.images, isPlaying: album.id == parent.playingAlbumID, anyPlaying: parent.playingAlbumID != nil)
+            #if DEBUG
+            // -FinifyDemoHoverAll YES：所有封面都呈現 hover 狀態，截圖檢查 hover 效果
+            if UserDefaults.standard.bool(forKey: "FinifyDemoHoverAll") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { item.debugForceHover() }
+            }
+            #endif
             item.onClick = { [weak self] in self?.parent.onOpen(album) }
             item.onDoubleClick = { [weak self] in self?.parent.onPlay(album) }
             item.menuProvider = { [weak self] in self?.menu(for: album) }
@@ -518,6 +524,9 @@ final class WallItem: NSCollectionViewItem {
     private let shadowLayer = CALayer()
     /// 沒有封面時顯示專輯名
     private let titleLayer = CATextLayer()
+    /// hover：封面四周的白光與細白邊（不放大）
+    private let glowLayer = CALayer()
+    private let edgeLayer = CALayer()
     /// hover 時在封面下方顯示專輯與藝人
     private let captionGradient = CAGradientLayer()
     private let captionLayer = CATextLayer()
@@ -542,6 +551,15 @@ final class WallItem: NSCollectionViewItem {
         shadowLayer.shadowColor = NSColor.black.cgColor
         shadowLayer.shadowOffset = CGSize(width: 0, height: -10)
         shadowLayer.opacity = 0
+        glowLayer.shadowColor = NSColor.white.cgColor
+        glowLayer.shadowOffset = .zero
+        glowLayer.shadowRadius = 14
+        glowLayer.shadowOpacity = 0.55
+        glowLayer.opacity = 0
+        edgeLayer.borderColor = NSColor.white.withAlphaComponent(0.6).cgColor
+        edgeLayer.borderWidth = 1
+        edgeLayer.cornerCurve = .continuous
+        edgeLayer.opacity = 0
         titleLayer.isWrapped = true
         titleLayer.truncationMode = .end
         titleLayer.alignmentMode = .left
@@ -553,8 +571,10 @@ final class WallItem: NSCollectionViewItem {
         captionLayer.truncationMode = .end
         captionLayer.foregroundColor = NSColor.white.cgColor
         captionLayer.contentsScale = 2
+        view.layer?.addSublayer(glowLayer)
         view.layer?.addSublayer(shadowLayer)
         view.layer?.addSublayer(artwork)
+        view.layer?.addSublayer(edgeLayer)
         artwork.addSublayer(titleLayer)
         artwork.addSublayer(captionGradient)
         captionGradient.addSublayer(captionLayer)
@@ -579,6 +599,10 @@ final class WallItem: NSCollectionViewItem {
         captionLayer.frame = CGRect(x: inset, y: inset * 0.6, width: view.bounds.width - inset * 2, height: captionLayer.fontSize * 2.8)
         shadowLayer.frame = view.bounds
         shadowLayer.shadowPath = CGPath(rect: view.bounds.insetBy(dx: 2, dy: 2), transform: nil)
+        glowLayer.frame = view.bounds
+        glowLayer.shadowPath = CGPath(roundedRect: view.bounds, cornerWidth: artwork.cornerRadius, cornerHeight: artwork.cornerRadius, transform: nil)
+        edgeLayer.frame = view.bounds
+        edgeLayer.cornerRadius = artwork.cornerRadius
         CATransaction.commit()
     }
 
@@ -644,6 +668,13 @@ final class WallItem: NSCollectionViewItem {
         applyState(animated: animated)
     }
 
+    #if DEBUG
+    fileprivate func debugForceHover() {
+        hovering = true
+        applyState(animated: false)
+    }
+    #endif
+
     fileprivate func setHovering(_ hovering: Bool) {
         // 一次只會有一張在 hover：捲動或漂移時可能漏掉 mouseExited，先清掉其他張，避免一整排停在放大狀態
         if hovering {
@@ -659,7 +690,8 @@ final class WallItem: NSCollectionViewItem {
     private func applyState(animated: Bool) {
         guard let layer = view.layer else { return }
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-        let scale: CGFloat = isPlaying ? 1.08 : (hovering ? 1.12 : 1)
+        // hover 不放大，改用白光籠罩邊緣；正在播放的專輯仍浮起放大
+        let scale: CGFloat = isPlaying ? 1.08 : 1
         let raised = isPlaying || hovering
         let zPosition: CGFloat = isPlaying ? 20 : (hovering ? 10 : 0)
         let duration = animated && !reduceMotion ? (raised ? 0.55 : 0.7) : 0
@@ -684,7 +716,9 @@ final class WallItem: NSCollectionViewItem {
         transform = CATransform3DScale(transform, scale, scale, 1)
         transform = CATransform3DTranslate(transform, -bounds.midX, -bounds.midY, 0)
         layer.sublayerTransform = transform
-        shadowLayer.opacity = isPlaying || hovering ? 1 : 0
+        shadowLayer.opacity = isPlaying ? 1 : 0
+        glowLayer.opacity = hovering ? 1 : 0
+        edgeLayer.opacity = hovering ? 1 : 0
         // 專輯資訊一律點了才看（打開專輯面板），hover 只放大
         captionGradient.opacity = 0
         shadowLayer.shadowOpacity = isPlaying ? 0.7 : 0.5
