@@ -553,11 +553,11 @@ final class WallItem: NSCollectionViewItem {
         shadowLayer.opacity = 0
         glowLayer.shadowColor = NSColor.white.cgColor
         glowLayer.shadowOffset = .zero
-        glowLayer.shadowRadius = 14
-        glowLayer.shadowOpacity = 0.55
+        glowLayer.shadowRadius = 18
+        glowLayer.shadowOpacity = 0.85
         glowLayer.opacity = 0
-        edgeLayer.borderColor = NSColor.white.withAlphaComponent(0.6).cgColor
-        edgeLayer.borderWidth = 1
+        edgeLayer.borderColor = NSColor.white.withAlphaComponent(0.85).cgColor
+        edgeLayer.borderWidth = 1.5
         edgeLayer.cornerCurve = .continuous
         edgeLayer.opacity = 0
         titleLayer.isWrapped = true
