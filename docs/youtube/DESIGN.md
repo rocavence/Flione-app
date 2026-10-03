@@ -40,6 +40,12 @@ Flione 除了 Jellyfin，也可以用 Google 帳號登入 YouTube Music，用同
 
 ## 播放（第二階段）
 
+**實作（2026-10-03）**：`YouTubeWebPlayer` 在主視窗裡放一個 1×1、透明的 WKWebView，載入 `music.youtube.com/watch?v=…&list=…`。帶 `list` 時，上一首、下一首由網頁播放器處理。注入的腳本每 0.5 秒回報 `<video>` 的播放狀態與進度；歌名、藝人、封面讀 `navigator.mediaSession.metadata`。網頁看不見時，播放列 DOM 不一定渲染，所以不讀 DOM。已實測可播放（靜音測試，進度正常前進、資訊正確）。
+
+**音樂庫格式（實測）**：喜歡的歌曲 `browse FEmusic_liked_videos` → `musicShelfRenderer.contents[].musicResponsiveListItemRenderer`；音樂庫專輯 `browse FEmusic_liked_albums` → `gridRenderer.items[].musicTwoRowItemRenderer`，每張專輯附第一首的 `videoId` 與專輯的 `playlistId`。兩者都只讀第一頁，後續頁面（continuation）還沒做。
+
+**原本的規劃：**
+
 YouTube Music 的音訊有加密與簽章保護，AVQueuePlayer 無法直接播放。做法與 Kaset 相同：在隱藏的 WKWebView 裡跑 YouTube Music 網頁播放器，Flione 的播放列透過 JavaScript 控制播放、取得進度。
 
 因此 `PlayerManager` 要拆出播放引擎介面，Jellyfin 用 AVQueuePlayer、YouTube Music 用網頁播放器。佇列、「按下立刻播」、媒體鍵、Now Playing 兩邊都要能用。
@@ -68,5 +74,5 @@ YouTube Music 使用者的收藏專輯通常比 Jellyfin 音樂庫少，Infinity
 | 階段 | 內容 | 狀態 |
 | ---- | ---- | ---- |
 | 1 | 登入畫面、瀏覽器登入視窗、登入判斷、帳號資訊 | 完成（2026-10-03 實測登入成功） |
-| 2 | 網頁播放器引擎，在 Flione 播出一首歌 | 未開始 |
+| 2 | 網頁播放器引擎，在 Flione 播出一首歌 | 完成（驗證畫面：音樂庫專輯、喜歡的歌曲、簡易播放列） |
 | 3 | 音樂庫、搜尋、播放清單接上 Modern／Infinity／Cover Flow | 未開始 |

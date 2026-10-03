@@ -29,9 +29,8 @@ struct YouTubeGateView: View {
                 Text("Connecting to YouTube Music…")
                     .finifyFont(.body).foregroundStyle(FinifyColor.muted)
             }
-        case .connected(let name):
-            message(title: "Connected to YouTube Music",
-                    detail: "Signed in as \(name). Your library and playback are still being built on this branch.")
+        case .connected:
+            EmptyView()
         case .failed(let reason):
             message(title: "Can't connect to YouTube Music", detail: "\(reason)") {
                 FinifyButton(title: "Retry", kind: .primary) { Task { await app.youtube.check() } }

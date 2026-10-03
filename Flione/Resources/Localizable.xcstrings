@@ -436,6 +436,16 @@
         }
       }
     },
+    "Albums in your library": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音樂庫中的專輯"
+          }
+        }
+      }
+    },
     "Albums tagged with this genre on your server will show up here.": {
       "localizations": {
         "zh-Hant": {
@@ -812,16 +822,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "連線到你的 Jellyfin 伺服器，把音樂庫帶進來。"
-          }
-        }
-      }
-    },
-    "Connected to YouTube Music": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已連線到 YouTube Music"
           }
         }
       }
@@ -1535,6 +1535,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "由亮到暗"
+          }
+        }
+      }
+    },
+    "Liked songs": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "喜歡的歌曲"
           }
         }
       }
@@ -2663,16 +2673,6 @@
         }
       }
     },
-    "Signed in as %@. Your library and playback are still being built on this branch.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已登入 %@。音樂庫與播放功能在這個分支還在開發中。"
-          }
-        }
-      }
-    },
     "Signed in to %@": {
       "localizations": {
         "zh-Hant": {
@@ -3212,6 +3212,9 @@
           }
         }
       }
+    },
+    "YouTube Music": {
+      "shouldTranslate": false
     },
     "Your library is empty.": {
       "localizations": {

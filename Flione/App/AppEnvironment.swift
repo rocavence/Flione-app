@@ -47,6 +47,8 @@ final class AppEnvironment {
     let playlists = PlaylistStore()
     /// YouTube Music 帳號（youtube-music 分支，docs/youtube/DESIGN.md）
     let youtube = YouTubeAccount()
+    /// YouTube Music 的網頁播放器（第二階段）
+    let youtubePlayer = YouTubeWebPlayer()
 
     /// nil = 尚未選擇（首次登入後顯示 mode picker）
     var mode: AppMode? {

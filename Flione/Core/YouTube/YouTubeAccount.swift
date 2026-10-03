@@ -63,7 +63,7 @@ final class YouTubeAccount {
     }
 
     /// 遞迴找第一個指定 key 的值
-    static func find(_ key: String, in value: Any) -> Any? {
+    nonisolated static func find(_ key: String, in value: Any) -> Any? {
         if let dict = value as? [String: Any] {
             if let hit = dict[key] { return hit }
             for child in dict.values { if let hit = find(key, in: child) { return hit } }
