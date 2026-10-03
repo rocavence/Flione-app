@@ -289,6 +289,7 @@ private struct GeneralSettings: View {
 
     var body: some View {
         @Bindable var app = app
+        ThemePicker(selection: $app.colorTheme)
         SettingRow(title: "Language",
                    detail: language == AppLanguage.launched ? "The language of menus, buttons, and messages." : "Restart Flione to switch languages.") {
             HStack(spacing: Spacing.s8) {
@@ -315,6 +316,96 @@ private struct GeneralSettings: View {
             }
         }
         .onAppear { cacheSize = ImagePipeline.diskCacheSizeDescription() }
+    }
+}
+
+/// 配色：6 張迷你預覽，畫出該配色的底色、側欄、卡片、互動色與播放中的橘色
+private struct ThemePicker: View {
+    @Binding var selection: ColorTheme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.s12) {
+            VStack(alignment: .leading, spacing: Spacing.s4) {
+                Text("Color theme").finifyFont(.subheading).foregroundStyle(FinifyColor.ink)
+                Text("The colors of every view. The orange that marks what's playing stays the same.")
+                    .finifyFont(.body).foregroundStyle(FinifyColor.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            HStack(spacing: Spacing.s12) {
+                ForEach(ColorTheme.allCases, id: \.self) { theme in
+                    ThemeSwatch(theme: theme, selected: theme == selection) { selection = theme }
+                }
+            }
+        }
+        .padding(.vertical, Spacing.s16)
+        .overlay(alignment: .bottom) { FinifyColor.hairline.frame(height: 1) }
+    }
+}
+
+private struct ThemeSwatch: View {
+    let theme: ColorTheme
+    let selected: Bool
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        let p = theme.palette
+        Button(action: action) {
+            VStack(spacing: Spacing.s8) {
+                // 迷你視窗：左側欄、右邊一張卡片、互動色的選取與橘色的播放進度
+                HStack(spacing: 0) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        RoundedRectangle(cornerRadius: 2).fill(Color(hex: p.active)).frame(height: 7)
+                        RoundedRectangle(cornerRadius: 2).fill(Color(hex: p.surface2)).frame(width: 14, height: 4)
+                        RoundedRectangle(cornerRadius: 2).fill(Color(hex: p.surface2)).frame(width: 10, height: 4)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(5)
+                    .frame(width: 26)
+                    .frame(maxHeight: .infinity)
+                    .background(Color(hex: p.surface1))
+                    VStack(alignment: .leading, spacing: 5) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(LinearGradient(colors: [Color(hex: p.surface3), Color(hex: p.surface2)], startPoint: .top, endPoint: .bottom))
+                            .frame(height: 22)
+                        HStack(spacing: 4) {
+                            Circle().fill(Color(hex: p.accent)).frame(width: 8, height: 8)
+                            Capsule().fill(Color(hex: p.surface2)).frame(height: 3)
+                                .overlay(alignment: .leading) { Capsule().fill(FinifyColor.orange).frame(width: 16, height: 3) }
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(6)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(hex: p.abyss))
+                }
+                .frame(width: 84, height: 58)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(selected ? Color(hex: p.accent) : FinifyColor.hairline, lineWidth: selected ? 2 : 1)
+                }
+                .padding(3)
+                .overlay {
+                    // 選取：外圈再一道細環
+                    if selected {
+                        RoundedRectangle(cornerRadius: 13, style: .continuous)
+                            .strokeBorder(Color(hex: p.accent).opacity(0.35), lineWidth: 1)
+                    }
+                }
+                .scaleEffect(hovering && !selected ? 1.04 : 1)
+                Text(theme.title)
+                    .finifyFont(selected ? .bodyEmphasis : .caption)
+                    .foregroundStyle(selected ? FinifyColor.ink : FinifyColor.muted)
+                    .lineLimit(1)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .animation(Motion.micro, value: hovering)
+        .accessibilityLabel(Text(theme.title))
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }
 

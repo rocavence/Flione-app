@@ -29,6 +29,7 @@ struct FlioneApp: App {
 
         Window("Mini Player", id: "floating") {
             FloatingPlayerView()
+                .id(app.colorTheme)
                 .environment(app)
                 .tint(FinifyColor.accent)
         }
@@ -40,6 +41,7 @@ struct FlioneApp: App {
 
         MenuBarExtra(isInserted: $showsMenuBar) {
             MenuBarPlayer()
+                .id(app.colorTheme)
                 .environment(app)
                 .tint(FinifyColor.accent)
         } label: {
@@ -70,6 +72,8 @@ struct RootView: View {
                 ModePickerView()
             }
         }
+        // 換配色：重建畫面，所有顏色依新配色重新取值
+        .id(app.colorTheme)
         .transition(.opacity)
         .overlay(alignment: .bottom) {
             if let message = app.favorites.failureMessage {
@@ -89,7 +93,7 @@ struct RootView: View {
             if app.isSettingsPresented {
                 ZStack {
                     Color.black.opacity(0.4).ignoresSafeArea().onTapGesture { app.isSettingsPresented = false }
-                    SettingsCard().padding(Spacing.s32)
+                    SettingsCard().id(app.colorTheme).padding(Spacing.s32)
                 }
                 .transition(.opacity)
             }

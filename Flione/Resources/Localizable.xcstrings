@@ -496,6 +496,16 @@
         }
       }
     },
+    "Aurora": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "極光"
+          }
+        }
+      }
+    },
     "Auto": {
       "localizations": {
         "zh-Hant": {
@@ -542,6 +552,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "上一頁"
+          }
+        }
+      }
+    },
+    "Bordeaux": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "酒紅"
           }
         }
       }
@@ -752,6 +772,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "關閉設定"
+          }
+        }
+      }
+    },
+    "Color theme": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配色"
           }
         }
       }
@@ -977,6 +1007,16 @@
         }
       }
     },
+    "Deep Ocean": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深海"
+          }
+        }
+      }
+    },
     "Delete Playlist": {
       "localizations": {
         "zh-Hant": {
@@ -1053,6 +1093,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "漂移"
+          }
+        }
+      }
+    },
+    "Emerald": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翡翠"
           }
         }
       }
@@ -1212,6 +1262,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "曲風"
+          }
+        }
+      }
+    },
+    "Glacier": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "冰川"
           }
         }
       }
@@ -1498,6 +1558,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "選單列播放器"
+          }
+        }
+      }
+    },
+    "Midnight": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "午夜"
           }
         }
       }
@@ -2769,6 +2839,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "中間的封面永遠最亮，這裡設定離開中間的封面要變多暗。"
+          }
+        }
+      }
+    },
+    "The colors of every view. The orange that marks what's playing stays the same.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有畫面的顏色。標示正在播放的橘色不會改變。"
           }
         }
       }

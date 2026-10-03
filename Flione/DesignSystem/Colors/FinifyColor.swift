@@ -6,43 +6,44 @@ import SwiftUI
 /// 畫面約 60% Abyss／深藍、20% Deep Ocean、12% 藍、5% 紫、3% 橘。
 /// 淺色模式文件沒有定義，沿用原本的淺色值，只換品牌色。
 /// Brand color 與 artwork ambient color 分離：ambient 由封面取色，不在這裡。
+/// 環境色與互動色跟著使用者選的配色（`ColorTheme`，D37）；橘色與狀態色固定。
 enum FinifyColor {
-    /// 深海表面層級（深色環境固定值；Infinity／Cover Flow、玻璃色調、Hero 用）
+    /// 深海表面層級（深色環境；Infinity／Cover Flow、玻璃色調、Hero 用）。數值來自目前的配色
     enum Ocean {
         /// Surface 0：App 背景（Abyss）
-        static let abyss = Color(hex: 0x061426)
+        static let abyss = themed { $0.abyss }
         /// Surface 1：側欄
-        static let surface1 = Color(hex: 0x0A1D3C)
+        static let surface1 = themed { $0.surface1 }
         /// Surface 2：卡片
-        static let surface2 = Color(hex: 0x10264B)
+        static let surface2 = themed { $0.surface2 }
         /// Surface 3：浮起的卡片
-        static let surface3 = Color(hex: 0x14305A)
+        static let surface3 = themed { $0.surface3 }
         /// 選取中的表面（Surface Active）
-        static let active = Color(hex: 0x183D78)
+        static let active = themed { $0.active }
         /// Deep Ocean：導覽、較亮的底
-        static let deepOcean = Color(hex: 0x0A2A67)
+        static let deepOcean = themed { $0.deepOcean }
     }
 
-    /// 主要文字（White／淺色模式為深藍黑）
-    static let ink = dynamic(light: 0x0B1B33, dark: 0xFFFFFF)
+    /// 主要文字（White／淺色模式為該配色的深色）
+    static let ink = dynamic(light: { $0.inkLight }, dark: { _ in 0xFFFFFF })
     /// 視窗底色（Surface 0 Abyss）
-    static let paper = dynamic(light: 0xF4F6FC, dark: 0x061426)
+    static let paper = dynamic(light: { $0.paperLight }, dark: { $0.abyss })
     /// 側欄、面板（Surface 1）
-    static let panel = dynamic(light: 0xEAEEF8, dark: 0x0A1D3C)
+    static let panel = dynamic(light: { $0.panelLight }, dark: { $0.surface1 })
     /// 卡片、控制項（Surface 2）
-    static let surface = dynamic(light: 0xE3E8F5, dark: 0x10264B)
+    static let surface = dynamic(light: { $0.surfaceLight }, dark: { $0.surface2 })
     /// 浮起的元件（Surface 3）
-    static let elevated = dynamic(light: 0xFFFFFF, dark: 0x14305A)
+    static let elevated = dynamic(light: { _ in 0xFFFFFF }, dark: { $0.surface3 })
     /// 選取中的表面（Surface Active）
-    static let active = dynamic(light: 0xDCE6FF, dark: 0x183D78)
+    static let active = dynamic(light: { $0.activeLight }, dark: { $0.active })
     /// 最深的底色
-    static let deep = dynamic(light: 0xDDE3F2, dark: 0x061426)
+    static let deep = dynamic(light: { $0.deepLight }, dark: { $0.abyss })
     /// 次要文字（Secondary）
-    static let muted = dynamic(light: 0x4A5878, dark: 0xAFC0DF, highContrastLight: 0x2A3654, highContrastDark: 0xD6E0F2)
+    static let muted = dynamic(light: { $0.mutedLight }, dark: { $0.mutedDark }, highContrastLight: { $0.inkLight }, highContrastDark: { _ in 0xE6EAF2 })
     /// metadata（Tertiary）
-    static let faint = dynamic(light: 0x7185AA, dark: 0x7185AA, highContrastLight: 0x4A5878, highContrastDark: 0xAFC0DF)
+    static let faint = dynamic(light: { $0.faintLight }, dark: { $0.faintDark }, highContrastLight: { $0.mutedLight }, highContrastDark: { $0.mutedDark })
     /// 停用（Disabled）
-    static let disabled = dynamic(light: 0xA3AEC8, dark: 0x4D6085)
+    static let disabled = dynamic(light: { _ in 0xA3AEC8 }, dark: { $0.disabledDark })
     /// 邊框、分隔線（#FFFFFF12）
     static let hairline = dynamicAlpha(light: (0x0B1B33, 0.10), dark: (0xFFFFFF, 0.07), highContrastLight: (0x0B1B33, 0.3), highContrastDark: (0xFFFFFF, 0.25))
     /// 玻璃表面、hover（#FFFFFF0A）
@@ -50,17 +51,17 @@ enum FinifyColor {
     /// 浮起的玻璃（#FFFFFF12）
     static let glassHighlight = dynamicAlpha(light: (0x0B1B33, 0.07), dark: (0xFFFFFF, 0.07))
     /// 主要行動（Play 按鈕：Light 底深字）
-    static let primary = dynamic(light: 0x0B1B33, dark: 0xEAF2FF)
+    static let primary = dynamic(light: { $0.inkLight }, dark: { $0.ice })
     /// 主要行動上的文字／icon
-    static let onPrimary = dynamic(light: 0xFFFFFF, dark: 0x061426)
-    /// Flione Blue：按鈕、連結、選取、focus ring、播放控制
-    static let accent = Color(hex: 0x2F6BFF)
-    /// Ice Blue：次要 accent、hover、封面光暈
-    static let sky = Color(hex: 0x6AA8FF)
+    static let onPrimary = dynamic(light: { _ in 0xFFFFFF }, dark: { $0.abyss })
+    /// 互動色（深海配色是 Flione Blue）：按鈕、連結、選取、focus ring、播放控制
+    static let accent = themed { $0.accent }
+    /// 互動色的淺色版（Ice Blue）：次要 accent、hover、封面光暈
+    static let sky = themed { $0.sky }
     /// Aurora Violet：只當氛圍（漸層、環境光），不用在按鈕與導覽
     static let violet = Color(hex: 0xA78BFF)
     /// Light：重點文字
-    static let ice = Color(hex: 0xEAF2FF)
+    static let ice = themed { $0.ice }
     /// Bright Coral Orange：播放進度、正在播放、重要互動。不可成為主要 UI 色
     static let orange = Color(hex: 0xFF8A3D)
     /// Orange Highlight：光暈中心、柔和過渡（少量使用）
@@ -71,13 +72,15 @@ enum FinifyColor {
     // 系統狀態（只用在真正的狀態）
     static let success = Color(hex: 0x55D6A6)
     static let warning = Color(hex: 0xFFB84D)
-    static let danger = dynamic(light: 0xC23A2B, dark: 0xFF5F6D)
+    static let danger = dynamic(light: { _ in 0xC23A2B }, dark: { _ in 0xFF5F6D })
     static let info = Color(hex: 0x6AA8FF)
 
-    /// Flione Aurora 漸層：藍 → 冰藍 → 紫 → 橘。橘色只在視覺焦點，不平均分布；只用在 Hero 與大面積氛圍，不用在按鈕
-    static let aurora = LinearGradient(stops: [.init(color: Color(hex: 0x2F6BFF), location: 0), .init(color: Color(hex: 0x6AA8FF), location: 0.45),
-                                               .init(color: Color(hex: 0xA78BFF), location: 0.8), .init(color: Color(hex: 0xFF8A3D), location: 1)],
-                                       startPoint: .bottomLeading, endPoint: .topTrailing)
+    /// Flione Aurora 漸層：互動色 → 淺色版 → 紫 → 橘。橘色只在視覺焦點，不平均分布；只用在 Hero 與大面積氛圍，不用在按鈕
+    static var aurora: LinearGradient {
+        LinearGradient(stops: [.init(color: accent, location: 0), .init(color: sky, location: 0.45),
+                               .init(color: violet, location: 0.8), .init(color: orange, location: 1)],
+                       startPoint: .bottomLeading, endPoint: .topTrailing)
+    }
 
     /// Infinity／Cover Flow 永遠是深色環境，不隨系統外觀切換
     enum Overflow {
@@ -85,8 +88,8 @@ enum FinifyColor {
         static let ink = Color(hex: 0xFFFFFF)
         // 「增加對比」開啟時提高次要文字的不透明度（下次重繪時生效）
         private static var highContrast: Bool { NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast }
-        static var muted: Color { Color(hex: 0xAFC0DF).opacity(highContrast ? 1 : 0.9) }
-        static var faint: Color { Color(hex: 0x7185AA).opacity(highContrast ? 1 : 0.9) }
+        static var muted: Color { Color(hex: ColorTheme.current.palette.mutedDark).opacity(highContrast ? 1 : 0.9) }
+        static var faint: Color { Color(hex: ColorTheme.current.palette.faintDark).opacity(highContrast ? 1 : 0.9) }
         static let control = Color.white.opacity(0.07)
         static let controlHover = Color.white.opacity(0.12)
     }
@@ -105,15 +108,24 @@ enum FinifyColor {
         })
     }
 
-    /// 依外觀切換顏色。「增加對比」開啟時使用 high contrast 版本（未指定則沿用一般版本）。
-    private static func dynamic(light: UInt32, dark: UInt32, highContrastLight: UInt32? = nil, highContrastDark: UInt32? = nil) -> Color {
+    typealias Pick = @Sendable (ColorTheme.Palette) -> UInt32
+
+    /// 依目前配色取色（不分深淺色）。繪製時才讀配色，換配色後重繪即生效
+    private static func themed(_ pick: @escaping Pick) -> Color {
+        Color(nsColor: NSColor(name: nil) { _ in NSColor(hex: pick(ColorTheme.current.palette)) })
+    }
+
+    /// 依外觀與目前配色切換顏色。「增加對比」開啟時使用 high contrast 版本（未指定則沿用一般版本）。
+    private static func dynamic(light: @escaping Pick, dark: @escaping Pick, highContrastLight: Pick? = nil, highContrastDark: Pick? = nil) -> Color {
         Color(nsColor: NSColor(name: nil) { appearance in
-            switch appearance.bestMatch(from: [.darkAqua, .aqua, .accessibilityHighContrastDarkAqua, .accessibilityHighContrastAqua]) {
-            case .accessibilityHighContrastDarkAqua: NSColor(hex: highContrastDark ?? dark)
-            case .accessibilityHighContrastAqua: NSColor(hex: highContrastLight ?? light)
-            case .darkAqua: NSColor(hex: dark)
-            default: NSColor(hex: light)
+            let palette = ColorTheme.current.palette
+            let pick: Pick = switch appearance.bestMatch(from: [.darkAqua, .aqua, .accessibilityHighContrastDarkAqua, .accessibilityHighContrastAqua]) {
+            case .accessibilityHighContrastDarkAqua: highContrastDark ?? dark
+            case .accessibilityHighContrastAqua: highContrastLight ?? light
+            case .darkAqua: dark
+            default: light
             }
+            return NSColor(hex: pick(palette))
         })
     }
 }

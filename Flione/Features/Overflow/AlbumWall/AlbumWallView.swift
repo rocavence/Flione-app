@@ -659,7 +659,7 @@ final class WallItem: NSCollectionViewItem {
         titleLayer.string = nil
         guard let ref = album.artwork, let images else {
             artwork.contents = nil
-            artwork.backgroundColor = NSColor(hex: 0x10264B).cgColor
+            artwork.backgroundColor = NSColor(FinifyColor.Ocean.surface2).cgColor
             titleLayer.contentsScale = view.window?.backingScaleFactor ?? 2
             titleLayer.string = "\(album.name)\n\(album.artistName)"
             return
@@ -669,7 +669,7 @@ final class WallItem: NSCollectionViewItem {
             return
         }
         artwork.contents = ref.blurHash.flatMap { BlurHash.image($0) }
-        artwork.backgroundColor = NSColor(hex: 0x0A1D3C).cgColor
+        artwork.backgroundColor = NSColor(FinifyColor.Ocean.surface1).cgColor
         let id = album.id
         let bucket = ImagePipeline.bucket(pixels)
         task = Task { [weak self] in
@@ -753,7 +753,7 @@ final class WallItem: NSCollectionViewItem {
         didSet {
             // 鍵盤焦點框
             artwork.borderWidth = isSelected ? 3 : 0
-            artwork.borderColor = NSColor(hex: 0x2F6BFF).cgColor
+            artwork.borderColor = NSColor(FinifyColor.accent).cgColor
         }
     }
 

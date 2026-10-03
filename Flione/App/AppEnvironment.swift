@@ -84,6 +84,10 @@ final class AppEnvironment {
     var isSearchPresented = false
     /// 設定卡片（浮在主視窗上，⌘, 或側欄的齒輪打開）
     var isSettingsPresented = false
+    /// 使用者選的配色（D37）。換配色時各視窗以 `.id(colorTheme)` 重建，所有顏色重新取值
+    var colorTheme: ColorTheme = ColorTheme.current {
+        didSet { ColorTheme.apply(colorTheme) }
+    }
     /// 要建立新 playlist 時的曲目（非 nil 時顯示命名對話框）
     var newPlaylistTracks: [Track]?
     /// `finify://album/<id>` 要打開的專輯；由目前的 mode 打開後清掉
