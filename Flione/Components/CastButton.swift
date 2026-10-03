@@ -32,7 +32,7 @@ struct CastButton: View {
                 Button("Stop Casting") { app.cast.stop(player: app.player) }
             }
         } label: {
-            FinifyIcon(.tv, weight: app.cast.activeDevice == nil ? .outline : .filled, size: .standard)
+            FinifyIcon(.screencast, weight: app.cast.activeDevice == nil ? .outline : .filled, size: .standard)
                 .foregroundStyle(app.cast.activeDevice == nil ? FinifyColor.muted : FinifyColor.accent)
                 .frame(width: 32, height: 32)
                 .contentShape(Rectangle())

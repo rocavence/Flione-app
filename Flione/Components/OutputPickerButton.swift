@@ -10,7 +10,7 @@ struct OutputPickerButton: View {
 
     var body: some View {
         if app.session?.isYouTube == true {
-            FinifyIconButton(icon: .screencast, label: "Play To", isActive: app.youtubePlayer.isWireless) {
+            FinifyIconButton(icon: .screencast2, label: "Play To", isActive: app.youtubePlayer.isWireless) {
                 app.youtubePlayer.showAirPlayPicker(at: anchor.screenPoint)
             }
             .background(ScreenAnchorView(anchor: anchor))
@@ -18,7 +18,7 @@ struct OutputPickerButton: View {
             .help(Text("Play To"))
         } else {
             // 系統的選單按鈕本身透明、疊在 Flione 的圖示上，外觀與其他按鈕一致
-            FinifyIcon(.screencast, size: .standard)
+            FinifyIcon(.screencast2, size: .standard)
                 .foregroundStyle(FinifyColor.muted)
                 .frame(width: 32, height: 32)
                 .overlay { RoutePicker(player: app.player.routingPlayer) }

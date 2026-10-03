@@ -310,7 +310,7 @@
 ## D42　AirPlay：選單列的「播放到」
 
 * **入口**：選單列展開畫面底部的「播放到」按鈕（`OutputPickerButton`）。一次只從一個裝置出聲：選了 AirPlay 裝置，Mac 就不出聲。
-* **Jellyfin**：用系統的 `AVRoutePickerView`，`player` 指向 `PlayerManager` 的 AVQueuePlayer（`routingPlayer`）。系統按鈕的圖示設為透明，疊在 Flione 的 `screencast` 圖示上，外觀與其他按鈕一致。
+* **Jellyfin**：用系統的 `AVRoutePickerView`，`player` 指向 `PlayerManager` 的 AVQueuePlayer（`routingPlayer`）。系統按鈕的圖示設為透明，疊在 Flione 的 `screencast2` 圖示（AirPlay 的標準圖示）上，外觀與其他按鈕一致。
 * **YouTube Music**：聲音在 WKWebView 的 `<video>` 裡，系統的 `AVRoutePickerView` 接不到。改照 Kaset（ADR-0010）：設定 `allowsAirPlayForMediaPlayback`，呼叫 `video.webkitShowPlaybackTargetPicker()`，並先送一個不按下的 mouseUp 把 WebKit 的選單位置設到按鈕上。是否正在無線播放讀 `webkitCurrentPlaybackTargetIsWireless`，按鈕會亮起。
 * **換歌不斷線**：原本 YouTube Music 每換一首都整頁重新載入，AirPlay 連線會跟著斷。改成頁面已載入時，用 YouTube Music 自己的 router（`ytmusic-app.resolveCommand({ watchEndpoint })`）在同一個頁面換歌；5 秒內沒有換到這首就退回整頁重新載入。換歌也因此變快。DEBUG 參數 `-FinifyRouterLog <檔案>` 會記錄每次走哪一條路。
 * **限制**：整頁重新載入（router 失敗的退路）時 AirPlay 會斷，要重新選。Chromecast 尚未實作（Mac 沒有官方 SDK，需自行實作 Cast 協定）。
@@ -318,7 +318,7 @@
 
 ## D43　Chromecast 投放（Jellyfin）
 
-* **入口**：選單列展開畫面的「投放」按鈕（`CastButton`），列出區域網路上的 Chromecast 與內建 Cast 的電視。一次只從一個裝置出聲：開始投放時 Mac 停止播放，從同一個位置交給裝置；停止投放時從裝置停下的位置回到 Mac。
+* **入口**：選單列展開畫面的「投放」按鈕（`CastButton`，圖示 `screencast` 是 Chromecast 的標準圖示），列出區域網路上的 Chromecast 與內建 Cast 的電視。一次只從一個裝置出聲：開始投放時 Mac 停止播放，從同一個位置交給裝置；停止投放時從裝置停下的位置回到 Mac。
 * **協定**：Mac 沒有 Google 官方的 Cast SDK，自行實作 CASTV2。Bonjour 找 `_googlecast._tcp`（名稱取 TXT 的 `fn`），TLS 連到 8009 埠（裝置用自簽憑證，不驗證），每則訊息是 4 位元組長度＋protobuf `CastMessage`。流程：CONNECT → LAUNCH 預設媒體接收器（`CC1AD845`）→ 取得 transportId → LOAD Jellyfin 串流網址。每 5 秒 PING，每秒 GET_STATUS 讀進度；`IDLE`＋`FINISHED` 換下一首，`ERROR` 或 `LOAD_FAILED` 提示使用者。音量只調這段串流（媒體的 SET_VOLUME），不改電視音量。
 * **架構**：PlayerManager 原本給 YouTube 網頁播放器的「外部引擎」路徑抽成 `RemotePlaybackEngine`，YouTube 網頁播放器與 `CastSession` 都實作它；佇列、換歌、播放回報共用。
 * **伺服器位址**：裝置自己向 Jellyfin 抓音樂。Flione 用的位址裝置不一定連得到（例如 Tailscale 的 100.x），設定 → 音樂來源可填「投放用的伺服器位址」，串流與封面網址會換成這個位址。
