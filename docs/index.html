@@ -46,7 +46,8 @@
   "applicationCategory": "MultimediaApplication",
   "applicationSubCategory": "Music Player",
   "operatingSystem": "macOS 14.0 or later",
-  "softwareVersion": "0.1.0",
+  "softwareVersion": "0.8.0",
+  "downloadUrl": "https://github.com/rocavence/Flione-app/releases/latest",
   "description": "Flione is a native macOS music player for Jellyfin and YouTube Music with three ways to browse: Modern, a Spotify-style app with a sidebar; Infinity, a wall of album covers that drifts slowly on its own; and Cover Flow, inspired by the original Mac OS X Cover Flow.",
   "url": "https://flione.rocavence.com/",
   "softwareHelp": "https://github.com/rocavence/Flione-app",
@@ -333,10 +334,10 @@
     <h1 data-i="hero.h1">好好聽歌，<br><span class="hl">也要好好蒐藏</span></h1>
     <p class="sub" data-i="hero.sub">Jellyfin 與 YouTube Music 的 macOS 原生音樂播放器。用現代化的方式瀏覽，沉浸在音樂封面之中。</p>
     <div class="cta">
-      <a class="btn btn-primary" href="#modes"><span data-i="hero.modes">看看三種模式</span><span>↓</span></a>
-      <a class="btn btn-ghost" href="https://github.com/rocavence/Flione-app" target="_blank" rel="noopener" data-i="hero.source">GitHub 原始碼</a>
+      <a class="btn btn-primary" href="https://github.com/rocavence/Flione-app/releases/latest" target="_blank" rel="noopener"><span>⬇︎</span><span data-i="hero.download">下載 Flione</span></a>
+      <a class="btn btn-ghost" href="#modes"><span data-i="hero.modes">看看三種模式</span><span>↓</span></a>
     </div>
-    <p class="meta"><b>macOS 14+</b> · <span data-i="hero.meta">Jellyfin ／ YouTube Music · 免費</span></p>
+    <p class="meta"><b>macOS 14+</b> · <span data-i="hero.meta">免費 · v0.8.0</span></p>
 
     <!-- INFINITY LIVE DEMO -->
     <div class="demo-stage">
@@ -520,17 +521,19 @@
 <section class="block" id="install">
   <div class="wrap center">
     <span class="eyebrow" data-i="inst.eyebrow">安裝</span>
-    <h2 data-i="inst.h2">從原始碼建置</h2>
-    <p class="lead" data-i="inst.lead">目前還沒有預先建置的版本。裝好 Xcode 與 XcodeGen，四行指令就能跑起來。</p>
+    <h2 data-i="inst.h2">拖進「應用程式」就好</h2>
+    <p class="lead" data-i="inst.lead">下載 zip、解壓縮、把 Flione 拖進「應用程式」。這是沒有經過 Apple 公證的免費 app，第一次打開前先跑下面這行。</p>
     <div class="install-box">
       <div class="bar"><i></i><i></i><i></i></div>
-      <pre><span class="c"># <span data-i="inst.c1">安裝 XcodeGen，下載原始碼</span></span>
-brew install xcodegen
-git clone https://github.com/rocavence/Flione-app.git && cd Flione-app
-<span class="c"># <span data-i="inst.c2">產生 Xcode 專案，用 Flione scheme 執行</span></span>
-xcodegen generate && open Flione.xcodeproj</pre>
+      <pre><span class="c"># <span data-i="inst.cmt">清除隔離標記後直接打開</span></span>
+xattr -dr com.apple.quarantine /Applications/Flione.app
+open /Applications/Flione.app</pre>
     </div>
-    <p class="req"><b data-i="inst.reqh">需求：</b><span data-i="inst.reqp">macOS 14 以上（Liquid Glass 效果需要 macOS 26）、Xcode 26 以上，以及一台 Jellyfin 伺服器或一個 YouTube Music 帳號。第一次啟動時在登入畫面選擇音樂來源。</span></p>
+    <p class="req"><b data-i="inst.reqh">需求：</b><span data-i="inst.reqp">macOS 14 以上（Liquid Glass 效果需要 macOS 26），以及一台 Jellyfin 伺服器或一個 YouTube Music 帳號。第一次啟動時在登入畫面選擇音樂來源。也可以照 README 用 Xcode 從原始碼建置。</span></p>
+    <div class="cta" style="margin-top:30px">
+      <a class="btn btn-primary" href="https://github.com/rocavence/Flione-app/releases/latest" target="_blank" rel="noopener"><span>⬇︎</span><span data-i="inst.btn">下載最新版</span></a>
+      <a class="btn btn-ghost" href="https://github.com/rocavence/Flione-app#readme" target="_blank" rel="noopener" data-i="inst.src">從原始碼建置</a>
+    </div>
   </div>
 </section>
 
@@ -559,6 +562,7 @@ xcodegen generate && open Flione.xcodeproj</pre>
     <div class="brand" style="font-size:15px"><img src="/site/icon.png" alt="" style="width:26px;height:26px"><span>Flione</span></div>
     <div class="foot-links">
       <a href="https://github.com/rocavence/Flione-app" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/rocavence/Flione-app/releases/latest" target="_blank" rel="noopener" data-i="foot.dl">下載</a>
       <a href="https://github.com/rocavence/Flione-app/blob/main/README.md" target="_blank" rel="noopener" data-i="foot.docs">說明</a>
     </div>
     <span>© 2026 · <span data-i="foot.by">作者</span> <a href="https://github.com/rocavence" target="_blank" rel="noopener">@rocavence</a></span>
@@ -571,7 +575,7 @@ const I18N = {
     "nav.modes":"三種模式","nav.sources":"音樂來源","nav.install":"安裝",
     "hero.h1":'好好聽歌，<br><span class="hl">也要好好蒐藏</span>',
     "hero.sub":"Jellyfin 與 YouTube Music 的 macOS 原生音樂播放器。用現代化的方式瀏覽，沉浸在音樂封面之中。",
-    "hero.modes":"看看三種模式","hero.source":"GitHub 原始碼","hero.meta":"Jellyfin ／ YouTube Music · 免費",
+    "hero.download":"下載 Flione","hero.modes":"看看三種模式","hero.meta":"免費 · v0.8.0",
     "demo.sort":"排序：標題","demo.auto":"∞ 自動捲動","demo.toggle":"自動捲動",
     "demo.hint":"← Infinity 的封面牆會自己緩緩流動。關掉它，再把游標移到封面上看看。",
     "modes.eyebrow":"三種模式","modes.h2":"同一個音樂庫，三種看法",
@@ -610,22 +614,20 @@ const I18N = {
     "feat.c4h":"同步歌詞","feat.c4p":"跟著歌曲捲動的歌詞；伺服器沒有歌詞時，可以改查 LRCLIB（預設關閉）。",
     "feat.c5h":"只連你選的來源","feat.c5p":"不需要 Flione 帳號，沒有分析，不追蹤。Jellyfin 登入存在鑰匙圈。",
     "feat.c6h":"中文與英文","feat.c6p":"介面支援繁體中文與英文，可以在設定切換並記住。",
-    "inst.eyebrow":"安裝","inst.h2":"從原始碼建置","inst.lead":"目前還沒有預先建置的版本。裝好 Xcode 與 XcodeGen，四行指令就能跑起來。",
-    "inst.c1":"安裝 XcodeGen，下載原始碼","inst.c2":"產生 Xcode 專案，用 Flione scheme 執行",
-    "inst.reqh":"需求：","inst.reqp":"macOS 14 以上（Liquid Glass 效果需要 macOS 26）、Xcode 26 以上，以及一台 Jellyfin 伺服器或一個 YouTube Music 帳號。第一次啟動時在登入畫面選擇音樂來源。",
+    "inst.eyebrow":"安裝","inst.h2":"拖進「應用程式」就好","inst.lead":"下載 zip、解壓縮、把 Flione 拖進「應用程式」。這是沒有經過 Apple 公證的免費 app，第一次打開前先跑下面這行。","inst.cmt":"清除隔離標記後直接打開","inst.btn":"下載最新版","inst.src":"從原始碼建置","inst.reqh":"需求：","inst.reqp":"macOS 14 以上（Liquid Glass 效果需要 macOS 26），以及一台 Jellyfin 伺服器或一個 YouTube Music 帳號。第一次啟動時在登入畫面選擇音樂來源。也可以照 README 用 Xcode 從原始碼建置。",
     "story.eyebrow":"開發的故事",
     "story.p1":"Flione 的起點是一台自己架設的 Jellyfin。累積二十幾年的 iTunes 音樂庫重新整理入庫，成了私人的音樂串流。",
     "story.p2":"音樂都回來了，能用的播放器卻都不太好看，也不夠現代。於是有了 Flione：要有 Spotify 那樣的側欄，要有一面緩緩流動、攤開收藏與品味的封面牆，也要找回最早 OS X 的 Cover Flow。",
     "story.p3":"Flione 想讓收藏音樂這件事文藝復興：真正擁有你的音樂，而不只是串流。",
     "story.name":"Jellyfin 和 Infinity 都有「fin」，取它的 F；「lione」來自 Clione，也就是海天使。三種模式是海天使在音樂海洋裡的三種動態：Modern 是日常的漂浮，Infinity 游向深海，Cover Flow 穿梭在漂浮的群落之間。",
     "story.role":"作者 · GitHub","story.thanks":"特別感謝","story.kaset":"的啟發，以及","story.reicon":"的圖示。",
-    "foot.docs":"說明","foot.by":"作者"
+    "foot.dl":"下載","foot.docs":"說明","foot.by":"作者"
   },
   en:{
     "nav.modes":"Three views","nav.sources":"Music sources","nav.install":"Install",
     "hero.h1":'Listen well.<br><span class="hl">Collect well.</span>',
     "hero.sub":"A native macOS music player for Jellyfin and YouTube Music. Browse your music the modern way, and get lost in the album covers.",
-    "hero.modes":"See the three views","hero.source":"Source on GitHub","hero.meta":"Jellyfin / YouTube Music · Free",
+    "hero.download":"Download Flione","hero.modes":"See the three views","hero.meta":"Free · v0.8.0",
     "demo.sort":"Sort: Title","demo.auto":"∞ Auto-scroll","demo.toggle":"Auto-scroll",
     "demo.hint":"← The Infinity wall drifts on its own. Turn it off, then hover a cover.",
     "modes.eyebrow":"Three views","modes.h2":"One library, three ways to see it",
@@ -664,16 +666,14 @@ const I18N = {
     "feat.c4h":"Synced lyrics","feat.c4p":"Lyrics that scroll with the song, with an optional LRCLIB fallback when your server has none (off by default).",
     "feat.c5h":"Only the source you choose","feat.c5p":"No Flione account, no analytics, no tracking. Jellyfin sign-in lives in the Keychain.",
     "feat.c6h":"English and Chinese","feat.c6p":"The interface comes in English and Traditional Chinese, switchable in Settings.",
-    "inst.eyebrow":"Install","inst.h2":"Build from source","inst.lead":"There are no prebuilt releases yet. With Xcode and XcodeGen installed, it takes four commands.",
-    "inst.c1":"install XcodeGen and get the source","inst.c2":"generate the Xcode project, then run the Flione scheme",
-    "inst.reqh":"Requirements: ","inst.reqp":"macOS 14 or later (Liquid Glass needs macOS 26), Xcode 26 or later, and a Jellyfin server or a YouTube Music account. Pick a music source on the sign-in screen the first time you open it.",
+    "inst.eyebrow":"Install","inst.h2":"Just drag it to Applications","inst.lead":"Download the zip, unzip it, and drag Flione to Applications. It's a free app that isn't notarized by Apple, so run this line before opening it the first time.","inst.cmt":"clear the quarantine flag, then open","inst.btn":"Download latest","inst.src":"Build from source","inst.reqh":"Requirements: ","inst.reqp":"macOS 14 or later (Liquid Glass needs macOS 26), and a Jellyfin server or a YouTube Music account. Pick a music source on the sign-in screen the first time you open it. You can also build it from source with Xcode; see the README.",
     "story.eyebrow":"How it started",
     "story.p1":"Flione began with a self-hosted Jellyfin server. An iTunes library built over twenty-some years was re-imported and became a private music stream.",
     "story.p2":"The music was back, but the players that worked with it looked plain and dated. So Flione was made: a sidebar like Spotify's, a wall of covers that drifts slowly and lays out years of taste, and the original Cover Flow from early Mac OS X.",
     "story.p3":"Flione is a renaissance for collecting music: truly owning your music, not just streaming it.",
     "story.name":"Jellyfin and Infinity share \"fin\", which gives the F; \"lione\" comes from Clione, the sea angel. The three views are three ways a sea angel moves through an ocean of music: Modern is everyday drifting, Infinity heads into the deep, and Cover Flow glides through a floating swarm.",
     "story.role":"Author · GitHub","story.thanks":"Special thanks to","story.kaset":"for the inspiration, and","story.reicon":"for the icons.",
-    "foot.docs":"Docs","foot.by":"by"
+    "foot.dl":"Download","foot.docs":"Docs","foot.by":"by"
   }
 };
 function setLang(lang){

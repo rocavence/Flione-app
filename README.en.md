@@ -49,7 +49,13 @@ Design decisions not covered by the spec are recorded in [`docs/DECISIONS.md`](d
 
 ## Install
 
-There are no prebuilt releases yet. Build from source.
+Download the zip from [Releases](https://github.com/rocavence/Flione-app/releases/latest), unzip it, and drag Flione to Applications. It isn't notarized by Apple, so run this before opening it the first time:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Flione.app
+```
+
+### Build from source
 
 Requirements:
 

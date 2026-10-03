@@ -7,7 +7,8 @@ cd "$(dirname "$0")/.."
 
 xcodegen generate --quiet
 CONDITIONS=()
-[[ "${FINIFY_PUBLIC:-0}" == 1 ]] || CONDITIONS=(SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) DEV_LOGIN')
+# 公開版用 ad-hoc 簽章：開發者憑證的名稱含 Apple ID，簽進 app 裡任何人都看得到；反正都未經公證，開啟流程相同
+[[ "${FINIFY_PUBLIC:-0}" == 1 ]] && CONDITIONS=(CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=) || CONDITIONS=(SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) DEV_LOGIN')
 xcodebuild -project Flione.xcodeproj -scheme Flione -configuration Release \
   -derivedDataPath build-release "${CONDITIONS[@]}" build | grep -E "error:|BUILD" || true
 
@@ -19,4 +20,4 @@ rm -rf dist && mkdir -p dist
 cp -R "$APP" dist/
 ditto -c -k --keepParent dist/Flione.app "dist/Flione-$VERSION.zip"
 echo "完成：dist/Flione.app、dist/Flione-$VERSION.zip"
-echo "未經 Apple 公證；在其他 Mac 第一次開啟時需在 Finder 按右鍵 → 打開。"
+echo "未經 Apple 公證；在其他 Mac 第一次開啟前先執行 xattr -dr com.apple.quarantine Flione.app，或到「系統設定 → 隱私權與安全性」按「強制打開」。"

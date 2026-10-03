@@ -49,7 +49,13 @@ Flione 連線到你自己的 Jellyfin 伺服器或 YouTube Music，把音樂庫�
 
 ## 安裝
 
-目前沒有預先建置的版本，請從原始碼建置。
+從 [Releases](https://github.com/rocavence/Flione-app/releases/latest) 下載 zip，解壓縮後把 Flione 拖進「應用程式」。這個版本沒有經過 Apple 公證，第一次打開前先執行：
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Flione.app
+```
+
+### 從原始碼建置
 
 需求：
 
