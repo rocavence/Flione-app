@@ -60,4 +60,5 @@ enum Reicon: String, CaseIterable, Sendable {
     case carouselH = "carousel-h"
     case wandSparkle = "wand-sparkle"
     case screencast = "screencast"
+    case tv = "tv"
 }

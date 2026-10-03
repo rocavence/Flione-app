@@ -16,12 +16,17 @@ struct PlayerBar: View {
             VStack(spacing: Spacing.s4) {
                 PlaybackControls()
                 HStack(spacing: Spacing.s8) {
+                    // 超過一小時（1:02:00）或放大字級時加寬，不換行
                     Text(player.currentTime.formattedDuration)
-                        .frame(width: 44, alignment: .trailing)
+                        .lineLimit(1)
+                        .fixedSize()
+                        .frame(minWidth: 44, alignment: .trailing)
                     ProgressBar(value: player.progress) { player.seek(to: $0 * player.duration) }
                         .accessibilityLabel("Playback position")
                     Text(player.duration.formattedDuration)
-                        .frame(width: 44, alignment: .leading)
+                        .lineLimit(1)
+                        .fixedSize()
+                        .frame(minWidth: 44, alignment: .leading)
                 }
                 .finifyFont(.caption)
                 .monospacedDigit()

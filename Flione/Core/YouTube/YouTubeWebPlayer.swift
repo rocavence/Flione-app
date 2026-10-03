@@ -6,7 +6,7 @@ import WebKit
 /// 音訊有加密與簽章保護，AVQueuePlayer 無法播放，所以在看不見的 WKWebView 裡跑 YouTube Music 網頁播放器，
 /// 用 JavaScript 控制播放並每 0.5 秒回報狀態。cookie 與登入視窗共用（WKWebsiteDataStore.default()）。
 @MainActor @Observable
-final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
+final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler, RemotePlaybackEngine {
     private(set) var title = ""
     private(set) var artist = ""
     private(set) var artwork: URL?
@@ -24,15 +24,7 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
     @ObservationIgnored private var webView: WKWebView?
 
     /// 給 PlayerManager 的狀態回報（每 0.5 秒）
-    struct Update {
-        let playing: Bool
-        let time: Double
-        let duration: Double
-        /// 網頁目前播放的影片：與 Flione 要播的不同時，代表 YouTube 自己換到別首（自動播放）
-        let videoId: String?
-        let ended: Bool
-    }
-    @ObservationIgnored var onUpdate: ((Update) -> Void)?
+    @ObservationIgnored var onUpdate: ((RemotePlaybackUpdate) -> Void)?
     /// 音量 0–1；每次載入新頁面後重新套用
     @ObservationIgnored var volume: Float = 1 { didSet { appliedVolume = nil } }
     @ObservationIgnored private var appliedVolume: Float?
@@ -161,6 +153,11 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
         run("var v = document.querySelector('video'); if (v && v.webkitShowPlaybackTargetPicker) { v.webkitShowPlaybackTargetPicker(); }")
     }
 
+    /// RemotePlaybackEngine：YouTube 的曲目 id 就是影片 id；網頁播放器從頭播
+    func load(_ track: Track, url: URL?, artwork: URL?, at position: TimeInterval) {
+        load(videoId: track.id)
+    }
+
     func pause() { run("document.querySelector('video').pause()"); isPlaying = false }
     func resume() { run("document.querySelector('video').play()"); isPlaying = true }
 
@@ -188,10 +185,10 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler {
                 appliedVolume = volume
                 run("document.querySelector('video').volume = \(volume)")
             }
-            onUpdate?(Update(playing: body["playing"] as? Bool ?? false, time: body["time"] as? Double ?? 0,
-                             duration: body["duration"] as? Double ?? 0,
-                             videoId: (body["videoId"] as? String).flatMap { $0.isEmpty ? nil : $0 },
-                             ended: body["ended"] as? Bool ?? false))
+            onUpdate?(RemotePlaybackUpdate(playing: body["playing"] as? Bool ?? false, time: body["time"] as? Double ?? 0,
+                                           duration: body["duration"] as? Double ?? 0,
+                                           trackID: (body["videoId"] as? String).flatMap { $0.isEmpty ? nil : $0 },
+                                           ended: body["ended"] as? Bool ?? false))
             isPlaying = body["playing"] as? Bool ?? false
             isWireless = body["wireless"] as? Bool ?? false
             reportedVideoId = (body["videoId"] as? String).flatMap { $0.isEmpty ? nil : $0 }

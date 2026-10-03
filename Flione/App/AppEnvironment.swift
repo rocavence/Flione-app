@@ -62,6 +62,8 @@ final class AppEnvironment {
     let youtube = YouTubeAccount()
     /// YouTube Music 的網頁播放器（第二階段）
     let youtubePlayer = YouTubeWebPlayer()
+    /// Chromecast 投放（D43）
+    let cast = CastManager()
 
     /// nil = 尚未選擇（首次登入後顯示 mode picker）
     var mode: AppMode? {
@@ -259,6 +261,7 @@ final class AppEnvironment {
 
     /// 停止播放、清掉目前來源的資料，但不清除登入
     private func deactivate() {
+        cast.stop(player: player, resumeLocally: false)
         player.stop()
         session = nil
         repository = nil

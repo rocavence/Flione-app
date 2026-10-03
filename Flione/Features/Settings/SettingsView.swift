@@ -627,6 +627,24 @@ private struct CapsuleRing: Shape {
     }
 }
 
+/// 投放用的伺服器位址：Chromecast 會自己連到伺服器抓音樂，連不到 Flione 用的位址（例如 Tailscale）時改用這個（D43）
+private struct CastServerRow: View {
+    let serverURL: URL?
+    @AppStorage(CastManager.serverKey) private var castServer = ""
+
+    var body: some View {
+        SettingRow(title: "Server address for casting",
+                   detail: "Cast devices fetch music from your server themselves. If they can't reach \(serverURL?.absoluteString ?? "the server") (for example over Tailscale), enter a local network address, such as http://192.168.1.10:8096.") {
+            TextField("", text: $castServer, prompt: Text(verbatim: "http://192.168.1.10:8096"))
+                .textFieldStyle(.plain)
+                .finifyFont(.body)
+                .padding(.horizontal, Spacing.s12)
+                .frame(width: 210, height: 32)
+                .background(FinifyColor.surface, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+        }
+    }
+}
+
 private struct AccountSettings: View {
     @Environment(AppEnvironment.self) private var app
 
@@ -637,6 +655,9 @@ private struct AccountSettings: View {
             SettingRow(title: "Library", detail: "\(app.library.albums.count) albums. Refresh after adding music.") {
                 PillButton(title: app.library.state == .loading ? "Refreshing…" : "Refresh") { Task { await app.library.refresh() } }
                     .disabled(app.library.state == .loading)
+            }
+            if app.source == .jellyfin {
+                CastServerRow(serverURL: app.session?.serverURL)
             }
             SettingRow(title: "Sign out of \(app.source.title)", detail: "Stops playback. Your other music source stays signed in.") {
                 PillButton(title: "Sign Out", destructive: true) {

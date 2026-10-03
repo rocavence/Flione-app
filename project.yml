@@ -54,6 +54,9 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: app.finify.Finify
             CFBundleURLSchemes: [flione, finify]
+        # 投放：在區域網路找 Chromecast（macOS 15 以上需要宣告，D43）
+        NSLocalNetworkUsageDescription: Flione looks for Chromecast devices on your local network so you can play music on them.
+        NSBonjourServices: [_googlecast._tcp]
   FlioneTests:
     type: bundle.unit-test
     platform: macOS

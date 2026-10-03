@@ -786,6 +786,46 @@
         }
       }
     },
+    "Cast": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投放"
+          }
+        }
+      }
+    },
+    "Cast devices fetch music from your server themselves. If they can't reach %@ (for example over Tailscale), enter a local network address, such as http://192.168.1.10:8096.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投放裝置會自己連到伺服器抓音樂。如果它連不到 %@（例如透過 Tailscale），請填區域網路位址，例如 http://192.168.1.10:8096。"
+          }
+        }
+      }
+    },
+    "Casting to %@": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在投放到 %@"
+          }
+        }
+      }
+    },
+    "Casting works with Jellyfin only": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投放目前只支援 Jellyfin"
+          }
+        }
+      }
+    },
     "Check your connection to the music server.": {
       "localizations": {
         "zh-Hant": {
@@ -922,6 +962,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "無法加入「%@」。請檢查與音樂伺服器的連線。"
+          }
+        }
+      }
+    },
+    "Couldn't connect to %@. Make sure it's turned on and on the same network.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連不到 %@。請確認它已開機，而且和這台 Mac 在同一個網路。"
           }
         }
       }
@@ -1725,6 +1775,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "好好聽歌，也要好好蒐藏。"
+          }
+        }
+      }
+    },
+    "Looking for cast devices…": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在尋找投放裝置…"
+          }
+        }
+      }
+    },
+    "Lost connection to %@.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "與 %@ 的連線中斷了。"
           }
         }
       }
@@ -2713,6 +2783,16 @@
         }
       }
     },
+    "Server address for casting": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投放用的伺服器位址"
+          }
+        }
+      }
+    },
     "Settings": {
       "localizations": {
         "zh-Hant": {
@@ -3083,6 +3163,16 @@
         }
       }
     },
+    "Stop Casting": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止投放"
+          }
+        }
+      }
+    },
     "Stop keeping on top": {
       "localizations": {
         "zh-Hant": {
@@ -3199,6 +3289,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "封面牆後方顯示正在播放歌曲的模糊封面。"
+          }
+        }
+      }
+    },
+    "The cast device couldn't play “%@”. In Settings → Music Source, set a server address it can reach.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投放裝置無法播放「%@」。請到設定 → 音樂來源，填入它連得到的伺服器位址。"
           }
         }
       }

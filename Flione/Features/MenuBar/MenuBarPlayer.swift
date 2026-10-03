@@ -47,6 +47,7 @@ struct MenuBarPlayer: View {
                 }
                 FinifyIconButton(icon: .pip, label: "Mini Player") { openWindow(id: "floating") }
                 OutputPickerButton()
+                CastButton()
                 Spacer()
                 FinifyIconButton(icon: .power, label: "Quit Flione") { NSApp.terminate(nil) }
             }
