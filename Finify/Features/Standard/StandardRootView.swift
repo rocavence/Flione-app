@@ -251,14 +251,25 @@ struct FullscreenButton: View {
     /// 按鈕所在的視窗（不用 keyWindow：app 不在前景時 keyWindow 是 nil）
     @State private var window: NSWindow?
     @State private var isFullscreen = false
+    @State private var hovering = false
 
     var body: some View {
-        FinifyIconButton(icon: isFullscreen ? .exitFullscreen : .fullscreen,
-                         label: isFullscreen ? "Exit Full Screen (⌃⌘F)" : "Enter Full Screen (⌃⌘F)", size: .compact) {
-            window?.toggleFullScreen(nil)
+        let label = isFullscreen ? "Exit Full Screen (⌃⌘F)" : "Enter Full Screen (⌃⌘F)"
+        // 不用 FinifyIconButton：它的 hover 底是圓角方形，放在正圓按鈕裡會露出方角
+        Button { window?.toggleFullScreen(nil) } label: {
+            FinifyIcon(isFullscreen ? .exitFullscreen : .fullscreen, size: .compact)
+                .foregroundStyle((overflow ? FinifyColor.Overflow.ink : FinifyColor.ink).opacity(hovering ? 1 : 0.72))
+                .frame(width: 38, height: 38)
+                .modifier(TopBarSurface(overflow: overflow, shape: Circle(),
+                                        fallback: hovering ? (overflow ? FinifyColor.Overflow.controlHover : FinifyColor.glassHighlight)
+                                                           : (overflow ? FinifyColor.Overflow.control : FinifyColor.glass)))
+                .contentShape(Circle())
         }
-        .frame(width: 38, height: 38)
-        .modifier(TopBarSurface(overflow: overflow, shape: Circle(), fallback: .clear, strokeFallback: false))
+        .buttonStyle(PressScaleStyle())
+        .onHover { hovering = $0 }
+        .animation(Motion.micro, value: hovering)
+        .help(label)
+        .accessibilityLabel(label)
         .background(WindowAccessor { window = $0; isFullscreen = $0?.styleMask.contains(.fullScreen) ?? false })
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) {
             if $0.object as? NSWindow === window { isFullscreen = true }
