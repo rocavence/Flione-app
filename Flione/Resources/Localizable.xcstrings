@@ -1309,9 +1309,6 @@
     "Infinity": {
       "shouldTranslate": false
     },
-    "Jellyfin": {
-      "shouldTranslate": false
-    },
     "Keep on top": {
       "localizations": {
         "zh-Hant": {

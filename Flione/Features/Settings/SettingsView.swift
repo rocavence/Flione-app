@@ -59,7 +59,7 @@ struct SettingsCard: View {
             case .modern: LocalizedStringResource(stringLiteral: ViewMode.standard.title)
             case .infinity: LocalizedStringResource(stringLiteral: ViewMode.infinity.title)
             case .coverFlow: LocalizedStringResource(stringLiteral: ViewMode.coverFlow.title)
-            case .jellyfin: "Jellyfin"
+            case .jellyfin: "Server"
             }
         }
     }
