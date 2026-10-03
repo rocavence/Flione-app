@@ -45,7 +45,7 @@ enum Reicon: String, CaseIterable, Sendable {
     case grid = "grid"
     case layers = "layers"
     case keyboard = "keyboard"
-    case microphone = "microphone"
+    case notes2 = "notes2"
     case clock = "clock"
     case history = "history"
     case chevronLeft = "chevron-left"

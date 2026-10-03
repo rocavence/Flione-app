@@ -57,7 +57,7 @@ menu
 grid
 layers
 keyboard
-microphone
+notes2
 clock
 history
 chevron-left

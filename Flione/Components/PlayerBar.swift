@@ -31,7 +31,7 @@ struct PlayerBar: View {
             .frame(maxWidth: 520)
             Spacer(minLength: 0)
             HStack(spacing: Spacing.s8) {
-                FinifyIconButton(icon: .microphone, label: "Lyrics", isActive: app.isLyricsPresented) {
+                FinifyIconButton(icon: .notes2, label: "Lyrics", isActive: app.isLyricsPresented) {
                     app.isLyricsPresented.toggle()
                 }
                 .keyboardShortcut("l", modifiers: [.command, .option])

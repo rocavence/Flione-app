@@ -15,7 +15,7 @@ struct LyricsPanel: View {
         VStack(alignment: .leading, spacing: 0) {
             Group {
                 if track == nil {
-                    MessageState(title: "Nothing playing", message: "Play a song to see its lyrics.", icon: .microphone)
+                    MessageState(title: "Nothing playing", message: "Play a song to see its lyrics.", icon: .notes2)
                 } else {
                     content
                 }
@@ -44,7 +44,7 @@ struct LyricsPanel: View {
                          message: onlineLyrics
                             ? "Neither your server nor LRCLIB has lyrics for it."
                             : "Add .lrc or .txt lyric files next to your music on the server, or search LRCLIB, a free online lyrics database.",
-                         icon: .microphone,
+                         icon: .notes2,
                          primary: onlineLyrics ? nil : ("Search LRCLIB", {
                              onlineLyrics = true
                              Task { await load(app.player.currentTrack) }
