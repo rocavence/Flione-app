@@ -137,7 +137,7 @@ private struct PlaylistSidebarRow: View {
     }
 }
 
-/// 側欄底部：登入者頭像、名稱與 server；點一下打開帳號選單，右邊的齒輪打開設定（做法參考 Kaset 的 SidebarProfileView）
+/// 側欄底部：登入者頭像、名稱與 server；點一下打開帳號選單（含設定入口，做法參考 Kaset 的 SidebarProfileView）
 private struct SidebarProfile: View {
     @Environment(AppEnvironment.self) private var app
     @State private var showsAccount = false
@@ -145,38 +145,35 @@ private struct SidebarProfile: View {
 
     var body: some View {
         if let session = app.session {
-            HStack(spacing: Spacing.s4) {
-                Button { showsAccount = true } label: {
-                    HStack(spacing: Spacing.s8) {
-                        UserAvatar(session: session, size: 32)
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(session.userName)
-                                .finifyFont(.bodyEmphasis)
-                                .foregroundStyle(FinifyColor.ink)
-                            Text(session.serverName)
-                                .finifyFont(.caption)
-                                .foregroundStyle(FinifyColor.muted)
-                        }
-                        .lineLimit(1)
-                        Spacer(minLength: 0)
-                        FinifyIcon(.chevronUp, size: .compact)
-                            .foregroundStyle(FinifyColor.faint)
+            Button { showsAccount = true } label: {
+                HStack(spacing: Spacing.s8) {
+                    UserAvatar(session: session, size: 32)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(session.userName)
+                            .finifyFont(.bodyEmphasis)
+                            .foregroundStyle(FinifyColor.ink)
+                        Text(session.serverName)
+                            .finifyFont(.caption)
+                            .foregroundStyle(FinifyColor.muted)
                     }
-                    .padding(.horizontal, Spacing.s8)
-                    .frame(height: 48)
-                    .background(hovering ? FinifyColor.glassHighlight : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
-                    .contentShape(Rectangle())
+                    .lineLimit(1)
+                    Spacer(minLength: 0)
+                    FinifyIcon(.chevronUp, size: .compact)
+                        .foregroundStyle(FinifyColor.faint)
                 }
-                .buttonStyle(.plain)
-                .onHover { hovering = $0 }
-                .animation(Motion.micro, value: hovering)
-                .accessibilityLabel("\(session.userName) on \(session.serverName)")
-                .accessibilityHint("Shows account options")
-                .popover(isPresented: $showsAccount, arrowEdge: .top) {
-                    AccountPopover(session: session) { showsAccount = false }
-                        .environment(app)
-                }
-                FinifyIconButton(icon: .setting2, label: "Settings (⌘,)") { app.isSettingsPresented = true }
+                .padding(.horizontal, Spacing.s8)
+                .frame(height: 48)
+                .background(hovering ? FinifyColor.glassHighlight : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .onHover { hovering = $0 }
+            .animation(Motion.micro, value: hovering)
+            .accessibilityLabel("\(session.userName) on \(session.serverName)")
+            .accessibilityHint("Shows account options")
+            .popover(isPresented: $showsAccount, arrowEdge: .top) {
+                AccountPopover(session: session) { showsAccount = false }
+                    .environment(app)
             }
             .padding(.horizontal, Spacing.s8)
             .padding(.vertical, Spacing.s8)

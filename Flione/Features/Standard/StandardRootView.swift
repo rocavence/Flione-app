@@ -101,12 +101,13 @@ struct StandardRootView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    /// 背景光暈的顏色來源：專輯與 playlist 頁用該頁封面，其他頁用正在播放的歌
+    /// 背景光暈只在專輯與 playlist 頁，用該頁封面（與 Kaset 相同）。
+    /// 首頁等其他頁不上色：正在播放的封面若偏灰，整片底色會變髒，也和首頁 Hero 衝突
     private var glowArtwork: ArtworkRef? {
         switch router.path.last {
         case .album(let album): album.artwork
         case .playlist(let playlist): playlist.artwork
-        default: app.player.currentTrack?.artwork
+        default: nil
         }
     }
 
