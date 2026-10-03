@@ -276,3 +276,9 @@
 * **介面**：設定 → 一般最上方，一列 7 張迷你預覽卡（側欄、卡片、互動色、橘色進度），選取有外框。
 * **做法**：色彩 token 是 NSColor 動態色，繪製時讀 `ColorTheme.current`；換配色時各視窗以 `.id(colorTheme)` 重建，讓所有顏色（含 AppKit cell 的 cgColor）重新取值。代價是換配色時 Modern 的導覽位置會回到首頁。
 * **怎麼改**：`DesignSystem/Colors/ColorTheme.swift`（新增配色：加 case 和一組 Palette）。
+
+## D38　登入畫面加上花翼徽記
+
+* **畫面**：登入畫面固定深色（底色跟著配色的 Abyss）。徽記是黑底發光的圖，淺色底上會很突兀。徽記放在「FLIONE」上方，180pt。
+* **進場**：停 0.3 秒後，徽記用 2.4 秒從模糊（24）、稍小（0.94）、透明慢慢浮現；文字與表單 1.4 秒後淡入；背後一層柔光每 4 秒緩慢呼吸。開啟「減少動態效果」時直接顯示。
+* **圖檔**：`scripts/icon/login-emblem-source.png` 縮成 720px，黑底依亮度轉成透明（`LoginEmblem`），所以模糊、淡入時不會出現黑色方框。

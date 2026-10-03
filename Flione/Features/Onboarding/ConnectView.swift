@@ -9,12 +9,19 @@ struct ConnectView: View {
     @State private var isConnecting = false
     @State private var errorMessage: String?
     @FocusState private var focus: Field?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// 進場：花翼幽幽浮現，再淡入文字與表單
+    @State private var emblemShown = false
+    @State private var contentShown = false
+    @State private var breathing = false
 
     private enum Field { case server, user, password }
 
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
+            emblem
+                .padding(.bottom, Spacing.s24)
             VStack(spacing: Spacing.s12) {
                 Text("FLIONE")
                     .font(.system(size: 15, weight: .semibold))
@@ -28,6 +35,8 @@ struct ConnectView: View {
                     .foregroundStyle(FinifyColor.muted)
             }
             .padding(.bottom, Spacing.s40)
+            .opacity(contentShown ? 1 : 0)
+            .offset(y: contentShown ? 0 : 6)
 
             VStack(spacing: Spacing.s12) {
                 if let reason = app.signOutReason {
@@ -62,16 +71,54 @@ struct ConnectView: View {
             }
             .frame(width: 320)
             .animation(Motion.ui, value: errorMessage)
+            .opacity(contentShown ? 1 : 0)
 
             Spacer()
             Text("Flione talks only to your server. No account, no tracking.")
                 .finifyFont(.caption)
                 .foregroundStyle(FinifyColor.faint)
                 .padding(.bottom, Spacing.s24)
+                .opacity(contentShown ? 1 : 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(FinifyColor.paper)
-        .onAppear { focus = server.isEmpty ? .server : .user }
+        // 登入畫面固定深色：花翼是黑底發光的圖，深色底才能讓它從黑暗中浮出來；底色跟著配色
+        .background(FinifyColor.Ocean.abyss)
+        .environment(\.colorScheme, .dark)
+        .onAppear {
+            focus = server.isEmpty ? .server : .user
+            reveal()
+        }
+    }
+
+    /// 花翼：圖檔的黑底已轉成透明（依亮度），任何底色上都只留下光；背後一層柔光緩慢呼吸
+    private var emblem: some View {
+        ZStack {
+            Image("LoginEmblem")
+                .resizable()
+                .scaledToFit()
+                .blur(radius: 40)
+                .opacity(breathing ? 0.55 : 0.3)
+                .scaleEffect(1.15)
+            Image("LoginEmblem")
+                .resizable()
+                .scaledToFit()
+        }
+        .frame(width: 180, height: 180)
+        .opacity(emblemShown ? 1 : 0)
+        .blur(radius: emblemShown ? 0 : 24)
+        .scaleEffect(emblemShown ? 1 : 0.94)
+        .accessibilityHidden(true)
+    }
+
+    private func reveal() {
+        guard !reduceMotion else {
+            emblemShown = true
+            contentShown = true
+            return
+        }
+        withAnimation(.easeInOut(duration: 2.4).delay(0.3)) { emblemShown = true }
+        withAnimation(.easeOut(duration: 0.9).delay(1.4)) { contentShown = true }
+        withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true).delay(2.7)) { breathing = true }
     }
 
     private func field(_ label: LocalizedStringResource, text: Binding<String>, prompt: LocalizedStringResource, field: Field, secure: Bool = false) -> some View {
