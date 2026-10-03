@@ -1,14 +1,14 @@
 import Foundation
 
-/// `finify://` 網址：讓 Raycast、Alfred、捷徑等工具控制 Finify。做法參考 Kaset（MIT）的 URLHandler。
+/// `flione://` 網址（舊的 `finify://` 仍可用）：讓 Raycast、Alfred、捷徑等工具控制 Finify。做法參考 Kaset（MIT）的 URLHandler。
 ///
-///     finify://play | pause | toggle | next | previous
-///     finify://album/<id>               打開專輯
-///     finify://play?album=<id>          播放專輯
-///     finify://play?playlist=<id>       播放 playlist
+///     flione://play | pause | toggle | next | previous
+///     flione://album/<id>               打開專輯
+///     flione://play?album=<id>          播放專輯
+///     flione://play?playlist=<id>       播放 playlist
 extension AppEnvironment {
     func handle(_ url: URL) {
-        guard url.scheme == "finify", session != nil else { return }
+        guard url.scheme == "flione" || url.scheme == "finify", session != nil else { return }
         let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
         func value(_ name: String) -> String? { query.first { $0.name == name }?.value }
 

@@ -43,8 +43,8 @@ struct KeychainSessionStore: SessionStore {
     }
 }
 
-#if DEBUG || BENCHMARK
-/// 開發用：從 `.secrets/` 讀取登入資訊，避免無人值守測試時 Keychain 跳出授權視窗。
+#if DEBUG || BENCHMARK || DEV_LOGIN
+/// 開發與測試版用：從 `.secrets/` 讀取登入資訊，避免無人值守測試時 Keychain 跳出授權視窗。
 /// 啟動參數：`-FinifySecrets <repo>/.secrets`
 struct DevelopmentSessionStore: SessionStore {
     let directory: URL
@@ -66,5 +66,17 @@ struct DevelopmentSessionStore: SessionStore {
 
     func save(_ session: JellyfinSession) throws {}
     func clear() {}
+}
+#endif
+
+#if DEBUG || BENCHMARK || DEV_LOGIN
+extension DevelopmentSessionStore {
+    /// 這份原始碼所在 repo 的 `.secrets/`。只記路徑，不把登入資訊打包進 app；在其他電腦上這個路徑不存在，會照常顯示登入畫面
+    static var repoSecrets: URL? {
+        let dir = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent(".secrets")
+        return FileManager.default.fileExists(atPath: dir.appendingPathComponent("session.env").path) ? dir : nil
+    }
 }
 #endif

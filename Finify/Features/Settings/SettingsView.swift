@@ -51,7 +51,7 @@ private struct GeneralSettings: View {
     var body: some View {
         @Bindable var app = app
         Form {
-            Picker("Open Finify in", selection: $app.viewMode) {
+            Picker("Open Flione in", selection: $app.viewMode) {
                 ForEach(ViewMode.allCases, id: \.self) { Text($0.title).tag($0) }
             }
             Toggle("Remember my choice", isOn: $app.rememberMode)
@@ -130,7 +130,7 @@ private struct AccountSettings: View {
                 Text("Not connected.").foregroundStyle(.secondary)
             }
             Section {
-                Text("Finify talks only to your Jellyfin server. It has no account, no analytics, and no tracking.")
+                Text("Flione talks only to your Jellyfin server. It has no account, no analytics, and no tracking.")
                     .foregroundStyle(.secondary)
             }
         }

@@ -16,7 +16,7 @@ struct ConnectView: View {
         VStack(spacing: 0) {
             Spacer()
             VStack(spacing: Spacing.s12) {
-                Text("FINIFY")
+                Text("FLIONE")
                     .font(.system(size: 15, weight: .semibold))
                     .tracking(8)
                     .foregroundStyle(FinifyColor.ink)
@@ -64,7 +64,7 @@ struct ConnectView: View {
             .animation(Motion.ui, value: errorMessage)
 
             Spacer()
-            Text("Finify talks only to your server. No account, no tracking.")
+            Text("Flione talks only to your server. No account, no tracking.")
                 .finifyFont(.caption)
                 .foregroundStyle(FinifyColor.faint)
                 .padding(.bottom, Spacing.s24)

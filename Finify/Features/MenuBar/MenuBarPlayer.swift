@@ -41,13 +41,13 @@ struct MenuBarPlayer: View {
             FinifyColor.hairline.frame(height: 1)
             // icon 按鈕：文字按鈕在 300pt 寬的面板裡會換行爆版
             HStack(spacing: Spacing.s4) {
-                FinifyIconButton(icon: .window, label: "Open Finify") {
+                FinifyIconButton(icon: .window, label: "Open Flione") {
                     openWindow(id: "main")
                     NSApp.activate()
                 }
                 FinifyIconButton(icon: .pip, label: "Mini Player") { openWindow(id: "floating") }
                 Spacer()
-                FinifyIconButton(icon: .power, label: "Quit Finify") { NSApp.terminate(nil) }
+                FinifyIconButton(icon: .power, label: "Quit Flione") { NSApp.terminate(nil) }
             }
         }
         .padding(Spacing.s16)

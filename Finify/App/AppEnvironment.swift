@@ -157,6 +157,12 @@ final class AppEnvironment {
             return AppEnvironment(sessionStore: DevelopmentSessionStore(directory: FileManager.default.temporaryDirectory.appending(path: "FinifyTestHost")))
         }
         #endif
+        #if DEBUG || BENCHMARK || DEV_LOGIN
+        // 開發版與測試版（build-release.sh）：有 repo 的 .secrets 就自動登入，不再顯示登入畫面
+        if let secrets = DevelopmentSessionStore.repoSecrets, DevelopmentSessionStore(directory: secrets).load() != nil {
+            return AppEnvironment(sessionStore: DevelopmentSessionStore(directory: secrets))
+        }
+        #endif
         return AppEnvironment(sessionStore: KeychainSessionStore())
     }
 

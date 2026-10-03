@@ -23,6 +23,7 @@
 			<string>app.finify.Finify</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>flione</string>
 				<string>finify</string>
 			</array>
 		</dict>

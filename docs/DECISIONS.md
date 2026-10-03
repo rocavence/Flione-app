@@ -186,3 +186,9 @@
 * **大小滑軌**：兩端加 −／＋，一次一段。
 * **Magic sort**：排序旁一顆「Magic」，條件有 Shuffle（隨機，再選一次重洗）、Rainbow（依封面平均色的色相排成彩虹，黑白灰放最後）、Light to Dark（依封面亮度）、By Genre（依曲風分群）、Time Travel（由最舊到最新）。封面顏色取自 BlurHash，不需下載圖片；曲風來自 Jellyfin 專輯的 Genres（舊快取在下次重新整理音樂庫後才有）。選了 Magic 會暫時取代一般排序，改一般排序時自動關閉。
 * **怎麼改**：`Models/MagicSort.swift`（測試在 `MagicSortTests`）、`OverflowRootView` 的 `MagicSortMenu`、`SizeSlider`。
+
+## D25　App 改名 Flione；測試版自動登入
+
+* **名稱**：對外名稱改為 Flione（Flione.app、Dock、選單、登入畫面、設定、User-Agent、`flione://` 網址；舊的 `finify://` 仍可用）。模式選擇畫面的說明依《Flione Three Browsing Modes》改為 Presence／Depth／Visual。
+* **保留**：bundle id `app.finify.Finify`、UserDefaults 鍵名與鑰匙圈 service 不變。改這些會讓所有設定、音樂庫快取與登入資訊遺失。
+* **自動登入**：Debug 版與 `scripts/build-release.sh` 建出的測試版（`DEV_LOGIN`），啟動時若找得到這份原始碼 repo 的 `.secrets/`，就直接用它登入，不顯示登入畫面。只記路徑，不把登入資訊打包進 app；其他電腦上沒有這個路徑，照常顯示登入畫面。要建給別人的版本用 `FINIFY_PUBLIC=1 scripts/build-release.sh`。

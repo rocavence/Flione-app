@@ -18,7 +18,7 @@ enum LRCLib {
         ]
         var request = URLRequest(url: components.url!, timeoutInterval: 10)
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
-        request.setValue("Finify/\(version)", forHTTPHeaderField: "User-Agent")
+        request.setValue("Flione/\(version)", forHTTPHeaderField: "User-Agent")
         let (data, response) = try await session.data(for: request)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
         let results = try JSONDecoder().decode([Result].self, from: data)

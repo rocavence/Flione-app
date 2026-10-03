@@ -32,7 +32,10 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.finify.Finify
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: Finify
+        # 對外名稱是 Flione；程式內部與 bundle id 仍是 Finify（換 bundle id 會讓設定與鑰匙圈資料全部遺失，見 D25）
+        PRODUCT_NAME: Flione
+        PRODUCT_MODULE_NAME: Finify
+        INFOPLIST_KEY_CFBundleDisplayName: Flione
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         # 用固定的開發者憑證簽章：ad-hoc（"-"）每次建置簽章都不同，鑰匙圈會一直要求輸入密碼（D21）
@@ -48,7 +51,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleURLTypes:
           - CFBundleURLName: app.finify.Finify
-            CFBundleURLSchemes: [finify]
+            CFBundleURLSchemes: [flione, finify]
   FinifyTests:
     type: bundle.unit-test
     platform: macOS
@@ -59,6 +62,9 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
+        # 產品名稱是 Flione（target 仍叫 Finify），test host 要指到 Flione.app
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Flione.app/Contents/MacOS/Flione
+        BUNDLE_LOADER: $(TEST_HOST)
         # 測試 bundle 要和 app 同一個 Team，否則 hardened runtime 不讓它載入
         CODE_SIGN_STYLE: Manual
         CODE_SIGN_IDENTITY: "Apple Development: you@example.com (XXXXXXXXXX)"

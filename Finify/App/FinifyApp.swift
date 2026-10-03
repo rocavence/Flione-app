@@ -8,7 +8,7 @@ struct FinifyApp: App {
     @AppStorage(SettingsKey.menuBar) private var showsMenuBar = true
 
     var body: some Scene {
-        Window("Finify", id: "main") {
+        Window("Flione", id: "main") {
             RootView()
                 .environment(app)
                 .frame(minWidth: 1040, minHeight: 680)
@@ -44,7 +44,7 @@ struct FinifyApp: App {
         } label: {
             // 平常是 template（跟著選單列變黑／白），播放中換成 Finity Blue 加小點
             Image(app.player.isPlaying ? "MenuBarIconPlaying" : "MenuBarIcon")
-                .accessibilityLabel("Finify")
+                .accessibilityLabel("Flione")
         }
         .menuBarExtraStyle(.window)
 
