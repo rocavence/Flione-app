@@ -1,69 +1,108 @@
 # Flione
 
-> Your Music. Your Server. Your Experience.
+**繁體中文** · [English](README.en.md)
 
-Flione 是 Jellyfin 的 macOS 原生音樂播放器（舊名 Finify；程式內部的型別前綴、bundle id 與啟動參數仍沿用 Finify）。兩種平級的使用模式：
+Jellyfin 的 macOS 原生音樂播放器。你的音樂、你的伺服器，用三種方式瀏覽。
 
-* **Standard**：完整的音樂 App，可瀏覽、搜尋、建立播放佇列。
-* **Overflow**：把整個音樂庫變成封面牆，以封面為主的沉浸式體驗。
+<p align="center">
+  <img src="Flione/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" width="160" alt="Flione icon">
+</p>
 
-## 需求
+## 它在做什麼
 
-* macOS 14 以上
-* Xcode 26 以上
-* [XcodeGen](https://github.com/yonaskolb/XcodeGen)：`brew install xcodegen`
-* 一台 Jellyfin server（測試過 12.1）
+Flione 連線到你自己的 Jellyfin 伺服器，把音樂庫變成三種平級的瀏覽方式，隨時用 ⌘1／⌘2／⌘3 或右上角切換：
 
-## 開始
+- **Modern**：完整的音樂 app。首頁、音樂庫（專輯、藝人、歌曲、曲風、播放清單、最愛）、專輯與藝人頁、⌘K 搜尋、播放佇列與歌詞。專輯頁的背景帶上封面顏色的光暈，側欄半透明透出光暈。
+- **Infinity**：整個音樂庫鋪成一面封面牆。可雙指縮放、游標離開時緩慢漂移，也可開啟「自動捲動」讓牆一直移動；Magic 排序可依顏色、曲風、年代或隨機重新排列。
+- **Cover Flow**：橫向的封面展示台。點中間的封面翻面看曲目，背景光暈跟著中間的專輯變色。
+
+### 播放
+
+- 按下播放立刻有反應：畫面先進入播放狀態，背景再向伺服器取曲目，失敗或緩衝過久才提示
+- 無縫換曲（AVQueuePlayer 預先緩衝下一首）、shuffle、Smart Shuffle（Jellyfin Instant Mix）、repeat
+- 媒體鍵、控制中心 Now Playing、Dock 選單、選單列播放器、浮動迷你播放器
+- 同步歌詞；伺服器沒有歌詞時可改查 LRCLIB（預設關閉）
+- 重新開啟時恢復上次的播放佇列
+
+### 外觀與語言
+
+- 7 種配色：深海（預設）、寂靜、午夜、極光、翡翠、酒紅、冰川。三種模式與深淺色都套用；代表「正在播放」的橘色固定不變
+- Modern 支援淺色與深色；Infinity 與 Cover Flow 固定深色，可各自調整封面圓角、漂移速度、光暈亮度等
+- 介面支援繁體中文與英文，可在設定切換並記住；之後要加語言只需補上 String Catalog 的翻譯
+
+## 為什麼是這個樣子
+
+- **只和你的伺服器連線**：沒有帳號、沒有分析、不追蹤。登入資訊存在鑰匙圈。
+- **原生**：SwiftUI 搭配 AppKit。封面牆與音樂庫格線用 `NSCollectionView` 重用 cell，1,400 張以上的專輯也能順暢捲動。
+- **封面是主角**：顏色取自封面的 BlurHash，不需要額外下載圖片就能做光暈與 Magic 排序。
+
+規格之外的設計取捨都記錄在 [`docs/DECISIONS.md`](docs/DECISIONS.md)。
+
+## 安裝
+
+目前沒有預先建置的版本，請從原始碼建置。
+
+需求：
+
+- macOS 14 以上（Liquid Glass 效果需要 macOS 26）
+- Xcode 26 以上
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen)：`brew install xcodegen`
+- 一台 Jellyfin 伺服器（測試過 12.1）
 
 ```sh
 xcodegen generate          # 由 project.yml 產生 Flione.xcodeproj
 open Flione.xcodeproj      # 選 Flione scheme 執行
 ```
 
-第一次啟動會要求連線 Jellyfin。Server 欄位可以只填主機名稱（例如 `mediabox`），Flione 會自動嘗試 `http://mediabox:8096`。
+第一次啟動會要求連線 Jellyfin。伺服器欄位可以只填主機名稱（例如 `mediabox`），Flione 會自動嘗試 `http://mediabox:8096`。
 
-`Flione.xcodeproj` 不進版控；修改專案設定請改 `project.yml`。
+`Flione.xcodeproj` 不進版控；修改專案設定請改 `project.yml`。程式碼簽章設定在 `project.yml`，用自己的憑證建置時請改 `CODE_SIGN_IDENTITY` 與 `DEVELOPMENT_TEAM`。
 
-## 測試
+<details><summary>測試</summary>
 
 ```sh
-xcodebuild -project Flione.xcodeproj -scheme Flione test
+xcodebuild -project Flione.xcodeproj -scheme Flione -destination 'platform=macOS' test
 ```
 
-`RepositoryIntegrationTests` 會連真實 server。需要在 repo 根目錄建立 `.secrets/`（已排除在 git 之外）：
+`RepositoryIntegrationTests` 會連真實伺服器。需要在 repo 根目錄建立 `.secrets/`（已排除在 git 之外）：
 
 ```text
 .secrets/jellyfin.env   JELLYFIN_URL=、JELLYFIN_USER=、JELLYFIN_PASSWORD=
 .secrets/session.env    JELLYFIN_TOKEN=、JELLYFIN_USER_ID=
 ```
 
-沒有 `.secrets/` 時整合測試會自動略過。
+沒有 `.secrets/` 時整合測試會自動略過。Debug 版與 `scripts/build-release.sh` 建出的測試版，啟動時若找得到 `.secrets/` 會直接登入。
 
-## 專案結構
+</details>
+
+<details><summary>專案結構</summary>
 
 ```text
 Flione/
-├── App/            進入點、AppEnvironment、選單快捷鍵
+├── App/              進入點、AppEnvironment、選單與快捷鍵
 ├── Core/
-│   ├── Jellyfin/   API client、DTO、MusicRepository
-│   ├── Cache/      ImagePipeline（記憶體＋磁碟）、BlurHash
-│   ├── Persistence/ Keychain、音樂庫快照
-│   └── Platform/   Now Playing、媒體鍵、鍵盤
-├── DesignSystem/   色彩、字級、間距、圓角、動態、陰影、Reicon
-├── Components/     ArtworkView、按鈕、曲目列、播放列、Toast…
+│   ├── Jellyfin/     API client、DTO、MusicRepository
+│   ├── Cache/        ImagePipeline（記憶體＋磁碟）、BlurHash
+│   ├── Localization/ AppLanguage（介面語言）
+│   ├── Persistence/  鑰匙圈、音樂庫快照、最愛、播放清單
+│   └── Platform/     Now Playing、媒體鍵、鍵盤
+├── DesignSystem/     色彩與配色、字級、間距、圓角、動態、陰影、Reicon
+├── Components/       ArtworkView、按鈕、播放列、佇列與歌詞面板、Toast
 ├── Features/
-│   ├── Onboarding/ 連線、mode 選擇
-│   ├── Standard/   Home、Library、Album、Artist、Search
-│   ├── Overflow/   Album Wall、Album Flow、Fullscreen
-│   └── Settings/
-└── Player/         PlayerManager（AVQueuePlayer）、PlayQueue
-Spikes/             技術驗證程式（不隨 app 出貨）
-scripts/            Reicon 與 app icon 產生腳本
-docs/               規格、roadmap、決策紀錄、驗證報告
+│   ├── Onboarding/   登入、模式選擇
+│   ├── Standard/     Modern：首頁、音樂庫、專輯、藝人、搜尋
+│   ├── Overflow/     Infinity（封面牆）、Cover Flow、迷你播放器
+│   ├── Lyrics/、MenuBar/、Settings/
+├── Player/           PlayerManager（AVQueuePlayer）、PlayQueue
+└── Resources/        Assets、Localizable.xcstrings（翻譯）
+Spikes/               技術驗證程式（不隨 app 出貨）
+scripts/              Reicon、app icon、測試版建置腳本
+docs/                 規格、roadmap、決策紀錄、品牌、驗證報告
 ```
 
-## Icon
+</details>
+
+<details><summary>Icon 與翻譯</summary>
 
 UI icon 一律使用 [Reicon](https://github.com/dqev/reicon)。新增 icon：
 
@@ -71,37 +110,48 @@ UI icon 一律使用 [Reicon](https://github.com/dqev/reicon)。新增 icon：
 2. 執行 `python3 scripts/reicon/generate.py`
 3. 在程式中使用 `FinifyIcon(.名稱)`
 
-## 開發用啟動參數（DEBUG）
+App icon 與選單列 icon 由 `scripts/icon/make-icon.swift` 依 macOS icon 格線產生。
+
+介面文字的翻譯在 `Flione/Resources/Localizable.xcstrings`。新增語言：在 catalog 補上翻譯，再在 `Core/Localization/AppLanguage.swift` 加一個 case。
+
+</details>
+
+<details><summary>開發用啟動參數（DEBUG）</summary>
 
 | 參數 | 作用 |
 | ---- | ---- |
-| `-FinifySecrets <repo>/.secrets` | 從 `.secrets/` 讀登入資訊，不用 Keychain |
-| `-FinifyStartMode standard\|overflow` | 直接進入指定 mode |
-| `-FinifyMuted YES` | 播放音量 0 |
-| `-FinifyDemoPlay "<專輯名>"` | 啟動後播放該專輯 |
-| `-FinifyDemoOpen "<專輯名>"` | 啟動後打開該專輯 |
-| `-FinifyDemoSearch "<關鍵字>"` | 啟動後打開搜尋 |
-| `-FinifyDemoImmersive YES` | Overflow 進入 Fullscreen |
+| `-FinifySecrets <資料夾>` | 從指定資料夾讀登入資訊；指向空資料夾會停在登入畫面 |
+| `-FinifyStartMode standard\|overflow`、`-FinifyOverflowLayout Wall\|Flow` | 直接進入 Modern、Infinity 或 Cover Flow |
+| `-FinifyMuted YES` | 播放音量 0，且不向 Jellyfin 回報播放 |
+| `-FinifyDemoPlay "<專輯名>"`、`-FinifyDemoOpen "<專輯名>"` | 啟動後播放／打開該專輯 |
+| `-FinifyDemoSearch "<關鍵字>"`、`-FinifyDemoSettings YES` | 啟動後打開搜尋／設定 |
+| `-FinifyDemoTab library`、`-FinifyDemoSection <分頁>` | 直接打開音樂庫的指定分頁 |
+| `-FinifyDemoSwitchTo coverFlow\|infinity\|modern` | 幾秒後切換模式（`-FinifyDemoSwitchAfter <秒>`） |
+| `-FinifyDemoHoverAll YES` | Infinity 所有封面呈現 hover 狀態 |
 | `-FinifyDemoSeekToEnd <秒>` | 播放後跳到第一首結尾前 N 秒（驗證自動換曲） |
-| `-FinifyDemoTab library` ／ `-FinifyDemoSection <分頁>` | 直接打開 Library 的指定分頁 |
-| `-FinifyOverflowLayout Wall\|Flow\|Recent`、`-FinifyWallDensity 0–4`、`-FinifyWallSort <排序>` | Overflow 版面、封面尺寸、排序 |
-| `-FinifyTheme Light\|Dark` | 主題 |
+| `-FinifyLatencyProbe <輸出檔>` | 量測按下播放到畫面反應、取回曲目、出聲的時間 |
+| `-AppleLanguages "(zh-Hant)"` | 以指定語言啟動 |
+
+設定值也可以用啟動參數暫時覆寫，例如 `-FinifyTheme Dark`、`-FinifyColorTheme bordeaux`、`-FinifyFlowSettleDim 0.5`。
 
 效能與穩定性量測（需以 `SWIFT_ACTIVE_COMPILATION_CONDITIONS=BENCHMARK` 建置 Release）：
 
 | 參數 | 作用 |
 | ---- | ---- |
-| `-FinifyBenchWall <輸出.json>` | 自動捲動 Album Wall（加 `-FinifyBenchTarget library` 改量 Library）並記錄掉 frame 與記憶體 |
+| `-FinifyBenchWall <輸出.json>` | 自動捲動封面牆（加 `-FinifyBenchTarget library` 改量音樂庫格線），記錄掉 frame 與記憶體 |
 | `-FinifyLaunchMark <輸出檔>` | 記錄啟動到視窗出現、首頁載入完成的時間 |
 | `-FinifyGaplessProbe <輸出檔>` | 在 PlayerManager 上量測換曲停頓（搭配 `-FinifyDemoPlay`） |
 | `-FinifySoak <輸出檔>` | 連續換曲 40 次並記錄記憶體 |
 
-`-FinifyMuted YES` 的測試不會向 Jellyfin 回報播放，不影響播放紀錄。
+</details>
 
 ## 文件
 
-* [`docs/FINIFY.md`](docs/FINIFY.md)：產品願景
-* [`docs/EXECUTION-SPEC.md`](docs/EXECUTION-SPEC.md)：實作規格（衝突時以此為準）
-* [`docs/ROADMAP.md`](docs/ROADMAP.md)：分期
-* [`docs/DECISIONS.md`](docs/DECISIONS.md)：規格未定義處的決策與修改方式
-* [`docs/spikes/`](docs/spikes/)：技術驗證結果
+- [`docs/FINIFY.md`](docs/FINIFY.md)：產品願景
+- [`docs/EXECUTION-SPEC.md`](docs/EXECUTION-SPEC.md)：實作規格（衝突時以此為準）
+- [`docs/ROADMAP.md`](docs/ROADMAP.md)：分期
+- [`docs/DECISIONS.md`](docs/DECISIONS.md)：規格未定義處的決策與修改方式
+- [`docs/brand/`](docs/brand/)：品牌故事與色彩系統
+- [`docs/spikes/`](docs/spikes/)：技術驗證結果
+
+Flione 舊名 Finify；程式內部的型別前綴、bundle id、設定鍵與啟動參數仍沿用 Finify。
