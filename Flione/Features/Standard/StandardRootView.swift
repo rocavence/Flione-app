@@ -41,13 +41,8 @@ struct StandardRootView: View {
         .overlay(alignment: .topTrailing) { ViewControls() }
         .overlay {
             if app.isSearchPresented {
-                ZStack(alignment: .top) {
-                    Color.black.opacity(0.35).ignoresSafeArea().onTapGesture { app.isSearchPresented = false }
-                    SearchPalette(onOpenAlbum: { router.openAlbum($0) }, onOpenArtist: { router.openArtist(id: $0.id, name: $0.name) },
-                                  onOpenPlaylist: { router.open(.playlist($0)) })
-                        .padding(.top, 80)
-                }
-                .transition(.opacity)
+                SearchOverlay(onOpenAlbum: { router.openAlbum($0) }, onOpenArtist: { router.openArtist(id: $0.id, name: $0.name) },
+                              onOpenPlaylist: { router.open(.playlist($0)) })
             }
         }
         .animation(Motion.respecting(reduceMotion, Motion.micro), value: app.isSearchPresented)

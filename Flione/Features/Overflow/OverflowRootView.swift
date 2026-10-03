@@ -220,17 +220,12 @@ struct OverflowRootView: View {
     }
 
     private var searchOverlay: some View {
-        ZStack(alignment: .top) {
-            Color.black.opacity(0.45).onTapGesture { app.isSearchPresented = false }
-            SearchPalette(onOpenAlbum: { openAlbum = $0 }, onOpenArtist: { artist in
-                // Overflow 沒有藝人頁：開該藝人最新的專輯
-                Task {
-                    if let album = try? await app.repository?.albums(byArtist: artist.id).first { openAlbum = album }
-                }
-            })
-            .padding(.top, 96)
-        }
-        .transition(.opacity)
+        SearchOverlay(onOpenAlbum: { openAlbum = $0 }, onOpenArtist: { artist in
+            // Overflow 沒有藝人頁：開該藝人最新的專輯
+            Task {
+                if let album = try? await app.repository?.albums(byArtist: artist.id).first { openAlbum = album }
+            }
+        })
     }
 
     private func play(_ album: Album) {
@@ -340,38 +335,37 @@ private struct MagicSortMenu: View {
     let onSelect: (MagicSort?) -> Void
 
     var body: some View {
-        // 外觀自己畫（borderless Menu 會把圖示染成黑色），Menu 只負責點擊與選單
-        HStack(spacing: Spacing.s4) {
-            FinifyIcon(.wandSparkle, weight: selection == nil ? .outline : .filled, size: .compact)
-            Text(selection?.rawValue ?? "Magic").finifyFont(.caption)
-        }
-        .foregroundStyle(selection == nil ? FinifyColor.Overflow.muted : FinifyColor.Overflow.ink)
-        .padding(.horizontal, Spacing.s12)
-        .frame(height: 34)
-        .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
-        // 啟用中：膠囊外圈一道細橘光
-        .overlay { if selection != nil { Capsule().strokeBorder(FinifyColor.orange.opacity(0.7), lineWidth: 1).finifyGlow(radius: 5) } }
-        .overlay {
-            Menu {
-                ForEach(MagicSort.allCases, id: \.self) { option in
-                    // Toggle 在選單裡會顯示勾選；再點一次同一項也會重新套用（Shuffle 重洗）
-                    Toggle(isOn: Binding(get: { selection == option }, set: { _ in onSelect(option) })) {
-                        Text(option.rawValue)
-                        Text(option.subtitle)
-                    }
+        // Menu 直接包住自己畫的膠囊。原本把透明的 Menu 疊在膠囊上，選單位置偏掉，點選項也會穿過去打到封面牆
+        Menu {
+            ForEach(MagicSort.allCases, id: \.self) { option in
+                // Toggle 在選單裡會顯示勾選；再點一次同一項也會重新套用（Shuffle 重洗）
+                Toggle(isOn: Binding(get: { selection == option }, set: { _ in onSelect(option) })) {
+                    Text(option.rawValue)
+                    Text(option.subtitle)
                 }
-                if selection != nil {
-                    Divider()
-                    Button("Turn Off Magic") { onSelect(nil) }
-                }
-            } label: {
-                Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
+            if selection != nil {
+                Divider()
+                Button("Turn Off Magic") { onSelect(nil) }
+            }
+        } label: {
+            HStack(spacing: Spacing.s4) {
+                FinifyIcon(.wandSparkle, weight: selection == nil ? .outline : .filled, size: .compact)
+                Text(selection?.rawValue ?? "Magic").finifyFont(.caption)
+            }
+            .foregroundStyle(selection == nil ? FinifyColor.Overflow.muted : FinifyColor.Overflow.ink)
+            .padding(.horizontal, Spacing.s12)
+            .frame(height: 34)
+            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+            // 啟用中：膠囊外圈一道細橘光
+            .overlay { if selection != nil { Capsule().strokeBorder(FinifyColor.orange.opacity(0.7), lineWidth: 1).finifyGlow(radius: 5) } }
+            .contentShape(Capsule())
         }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
         .help("Magic sort: rearrange your library by color, genre, era, or chance")
-        .accessibilityElement(children: .combine)
         .accessibilityLabel(selection.map { "Magic sort, \($0.rawValue)" } ?? "Magic sort")
     }
 }

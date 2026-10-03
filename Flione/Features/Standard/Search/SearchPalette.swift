@@ -48,23 +48,52 @@ enum SearchItem: Identifiable {
     }
 }
 
-/// ⌘K 搜尋面板。Standard 與 Overflow 共用（D08）。
-struct SearchPalette: View {
+/// ⌘K 搜尋的全畫面浮層：其他地方暗下來，搜尋框固定在畫面正中央，結果往下展開。Standard 與 Overflow 共用
+struct SearchOverlay: View {
     let onOpenAlbum: (Album) -> Void
     let onOpenArtist: (Artist) -> Void
     var onOpenPlaylist: ((Playlist) -> Void)?
     @Environment(AppEnvironment.self) private var app
+
+    var body: some View {
+        GeometryReader { geo in
+            let top = max(Spacing.s32, geo.size.height / 2 - SearchPalette.fieldHeight / 2)
+            ZStack(alignment: .top) {
+                Color.black.opacity(0.55)
+                    .contentShape(Rectangle())
+                    .onTapGesture { app.isSearchPresented = false }
+                SearchPalette(onOpenAlbum: onOpenAlbum, onOpenArtist: onOpenArtist, onOpenPlaylist: onOpenPlaylist,
+                              maxResultsHeight: max(160, geo.size.height - top - SearchPalette.fieldHeight - Spacing.s32))
+                    .padding(.top, top)
+            }
+        }
+        .ignoresSafeArea()
+        .transition(.opacity)
+    }
+}
+
+/// ⌘K 搜尋面板。Standard 與 Overflow 共用（D08）。
+struct SearchPalette: View {
+    static let fieldHeight: CGFloat = 72
+
+    let onOpenAlbum: (Album) -> Void
+    let onOpenArtist: (Artist) -> Void
+    var onOpenPlaylist: ((Playlist) -> Void)?
+    var maxResultsHeight: CGFloat = 460
+    @Environment(AppEnvironment.self) private var app
     @State private var model = SearchViewModel()
     @FocusState private var fieldFocused: Bool
+    /// 結果的實際高度：結果少時面板跟著縮，不留一大塊空白
+    @State private var resultsHeight: CGFloat = 0
 
     var body: some View {
         @Bindable var model = model
         VStack(spacing: 0) {
             HStack(spacing: Spacing.s12) {
-                FinifyIcon(.search, size: .standard).foregroundStyle(FinifyColor.muted)
+                FinifyIcon(.search, size: .primary).foregroundStyle(FinifyColor.muted)
                 TextField("", text: $model.query, prompt: Text("Search artists, albums, and songs"))
                     .textFieldStyle(.plain)
-                    .font(.system(size: 17))
+                    .font(.system(size: 24, weight: .medium))
                     .focused($fieldFocused)
                     .onChange(of: model.query) { model.queryChanged(app.repository) }
                     .onKeyPress(.downArrow) { move(1); return .handled }
@@ -74,21 +103,24 @@ struct SearchPalette: View {
                     FinifyIconButton(icon: .x, label: "Clear search", size: .compact) { model.query = "" }
                 }
             }
-            .padding(.horizontal, Spacing.s16)
-            .frame(height: 56)
+            .padding(.horizontal, Spacing.s24)
+            .frame(height: Self.fieldHeight)
 
             if model.results != nil {
                 FinifyColor.hairline.frame(height: 1)
                 resultsView
-                    .frame(maxHeight: 460)
+                    .frame(maxHeight: min(460, maxResultsHeight))
             }
         }
-        .frame(width: 640)
+        .frame(width: 720)
         .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous), tint: FinifyColor.elevated.opacity(0.4), backing: FinifyColor.elevated.opacity(0.75),
                      fallback: FinifyColor.elevated)
         .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.3), radius: 40, y: 20))
+        .defaultFocus($fieldFocused, true)
         .onAppear {
             fieldFocused = true
+            // 浮層出現的同一個 frame 設定焦點有時不生效，下一輪再設一次，確保游標在輸入框
+            Task { @MainActor in fieldFocused = true }
             #if DEBUG || BENCHMARK
             if let term = DebugDemo.searchTerm, model.query.isEmpty { model.query = term }
             #endif
@@ -130,7 +162,9 @@ struct SearchPalette: View {
                         }
                     }
                     .padding(Spacing.s8)
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { resultsHeight = $0 }
                 }
+                .frame(maxHeight: resultsHeight)
                 .onChange(of: model.selection) {
                     let items = model.flatItems
                     if items.indices.contains(model.selection) { proxy.scrollTo(items[model.selection].id) }

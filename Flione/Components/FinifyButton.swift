@@ -87,12 +87,13 @@ struct FinifyButtonStyle: ButtonStyle {
     }
 }
 
-/// 只有 icon 的按鈕。`isActive` 時改用 Filled + accent（例如 shuffle 開啟）。
+/// 只有 icon 的按鈕。`isActive` 時改用 Filled + `activeColor`（預設 Flione Blue；shuffle、repeat 用橘色）。
 struct FinifyIconButton: View {
     let icon: Reicon
     let label: String
     var size: FinifyIcon.Size = .standard
     var isActive = false
+    var activeColor: Color = FinifyColor.accent
     /// 主要播放按鈕：實心圓底
     var prominent = false
     let action: () -> Void
@@ -119,7 +120,7 @@ struct FinifyIconButton: View {
 
     private var foreground: Color {
         if prominent { return overflow ? FinifyColor.Overflow.background : FinifyColor.onPrimary }
-        if isActive { return FinifyColor.accent }
+        if isActive { return activeColor }
         let base = overflow ? FinifyColor.Overflow.ink : FinifyColor.ink
         return hovering ? base : base.opacity(0.72)
     }

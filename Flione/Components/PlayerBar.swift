@@ -98,17 +98,19 @@ struct PlaybackControls: View {
     var body: some View {
         let player = app.player
         HStack(spacing: Spacing.s12) {
-            FinifyIconButton(icon: .shuffle, label: shuffleLabel, size: .compact, isActive: player.isShuffled) {
+            FinifyIconButton(icon: .shuffle, label: shuffleLabel, size: .compact, isActive: player.isShuffled, activeColor: FinifyColor.orange) {
                 Haptics.perform(.toggle)
                 player.toggleShuffle()
             }
             // Smart Shuffle：在 shuffle 圖示右上角加一個小點
             .overlay(alignment: .topTrailing) {
                 if player.isSmartShuffle {
-                    Circle().fill(FinifyColor.accent).frame(width: 5, height: 5).offset(x: -4, y: 5).allowsHitTesting(false)
+                    Circle().fill(FinifyColor.orange).frame(width: 5, height: 5).offset(x: -4, y: 5).allowsHitTesting(false)
                 }
             }
             .help(shuffleLabel)
+            // shuffle、repeat 與主要控制（上一首、播放／暫停、下一首）拉開距離
+            .padding(.trailing, Spacing.s16)
             FinifyIconButton(icon: .skipPrev, label: "Previous", size: size) {
                 Haptics.perform(.playback)
                 player.previous()
@@ -121,10 +123,11 @@ struct PlaybackControls: View {
                 Haptics.perform(.playback)
                 player.next()
             }
-            FinifyIconButton(icon: player.repeatMode == .one ? .repeatOne : .repeat, label: repeatLabel, size: .compact, isActive: player.repeatMode != .off) {
+            FinifyIconButton(icon: player.repeatMode == .one ? .repeatOne : .repeat, label: repeatLabel, size: .compact, isActive: player.repeatMode != .off, activeColor: FinifyColor.orange) {
                 Haptics.perform(.toggle)
                 player.cycleRepeat()
             }
+            .padding(.leading, Spacing.s16)
         }
         .disabled(player.currentTrack == nil)
     }
