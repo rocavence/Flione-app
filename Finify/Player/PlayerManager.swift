@@ -36,6 +36,10 @@ final class PlayerManager {
 
     var currentTrack: Track? { queue.current }
     var isShuffled: Bool { queue.isShuffled }
+    /// Smart Shuffle：shuffle 之外，每隔幾首插入 Jellyfin Instant Mix 推薦的歌（見 D18）
+    private(set) var isSmartShuffle = false
+    @ObservationIgnored private var refillingSuggestions = false
+    private static let suggestEvery = 3
     var repeatMode: RepeatMode { queue.repeatMode }
     var progress: Double { duration > 0 ? currentTime / duration : 0 }
 
@@ -118,6 +122,7 @@ final class PlayerManager {
         guard !tracks.isEmpty else { return }
         reportStopped()
         let mode = queue.repeatMode
+        isSmartShuffle = false
         queue = PlayQueue(tracks: tracks, startAt: index, shuffled: shuffled)
         queue.repeatMode = mode
         consecutiveFailures = 0
@@ -169,8 +174,28 @@ final class PlayerManager {
         player.seek(to: CMTime(seconds: seconds, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero)
     }
 
+    /// 依序切換：關 → shuffle → Smart Shuffle → 關
     func toggleShuffle() {
-        queue.setShuffle(!queue.isShuffled)
+        if isSmartShuffle {
+            isSmartShuffle = false
+            queue.setShuffle(false)
+        } else if queue.isShuffled {
+            isSmartShuffle = true
+            Task { await refillSuggestions() }
+        } else {
+            queue.setShuffle(true)
+        }
+        refreshNextItem()
+    }
+
+    /// 接下來的推薦少於 2 首時，用目前這首歌向 Jellyfin 要 Instant Mix 再補
+    private func refillSuggestions() async {
+        guard isSmartShuffle, !refillingSuggestions, let track = currentTrack, let repository,
+              queue.upcomingEntries.filter(\.suggested).count < 2 else { return }
+        refillingSuggestions = true
+        defer { refillingSuggestions = false }
+        guard let mix = try? await repository.instantMix(forTrack: track.id, limit: 30), isSmartShuffle else { return }
+        queue.blendSuggestions(mix, every: Self.suggestEvery)
         refreshNextItem()
     }
 
@@ -346,6 +371,7 @@ final class PlayerManager {
         guard let track = currentTrack else { return }
         reportedTrack = track
         onTrackChange?(track)
+        if isSmartShuffle { Task { await refillSuggestions() } }
         if let item = player.currentItem { observeFailure(of: item) }
         #if DEBUG || BENCHMARK
         guard reportsPlayback else { return }

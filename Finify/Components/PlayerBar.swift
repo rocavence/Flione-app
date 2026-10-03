@@ -99,9 +99,16 @@ struct PlaybackControls: View {
     var body: some View {
         let player = app.player
         HStack(spacing: Spacing.s12) {
-            FinifyIconButton(icon: .shuffle, label: player.isShuffled ? "Shuffle on" : "Shuffle off", size: .compact, isActive: player.isShuffled) {
+            FinifyIconButton(icon: .shuffle, label: shuffleLabel, size: .compact, isActive: player.isShuffled) {
                 player.toggleShuffle()
             }
+            // Smart Shuffle：在 shuffle 圖示右上角加一個小點
+            .overlay(alignment: .topTrailing) {
+                if player.isSmartShuffle {
+                    Circle().fill(FinifyColor.accent).frame(width: 5, height: 5).offset(x: -4, y: 5).allowsHitTesting(false)
+                }
+            }
+            .help(shuffleLabel)
             FinifyIconButton(icon: .skipPrev, label: "Previous", size: size) { player.previous() }
             FinifyIconButton(icon: player.isPlaying ? .pause : .play, label: player.isPlaying ? "Pause" : "Play", size: size, prominent: true) {
                 player.togglePlayPause()
@@ -112,6 +119,11 @@ struct PlaybackControls: View {
             }
         }
         .disabled(player.currentTrack == nil)
+    }
+
+    private var shuffleLabel: String {
+        let player = app.player
+        return player.isSmartShuffle ? "Smart Shuffle on (adds similar songs)" : player.isShuffled ? "Shuffle on" : "Shuffle off"
     }
 
     private var repeatLabel: String {
@@ -175,7 +187,8 @@ struct QueuePanel: View {
                         label("Next").padding(.top, embedded ? 0 : Spacing.s16)
                         ForEach(Array(player.queue.upcomingEntries.enumerated()), id: \.element.id) { offset, entry in
                             let track = entry.track
-                            TrackRow(track: track, showsArtwork: true, onPlay: { player.jump(toQueuePosition: player.queue.index + 1 + offset) })
+                            TrackRow(track: track, showsArtwork: true, suggested: entry.suggested,
+                                     onPlay: { player.jump(toQueuePosition: player.queue.index + 1 + offset) })
                                 .opacity(dragging == offset ? 0.4 : 1)
                                 .onDrag {
                                     dragging = offset

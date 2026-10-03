@@ -4,10 +4,13 @@ import Foundation
 struct QueueEntry: Identifiable, Hashable, Sendable {
     let id: UUID
     let track: Track
+    /// Smart Shuffle 插入的推薦曲目
+    let suggested: Bool
 
-    init(_ track: Track) {
+    init(_ track: Track, suggested: Bool = false) {
         id = UUID()
         self.track = track
+        self.suggested = suggested
     }
 }
 
@@ -24,7 +27,7 @@ struct PlayQueue: Sendable {
     init() {}
 
     init(tracks: [Track], startAt: Int = 0, shuffled: Bool = false) {
-        entries = tracks.map(QueueEntry.init)
+        entries = tracks.map { QueueEntry($0) }
         original = entries
         index = min(max(0, startAt), max(0, entries.count - 1))
         if shuffled { setShuffle(true) }
@@ -75,19 +78,55 @@ struct PlayQueue: Sendable {
             entries = [current] + rest.shuffled()
             index = 0
         } else {
-            entries = original
-            index = original.firstIndex(of: current) ?? 0
+            var restored = original
+            if let position = original.firstIndex(of: current) {
+                index = position
+            } else {
+                // 正在播的是推薦曲目（不在原始順序裡）：接在最後一首已播過的原始曲目後面
+                let played = entries[..<index].last { original.contains($0) }
+                let at = played.flatMap { original.firstIndex(of: $0) }.map { $0 + 1 } ?? 0
+                restored.insert(current, at: at)
+                index = at
+            }
+            entries = restored
         }
     }
 
+    /// Smart Shuffle：「接下來」每隔 `every` 首插入一首推薦，已在佇列裡的歌不重複；
+    /// 接下來的歌不夠時，再接幾首在最後，讓音樂不會停。推薦只放在播放順序，不進原始順序，所以關掉 shuffle 就會消失。
+    mutating func blendSuggestions(_ tracks: [Track], every: Int) {
+        guard every > 0, currentEntry != nil else { return }
+        var seen = Set(entries.map(\.track.id))
+        var pool = tracks.filter { seen.insert($0.id).inserted }.map { QueueEntry($0, suggested: true) }
+        guard !pool.isEmpty else { return }
+        var result: [QueueEntry] = []
+        var sinceSuggestion = 0
+        for entry in upcomingEntries {
+            result.append(entry)
+            sinceSuggestion = entry.suggested ? 0 : sinceSuggestion + 1
+            if sinceSuggestion == every, !pool.isEmpty {
+                result.append(pool.removeFirst())
+                sinceSuggestion = 0
+            }
+        }
+        result += pool.prefix(every)
+        entries = Array(entries[...index]) + result
+        isShuffled = true
+    }
+
+    /// 移除尚未播放的推薦曲目
+    mutating func removeUpcomingSuggestions() {
+        entries = Array(entries[...index]) + upcomingEntries.filter { !$0.suggested }
+    }
+
     mutating func append(_ tracks: [Track]) {
-        let new = tracks.map(QueueEntry.init)
+        let new = tracks.map { QueueEntry($0) }
         entries += new
         original += new
     }
 
     mutating func insertNext(_ tracks: [Track]) {
-        let new = tracks.map(QueueEntry.init)
+        let new = tracks.map { QueueEntry($0) }
         let at = entries.isEmpty ? 0 : index + 1
         entries.insert(contentsOf: new, at: at)
         if let current = currentEntry, let originalIndex = original.firstIndex(of: current) {

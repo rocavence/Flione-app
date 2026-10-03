@@ -104,6 +104,8 @@ struct TrackRow: View {
     var showsAlbum = false
     /// 專輯頁中，曲目藝人與專輯藝人相同時不重複顯示
     var showsArtist = true
+    /// Smart Shuffle 加入的推薦曲目（佇列中顯示「Suggested」）
+    var suggested = false
     let onPlay: () -> Void
     var onOpenAlbum: (() -> Void)?
     var onOpenArtist: (() -> Void)?
@@ -145,11 +147,21 @@ struct TrackRow: View {
                     .finifyFont(.body)
                     .foregroundStyle(isCurrent ? FinifyColor.accent : FinifyColor.ink)
                     .lineLimit(1)
-                if showsArtist {
-                    Text(track.artistName)
-                        .finifyFont(.caption)
-                        .foregroundStyle(FinifyColor.muted)
-                        .lineLimit(1)
+                if showsArtist || suggested {
+                    HStack(spacing: Spacing.s4) {
+                        if suggested {
+                            FinifyIcon(.shuffle, size: .compact)
+                                .scaleEffect(0.7)
+                                .frame(width: 12, height: 12)
+                                .foregroundStyle(FinifyColor.accent)
+                                .help("Suggested by Smart Shuffle")
+                                .accessibilityLabel("Suggested")
+                        }
+                        if showsArtist { Text(track.artistName) }
+                    }
+                    .finifyFont(.caption)
+                    .foregroundStyle(FinifyColor.muted)
+                    .lineLimit(1)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

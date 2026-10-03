@@ -117,3 +117,44 @@ final class LyricsTests: XCTestCase {
         XCTAssertNil(lyrics.currentLineIndex(at: 10))
     }
 }
+
+// MARK: - Smart Shuffle
+
+extension PlayQueueTests {
+    private func mix(_ ids: [String]) -> [Track] {
+        ids.map { Track(id: $0, name: $0, albumID: nil, albumName: "", artistName: "", artistID: nil, trackNumber: nil, discNumber: nil,
+                        duration: 1, container: nil, artwork: nil) }
+    }
+
+    func testSmartShuffleInsertsSuggestionEveryNAndSkipsDuplicates() {
+        var q = PlayQueue(tracks: tracks(7), startAt: 0)
+        q.setShuffle(true)
+        let existing = q.tracks[3].id
+        q.blendSuggestions(mix(["s1", existing, "s2", "s3", "s4", "s5"]), every: 3)
+        let pattern = q.upcomingEntries.map(\.suggested)
+        // 6 首原本的歌：每 3 首後插一首，最後再接 3 首讓音樂不停
+        XCTAssertEqual(pattern, [false, false, false, true, false, false, false, true, true, true, true])
+        XCTAssertEqual(q.upcomingEntries.filter(\.suggested).map(\.track.id), ["s1", "s2", "s3", "s4", "s5"])
+    }
+
+    func testTurningShuffleOffDropsSuggestionsButKeepsSuggestedCurrentTrack() {
+        var q = PlayQueue(tracks: tracks(4), startAt: 0)
+        q.setShuffle(true)
+        q.blendSuggestions(mix(["s1", "s2"]), every: 1)
+        let suggestedPosition = q.entries.firstIndex { $0.suggested }!
+        q.jump(to: suggestedPosition)
+        q.setShuffle(false)
+        XCTAssertEqual(q.current?.id, "s1")
+        XCTAssertEqual(q.tracks.filter { $0.id.hasPrefix("s") }.map(\.id), ["s1"])
+        XCTAssertEqual(q.tracks.count, 5)
+    }
+
+    func testRemoveUpcomingSuggestions() {
+        var q = PlayQueue(tracks: tracks(3), startAt: 0)
+        q.setShuffle(true)
+        q.blendSuggestions(mix(["s1", "s2"]), every: 1)
+        q.removeUpcomingSuggestions()
+        XCTAssertFalse(q.upcomingEntries.contains { $0.suggested })
+        XCTAssertEqual(q.upcoming.count, 2)
+    }
+}

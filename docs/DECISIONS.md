@@ -120,3 +120,10 @@
 * **選擇**：macOS 26 以上，Overflow 的浮動播放列、頂部分段控制、Flow 大小滑桿、回到正在播放按鈕、專輯面板，以及 Standard Hero 上的 Shuffle，改用系統的 Liquid Glass（`.glassEffect`），並帶一點深藍色調，維持 Finity 的深色氣氛。macOS 14～15 退回原本的半透明深藍底加細邊。
 * **理由**：Finity 設計文件寫「玻璃是材質，不是裝飾」，且要避免每張卡片都像玻璃。這些元件都浮在封面上，玻璃能透出底下的顏色；一般頁面、側欄、清單維持實色。
 * **怎麼改**：`DesignSystem/Materials/Glass.swift` 的 `finifyGlass(in:tint:interactive:fallback:)`。
+
+## D18　Smart Shuffle 用 Jellyfin Instant Mix
+
+* **選擇**：隨機播放按鈕依序切換「關 → 隨機 → Smart Shuffle」。Smart Shuffle 會用目前這首歌向 Jellyfin 要 Instant Mix（相似曲目），在「接下來」每 3 首插入 1 首，接下來不夠時再接 3 首在最後，讓音樂不會停；推薦少於 2 首時自動再補。推薦曲目在佇列中以藍色 shuffle 小圖示標示。
+* **理由**：Kaset 的 Smart Shuffle 是穿插 YouTube 的推薦；Jellyfin 有現成的 Instant Mix，不用自己算相似度。
+* **規則**：推薦只放在播放順序，不進原始順序，所以關掉隨機播放就會消失（若正在播推薦曲目，會保留這一首）。播放新的專輯或清單時，Smart Shuffle 會關閉。
+* **怎麼改**：`PlayQueue.blendSuggestions`（測試在 `PlayQueueTests`）、`PlayerManager.toggleShuffle`／`refillSuggestions`，每幾首插一首在 `suggestEvery`。

@@ -111,7 +111,7 @@ struct FinifyCommands: Commands {
             Button("Previous") { app.player.previous() }
                 .keyboardShortcut(.leftArrow, modifiers: .command)
             Divider()
-            Button(app.player.isShuffled ? "Turn Off Shuffle" : "Shuffle") { app.player.toggleShuffle() }
+            Button(app.player.isSmartShuffle ? "Turn Off Shuffle" : app.player.isShuffled ? "Smart Shuffle" : "Shuffle") { app.player.toggleShuffle() }
                 .keyboardShortcut("s", modifiers: [.command, .option])
             Button("Repeat") { app.player.cycleRepeat() }
                 .keyboardShortcut("r", modifiers: [.command, .option])
