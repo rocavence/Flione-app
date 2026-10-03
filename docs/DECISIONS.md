@@ -324,5 +324,6 @@
 * **伺服器位址**：裝置自己向 Jellyfin 抓音樂。Flione 用的位址裝置不一定連得到（例如 Tailscale 的 100.x），設定 → 音樂來源可填「投放用的伺服器位址」，串流與封面網址會換成這個位址。
 * **連不到時**：裝置關機或待機時，連線會一直停在「準備中」；8 秒沒連上就放棄、提示，並回到 Mac 繼續播放。投放中斷線則停在原位置，不突然從 Mac 出聲。
 * **限制**：YouTube Music 不支援（音訊在網頁播放器裡，沒有網址可以交給裝置）。Info.plist 宣告 `NSLocalNetworkUsageDescription` 與 `NSBonjourServices`（macOS 15 以上的區域網路權限）；說明文字目前只有英文。
+* **安全取捨**：TLS 不驗證裝置憑證。Cast 裝置的 TLS 憑證是自簽的，而且會定期更換，所以「第一次記住憑證」也不可行；Google 的 sender 是另外用裝置認證（`urn:x-cast:com.google.cast.tp.deviceauth`，憑證鏈到 Google 的 Cast 根憑證）確認對方。目前沒有實作裝置認證：同一個區域網路上若有人偽裝成 Cast 裝置、使用者又選了它，對方可以拿到含 Jellyfin 存取權杖的串流網址。家用網路風險低，公共網路不建議投放。要補強時實作 deviceauth，在送出 LOAD 之前驗證。
 * **驗證**：DEBUG 參數 `-FinifyDemoCastProbe <檔案>` 只連線並詢問接收器狀態（不開啟 app、不喚醒電視）；`-FinifyDemoCastTo <秒>` 幾秒後投放到第一台裝置。
 * **怎麼改**：`Core/Cast/`、`Player/RemotePlayback.swift`、`Components/CastButton.swift`。
