@@ -39,7 +39,8 @@ struct FinifyApp: App {
                 .environment(app)
                 .tint(FinifyColor.accent)
         } label: {
-            Image("Reicon/music-note.\(app.player.isPlaying ? "filled" : "outline")")
+            // 平常是 template（跟著選單列變黑／白），播放中換成 Finity Blue 加小點
+            Image(app.player.isPlaying ? "MenuBarIconPlaying" : "MenuBarIcon")
                 .accessibilityLabel("Finify")
         }
         .menuBarExtraStyle(.window)

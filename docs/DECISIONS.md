@@ -64,11 +64,12 @@
 * **Overflow**：背景改為 Ink #080D20，浮動控制也帶藍調，但仍維持「封面是主角」。
 * **怎麼改**：全部集中在 `DesignSystem/Colors/FinifyColor.swift`。
 
-## D10　App icon（暫定）
+## D10　App icon 與選單列 icon（Finity）
 
-* **選擇**：3×3 專輯格，亮起的 6 格組成「F」，Ember 漸層。
-* **理由**：呼應 Album Wall，16px 也辨識得出。這是暫定版，正式品牌設計時可直接替換。
-* **怎麼改**：`scripts/icon/make-icon.swift` 產生 1024px 原圖，再輸出到 `Assets.xcassets/AppIcon.appiconset`；或直接把設計好的 PNG 放進該資料夾。
+* **字形**：兩道水滴筆畫組成的「F」。主筆畫從底部圓頭往上，在左上圓轉角成為頂橫，收成水滴尖尾；中橫是較短的水滴。app icon 與選單列共用同一份字形。
+* **App icon**：Aurora 漸層底（左下深藍 → Finity Blue → 右上紫，右上一團粉白光），F 是半透明凝膠玻璃：上亮下透、左下內緣偏藍有厚度、右上高光、底下有深藍柔影與透光。16px 仍認得出 F。
+* **選單列**：18pt 畫布、字形高 16pt，描邊 0.5pt 讓筆畫重量接近系統 icon。平常是 template（淺色選單列黑、深色白）；播放中換成 Electric Blue（#3E7CF6）並在右下加一個小點。沒有做 hover 的淺灰，那是系統管的。
+* **怎麼改**：`scripts/icon/make-icon.swift`（`app`、`menubar`、`glyph` 三種輸出），字形在 `glyph()`。app icon 用 `sips` 縮成 `AppIcon.appiconset` 的各尺寸；選單列直接寫入 `MenuBarIcon`／`MenuBarIconPlaying` imageset。
 
 ## D11　Album Wall 的點擊行為
 
