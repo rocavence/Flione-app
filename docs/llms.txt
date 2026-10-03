@@ -5,7 +5,7 @@
 - Platform: macOS 14 (Sonoma) or later
 - Version: 0.8.0
 - Price: Free
-- Download: https://github.com/rocavence/Flione-app/releases/latest (not notarized; run `xattr -dr com.apple.quarantine /Applications/Flione.app` before first launch)
+- Download: https://github.com/rocavence/Flione-app/releases/latest (.dmg; not notarized; run `xattr -dr com.apple.quarantine /Applications/Flione.app && open /Applications/Flione.app` in Terminal before first launch)
 - Author: rocavence (https://github.com/rocavence)
 - Source code: https://github.com/rocavence/Flione-app
 - Website: https://flione.rocavence.com

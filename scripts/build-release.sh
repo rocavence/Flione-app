@@ -1,7 +1,7 @@
 #!/bin/zsh
 # 建置 Release 版 Flione.app 並打包成 zip（本機簽章，未公證）。
 # 這是測試版：本機有 repo 的 .secrets 時自動登入（DEV_LOGIN）。要給別人的正式版用 FINIFY_PUBLIC=1 建置。
-# 用法：scripts/build-release.sh   輸出：dist/Flione.app、dist/Flione-<版本>.zip
+# 用法：scripts/build-release.sh   輸出：dist/Flione.app、dist/Flione-<版本>.dmg
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -18,6 +18,11 @@ APP=build-release/Build/Products/Release/Flione.app
 VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist")
 rm -rf dist && mkdir -p dist
 cp -R "$APP" dist/
-ditto -c -k --keepParent dist/Flione.app "dist/Flione-$VERSION.zip"
-echo "完成：dist/Flione.app、dist/Flione-$VERSION.zip"
+# dmg：Flione.app 旁邊放「應用程式」的捷徑，打開後直接拖進去
+STAGE=$(mktemp -d)
+cp -R dist/Flione.app "$STAGE/"
+ln -s /Applications "$STAGE/Applications"
+hdiutil create -volname "Flione $VERSION" -srcfolder "$STAGE" -fs HFS+ -format UDZO -ov "dist/Flione-$VERSION.dmg" >/dev/null
+rm -rf "$STAGE"
+echo "完成：dist/Flione.app、dist/Flione-$VERSION.dmg"
 echo "未經 Apple 公證；在其他 Mac 第一次開啟前先執行 xattr -dr com.apple.quarantine Flione.app，或到「系統設定 → 隱私權與安全性」按「強制打開」。"
