@@ -275,8 +275,8 @@ private struct NowPlayingPill: View {
                     ProgressBar(value: app.player.progress) { app.player.seek(to: $0 * app.player.duration) }
                         .frame(width: 300)
                 }
-                FinifyIconButton(icon: .notes2, label: "Lyrics", isActive: app.isLyricsPresented) { app.isLyricsPresented.toggle() }
                 FinifyIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) { app.isQueuePresented.toggle() }
+                FinifyIconButton(icon: .notes2, label: "Lyrics", isActive: app.isLyricsPresented) { app.isLyricsPresented.toggle() }
                 VolumeControl()
             }
             // 左右最邊緣留較寬的內距，控制不貼邊

@@ -32,17 +32,6 @@ struct FinifyIcon: View {
             .renderingMode(.template)
             .resizable()
             .frame(width: size.rawValue, height: size.rawValue)
-            .scaleEffect(icon.opticalScale)
             .accessibilityHidden(true)
-    }
-}
-
-extension Reicon {
-    /// 圖形幾乎塞滿 24×24 的 icon 縮小一點，與旁邊的 icon 看起來一樣大（例如歌詞與佇列並排）
-    var opticalScale: CGFloat {
-        switch self {
-        case .notes2: 0.85
-        default: 1
-        }
     }
 }

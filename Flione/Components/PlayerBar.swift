@@ -31,15 +31,15 @@ struct PlayerBar: View {
             .frame(maxWidth: 520)
             Spacer(minLength: 0)
             HStack(spacing: Spacing.s8) {
-                FinifyIconButton(icon: .notes2, label: "Lyrics", isActive: app.isLyricsPresented) {
-                    app.isLyricsPresented.toggle()
-                }
-                .keyboardShortcut("l", modifiers: [.command, .option])
                 FinifyIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) {
                     app.isQueuePresented.toggle()
                 }
                 .keyboardShortcut("u", modifiers: [.command])
                     .disabled(app.player.currentTrack == nil)
+                FinifyIconButton(icon: .notes2, label: "Lyrics", isActive: app.isLyricsPresented) {
+                    app.isLyricsPresented.toggle()
+                }
+                .keyboardShortcut("l", modifiers: [.command, .option])
                 VolumeControl()
             }
             .frame(width: 280, alignment: .trailing)
