@@ -31,12 +31,21 @@ struct AlbumFlowView: View {
     }
     @FocusState private var focused: Bool
 
-    private let side: CGFloat = 340
+    /// 封面邊長，隨視窗大小調整（扣掉頂部列、標題與底部播放列）
+    @State private var side: CGFloat = 340
+    @State private var resizeAnchor: String?
+
+    private static func side(for size: CGSize) -> CGFloat {
+        let byHeight = size.height - 380
+        let byWidth = size.width * 0.34
+        return max(220, min(byHeight, byWidth, 900)).rounded()
+    }
 
     var body: some View {
         GeometryReader { geo in
             VStack(spacing: Spacing.s32) {
                 Spacer(minLength: 0)
+                ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: -side * 0.42) {
                         ForEach(albums) { album in
@@ -49,6 +58,15 @@ struct AlbumFlowView: View {
                 .contentMargins(.horizontal, (geo.size.width - side) / 2, for: .scrollContent)
                 .scrollTargetBehavior(.viewAligned)
                 .scrollPosition(id: $centerID, anchor: .center)
+                // 尺寸改變後 scroll view 不會自動保持置中，等版面更新後重新捲到目前的專輯
+                .onChange(of: side) {
+                    guard let id = resizeAnchor ?? centerID else { return }
+                    DispatchQueue.main.async {
+                        proxy.scrollTo(id, anchor: .center)
+                        centerID = id
+                        resizeAnchor = nil
+                    }
+                }
                 // 滑鼠按住左右拖曳：每拖過一張封面的距離就移動一張
                 .simultaneousGesture(DragGesture(minimumDistance: 6)
                     .onChanged { value in
@@ -66,9 +84,15 @@ struct AlbumFlowView: View {
                 .onKeyPress(.leftArrow) { step(-1); return .handled }
                 .onKeyPress(.rightArrow) { step(1); return .handled }
                 .onKeyPress(.return) { if let album = centered { onPlay(album) }; return .handled }
+                }
 
                 caption
                 Spacer(minLength: Spacing.s96)
+            }
+            .onChange(of: geo.size, initial: true) {
+                // 先記下目前置中的專輯：改尺寸時 scroll view 會回報新的位置，蓋掉原本的專輯
+                if resizeAnchor == nil { resizeAnchor = centerID }
+                side = Self.side(for: geo.size)
             }
         }
         .onAppear {
