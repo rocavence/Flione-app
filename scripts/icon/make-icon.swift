@@ -1,4 +1,4 @@
-// 產生 Finify 的 app icon 與選單列 icon（Finity 設計）
+// 產生 Flione 的 app icon 與選單列 icon（Finity 設計）
 // app icon：設計稿 scripts/icon/finity-icon-source.png 依 macOS icon 格線標準化——824×824 圓角方形置中於 1024 畫布，加上標準陰影。
 // 選單列：scripts/icon/menubar-glyph.svg（由 menubar-source.png 以 potrace 描出的向量路徑）。
 // 用法：

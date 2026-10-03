@@ -1,4 +1,4 @@
-# Finify 使用的 Reicon icon（名稱即 Reicon 原名）
+# Flione 使用的 Reicon icon（名稱即 Reicon 原名）
 # 新增 icon：加一行後執行 python3 scripts/reicon/generate.py
 
 # Navigation

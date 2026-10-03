@@ -1,8 +1,8 @@
-# Finify
+# Flione
 
 > Your Music. Your Server. Your Experience.
 
-Finify 是 Jellyfin 的 macOS 原生音樂播放器。兩種平級的使用模式：
+Flione 是 Jellyfin 的 macOS 原生音樂播放器（舊名 Finify；程式內部的型別前綴、bundle id 與啟動參數仍沿用 Finify）。兩種平級的使用模式：
 
 * **Standard**：完整的音樂 App，可瀏覽、搜尋、建立播放佇列。
 * **Overflow**：把整個音樂庫變成封面牆，以封面為主的沉浸式體驗。
@@ -17,18 +17,18 @@ Finify 是 Jellyfin 的 macOS 原生音樂播放器。兩種平級的使用模�
 ## 開始
 
 ```sh
-xcodegen generate          # 由 project.yml 產生 Finify.xcodeproj
-open Finify.xcodeproj      # 選 Finify scheme 執行
+xcodegen generate          # 由 project.yml 產生 Flione.xcodeproj
+open Flione.xcodeproj      # 選 Flione scheme 執行
 ```
 
-第一次啟動會要求連線 Jellyfin。Server 欄位可以只填主機名稱（例如 `mediabox`），Finify 會自動嘗試 `http://mediabox:8096`。
+第一次啟動會要求連線 Jellyfin。Server 欄位可以只填主機名稱（例如 `mediabox`），Flione 會自動嘗試 `http://mediabox:8096`。
 
-`Finify.xcodeproj` 不進版控；修改專案設定請改 `project.yml`。
+`Flione.xcodeproj` 不進版控；修改專案設定請改 `project.yml`。
 
 ## 測試
 
 ```sh
-xcodebuild -project Finify.xcodeproj -scheme Finify test
+xcodebuild -project Flione.xcodeproj -scheme Flione test
 ```
 
 `RepositoryIntegrationTests` 會連真實 server。需要在 repo 根目錄建立 `.secrets/`（已排除在 git 之外）：
@@ -43,7 +43,7 @@ xcodebuild -project Finify.xcodeproj -scheme Finify test
 ## 專案結構
 
 ```text
-Finify/
+Flione/
 ├── App/            進入點、AppEnvironment、選單快捷鍵
 ├── Core/
 │   ├── Jellyfin/   API client、DTO、MusicRepository

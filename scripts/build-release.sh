@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 xcodegen generate --quiet
 CONDITIONS=()
 [[ "${FINIFY_PUBLIC:-0}" == 1 ]] || CONDITIONS=(SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) DEV_LOGIN')
-xcodebuild -project Finify.xcodeproj -scheme Finify -configuration Release \
+xcodebuild -project Flione.xcodeproj -scheme Flione -configuration Release \
   -derivedDataPath build-release "${CONDITIONS[@]}" build | grep -E "error:|BUILD" || true
 
 APP=build-release/Build/Products/Release/Flione.app

@@ -1,5 +1,5 @@
 import XCTest
-@testable import Finify
+@testable import Flione
 
 final class JellyfinClientTests: XCTestCase {
     func testCandidateURLsForBareHostTryDefaultPortFirst() {

@@ -1,5 +1,5 @@
 import XCTest
-@testable import Finify
+@testable import Flione
 
 /// 對真實 server 驗證連續操作的順序問題。只用暫存 playlist，喜愛狀態測試後還原。
 @MainActor

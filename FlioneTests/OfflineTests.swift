@@ -1,5 +1,5 @@
 import XCTest
-@testable import Finify
+@testable import Flione
 
 /// 可設定成「server 離線」的假 repository，不需要真的關掉 server
 final class FakeRepository: MusicRepository, @unchecked Sendable {

@@ -17,8 +17,8 @@ DATA_URL = f"https://raw.githubusercontent.com/dqev/reicon/{REICON_COMMIT}/data/
 ROOT = Path(__file__).resolve().parents[2]
 ICON_LIST = ROOT / "scripts/reicon/icons.txt"
 CACHE = ROOT / ".cache/reicon" / f"icon-data-{REICON_COMMIT[:12]}.json"
-CATALOG = ROOT / "Finify/Resources/Assets.xcassets/Reicon"
-SWIFT_OUT = ROOT / "Finify/DesignSystem/Icons/Reicon+Generated.swift"
+CATALOG = ROOT / "Flione/Resources/Assets.xcassets/Reicon"
+SWIFT_OUT = ROOT / "Flione/DesignSystem/Icons/Reicon+Generated.swift"
 
 WEIGHTS = {"Outline": "outline", "Filled": "filled"}
 SWIFT_KEYWORDS = {"repeat", "default", "case", "in", "is", "as", "return", "self", "func", "var", "let"}

@@ -1,4 +1,4 @@
-name: Finify
+name: Flione
 options:
   bundleIdPrefix: app.finify
   deploymentTarget:
@@ -14,27 +14,25 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
 schemes:
-  Finify:
+  Flione:
     build:
       targets:
-        Finify: all
-        FinifyTests: [test]
+        Flione: all
+        FlioneTests: [test]
     test:
       targets:
-        - FinifyTests
+        - FlioneTests
 targets:
-  Finify:
+  Flione:
     type: application
     platform: macOS
     sources:
-      - Finify
+      - Flione
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.finify.Finify
         GENERATE_INFOPLIST_FILE: YES
-        # 對外名稱是 Flione；程式內部與 bundle id 仍是 Finify（換 bundle id 會讓設定與鑰匙圈資料全部遺失，見 D25）
-        PRODUCT_NAME: Flione
-        PRODUCT_MODULE_NAME: Finify
+        # bundle id 仍是 app.finify.Finify：換掉會讓設定、音樂庫快取與鑰匙圈資料全部遺失（D25）
         INFOPLIST_KEY_CFBundleDisplayName: Flione
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -45,26 +43,23 @@ targets:
         ENABLE_HARDENED_RUNTIME: YES
     # finify:// 網址（URLCommands.swift）；其餘 Info.plist 內容由 GENERATE_INFOPLIST_FILE 產生
     info:
-      path: Finify/Info.plist
+      path: Flione/Info.plist
       properties:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleURLTypes:
           - CFBundleURLName: app.finify.Finify
             CFBundleURLSchemes: [flione, finify]
-  FinifyTests:
+  FlioneTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - FinifyTests
+      - FlioneTests
     dependencies:
-      - target: Finify
+      - target: Flione
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
-        # 產品名稱是 Flione（target 仍叫 Finify），test host 要指到 Flione.app
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Flione.app/Contents/MacOS/Flione
-        BUNDLE_LOADER: $(TEST_HOST)
         # 測試 bundle 要和 app 同一個 Team，否則 hardened runtime 不讓它載入
         CODE_SIGN_STYLE: Manual
         CODE_SIGN_IDENTITY: "Apple Development: you@example.com (XXXXXXXXXX)"

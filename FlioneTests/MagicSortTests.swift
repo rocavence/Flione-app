@@ -1,5 +1,5 @@
 import XCTest
-@testable import Finify
+@testable import Flione
 
 final class MagicSortTests: XCTestCase {
     private func album(_ id: String, year: Int? = nil, genre: String? = nil) -> Album {

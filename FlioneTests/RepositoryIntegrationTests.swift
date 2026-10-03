@@ -1,5 +1,5 @@
 import XCTest
-@testable import Finify
+@testable import Flione
 
 /// 對真實 Jellyfin server 的整合測試。沒有 `.secrets/` 時自動略過。
 final class RepositoryIntegrationTests: XCTestCase {

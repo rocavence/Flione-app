@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct FinifyApp: App {
+struct FlioneApp: App {
     @NSApplicationDelegateAdaptor private var delegate: AppDelegate
     @State private var app = AppEnvironment.bootstrap()
     @State private var keyboard: KeyboardMonitor?

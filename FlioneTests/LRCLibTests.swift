@@ -1,5 +1,5 @@
 import XCTest
-@testable import Finify
+@testable import Flione
 
 final class LRCLibTests: XCTestCase {
     func testParsesTimestampsAndSkipsMetadata() throws {
