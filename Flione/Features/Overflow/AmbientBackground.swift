@@ -27,8 +27,8 @@ struct AmbientBackground: View {
                 }
             }
             .clipped()
-            // 壓暗並加上縱向漸層，確保前景文字對比
-            LinearGradient(colors: [.black.opacity(0.35), .black.opacity(0.7)], startPoint: .top, endPoint: .bottom)
+            // 壓暗並加上縱向漸層，確保前景文字對比。用 Abyss 而不是黑色，底色與 Modern 的深海藍一致，封面光暈照樣透出來
+            LinearGradient(colors: [FinifyColor.Ocean.abyss.opacity(0.35), FinifyColor.Ocean.abyss.opacity(0.7)], startPoint: .top, endPoint: .bottom)
         }
         .animation(reduceMotion ? nil : Motion.ambient, value: artwork)
         .drawingGroup()

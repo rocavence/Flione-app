@@ -216,3 +216,8 @@
 * **打開方式**：⌘,、選單「Settings…」、Modern 側欄的帳號選單；Esc 或點卡片外面關閉。三種模式都能開。
 * **開關**：自己畫，不用系統的 switch。系統的在視窗不在前景時會變灰，看不出開或關。
 * **怎麼改**：`Features/Settings/SettingsView.swift`（`SettingsCard`）。
+
+## D29　Infinity／Cover Flow 的底色與 Modern 一致
+
+* **選擇**：Infinity／Cover Flow 的背景保留模糊封面的光暈，但壓暗用的漸層從黑色改成 Abyss（`#061426`，Modern 深色模式的底色）。原本壓上黑色後底色偏黑棕，現在和 Modern 一樣是深海藍。
+* **怎麼改**：`Features/Overflow/AmbientBackground.swift`。
