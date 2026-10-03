@@ -12,3 +12,6 @@ xcuserdata/
 .secrets/
 build-*/
 dist/
+
+# 本機簽章憑證（Config/Signing.xcconfig 會 include）
+Config/Signing.local.xcconfig

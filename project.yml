@@ -29,6 +29,10 @@ targets:
     platform: macOS
     sources:
       - Flione
+    # 簽章設定在 Config/Signing.xcconfig；本機憑證放 Signing.local.xcconfig（不進版控，D21）
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.finify.Finify
@@ -40,10 +44,6 @@ targets:
         # 介面翻譯用 String Catalog（Resources/Localizable.xcstrings）；建置時抽出 Swift 裡的可翻譯字串
         SWIFT_EMIT_LOC_STRINGS: YES
         LOCALIZATION_PREFERS_STRING_CATALOGS: YES
-        # 用固定的開發者憑證簽章：ad-hoc（"-"）每次建置簽章都不同，鑰匙圈會一直要求輸入密碼（D21）
-        CODE_SIGN_STYLE: Manual
-        CODE_SIGN_IDENTITY: "Apple Development: you@example.com (XXXXXXXXXX)"
-        DEVELOPMENT_TEAM: XXXXXXXXXX
         ENABLE_HARDENED_RUNTIME: YES
     # finify:// 網址（URLCommands.swift）；其餘 Info.plist 內容由 GENERATE_INFOPLIST_FILE 產生
     info:
@@ -61,13 +61,13 @@ targets:
       - FlioneTests
     dependencies:
       - target: Flione
+    # 測試 bundle 要和 app 同一個簽章身分，否則 hardened runtime 不讓它載入
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
-        # 測試 bundle 要和 app 同一個 Team，否則 hardened runtime 不讓它載入
-        CODE_SIGN_STYLE: Manual
-        CODE_SIGN_IDENTITY: "Apple Development: you@example.com (XXXXXXXXXX)"
-        DEVELOPMENT_TEAM: XXXXXXXXXX
   # 技術驗證用，不隨 app 出貨
   AlbumWallSpike:
     type: application

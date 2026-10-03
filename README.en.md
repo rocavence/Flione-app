@@ -4,6 +4,8 @@
 
 A native macOS music player for Jellyfin and YouTube Music. Listen well, collect well: browse your music the modern way, and get lost in the album covers.
 
+Website: <https://flione.rocavence.com>
+
 <p align="center">
   <img src="Flione/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" width="160" alt="Flione icon">
 </p>
@@ -63,7 +65,7 @@ open Flione.xcodeproj      # run the Flione scheme
 
 On first launch, pick a music source on the sign-in screen. YouTube Music opens Google's sign-in window (passkeys don't work there; use your password and 2-Step Verification). For Jellyfin, you can enter just a host name (for example `mediabox`); Flione tries `http://mediabox:8096` for you.
 
-`Flione.xcodeproj` is not checked in; change project settings in `project.yml`. Code signing is set in `project.yml`; to build with your own certificate, change `CODE_SIGN_IDENTITY` and `DEVELOPMENT_TEAM`.
+`Flione.xcodeproj` is not checked in; change project settings in `project.yml`. Builds are ad-hoc signed by default. To sign with your own certificate, create `Config/Signing.local.xcconfig` (ignored by git) with `CODE_SIGN_IDENTITY` and `DEVELOPMENT_TEAM`; see `Config/Signing.xcconfig`.
 
 <details><summary>Tests</summary>
 

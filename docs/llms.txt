@@ -1,0 +1,32 @@
+# Flione
+
+> Flione is a native macOS music player for Jellyfin and YouTube Music. Tagline: "Listen well. Collect well." It offers three peer ways to browse a music library: Modern, Infinity, and Cover Flow.
+
+- Platform: macOS 14 (Sonoma) or later
+- Price: Free; build from source (no prebuilt releases yet)
+- Author: rocavence (https://github.com/rocavence)
+- Source code: https://github.com/rocavence/Flione-app
+- Website: https://flione.rocavence.com
+
+## The three views
+
+- Modern (⌘1): a complete music app with a Spotify-style sidebar. Home, albums, artists, songs, genres, playlists, favorites, ⌘K search, queue, synced lyrics, light and dark. Album pages glow with the colors of the cover.
+- Infinity (⌘2): the whole library as one endless wall of album covers. With Auto-scroll on, the wall keeps drifting slowly by itself; it also drifts gently when the pointer leaves the window. Pinch to resize (five sizes). Magic sort rearranges covers by color, genre, era, or chance.
+- Cover Flow (⌘3): inspired by the original Cover Flow from early Mac OS X. The center cover comes forward, the rest fan out, and the background glow follows the center album. Click the center cover to flip it and see the tracks.
+
+## Music sources
+
+- Jellyfin: your own self-hosted server. Gapless playback, Smart Shuffle (Instant Mix), genres, and playlist editing.
+- YouTube Music: sign in through a Google window inside Flione. Saved albums, liked songs, playlists, history, and search. Playback runs in a hidden web player. Uses the unofficial InnerTube API.
+- Pick a source on the sign-in screen and switch any time in Settings or from the sidebar account menu. Both sign-ins are kept.
+
+## Other features
+
+- Seven color themes; English and Traditional Chinese
+- Press Play and the UI responds instantly while tracks load in the background
+- Media keys, Now Playing, Dock menu, menu bar player, floating mini player
+- No Flione account, no analytics, no tracking
+
+## Name
+
+Flione = Jellyfin + Infinity + Clione (the sea angel). Jellyfin and Infinity share "fin", which gives the F; "lione" comes from Clione.

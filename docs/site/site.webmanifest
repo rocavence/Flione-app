@@ -1,0 +1,14 @@
+{
+  "name": "Flione",
+  "short_name": "Flione",
+  "description": "A native macOS music player for Jellyfin and YouTube Music.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#061426",
+  "theme_color": "#061426",
+  "icons": [
+    { "src": "/site/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/site/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/site/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

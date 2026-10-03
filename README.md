@@ -4,6 +4,8 @@
 
 Jellyfin 與 YouTube Music 的 macOS 原生音樂播放器。好好聽歌，也要好好蒐藏：用現代化的方式瀏覽，沉浸在音樂封面之中。
 
+官網：<https://flione.rocavence.com>
+
 <p align="center">
   <img src="Flione/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" width="160" alt="Flione icon">
 </p>
@@ -63,7 +65,7 @@ open Flione.xcodeproj      # 選 Flione scheme 執行
 
 第一次啟動時在登入畫面選擇音樂來源。選 YouTube Music 會開 Google 的登入視窗（通行金鑰無法使用，請用密碼與兩步驟驗證）。選 Jellyfin 時，伺服器欄位可以只填主機名稱（例如 `mediabox`），Flione 會自動嘗試 `http://mediabox:8096`。
 
-`Flione.xcodeproj` 不進版控；修改專案設定請改 `project.yml`。程式碼簽章設定在 `project.yml`，用自己的憑證建置時請改 `CODE_SIGN_IDENTITY` 與 `DEVELOPMENT_TEAM`。
+`Flione.xcodeproj` 不進版控；修改專案設定請改 `project.yml`。預設用 ad-hoc 簽章；想用自己的開發者憑證，在 `Config/` 建立 `Signing.local.xcconfig`（不進版控），寫上 `CODE_SIGN_IDENTITY` 與 `DEVELOPMENT_TEAM`，範例見 `Config/Signing.xcconfig`。
 
 <details><summary>測試</summary>
 

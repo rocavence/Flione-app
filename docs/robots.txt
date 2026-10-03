@@ -1,0 +1,5 @@
+# Flione — https://flione.rocavence.com
+User-agent: *
+Allow: /
+
+Sitemap: https://flione.rocavence.com/sitemap.xml
