@@ -526,26 +526,6 @@
         }
       }
     },
-    "Background glow": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "背景光暈"
-          }
-        }
-      }
-    },
-    "Bright": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "亮"
-          }
-        }
-      }
-    },
     "By Genre": {
       "localizations": {
         "zh-Hant": {
@@ -1037,6 +1017,16 @@
         }
       }
     },
+    "Don't dim": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不變暗"
+          }
+        }
+      }
+    },
     "Drift": {
       "localizations": {
         "zh-Hant": {
@@ -1206,6 +1196,16 @@
         }
       }
     },
+    "Glow brightness": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "光暈亮度"
+          }
+        }
+      }
+    },
     "Go to Album": {
       "localizations": {
         "zh-Hant": {
@@ -1272,16 +1272,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "首頁"
-          }
-        }
-      }
-    },
-    "How bright the blurred cover behind the albums is. It changes color as you move to another album.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "封面後方模糊光暈的亮度。換到別張專輯時，光暈會換成那張的顏色。"
           }
         }
       }
@@ -1418,16 +1408,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "由亮到暗"
-          }
-        }
-      }
-    },
-    "Low": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "低"
           }
         }
       }
@@ -2772,6 +2752,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "播放清單會從音樂伺服器上刪除，歌曲仍留在音樂庫。"
+          }
+        }
+      }
+    },
+    "The scene is brightest while you switch albums, then settles darker. Choose how dark it settles.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "換張時畫面最亮，停下來後會慢慢暗下來。這裡設定暗下來的程度。"
           }
         }
       }

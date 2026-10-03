@@ -22,8 +22,11 @@ struct AlbumFlowView: View {
     @AppStorage(SettingsKey.flowRounded) private var rounded = true
     /// 兩側封面變暗的程度（設定 → Appearance → Cover Flow）
     @AppStorage(SettingsKey.flowDim) private var dim = 0.25
-    /// 背景模糊封面的亮度（設定 → Appearance → Cover Flow）
-    @AppStorage(SettingsKey.flowGlow) private var glow = 0.9
+    /// 停下來後整個畫面暗下來的程度（設定 → Appearance → Cover Flow → 光暈亮度）
+    @AppStorage(SettingsKey.flowSettleDim) private var settleDim = 0.3
+    /// 換張中為 false；停下約 1 秒後變 true，畫面慢慢暗下來
+    @State private var settled = false
+    @State private var settleTask: Task<Void, Never>?
     @State private var centerID: String?
     /// 使用者手動移動過後，不再自動跳到正在播放的專輯
     @State private var userMoved = false
@@ -132,7 +135,15 @@ struct AlbumFlowView: View {
                 withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { resize(to: geo.size) }
             }
         }
-        .background { FlowBackdrop(artwork: centered?.artwork, horizon: 0.5, glow: glow) }
+        .background { FlowBackdrop(artwork: centered?.artwork, horizon: 0.5) }
+        // 光暈亮度：換張時最亮，停下來後整個畫面（背景與封面）慢慢暗下來；換張時立刻亮回來
+        .overlay {
+            Color.black
+                .opacity(settled ? settleDim : 0)
+                .animation(reduceMotion ? nil : (settled ? .easeInOut(duration: 1.6) : .easeOut(duration: 0.25)), value: settled)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+        }
         .onAppear {
             centerOnPlaying()
             realignToken += 1
@@ -150,7 +161,16 @@ struct AlbumFlowView: View {
             realignToken += 1
         }
         .background(FlowWindowReader { activeState.window = $0 })
-        .onChange(of: centerID) { flippedID = nil }
+        .onChange(of: centerID) {
+            flippedID = nil
+            settled = false
+            settleTask?.cancel()
+            settleTask = Task {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled else { return }
+                settled = true
+            }
+        }
         .onChange(of: centerOnPlayingToken) {
             userMoved = false
             withAnimation(Motion.respecting(reduceMotion, Motion.artwork)) { centerOnPlaying() }
@@ -312,21 +332,19 @@ private struct FlowBackdrop: View {
     let artwork: ArtworkRef?
     /// 地平線位置（0 = 頂端、1 = 底部），倒影落在這條線下方
     let horizon: CGFloat
-    /// 模糊封面的亮度；0 時只留深色底
-    var glow: Double = 0.9
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
             FinifyColor.Overflow.background
             Color.clear.overlay {
-                if let artwork, glow > 0 {
+                if let artwork {
                     ArtworkView(artwork: artwork, cornerRadius: 0, elevation: .none)
                         .aspectRatio(contentMode: .fill)
                         .scaleEffect(1.6)
                         .blur(radius: 110, opaque: true)
                         .saturation(1.4)
-                        .opacity(glow)
+                        .opacity(0.9)
                         .id(artwork)
                         .transition(.opacity)
                 }

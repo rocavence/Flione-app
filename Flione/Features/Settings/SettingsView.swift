@@ -37,8 +37,8 @@ enum SettingsKey {
     static let flowRounded = "FinifyFlowRounded"
     /// Cover Flow 兩側封面變暗的程度（0 = 不變暗，預設 0.25）
     static let flowDim = "FinifyFlowDim"
-    /// Cover Flow 背景模糊封面的亮度（0 = 不顯示，預設 0.9）
-    static let flowGlow = "FinifyFlowGlow"
+    /// Cover Flow 停下來後整個畫面暗下來的程度（0 = 不變暗，維持換張時的亮度）
+    static let flowSettleDim = "FinifyFlowSettleDim"
     static let trackNotifications = "FinifyTrackNotifications"
     static let onlineLyrics = "FinifyOnlineLyrics"
 }
@@ -318,7 +318,7 @@ private struct AppearanceSettings: View {
     @AppStorage(SettingsKey.wallRounded) private var wallRounded = true
     @AppStorage(SettingsKey.flowRounded) private var flowRounded = true
     @AppStorage(SettingsKey.flowDim) private var flowDim = 0.25
-    @AppStorage(SettingsKey.flowGlow) private var flowGlow = 0.9
+    @AppStorage(SettingsKey.flowSettleDim) private var flowSettleDim = 0.3
     @AppStorage("FinifyWallDensity") private var density = -1
     @AppStorage("FinifyFlowSize") private var flowSize = -1
 
@@ -356,8 +356,8 @@ private struct AppearanceSettings: View {
         SettingRow(title: "Dim side covers", detail: "The center cover is always the brightest. Choose how dark the others get as they move away from it.") {
             PillMenu(title: "Dim side covers", selection: $flowDim, options: [(0, "Off"), (0.15, "Subtle"), (0.25, "Medium"), (0.45, "Strong")])
         }
-        SettingRow(title: "Background glow", detail: "How bright the blurred cover behind the albums is. It changes color as you move to another album.") {
-            PillMenu(title: "Background glow", selection: $flowGlow, options: [(0, "Off"), (0.35, "Low"), (0.6, "Medium"), (0.9, "Bright")])
+        SettingRow(title: "Glow brightness", detail: "The scene is brightest while you switch albums, then settles darker. Choose how dark it settles.") {
+            PillMenu(title: "Glow brightness", selection: $flowSettleDim, options: [(0, "Don't dim"), (0.15, "Subtle"), (0.3, "Medium"), (0.5, "Strong")])
         }
     }
 }
