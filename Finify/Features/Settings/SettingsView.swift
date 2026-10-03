@@ -80,7 +80,8 @@ private struct AppearanceSettings: View {
     @AppStorage(SettingsKey.theme) private var theme: ThemePreference = .system
     @AppStorage(SettingsKey.ambient) private var ambient = true
     @AppStorage(SettingsKey.wallDrift) private var wallDrift = true
-    @AppStorage("FinifyWallDensity") private var density = WallDensity.medium.rawValue
+    @AppStorage("FinifyWallDensity") private var density = -1
+    @AppStorage("FinifyFlowSize") private var flowSize = -1
 
     var body: some View {
         Form {
@@ -94,7 +95,12 @@ private struct AppearanceSettings: View {
             }
             Section("Infinity & Cover Flow") {
                 Picker("Album size", selection: $density) {
+                    Text("Auto (fits the window)").tag(-1)
                     ForEach(WallDensity.allCases, id: \.self) { Text($0.label).tag($0.rawValue) }
+                }
+                Picker("Cover Flow size", selection: $flowSize) {
+                    Text("Auto (fits the window)").tag(-1)
+                    ForEach(0..<AlbumFlowView.sizeSteps, id: \.self) { Text("\($0 + 1) of \(AlbumFlowView.sizeSteps)").tag($0) }
                 }
                 Toggle("Ambient background", isOn: $ambient)
                 Toggle("Drift album wall when the pointer is away", isOn: $wallDrift)

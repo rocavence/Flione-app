@@ -169,5 +169,6 @@
 * **浮層**：三種模式的佇列與歌詞都用同一個浮在右側的 Liquid Glass 面板（`PlayerSidePanel`），頂部是「Up Next｜Lyrics」分頁、Clear（佇列分頁）與關閉。播放列上的歌詞、佇列按鈕切換分頁；切換模式時面板保持開啟。
 * **移除**：Standard 原本的右側 Now Playing 欄（大封面、曲名、愛心）。封面與曲名在播放列上已有，佇列與歌詞改由浮層顯示。
 * **左上角**：Infinity 與 Cover Flow 的左上角依序是「Sort by」、「Size」滑軌（Infinity 是封面牆 5 段密度，Cover Flow 是 6 段封面大小）、「Now Playing」（捲到正在播放的專輯）。原本右下角的大小滑桿與定位按鈕、Infinity 的 −／+ 移除。
+* **大小與 Auto**：Infinity 的 5 段以列數定義（8／6／5／4／3 列），封面永遠剛好填滿上下。兩種模式預設是 Auto（依目前視窗尺寸計算、縮放視窗時即時更新）：Infinity 挑封面邊長最接近 200pt 的列數；Cover Flow 取視窗放得下的最大封面的 8 成，限制在 260～560pt。拖過大小滑軌後記住使用者的選擇；設定 → Appearance 可改回 Auto。
 * **滑軌**：hover／拖曳時軌道 1.5 倍（3 → 4.5pt）、圓點 160%（11 → 18pt）。
 * **怎麼改**：`Components/PlayerSidePanel.swift`、`OverflowRootView.topBar`、`SizeSlider`、`ProgressBar`。

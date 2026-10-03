@@ -41,14 +41,24 @@ struct AlbumFlowView: View {
     @State private var side: CGFloat = 340
     @State private var resizeAnchor: String?
 
-    /// 先算視窗放得下的最大封面（扣掉頂部列、倒影、標題、底部播放列），再依段數縮小
-    private static func side(for size: CGSize, step: Int) -> CGFloat {
+    /// 視窗放得下的最大封面（扣掉頂部列、倒影、標題、底部播放列）
+    private static func maximumSide(for size: CGSize) -> CGFloat {
         // 垂直空間：頂部列 56、封面＋倒影＋上下留白 60、間距 32、標題與按鈕約 110、底部播放列留白 96
         let byHeight = (size.height - 56 - 60 - 32 - 110 - 96 - 20) / (1 + reflectionRatio)
         let byWidth = size.width * 0.36
-        let maximum = max(180, min(byHeight, byWidth, 960))
+        return max(180, min(byHeight, byWidth, 960))
+    }
+
+    /// 依段數縮小：第 0 段是最大的 50%，最後一段是 100%
+    static func side(for size: CGSize, step: Int) -> CGFloat {
         let factor = 0.5 + 0.1 * CGFloat(min(max(step, 0), sizeSteps - 1))
-        return max(140, maximum * factor).rounded()
+        return max(140, maximumSide(for: size) * factor).rounded()
+    }
+
+    /// 使用者沒調過大小時的預設：最大尺寸的 8 成，並限制在 260～560pt——小視窗不會太小、大螢幕不會巨大
+    static func autoStep(for size: CGSize) -> Int {
+        let target = min(560, max(260, maximumSide(for: size) * 0.8))
+        return (0..<sizeSteps).min { abs(side(for: size, step: $0) - target) < abs(side(for: size, step: $1) - target) }!
     }
 
     var body: some View {

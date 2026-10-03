@@ -11,19 +11,25 @@ enum OverflowLayout: String, CaseIterable {
 struct OverflowRootView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @AppStorage("FinifyWallDensity") private var densityRaw = WallDensity.medium.rawValue
+    /// -1 = Auto（依視窗尺寸）；使用者拖過大小滑軌後才記住選擇
+    @AppStorage("FinifyWallDensity") private var densityRaw = -1
     @AppStorage("FinifyWallSort") private var sort: AlbumSort = .artist
-    @AppStorage("FinifyFlowSize") private var flowSize = 3
+    @AppStorage("FinifyFlowSize") private var flowSizeRaw = -1
+    /// 封面牆／Cover Flow 可用的大小，用來算 Auto 預設
+    @State private var browseSize = CGSize(width: 1360, height: 860)
     /// 排序結果只在專輯清單或排序方式改變時重算
     @State private var sortedAlbums: [Album] = []
     @State private var openAlbum: Album?
     @State private var scrollToPlaying = 0
 
     private var density: Binding<WallDensity> {
-        Binding { WallDensity(rawValue: densityRaw) ?? .medium } set: { densityRaw = $0.rawValue }
+        Binding { WallDensity(rawValue: densityRaw) ?? WallDensity.auto(forHeight: browseSize.height) } set: { densityRaw = $0.rawValue }
     }
 
     private var playingAlbumID: String? { app.player.currentTrack?.albumID }
+    private var flowSize: Int { flowSizeRaw >= 0 ? flowSizeRaw : AlbumFlowView.autoStep(for: browseSize) }
+    private var flowSizeBinding: Binding<Int> { Binding { flowSize } set: { flowSizeRaw = $0 } }
+    private var densityStep: Binding<Int> { Binding { density.wrappedValue.rawValue } set: { densityRaw = $0 } }
     private var layout: OverflowLayout { app.overflowLayout }
 
     var body: some View {
@@ -31,6 +37,7 @@ struct OverflowRootView: View {
             AmbientBackground(artwork: app.player.currentTrack?.artwork)
             browse
         }
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { browseSize = $0 }
         .environment(\.overflowStyle, true)
         .environment(\.colorScheme, .dark)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
@@ -139,11 +146,11 @@ struct OverflowRootView: View {
             .accessibilityLabel("Sort albums, \(sort.rawValue)")
 
             if layout == .wall {
-                SizeSlider(step: $densityRaw, count: WallDensity.allCases.count, label: "Album size",
+                SizeSlider(step: densityStep, count: WallDensity.allCases.count, label: "Album size",
                            valueText: density.wrappedValue.label)
                     .help("Album size (pinch to resize)")
             } else {
-                SizeSlider(step: $flowSize, count: AlbumFlowView.sizeSteps, label: "Cover size",
+                SizeSlider(step: flowSizeBinding, count: AlbumFlowView.sizeSteps, label: "Cover size",
                            valueText: "\(flowSize + 1) of \(AlbumFlowView.sizeSteps)")
                     .help("Cover size")
             }

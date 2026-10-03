@@ -4,6 +4,38 @@ import SwiftUI
 enum WallDensity: Int, CaseIterable, Sendable {
     case tiny, small, medium, large, huge
 
+    /// 封面牆的列數：以列數定義大小，封面永遠剛好填滿上下，任何視窗高度都整齊
+    var rows: Int {
+        switch self {
+        case .tiny: 8
+        case .small: 6
+        case .medium: 5
+        case .large: 4
+        case .huge: 3
+        }
+    }
+
+    /// 封面牆可用高度（扣掉上下留給頂部列與播放列的空間）
+    static let verticalInset: CGFloat = 56 + 100
+
+    /// 依可用高度挑最好看的大小：封面邊長最接近 200pt 的列數
+    static func auto(forHeight height: CGFloat) -> WallDensity {
+        let available = max(200, height - verticalInset)
+        return allCases.min { abs(available / CGFloat($0.rows) - 200) < abs(available / CGFloat($1.rows) - 200) }!
+    }
+
+    /// pinch 結束時吸附到最接近的列數
+    static func nearest(rows: CGFloat) -> WallDensity {
+        allCases.min { abs(CGFloat($0.rows) - rows) < abs(CGFloat($1.rows) - rows) }!
+    }
+
+    /// 這個密度在指定可用高度下的封面邊長
+    func side(forHeight height: CGFloat) -> CGFloat {
+        let available = max(100, height - Self.verticalInset)
+        return available / CGFloat(rows)
+    }
+
+    /// 只在 pinch 的上下限用
     var side: CGFloat {
         switch self {
         case .tiny: 64
@@ -24,10 +56,6 @@ enum WallDensity: Int, CaseIterable, Sendable {
         }
     }
 
-    /// pinch 結束時吸附到最接近的 density
-    static func nearest(to side: CGFloat) -> WallDensity {
-        allCases.min { abs($0.side - side) < abs($1.side - side) }!
-    }
 }
 
 /// Album Wall（D02：NSCollectionView）。只建立看得到的 cell 並重用；artwork 由 ImagePipeline 載入（有記憶體上限）。
@@ -78,7 +106,7 @@ struct AlbumWallView: NSViewRepresentable {
         collection.addGestureRecognizer(pinch)
 
         context.coordinator.collection = collection
-        context.coordinator.applySize(density.side, animated: false)
+        context.coordinator.applyDensity(density, animated: false)
         context.coordinator.motion.attach(to: collection)
         return scroll
     }
@@ -91,7 +119,7 @@ struct AlbumWallView: NSViewRepresentable {
         let coordinator = context.coordinator
         let albumsChanged = coordinator.parent.albums.map(\.id) != albums.map(\.id)
         // binding 讀的是即時值，不能拿舊的 parent 比；改與目前實際尺寸比較
-        let densityChanged = coordinator.currentSide != density.side
+        let densityChanged = coordinator.currentRows != density.rows
         let playingChanged = coordinator.parent.playingAlbumID != playingAlbumID
         let scrollRequested = coordinator.parent.scrollToPlayingToken != scrollToPlayingToken
         coordinator.parent = self
@@ -100,7 +128,7 @@ struct AlbumWallView: NSViewRepresentable {
             coordinator.collection?.deselectAll(nil)
             coordinator.collection?.reloadData()
         }
-        if densityChanged && !coordinator.isPinching { coordinator.applySize(density.side, animated: true) }
+        if densityChanged && !coordinator.isPinching { coordinator.applyDensity(density, animated: true) }
         if playingChanged { coordinator.refreshPlaying() }
         if scrollRequested { coordinator.scrollToPlaying() }
     }
@@ -114,6 +142,8 @@ struct AlbumWallView: NSViewRepresentable {
         var isPinching = false
         private var pinchStartSide: CGFloat = 148
         private(set) var currentSide: CGFloat = 148
+        /// 目前套用的列數；pinch 進行中為 nil
+        private(set) var currentRows: Int?
 
         init(parent: AlbumWallView) { self.parent = parent }
 
@@ -140,9 +170,17 @@ struct AlbumWallView: NSViewRepresentable {
             }
         }
 
-        func applySize(_ side: CGFloat, animated: Bool) {
+        /// 依密度（列數）套用：封面邊長由可視高度決定，剛好填滿上下
+        func applyDensity(_ density: WallDensity, animated: Bool) {
+            let height = collection?.enclosingScrollView?.contentView.bounds.height ?? 0
+            applySize(density.side(forHeight: height), rows: density.rows, animated: animated)
+        }
+
+        func applySize(_ side: CGFloat, rows: Int?, animated: Bool) {
             currentSide = side
+            currentRows = rows
             guard let collection, let layout = collection.collectionViewLayout as? WallRowsLayout else { return }
+            layout.targetRows = rows
             // 封面牆：間距隨尺寸縮放，小尺寸幾乎無縫；上下留給頂部列與底部播放列
             let gap = max(2, (side * 0.025).rounded())
             layout.targetSide = side
@@ -168,11 +206,13 @@ struct AlbumWallView: NSViewRepresentable {
                 pinchStartSide = currentSide
             case .changed:
                 let side = min(WallDensity.huge.side * 1.15, max(WallDensity.tiny.side * 0.85, pinchStartSide * (1 + gesture.magnification)))
-                applySize(side, animated: false)
+                applySize(side, rows: nil, animated: false)
             default:
                 isPinching = false
-                let snapped = WallDensity.nearest(to: currentSide)
-                applySize(snapped.side, animated: true)
+                // 放開時吸附到最接近的列數
+                let height = collection?.enclosingScrollView?.contentView.bounds.height ?? 0
+                let snapped = WallDensity.nearest(rows: max(1, height - WallDensity.verticalInset) / max(1, currentSide))
+                applyDensity(snapped, animated: true)
                 if parent.density != snapped { parent.density = snapped }
             }
         }
@@ -323,13 +363,15 @@ final class WallCollectionView: NSCollectionView {
 /// 左右捲動的封面牆：依可用高度決定列數，封面填滿上下之間
 final class WallRowsLayout: NSCollectionViewFlowLayout {
     var targetSide: CGFloat = 148
+    /// 指定列數（一般情況）；nil 時依 targetSide 算（pinch 進行中）
+    var targetRows: Int?
 
     override func prepare() {
         scrollDirection = .horizontal
         // 以可視區域（clip view）的高度計算；collection view 本身的高度由 layout 決定，不能拿來算
         if let height = collectionView?.enclosingScrollView?.contentView.bounds.height, height > 0 {
             let available = height - sectionInset.top - sectionInset.bottom
-            let rows = max(1, Int((available + minimumInteritemSpacing) / (targetSide + minimumInteritemSpacing)))
+            let rows = targetRows ?? max(1, Int((available + minimumInteritemSpacing) / (targetSide + minimumInteritemSpacing)))
             let side = floor((available - CGFloat(rows - 1) * minimumInteritemSpacing) / CGFloat(rows))
             itemSize = NSSize(width: side, height: side)
         }
