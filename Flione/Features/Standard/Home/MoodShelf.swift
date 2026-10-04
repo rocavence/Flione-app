@@ -5,30 +5,53 @@ import SwiftUI
 struct MoodShelf: View {
     @Environment(AppEnvironment.self) private var app
     @State private var loading: Mood?
-    @State private var width: CGFloat = 1200
+    // 尺寸、間距、翻頁箭頭與首頁其他區塊（AlbumShelf）相同
+    private let cardWidth: CGFloat = 168
+    @State private var firstVisible = 0
+    @State private var visibleCount = 6
 
-    /// 8 張排成一列剛好填滿；太窄時維持最小尺寸、可以橫向捲動
-    private var side: CGFloat { max(118, min(200, (width - Spacing.s12 * 7) / 8)) }
+    private var moods: [Mood] { Mood.allCases }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s16) {
-            SectionHeader(title: "Mood Radio")
-            ScrollView(.horizontal) {
-                HStack(spacing: Spacing.s12) {
-                    ForEach(Mood.allCases) { mood in
-                        MoodCard(mood: mood, cover: cover(for: mood), side: side, loading: loading == mood,
-                                 playing: app.player.radioName == String(localized: mood.title)) {
-                            start(mood)
-                        }
+            HStack(alignment: .center) {
+                SectionHeader(title: "Mood Radio")
+                if moods.count > visibleCount {
+                    HStack(spacing: Spacing.s4) {
+                        FinifyIconButton(icon: .chevronLeft, label: "Scroll Mood Radio left", size: .compact) { page(-1) }
+                            .disabled(firstVisible == 0)
+                        FinifyIconButton(icon: .chevronRight, label: "Scroll Mood Radio right", size: .compact) { page(1) }
+                            .disabled(firstVisible + visibleCount >= moods.count)
                     }
                 }
-                // 放大與陰影不被捲動區裁掉
-                .padding(.vertical, Spacing.s8)
             }
-            .scrollIndicators(.never)
-            .padding(.vertical, -Spacing.s8)
-            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(alignment: .top, spacing: Spacing.s20) {
+                        ForEach(moods) { mood in
+                            MoodCard(mood: mood, cover: cover(for: mood), side: cardWidth, loading: loading == mood,
+                                     playing: app.player.radioName == String(localized: mood.title)) {
+                                start(mood)
+                            }
+                            .id(mood)
+                        }
+                    }
+                    .padding(.vertical, Spacing.s8)
+                }
+                .scrollClipDisabled()
+                .onChange(of: firstVisible) {
+                    withAnimation(Motion.ui) { proxy.scrollTo(moods[firstVisible], anchor: .leading) }
+                }
+            }
+            .background(GeometryReader { geo in
+                Color.clear.onAppear { visibleCount = max(1, Int(geo.size.width / (cardWidth + Spacing.s20))) }
+                    .onChange(of: geo.size.width) { visibleCount = max(1, Int(geo.size.width / (cardWidth + Spacing.s20))) }
+            })
         }
+    }
+
+    private func page(_ direction: Int) {
+        firstVisible = min(max(0, firstVisible + direction * visibleCount), max(0, moods.count - visibleCount))
     }
 
     /// 封面：曲風符合心情的專輯（依心情固定挑一張，每次看到的一樣）。
