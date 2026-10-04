@@ -48,6 +48,15 @@ enum DebugDemo {
                 app.player.seek(to: first.duration - seconds)
             }
         }
+        // -FinifyDemoPlayAlbumID <專輯 id>：播放不在音樂庫的專輯（驗證正在播放的加入收藏提示）
+        if let id = defaults.string(forKey: "FinifyDemoPlayAlbumID"), let tracks = try? await app.repository?.tracks(inAlbum: id), !tracks.isEmpty {
+            app.player.play(tracks)
+        }
+        // -FinifyDemoSaveAlbum <專輯 id>：用 YouTube 的「加入收藏」，結果寫到 -FinifyDiscoverLog（驗證正在播放的加入收藏）
+        if let id = defaults.string(forKey: "FinifyDemoSaveAlbum"), let repository = app.repository as? YouTubeMusicRepository {
+            do { try await repository.saveAlbumToLibrary(id); DiscoveryEngine.debugNote("save \(id): ok") }
+            catch { DiscoveryEngine.debugNote("save \(id): \(error)") }
+        }
         // -FinifyDemoQueue YES：先打開佇列面板（檢查窄視窗的版面；與 -FinifyDemoOpen 一起用時，2 秒後才打開專輯）
         if defaults.bool(forKey: "FinifyDemoQueue") {
             app.isQueuePresented = true

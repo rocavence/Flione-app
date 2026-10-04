@@ -196,6 +196,13 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
         try await likedSongs()
     }
 
+    /// 把專輯加入 YouTube Music 收藏：與 YouTube Music 的「儲存到音樂庫」相同，是對專輯的播放清單（OLAK5uy_…）按讚
+    func saveAlbumToLibrary(_ albumID: String) async throws {
+        let json = try await InnerTube.post("browse", body: ["browseId": albumID])
+        guard let playlistID = Parse.albumPlaylistID(json) else { throw Failure.notFound }
+        _ = try await InnerTube.post("like/like", body: ["target": ["playlistId": playlistID]])
+    }
+
     func setFavorite(_ itemID: String, _ isFavorite: Bool) async throws {
         _ = try await InnerTube.post(isFavorite ? "like/like" : "like/removelike", body: ["target": ["videoId": itemID]])
         await likedCache.clear()
@@ -345,6 +352,17 @@ enum Parse {
         let watch = find("watchEndpoint", in: row) as? [String: Any]
         let config = (watch?["watchEndpointMusicSupportedConfigs"] as? [String: Any])?["watchEndpointMusicConfig"] as? [String: Any]
         return config?["musicVideoType"] as? String == "MUSIC_VIDEO_TYPE_ATV"
+    }
+
+    /// 專輯頁裡專輯本身的播放清單 id（OLAK5uy_ 開頭）
+    static func albumPlaylistID(_ value: Any) -> String? {
+        if let dict = value as? [String: Any] {
+            if let id = dict["playlistId"] as? String, id.hasPrefix("OLAK5uy_") { return id }
+            for child in dict.values { if let id = albumPlaylistID(child) { return id } }
+        } else if let array = value as? [Any] {
+            for child in array { if let id = albumPlaylistID(child) { return id } }
+        }
+        return nil
     }
 
     static func continuation(_ json: [String: Any]) -> String? {

@@ -44,6 +44,10 @@ struct OverflowRootView: View {
 
     private var playingAlbumID: String? { app.player.currentTrack?.albumID }
     private var playingAlbumOnWall: Bool { playingAlbumID.map { id in sortedAlbums.contains { $0.id == id } } ?? false }
+    /// YouTube Music：正在播放的專輯不在收藏裡時，按「正在播放」會問要不要加入收藏
+    private var canSavePlayingAlbum: Bool { playingAlbumID != nil && !playingAlbumOnWall && app.repository is YouTubeMusicRepository }
+    @State private var askToSave: Track?
+    @State private var saveFailed = false
     private var flowSize: Int { flowSizeRaw >= 0 ? flowSizeRaw : AlbumFlowView.autoStep(for: browseSize) }
     private var flowSizeBinding: Binding<Int> { Binding { flowSize } set: { flowSizeRaw = $0 } }
     private var densityStep: Binding<Int> { Binding { density.wrappedValue.rawValue } set: { densityRaw = $0 } }
@@ -64,6 +68,17 @@ struct OverflowRootView: View {
         // 專輯面板與佇列／歌詞面板一次只開一個：同時開時佇列會蓋住專輯面板的按鈕與曲目（窄視窗特別明顯）
         .onChange(of: openAlbum) { if openAlbum != nil { app.isQueuePresented = false; app.isLyricsPresented = false } }
         .onChange(of: app.isQueuePresented || app.isLyricsPresented) { _, open in if open { openAlbum = nil } }
+        .alert(Text("Add “\(askToSave?.albumName ?? "")” to your library?"), isPresented: Binding(get: { askToSave != nil }, set: { if !$0 { askToSave = nil } }), presenting: askToSave) { track in
+            Button("Add to Library") { savePlayingAlbum(track) }
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
+            Text("This album isn't in your YouTube Music library yet, so it's not on the wall. Add it and Flione takes you there.")
+        }
+        .alert("Couldn't add the album.", isPresented: $saveFailed) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Check your connection and try again.")
+        }
         .task { await app.library.refreshIfNeeded() }
         .onChange(of: app.library.albums, initial: true) { resort() }
         #if DEBUG
@@ -72,7 +87,7 @@ struct OverflowRootView: View {
             let delay = UserDefaults.standard.double(forKey: "FinifyDemoFocusPlaying")
             guard delay > 0 else { return }
             try? await Task.sleep(for: .seconds(delay))
-            scrollToPlaying += 1
+            focusPlaying()
         }
         #endif
         .onChange(of: sort) {
@@ -202,7 +217,7 @@ struct OverflowRootView: View {
                     .help("Cover size")
             }
 
-            Button { scrollToPlaying += 1 } label: {
+            Button { focusPlaying() } label: {
                 HStack(spacing: Spacing.s4) {
                     FinifyIcon(.gps, size: .compact)
                     // 文字放大（睫狀肌舒適）時頂部列較擠，維持一行不換行
@@ -215,10 +230,9 @@ struct OverflowRootView: View {
                 .contentShape(Capsule())
             }
             .buttonStyle(PressScaleStyle())
-            .disabled(!playingAlbumOnWall)
-            .opacity(playingAlbumOnWall ? 1 : 0.4)
-            // 正在播放的歌不在音樂庫的專輯裡（例如 YouTube 的推薦、電台）時，封面牆上沒有它可以捲過去
-            .help(playingAlbumID != nil && !playingAlbumOnWall ? "The album that's playing isn't in your library" : "Focus on the album that's playing")
+            .disabled(!playingAlbumOnWall && !canSavePlayingAlbum)
+            .opacity(playingAlbumOnWall || canSavePlayingAlbum ? 1 : 0.4)
+            .help(nowPlayingHelp)
             .accessibilityLabel("Focus on the album that's playing")
 
             if layout == .wall { autoScrollToggle }
@@ -295,6 +309,32 @@ struct OverflowRootView: View {
 
     private func resort() {
         sortedAlbums = magic?.apply(to: app.library.albums) ?? sort.apply(to: app.library.albums)
+    }
+
+    /// 正在播放的歌：沒有專輯（YouTube 的影片）、專輯不在收藏（Jellyfin 不會發生）時的說明
+    private var nowPlayingHelp: LocalizedStringResource {
+        if app.player.currentTrack != nil && playingAlbumID == nil { return "What's playing is a video, not part of an album" }
+        if playingAlbumID != nil && !playingAlbumOnWall && !canSavePlayingAlbum { return "The album that's playing isn't in your library" }
+        return "Focus on the album that's playing"
+    }
+
+    private func focusPlaying() {
+        if playingAlbumOnWall { scrollToPlaying += 1 } else if canSavePlayingAlbum { askToSave = app.player.currentTrack }
+    }
+
+    /// 加入 YouTube Music 收藏 → 重新讀取音樂庫 → 捲到這張專輯
+    private func savePlayingAlbum(_ track: Track) {
+        guard let albumID = track.albumID, let repository = app.repository as? YouTubeMusicRepository else { return }
+        Task {
+            do {
+                try await repository.saveAlbumToLibrary(albumID)
+                await app.library.refresh()
+                try? await Task.sleep(for: .milliseconds(400))
+                scrollToPlaying += 1
+            } catch {
+                saveFailed = true
+            }
+        }
     }
 
     private func openPlayingAlbum() {
