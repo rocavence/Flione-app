@@ -1562,47 +1562,17 @@ Performance metrics
 
 ---
 
-# 58. Lidarr Integration — Future
+# 58. AI — Future
 
-Finify 不直接管理下載。
+後續階段才加入。
 
-但未來可以：
-
-```text
-Album not found
-
-[ Add to Lidarr ]
-```
-
-流程：
-
-```text
-Finify
-   ↓
-Lidarr API
-   ↓
-Add Artist / Album
-   ↓
-Lidarr downloads
-   ↓
-Jellyfin scans
-   ↓
-Finify displays new album
-```
-
-形成：
-
-> Discovery → Acquisition → Library → Playback
-
----
-
-# 59. AI — Future
-
-第二階段才加入。
+AI 完全在裝置上執行，使用 Apple Foundation Models（Apple Intelligence，macOS 26 以上）。不使用雲端服務，聆聽資料不會離開這台 Mac。
 
 例如：
 
-> Find me 20 albums similar to Radiohead that I don't own.
+> 找一些適合下雨天的爵士。
+
+Finify 只從使用者自己的音樂庫推薦專輯，優先挑很久沒播的。
 
 結果：
 
@@ -1610,15 +1580,16 @@ Finify displays new album
 Album
 Artist
 Year
-Why recommended
-[ Add to Lidarr ]
+Why this fits
+Last played
+[ Play ]
 ```
 
-AI 不直接控制下載。
+AI 的目標是讓使用者重新發現自己的收藏。
 
 ---
 
-# 60. Product Differentiation
+# 59. Product Differentiation
 
 Finify 的真正產品護城河不是：
 
@@ -1636,11 +1607,9 @@ Finify 的真正產品護城河不是：
 
 ### 5. Personal music discovery
 
-### 6. Future Lidarr integration
-
 ---
 
-# 61. MVP
+# 60. MVP
 
 ## P0
 
@@ -1671,7 +1640,7 @@ Finify 的真正產品護城河不是：
 
 ---
 
-# 62. P1
+# 61. P1
 
 * [ ] Playlists
 * [ ] Favorites
@@ -1685,10 +1654,9 @@ Finify 的真正產品護城河不是：
 
 ---
 
-# 63. P2
+# 62. P2
 
 * [ ] AI Discovery
-* [ ] Lidarr
 * [ ] Offline
 * [ ] Artist Radio
 * [ ] Smart Radio
@@ -1698,7 +1666,7 @@ Finify 的真正產品護城河不是：
 
 ---
 
-# 64. Development Roadmap
+# 63. Development Roadmap
 
 ## Sprint 01 — Foundation
 
@@ -1800,7 +1768,7 @@ Crash handling
 
 ---
 
-# 65. Definition of Done
+# 64. Definition of Done
 
 Finify 的功能只有在以下條件全部滿足時才算完成：
 
@@ -1828,7 +1796,7 @@ Error handling
 
 ---
 
-# 66. Product Hunt Readiness
+# 65. Product Hunt Readiness
 
 Product Hunt 官方建議產品本身應該已經可以被使用，而不是只有 signup landing page；官方也建議準備 thumbnail、gallery、video 與清楚的 value proposition。
 
@@ -1849,7 +1817,7 @@ Finify Launch Package：
 
 ---
 
-# 67. Product Hunt Hero
+# 66. Product Hunt Hero
 
 第一張圖不要放：
 
@@ -1871,7 +1839,7 @@ Product Hunt 官方要求 thumbnail 並建議 gallery 圖片，因此產品第�
 
 ---
 
-# 68. Launch Gallery
+# 67. Launch Gallery
 
 推薦 6 張：
 
@@ -1911,7 +1879,7 @@ FLAC / Jellyfin / Private Library
 
 ---
 
-# 69. Demo Video
+# 68. Demo Video
 
 第一支影片：
 
@@ -1954,7 +1922,7 @@ Finify logo
 
 ---
 
-# 70. Website
+# 69. Website
 
 Landing page：
 
@@ -1982,7 +1950,7 @@ Download
 
 ---
 
-# 71. Brand Identity
+# 70. Brand Identity
 
 ## Wordmark
 
@@ -2034,7 +2002,7 @@ App icon 要在：
 
 ---
 
-# 72. Color Direction
+# 71. Color Direction
 
 不要直接使用 Spotify Green。
 
@@ -2058,7 +2026,7 @@ Brand color 與 artwork ambient color 必須分離。
 
 ---
 
-# 73. Design Quality Bar
+# 72. Design Quality Bar
 
 每一個畫面都要通過：
 
@@ -2096,7 +2064,7 @@ Brand color 與 artwork ambient color 必須分離。
 
 ---
 
-# 74. Anti-patterns
+# 73. Anti-patterns
 
 Finify 禁止：
 
@@ -2117,7 +2085,7 @@ Finify 禁止：
 
 ---
 
-# 75. Vibe Coding Rules
+# 74. Vibe Coding Rules
 
 Finify 適合 AI-assisted development，但 AI 必須被 Design System 約束。
 
@@ -2144,7 +2112,7 @@ Constraints:
 
 ---
 
-# 76. Development Rule
+# 75. Development Rule
 
 每個 feature：
 
@@ -2180,7 +2148,7 @@ Code
 
 ---
 
-# 77. First Vertical Slice
+# 76. First Vertical Slice
 
 第一個真正可工作的 Slice：
 
@@ -2212,7 +2180,7 @@ Exit
 
 ---
 
-# 78. Final Product Architecture
+# 77. Final Product Architecture
 
 ```text
                               FINIFY
@@ -2236,14 +2204,11 @@ Exit
                           Jellyfin Server
                                 │
                        Personal Music Library
-                                │
-                             Lidarr
-                         (Future / Optional)
 ```
 
 ---
 
-# 79. Final Product Statement
+# 78. Final Product Statement
 
 Finify 的最終目標不是：
 
@@ -2257,10 +2222,6 @@ Jellyfin 負責：
 
 > **Library**
 
-Lidarr 負責：
-
-> **Collection**
-
 Finify 負責：
 
 > **Experience**
@@ -2271,13 +2232,13 @@ Finify 負責：
 
 ---
 
-# 80. One-line Definition
+# 79. One-line Definition
 
 > **Finify is a premium native macOS music experience for your own Jellyfin library — combining Spotify-like usability with Sleeve-inspired album immersion.**
 
 ---
 
-# 81. Initial Build Target
+# 80. Initial Build Target
 
 第一階段只追求一件事：
 

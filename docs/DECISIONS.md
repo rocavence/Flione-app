@@ -85,7 +85,7 @@
 ## D12　MVP 完成後提前做部分 V1 項目
 
 * **選擇**：MVP 的 vertical slice 與驗收項目完成後，依價值排序提前實作部分 V1：Wall 的 Tiny / Huge、啟動時恢復播放佇列、Favorites、選單列控制器、Album Flip。
-* **理由**：規格只限制「vertical slice 完成前不做 AI、Lidarr、Offline、Mobile」，這些 V1 項目不在禁止範圍，且都是日常使用會直接感受到的功能。
+* **理由**：規格只限制「vertical slice 完成前不做 AI、Offline、Mobile」，這些 V1 項目不在禁止範圍，且都是日常使用會直接感受到的功能。
 * **怎麼改**：每個項目都是獨立 commit（訊息開頭標 `V1`），不要的話可以單獨 `git revert`。
 
 ## D13　Playlist 一律以完整狀態更新

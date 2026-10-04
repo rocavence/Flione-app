@@ -17,7 +17,7 @@ MVP 的 26 個 Task 中 24 個完成，另外提前做了十幾項 V1 功能。
 
 ## 完成項目
 
-### MVP（規格 §30 的 Task Queue）
+### MVP（規格 §29 的 Task Queue）
 
 | 範圍 | 內容 |
 | ---- | ---- |
@@ -114,7 +114,7 @@ Library 格線往上捲仍有輕微卡頓，見「已知問題」。
 
 ## 怎麼繼續開發
 
-* 規格與目前狀態：`docs/EXECUTION-SPEC.md` §34–35
+* 規格與目前狀態：`docs/EXECUTION-SPEC.md` §33–34
 * 執行測試：`xcodebuild -project Finify.xcodeproj -scheme Finify test`
 * 打包：`scripts/build-release.sh`
 * 開發用啟動參數（直接進入指定畫面、靜音播放、效能量測）：`README.md`

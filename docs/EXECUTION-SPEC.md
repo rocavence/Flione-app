@@ -20,7 +20,7 @@ Finify
 Music Experience
         ↓
 Future
-Collection / Discovery / Intelligence
+Discovery / Intelligence
 ```
 
 第一階段只需要證明：
@@ -74,9 +74,6 @@ Core Music Experience
         ↓
 V1
 Daily Driver
-        ↓
-V2
-Collection Experience
         ↓
 V3
 Intelligent Discovery
@@ -187,7 +184,6 @@ Fullscreen
 * Album Flip
 * Floating Player
 * Always on Top
-* Lidarr
 * AI
 * Offline
 * Multi-server
@@ -261,72 +257,25 @@ Distinctive
 
 ---
 
-# 4. V2 — Collection Experience
+# 4. V3 — Intelligent Discovery
 
 目標：
 
-> 讓 Finify 從「播放自己的音樂」進化成「管理自己的音樂收藏」。
+> 建立個人化的 Music Discovery Engine，幫使用者重新發現自己的收藏。
 
-### Lidarr Integration
+AI 完全在裝置上執行：
 
-Finify 不負責下載。
-
-例如：
-
-```text
-Album
- ↓
-Not in Library
- ↓
-Add to Lidarr
- ↓
-Lidarr acquires music
- ↓
-Jellyfin indexes it
- ↓
-Finify displays it
-```
-
-### Collection Features
-
-* Missing albums
-* Missing discographies
-* Unplayed albums
-* Recently acquired
-* Collection completeness
-* Upgrade candidates
-* Quality management integration
-* Related Artists
-* Similar Albums
-* Discovery based on metadata
-* Listening history
-* Favorites
-
-核心 Loop：
-
-```text
-Discover
- ↓
-Acquire
- ↓
-Library
- ↓
-Listen
-```
-
----
-
-# 5. V3 — Intelligent Discovery
-
-目標：
-
-> 建立個人化的 Music Discovery Engine。
+* 使用 Apple Foundation Models（Apple Intelligence，macOS 26 以上）
+* 不使用任何雲端服務
+* 聆聽資料不會離開這台 Mac
 
 ### AI Discovery
 
 例如：
 
-> Find 20 albums similar to Radiohead that I don't own.
+> 找一些適合下雨天的爵士。
+
+Finify 只從使用者自己的音樂庫推薦專輯，優先挑很久沒播的。
 
 結果提供：
 
@@ -334,8 +283,8 @@ Listen
 * Artist
 * Year
 * Genre
-* Why it matches
-* Add to Lidarr
+* Why this fits
+* Last played
 
 ### Smart Radio
 
@@ -345,31 +294,25 @@ Listen
 * Mood Radio
 * Personal Radio
 
-### Personal Music Loop
+### Rediscovery Loop
 
 ```text
 Listen
  ↓
 Understand Taste
  ↓
-Discover
- ↓
-Add to Lidarr
- ↓
-Download
- ↓
-Jellyfin
+Rediscover from your own library
  ↓
 Listen
 ```
 
 Finify 在這個階段才開始成為：
 
-> **Personal Music Operating Layer**
+> **Personal Listening Layer：讓你重新聽見自己的收藏。**
 
 ---
 
-# 6. Future — Platform Expansion
+# 5. Future — Platform Expansion
 
 只有 macOS 版本成熟後才考慮：
 
@@ -385,7 +328,7 @@ Finify 在這個階段才開始成為：
 
 ---
 
-# 7. MVP Technical Scope
+# 6. MVP Technical Scope
 
 ## Tech Stack
 
@@ -406,7 +349,7 @@ Finify 在這個階段才開始成為：
 
 ---
 
-# 8. Architecture
+# 7. Architecture
 
 ```text
 SwiftUI
@@ -436,7 +379,7 @@ Jellyfin Stream
 
 ---
 
-# 9. Project Structure
+# 8. Project Structure
 
 ```text
 Finify/
@@ -473,7 +416,7 @@ Finify/
 
 ---
 
-# 10. Design System
+# 9. Design System
 
 所有 UI 必須使用統一 Design System。
 
@@ -504,7 +447,7 @@ Finify/
 
 ---
 
-# 11. Icon System
+# 10. Icon System
 
 全 App UI icon 統一使用：
 
@@ -550,7 +493,7 @@ FinifyIcon
 
 ---
 
-# 12. Artwork System
+# 11. Artwork System
 
 所有 Artwork 統一經過：
 
@@ -588,7 +531,7 @@ Jellyfin
 
 ---
 
-# 13. Standard Mode
+# 12. Standard Mode
 
 ## Home
 
@@ -631,7 +574,7 @@ Fullscreen Player    MVP 由 Overflow Fullscreen 承擔
 
 ---
 
-# 14. Search
+# 13. Search
 
 Shortcut：
 
@@ -671,7 +614,7 @@ Playlist 搜尋於 V1 啟用。
 
 ---
 
-# 15. Playback
+# 14. Playback
 
 建立：
 
@@ -707,7 +650,7 @@ Volume
 
 ---
 
-# 16. macOS Integration
+# 15. macOS Integration
 
 ## Media Keys
 
@@ -738,7 +681,7 @@ Esc         Close overlay
 
 ---
 
-# 17. Overflow Mode
+# 16. Overflow Mode
 
 Overflow 是完整 App Mode。
 
@@ -756,7 +699,7 @@ Album → Fullscreen
 
 ---
 
-# 18. Album Wall
+# 17. Album Wall
 
 核心：
 
@@ -801,7 +744,7 @@ Huge
 
 ---
 
-# 19. Album Flow
+# 18. Album Flow
 
 Cover Flow-style navigation：
 
@@ -828,7 +771,7 @@ Current Album：
 
 ---
 
-# 20. Fullscreen
+# 19. Fullscreen
 
 Fullscreen 是完整 immersive environment。
 
@@ -864,7 +807,7 @@ Mouse movement：
 
 ---
 
-# 21. Ambient Background
+# 20. Ambient Background
 
 流程：
 
@@ -889,7 +832,7 @@ Reduce Motion：
 
 ---
 
-# 22. Performance
+# 21. Performance
 
 目標支援：
 
@@ -917,7 +860,7 @@ Scrolling     60fps target
 
 ---
 
-# 23. UX Quality
+# 22. UX Quality
 
 每個 interactive component：
 
@@ -950,7 +893,7 @@ Retry
 
 ---
 
-# 24. Accessibility
+# 23. Accessibility
 
 必須支援：
 
@@ -970,7 +913,7 @@ Ambient animation → Static
 
 ---
 
-# 25. Privacy
+# 24. Privacy
 
 Finify 預設：
 
@@ -984,7 +927,7 @@ Jellyfin Server 是主要資料來源。
 
 ---
 
-# 26. Quality Bar
+# 25. Quality Bar
 
 每個 Feature 必須同時通過：
 
@@ -1008,7 +951,7 @@ Definition of Done：
 
 ---
 
-# 27. Design Direction
+# 26. Design Direction
 
 整體設計參考三個方向：
 
@@ -1040,7 +983,7 @@ Original visual identity
 
 ---
 
-# 28. Product Hunt / Awwwards Target
+# 27. Product Hunt / Awwwards Target
 
 設計目標：
 
@@ -1078,7 +1021,7 @@ Website
 
 ---
 
-# 29. MVP First Vertical Slice
+# 28. MVP First Vertical Slice
 
 第一條必須完整跑通的 User Journey：
 
@@ -1110,11 +1053,11 @@ Exit
 
 在這條流程完整以前：
 
-> 不開始 AI、Lidarr、Offline、Mobile 或其他非 MVP 工作。
+> 不開始 AI、Offline、Mobile 或其他非 MVP 工作。
 
 ---
 
-# 30. Initial Task Queue
+# 29. Initial Task Queue
 
 ```text
 TASK-001  Create macOS SwiftUI project
@@ -1149,7 +1092,7 @@ TASK-026  Release build
 
 ---
 
-# 31. AI Coding Rules
+# 30. AI Coding Rules
 
 所有 AI Coding Agent 必須遵守：
 
@@ -1197,7 +1140,7 @@ Commit
 
 ---
 
-# 32. MVP Acceptance Criteria
+# 31. MVP Acceptance Criteria
 
 ## Functional
 
@@ -1250,7 +1193,7 @@ Commit
 
 ---
 
-# 33. Final Product Definition
+# 32. Final Product Definition
 
 > **Finify is a premium native macOS music client for Jellyfin, combining Spotify-inspired usability, Sleeve-inspired album immersion, and the freedom of a private music library.**
 
@@ -1263,9 +1206,6 @@ Core Music Experience
 V1
 Daily Driver
         ↓
-V2
-Collection Experience
-        ↓
 V3
 Intelligent Discovery
         ↓
@@ -1275,11 +1215,11 @@ Platform Expansion
 
 產品發展原則：
 
-> **先把 Music Experience 做對，再做 Daily Driver；再做 Collection；最後才做 Intelligence 與 Platform Expansion。**
+> **先把 Music Experience 做對，再做 Daily Driver；最後才做 Intelligence 與 Platform Expansion。**
 
 ---
 
-# 34. Open Questions & Spikes
+# 33. Open Questions & Spikes
 
 開始 TASK-002 前必須先處理。
 
@@ -1314,7 +1254,7 @@ Decode                      ImageIO 在背景 thread downsample，不在 main th
 
 ---
 
-# 35. 執行狀態（2026-10-03）
+# 34. 執行狀態（2026-10-03）
 
 ## Task Queue
 
@@ -1347,7 +1287,7 @@ Decode                      ImageIO 在背景 thread downsample，不在 main th
 | 025 Visual polish | 🟡 | 持續進行 |
 | 026 Release build | ⬜ | 需要開發者帳號簽章與公證 |
 
-## §34 待定義項目的處理
+## §33 待定義項目的處理
 
 * **Onboarding mode picker**：已實作，選項可記住（設定中可改）。
 * **Overflow Search**：與 Standard 共用 ⌘K 面板，見 `DECISIONS.md` D08。

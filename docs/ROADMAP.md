@@ -17,13 +17,9 @@ V1
  │
  │  成為 Daily Driver
  ▼
-V2
- │
- │  成為個人音樂收藏入口
- ▼
 V3
  │
- │  建立 Discovery / Collection Ecosystem
+ │  用裝置端 AI 重新發現自己的收藏
  ▼
 Future
 ```
@@ -465,7 +461,6 @@ Library：
 ❌ Album Flip
 ❌ Floating Player
 ❌ Always on Top
-❌ Lidarr
 ❌ AI
 ❌ Offline
 ❌ Multi-server
@@ -630,146 +625,28 @@ Listen
 
 ---
 
-# 24. V2 — Collection Experience
-
-V2 開始處理：
-
-> **「我不只想播放我的音樂，我想管理和拓展我的音樂收藏。」**
-
----
-
-# 25. V2 Lidarr Integration
-
-Finify 開始與 Lidarr 串接。
-
-Album：
-
-```text
-Not in Library
-
-[ Add to Lidarr ]
-```
-
-流程：
-
-```text
-Finify
- ↓
-Lidarr API
- ↓
-Add Artist / Album
- ↓
-Lidarr Download
- ↓
-Jellyfin Scan
- ↓
-Finify
-```
-
-形成：
-
-> **Discovery → Acquisition → Library → Playback**
-
----
-
-# 26. V2 Smart Collection
-
-加入：
-
-* [ ] Missing albums
-* [ ] Missing artist discography
-* [ ] Unplayed albums
-* [ ] Recently acquired
-* [ ] Collection completeness
-* [ ] Quality upgrade candidates
-
-例如：
-
-```text
-Radiohead
-
-8 / 9 albums collected
-
-Missing:
-A Moon Shaped Pool
-```
-
----
-
-# 27. V2 Quality Management
-
-如果 Jellyfin / Lidarr 環境搭配 Recyclarr：
-
-Finify 可以顯示：
-
-```text
-Album
-Quality
-FLAC
-24-bit
-96kHz
-```
-
-未來甚至：
-
-```text
-Current
-MP3 320
-
-Available
-FLAC
-
-[ Upgrade ]
-```
-
-但 Finify 不自己執行下載。
-
-交給：
-
-> Lidarr / Recyclarr / Download stack
-
----
-
-# 28. V2 Discovery
-
-先不做 AI。
-
-先使用：
-
-* Genre
-* Artist relationships
-* Album metadata
-* Listening history
-* User favorites
-
-產生：
-
-```text
-Related Artists
-Similar Albums
-You May Like
-Explore
-```
-
----
-
-# 29. V3 — Intelligent Discovery
+# 24. V3 — Intelligent Discovery
 
 V3 才加入 AI。
 
+AI 完全在裝置上執行，使用 Apple Foundation Models（Apple Intelligence，macOS 26 以上）：
+
+* 不使用任何雲端服務
+* 聆聽資料不會離開這台 Mac
+
 目標：
 
-> **讓 Finify 從 Music Player 變成 Personal Music Discovery Engine。**
+> **讓 Finify 從 Music Player 變成 Personal Music Discovery Engine，幫你重新發現自己的收藏。**
 
 ---
 
-# 30. V3 AI Discovery
+# 25. V3 AI Discovery
 
-使用者可以問：
+使用者用自然語言問：
 
-> 找一些我沒有收藏、但可能喜歡的 90 年代 Trip-Hop。
+> 找一些適合下雨天的爵士。
 
-Finify：
+Finify 只從使用者自己的音樂庫推薦專輯，並優先挑很久沒播的：
 
 ```text
 User Library
@@ -778,9 +655,9 @@ Listening History
       +
 Metadata
       +
-AI
+On-device AI（Foundation Models）
       ↓
-Recommendations
+Recommendations（只來自 User Library）
 ```
 
 每個結果：
@@ -790,15 +667,16 @@ Album
 Artist
 Year
 Genre
+Last played
 
-Why this fits your library
+Why this fits
 
-[ Add to Lidarr ]
+[ Play ]
 ```
 
 ---
 
-# 31. V3 AI Collection Loop
+# 26. V3 Rediscovery Loop
 
 完整閉環：
 
@@ -807,24 +685,19 @@ Listen
  ↓
 Understand taste
  ↓
-Discover
- ↓
-Add to Lidarr
- ↓
-Download
- ↓
-Jellyfin
+Rediscover from your own library
  ↓
 Listen
 ```
 
 Finify 成為：
 
-> **Personal Music Operating Layer**
+> **Personal Listening Layer：讓你重新聽見自己的收藏。**
 
 ---
 
-# 32. V3 Smart Radio
+# 27. V3 Smart Radio
+
 
 加入：
 
@@ -853,7 +726,7 @@ Mogwai
 
 ---
 
-# 33. Future — Platform Expansion
+# 28. Future — Platform Expansion
 
 macOS 穩定後才考慮：
 
@@ -879,7 +752,7 @@ tvOS
 
 ---
 
-# 34. Future — Multi-server
+# 29. Future — Multi-server
 
 支援：
 
@@ -897,7 +770,7 @@ Remote Jellyfin
 
 ---
 
-# 35. Future — Offline
+# 30. Future — Offline
 
 Offline Music：
 
@@ -923,7 +796,7 @@ Offline Playback
 
 ---
 
-# 36. Roadmap Overview
+# 31. Roadmap Overview
 
 ```text
 ┌─────────────────────────────────────────────┐
@@ -955,23 +828,12 @@ Offline Playback
 └──────────────────────┬──────────────────────┘
                        ↓
 ┌─────────────────────────────────────────────┐
-│ V2 — COLLECTION                            │
-│                                             │
-│ Lidarr                                      │
-│ Collection management                       │
-│ Missing albums                              │
-│ Quality upgrades                            │
-│ Related artists                             │
-│ Smart collection                            │
-└──────────────────────┬──────────────────────┘
-                       ↓
-┌─────────────────────────────────────────────┐
 │ V3 — DISCOVERY                              │
 │                                             │
 │ AI Discovery                                │
 │ Smart Radio                                 │
 │ Personal recommendations                    │
-│ Automated collection loop                   │
+│ Rediscovery loop                            │
 └──────────────────────┬──────────────────────┘
                        ↓
 ┌─────────────────────────────────────────────┐
@@ -986,7 +848,7 @@ Offline Playback
 
 ---
 
-# 37. Release Strategy
+# 32. Release Strategy
 
 ## MVP
 
@@ -1021,16 +883,6 @@ Offline Playback
 
 ---
 
-## V2
-
-定位：
-
-> **Collection Platform**
-
-開始建立 Finify 與 Lidarr 生態的差異化。
-
----
-
 ## V3
 
 定位：
@@ -1041,7 +893,7 @@ AI / Discovery 成為主要產品敘事。
 
 ---
 
-# 38. Product Hunt Timing
+# 33. Product Hunt Timing
 
 不要在 MVP 階段急著 Product Hunt。
 
@@ -1079,9 +931,9 @@ Product Hunt
 
 ---
 
-# 39. Awwwards-level Quality Gate
+# 34. Awwwards-level Quality Gate
 
-不論 MVP / V1 / V2，每個公開畫面都遵守：
+不論 MVP / V1 / V3，每個公開畫面都遵守：
 
 ```text
 Visual
@@ -1105,7 +957,7 @@ Accessibility
 
 ---
 
-# 40. Final Scope Alignment
+# 35. Final Scope Alignment
 
 ## MVP = Experience
 
@@ -1139,37 +991,23 @@ Advanced Player
 Advanced Overflow
 ```
 
-## V2 = Collection
+## V3 = Intelligence
 
 ```text
 V1
 +
-Lidarr
-+
-Collection Management
-+
-Quality Upgrade
-+
-Discovery
-```
-
-## V3 = Intelligence
-
-```text
-V2
-+
-AI
+On-device AI
 +
 Smart Radio
 +
 Personal Discovery
 +
-Automated Collection
+Rediscovery Loop
 ```
 
 ---
 
-# 41. 最終產品演進
+# 36. 最終產品演進
 
 ```text
                     FINIFY
@@ -1190,14 +1028,9 @@ Automated Collection
               Playlist / Lyrics
                        │
                        ▼
-                  COLLECTION
-                       │
-                    Lidarr
-                       │
-                       ▼
                  DISCOVERY
                        │
-                       AI
+                 On-device AI
                        │
                        ▼
             PERSONAL MUSIC ECOSYSTEM
@@ -1205,7 +1038,7 @@ Automated Collection
 
 ---
 
-# 42. Execution Priority
+# 37. Execution Priority
 
 任何新功能都先問：
 
@@ -1231,16 +1064,6 @@ Automated Collection
 
 是否改善：
 
-> **Music Collection？**
-
-如果是：
-
-> V2。
-
-### Q4
-
-是否改善：
-
 > **Music Discovery / Intelligence？**
 
 如果是：
@@ -1249,11 +1072,11 @@ Automated Collection
 
 ---
 
-# 43. Final Rule
+# 38. Final Rule
 
 Finify 的開發順序永遠是：
 
-> **Experience → Daily Driver → Collection → Intelligence**
+> **Experience → Daily Driver → Intelligence**
 
 而不是：
 
