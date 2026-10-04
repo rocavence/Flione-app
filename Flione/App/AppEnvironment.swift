@@ -229,7 +229,30 @@ final class AppEnvironment {
     }
 
     /// Jellyfin 是否有保存的登入（切換時不用重新登入）
-    var hasJellyfinAccount: Bool { sessionStore.load() != nil }
+    var hasJellyfinAccount: Bool {
+        _ = accountsRevision  // 登出沒在使用的 Jellyfin 時讓畫面更新
+        return sessionStore.load() != nil
+    }
+    private var accountsRevision = 0
+
+    /// 保存的 Jellyfin 登入（不一定是目前的來源）：設定頁在沒切換過去時也能顯示它的設定
+    var storedJellyfinSession: JellyfinSession? {
+        _ = accountsRevision
+        return sessionStore.load()
+    }
+
+    /// 登出某個來源。是目前的來源時停止播放並回到登入畫面；不是時只清除它的登入，目前播放不受影響
+    func signOut(_ target: MusicSource) {
+        if session != nil, source == target {
+            signOut()
+            return
+        }
+        switch target {
+        case .youtube: Task { await youtube.signOut() }
+        case .jellyfin: sessionStore.clear()
+        }
+        accountsRevision += 1
+    }
 
     /// 切換音樂來源：暫停目前這一邊（不登出），已登入過的那一邊直接連線，沒登入過就顯示它的登入畫面
     func switchSource(to target: MusicSource) async {

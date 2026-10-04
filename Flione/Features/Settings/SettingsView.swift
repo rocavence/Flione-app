@@ -54,19 +54,40 @@ enum SettingsKey {
 /// 版面：標題、分頁膠囊、關閉鈕；每一列左邊是名稱與說明，右邊是控制項。
 struct SettingsCard: View {
     enum Tab: String, CaseIterable {
-        case general, modern, infinity, coverFlow, jellyfin, about
+        case general, modern, infinity, coverFlow, jellyfin, youtube, about
 
         var title: LocalizedStringResource {
             switch self {
             case .general: "General"
-            // 模式名稱是產品名，不翻譯
+            // 模式與音樂來源的名稱是產品名，不翻譯
             case .modern: LocalizedStringResource(stringLiteral: ViewMode.standard.title)
             case .infinity: LocalizedStringResource(stringLiteral: ViewMode.infinity.title)
             case .coverFlow: LocalizedStringResource(stringLiteral: ViewMode.coverFlow.title)
-            case .jellyfin: "Music Source"
+            case .jellyfin: LocalizedStringResource(stringLiteral: MusicSource.jellyfin.title)
+            case .youtube: LocalizedStringResource(stringLiteral: MusicSource.youtube.title)
             case .about: "About"
             }
         }
+
+        var icon: Reicon {
+            switch self {
+            case .general: .setting2
+            case .modern: ViewMode.standard.icon
+            case .infinity: ViewMode.infinity.icon
+            case .coverFlow: ViewMode.coverFlow.icon
+            case .jellyfin: .server
+            case .youtube: .music
+            case .about: .infoCircle
+            }
+        }
+
+        /// 側欄的分組：一般／顯示模式／音樂來源／關於
+        static let groups: [(title: LocalizedStringResource?, tabs: [Tab])] = [
+            (nil, [.general]),
+            ("View Modes", [.modern, .infinity, .coverFlow]),
+            ("Music Sources", [.jellyfin, .youtube]),
+            (nil, [.about]),
+        ]
     }
 
     @Environment(AppEnvironment.self) private var app
@@ -79,46 +100,35 @@ struct SettingsCard: View {
     }()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
+        // 左側分頁（像系統設定），右側內容；標題與關閉鈕在最上面
+        HStack(alignment: .top, spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
                 Text("Settings").finifyFont(.title).foregroundStyle(FinifyColor.ink)
                     .accessibilityAddTraits(.isHeader)
-                Spacer()
-                CloseButton { app.isSettingsPresented = false }
+                    .padding(.horizontal, Spacing.s8)
+                    .padding(.bottom, Spacing.s20)
+                TabSidebar(selection: $tab)
+                Spacer(minLength: 0)
             }
-            .padding(.bottom, Spacing.s16)
-            // 分頁放在標題下方一整列，不和標題擠在一起
-            TabPicker(selection: $tab)
-                .padding(.bottom, Spacing.s8)
+            .frame(width: 184, alignment: .leading)
+            .padding(.trailing, Spacing.s16)
 
-            ScrollViewReader { proxy in
-            ScrollView {
-                VStack(spacing: 0) {
-                    switch tab {
-                    case .general: GeneralSettings()
-                    case .modern: ModernSettings()
-                    case .infinity: InfinitySettings()
-                    case .coverFlow: CoverFlowSettings()
-                    case .jellyfin: AccountSettings()
-                    case .about: AboutSettings()
-                    }
-                    Color.clear.frame(height: 0).id("bottom")
+            FinifyColor.hairline.frame(width: 1).padding(.vertical, -Spacing.s32)
+
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center) {
+                    Text(tab.title).finifyFont(.heading).foregroundStyle(FinifyColor.ink)
+                    Spacer()
+                    CloseButton { app.isSettingsPresented = false }
                 }
+                .padding(.bottom, Spacing.s4)
+                content
             }
-            .scrollBounceBehavior(.basedOnSize)
-            #if DEBUG
-            // -FinifyDemoSettingsScroll YES：截圖用，打開後捲到最下面
-            .task {
-                guard UserDefaults.standard.bool(forKey: "FinifyDemoSettingsScroll") else { return }
-                try? await Task.sleep(for: .seconds(1))
-                proxy.scrollTo("bottom", anchor: .bottom)
-            }
-            #endif
-            }
+            .padding(.leading, Spacing.s24)
         }
         .padding(Spacing.s32)
         // 固定大小：切換分頁時卡片不會因為內容長短而上下跳動
-        .frame(width: 640, height: 600)
+        .frame(width: 820, height: 600)
         .background {
             ZStack {
                 FinifyColor.elevated
@@ -133,6 +143,37 @@ struct SettingsCard: View {
         .tint(FinifyColor.accent)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Settings")
+    }
+}
+
+extension SettingsCard {
+    @ViewBuilder
+    fileprivate var content: some View {
+        ScrollViewReader { proxy in
+        ScrollView {
+            VStack(spacing: 0) {
+                switch tab {
+                case .general: GeneralSettings()
+                case .modern: ModernSettings()
+                case .infinity: InfinitySettings()
+                case .coverFlow: CoverFlowSettings()
+                case .jellyfin: SourceSettings(source: .jellyfin)
+                case .youtube: SourceSettings(source: .youtube)
+                case .about: AboutSettings()
+                }
+                Color.clear.frame(height: 0).id("bottom")
+            }
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        #if DEBUG
+        // -FinifyDemoSettingsScroll YES：截圖用，打開後捲到最下面
+        .task {
+            guard UserDefaults.standard.bool(forKey: "FinifyDemoSettingsScroll") else { return }
+            try? await Task.sleep(for: .seconds(1))
+            proxy.scrollTo("bottom", anchor: .bottom)
+        }
+        #endif
+        }
     }
 }
 
@@ -254,29 +295,59 @@ private struct PillMenu<Value: Hashable>: View {
 }
 
 /// 頂端的分頁膠囊
-private struct TabPicker: View {
+/// 左側的分頁：圖示＋名稱，分成一般／顯示模式／音樂來源／關於幾組，像系統設定的側欄
+private struct TabSidebar: View {
     @Binding var selection: SettingsCard.Tab
 
     var body: some View {
-        HStack(spacing: 2) {
-            ForEach(SettingsCard.Tab.allCases, id: \.self) { tab in
-                let selected = tab == selection
-                Button { selection = tab } label: {
-                    Text(tab.title)
-                        .finifyFont(selected ? .bodyEmphasis : .body)
-                        .foregroundStyle(selected ? FinifyColor.onPrimary : FinifyColor.muted)
-                        .padding(.horizontal, Spacing.s16)
-                        .frame(height: 30)
-                        .background(selected ? FinifyColor.primary : .clear, in: Capsule())
-                        .contentShape(Capsule())
+        VStack(alignment: .leading, spacing: 2) {
+            ForEach(Array(SettingsCard.Tab.groups.enumerated()), id: \.offset) { index, group in
+                if let title = group.title {
+                    Text(title)
+                        .finifyFont(.micro)
+                        .foregroundStyle(FinifyColor.faint)
+                        .padding(.horizontal, Spacing.s8)
+                        .padding(.top, Spacing.s16)
+                        .padding(.bottom, Spacing.s4)
+                        .accessibilityAddTraits(.isHeader)
+                } else if index > 0 {
+                    Spacer().frame(height: Spacing.s16)
                 }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(selected ? .isSelected : [])
+                ForEach(group.tabs, id: \.self) { tab in
+                    TabSidebarRow(tab: tab, selected: tab == selection) { selection = tab }
+                }
             }
         }
-        .padding(3)
-        .background(FinifyColor.glassHighlight, in: Capsule())
         .animation(Motion.micro, value: selection)
+    }
+}
+
+private struct TabSidebarRow: View {
+    let tab: SettingsCard.Tab
+    let selected: Bool
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Spacing.s8) {
+                FinifyIcon(tab.icon, weight: selected ? .filled : .outline, size: .compact)
+                    .frame(width: 20)
+                Text(tab.title)
+                    .finifyFont(selected ? .bodyEmphasis : .body)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(selected ? FinifyColor.onPrimary : FinifyColor.ink.opacity(0.82))
+            .padding(.horizontal, Spacing.s8)
+            .frame(height: 32)
+            .background(selected ? FinifyColor.primary : (hovering ? FinifyColor.glassHighlight : .clear),
+                        in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }
 
@@ -668,24 +739,24 @@ private struct CastServerRow: View {
     }
 }
 
-private struct AccountSettings: View {
+/// Jellyfin 與 YouTube Music 各自一頁：帳號、音樂庫、各自的設定、登出
+private struct SourceSettings: View {
+    let source: MusicSource
     @Environment(AppEnvironment.self) private var app
 
     var body: some View {
-        // 分成 Jellyfin 與 YouTube Music 兩組，各自的設定放在自己那一組
-        group("Jellyfin") {
-            sourceRow(.jellyfin)
-            if active(.jellyfin) {
-                libraryRow
-                CastServerRow(serverURL: app.session?.serverURL)
-                signOutRow
+        sourceRow(source)
+        // 有登入就顯示這個來源的設定，不用先切換過去；音樂庫的數量與重新整理只對目前使用中的來源有意義
+        if active(source) {
+            SettingRow(title: "Library", detail: "\(app.library.albums.count) albums. Refresh after adding music.") {
+                PillButton(title: app.library.state == .loading ? "Refreshing…" : "Refresh") { Task { await app.library.refresh() } }
+                    .disabled(app.library.state == .loading)
             }
         }
-        group("YouTube Music") {
-            sourceRow(.youtube)
-            if active(.youtube) {
-                libraryRow
-            }
+        switch source {
+        case .jellyfin:
+            if let session = app.storedJellyfinSession { CastServerRow(serverURL: session.serverURL) }
+        case .youtube:
             SettingRow(title: "Sync play counts with iCloud",
                        detail: LocalPlayCounts.isCloudAvailable
                            ? "YouTube Music doesn't keep play counts, so Flione counts them on this Mac. Turn this on to add up the counts from all your Macs through iCloud Drive. Turning it off removes this Mac's copy from iCloud."
@@ -697,8 +768,14 @@ private struct AccountSettings: View {
                 .toggleStyle(PillSwitchStyle())
                 .disabled(!LocalPlayCounts.isCloudAvailable)
             }
-            if active(.youtube) {
-                signOutRow
+        }
+        if isSignedIn(source) {
+            SettingRow(title: "Sign out of \(source.title)",
+                       detail: active(source) ? "Stops playback. Your other music source stays signed in." : "What's playing now isn't affected.") {
+                PillButton(title: "Sign Out", destructive: true) {
+                    if active(source) { app.isSettingsPresented = false }
+                    app.signOut(source)
+                }
             }
         }
         Text("Flione connects only to the music source you choose. No Flione account, no analytics, no tracking.")
@@ -709,36 +786,6 @@ private struct AccountSettings: View {
     }
 
     private func active(_ source: MusicSource) -> Bool { app.session != nil && app.source == source }
-
-    @ViewBuilder
-    private func group<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        // 產品名稱不翻譯
-        Text(verbatim: title)
-            .finifyFont(.micro)
-            .textCase(.uppercase)
-            .tracking(0.6)
-            .foregroundStyle(FinifyColor.faint)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, Spacing.s24)
-            .accessibilityAddTraits(.isHeader)
-        content()
-    }
-
-    private var libraryRow: some View {
-        SettingRow(title: "Library", detail: "\(app.library.albums.count) albums. Refresh after adding music.") {
-            PillButton(title: app.library.state == .loading ? "Refreshing…" : "Refresh") { Task { await app.library.refresh() } }
-                .disabled(app.library.state == .loading)
-        }
-    }
-
-    private var signOutRow: some View {
-        SettingRow(title: "Sign out of \(app.source.title)", detail: "Stops playback. Your other music source stays signed in.") {
-            PillButton(title: "Sign Out", destructive: true) {
-                app.isSettingsPresented = false
-                app.signOut()
-            }
-        }
-    }
 
     private func sourceRow(_ source: MusicSource) -> some View {
         let active = app.session != nil && app.source == source
