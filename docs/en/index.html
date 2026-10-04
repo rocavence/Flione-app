@@ -16,13 +16,11 @@
 <link rel="alternate" hreflang="en" href="https://flione.rocavence.com/en/">
 <link rel="alternate" hreflang="x-default" href="https://flione.rocavence.com/en/">
 <link rel="alternate" type="text/plain" title="llms.txt" href="https://flione.rocavence.com/llms.txt">
-<!-- Icons -->
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="32x32" href="/site/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/site/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/site/apple-touch-icon.png">
 <link rel="manifest" href="/site/site.webmanifest">
-<!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Flione">
 <meta property="og:url" data-i-content="head.url" content="https://flione.rocavence.com/en/">
@@ -34,12 +32,10 @@
 <meta property="og:image:alt" data-i-content="head.ogtitle" content="Flione — Jellyfin &amp; YouTube Music player for Mac">
 <meta property="og:locale" data-i-content="head.locale" content="en_US">
 <meta property="og:locale:alternate" data-i-content="head.localealt" content="zh_TW">
-<!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" data-i-content="head.ogtitle" content="Flione — Jellyfin &amp; YouTube Music player for Mac">
 <meta name="twitter:description" data-i-content="head.ogdesc" content="A free, native macOS music player. Three ways to browse, and get lost in your album covers.">
 <meta name="twitter:image" data-i-content="head.ogimg" content="https://flione.rocavence.com/site/og-en.png">
-<!-- Structured data -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -99,7 +95,6 @@
   ]
 }
 </script>
-<!-- FAQ 結構化資料由 scripts/site/build.py 從頁面上的常見問題產生，不要手改 -->
 <script type="application/ld+json" id="ld-faq">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I install it?","acceptedAnswer":{"@type":"Answer","text":"Four steps, about a minute. Step 3 uses Terminal — don't worry, it's just copy and paste. Click Download latest and download the .dmg: AppleSilicon for Macs with Apple chips (M1 or later), Intel for Intel Macs. Not sure? Choose → About This Mac and look for “Chip” or “Processor”. Double-click the dmg to open it, then drag Flione into the Applications folder next to it. Open Terminal: press ⌘ + Space for Spotlight, type Terminal, and press Return. Click Copy at the top right of the black box below, go back to Terminal, press ⌘ + V to paste, then press Return. Flione opens; after that, open it from Applications as usual. xattr -dr com.apple.quarantine /Applications/Flione.app && open /Applications/Flione.app"}},{"@type":"Question","name":"Is Flione a Jellyfin client for Mac?","acceptedAnswer":{"@type":"Answer","text":"Yes. Flione is a native macOS Jellyfin client built for music: connect to your own Jellyfin server and browse albums, artists, genres, and playlists, with gapless playback, synced lyrics, media keys, and Control Center."}},{"@type":"Question","name":"Can I use YouTube Music on a Mac?","acceptedAnswer":{"@type":"Answer","text":"Yes. Flione is also a YouTube Music desktop player for Mac: sign in with Google and browse your saved albums, liked songs, and playlists in all three views, without a browser tab."}},{"@type":"Question","name":"Is Flione free?","acceptedAnswer":{"@type":"Answer","text":"Yes. No in-app purchases and no Flione account. Download it and go."}},{"@type":"Question","name":"Why paste a Terminal command?","acceptedAnswer":{"@type":"Answer","text":"Flione is a free, self-signed app that isn't notarized by Apple. I don't make apps for a living; I just build small things I find useful and good-looking, and Apple's yearly developer fee isn't in the budget… So macOS blocks the first launch. This line only removes the quarantine flag added when you downloaded it, then opens Flione. It changes nothing else, and you only need to do it once."}},{"@type":"Question","name":"What do I need?","acceptedAnswer":{"@type":"Answer","text":"macOS 14 or later (Liquid Glass needs macOS 26), and a Jellyfin server or a YouTube Music account. Pick a music source on the sign-in screen the first time you open it."}},{"@type":"Question","name":"Anything to know about YouTube Music?","acceptedAnswer":{"@type":"Answer","text":"YouTube Premium is recommended: free accounts may hear ads during playback. Flione uses the unofficial InnerTube API, which can break for a while when Google changes it."}},{"@type":"Question","name":"Does Flione collect my data?","acceptedAnswer":{"@type":"Answer","text":"No. No Flione account, no analytics, no tracking; it only connects to the music source you choose. Jellyfin sign-in lives in the Keychain, and YouTube Music signs in with Google without storing a password. AI Discover runs entirely on your Mac too."}},{"@type":"Question","name":"Why make Flione?","acceptedAnswer":{"@type":"Answer","text":"Flione began with a self-hosted Jellyfin server. An iTunes library built over twenty-some years was re-imported and became a private music stream. The music was back, but the players that worked with it looked plain and dated. So Flione was made: a sidebar like Spotify's, a wall of covers that drifts slowly and lays out years of taste, and the original Cover Flow from early Mac OS X. Flione is a renaissance for collecting music: truly owning your music, not just streaming it."}},{"@type":"Question","name":"Where does the name come from?","acceptedAnswer":{"@type":"Answer","text":"Jellyfin+Infinity+Clione=Flione Jellyfin and Infinity share \"fin\", which gives the F; \"lione\" comes from Clione, the sea angel. The three views are three ways a sea angel moves through an ocean of music: Modern is everyday drifting, Infinity heads into the deep, and Cover Flow glides through a floating swarm."}},{"@type":"Question","name":"Can I build it from source?","acceptedAnswer":{"@type":"Answer","text":"Yes. Follow the README and build it with Xcode."}}]}</script>
 <style>
   :root{
@@ -128,7 +123,6 @@
   .btn-ghost{background:var(--stage);color:var(--ink)}
   .btn-ghost:hover{background:#ebebe8}
 
-  /* 選單：主畫面（hero）時隱藏，往下捲過主標與按鈕才滑出 */
   nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.8);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);box-shadow:0 .5px 0 rgba(17,17,17,.08);transform:translateY(-100%);opacity:0;visibility:hidden;transition:transform .35s ease,opacity .35s ease,visibility 0s .35s}
   nav.show{transform:none;opacity:1;visibility:visible;transition:transform .35s ease,opacity .35s ease}
   section[id]{scroll-margin-top:60px}
@@ -143,26 +137,21 @@
   .lang a{border:0;background:transparent;padding:4px 10px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:600;font-family:inherit}
   .lang a.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
-  /* 主標：黑字一句，灰字接著說明 */
   .statement{font-size:clamp(30px,4.6vw,54px);line-height:1.15;letter-spacing:-.025em;font-weight:500;max-width:760px}
   .statement .dim{display:block}
   h2.statement{font-size:clamp(24px,2.6vw,32px);line-height:1.3;letter-spacing:-.015em;max-width:720px}
 
-  /* HERO */
   .hero{padding:72px 0 0}
   .hero .mark{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;margin-bottom:22px}
   .hero .mark img{width:36px;height:36px}
   .cta{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap}
   .meta{margin-top:16px;font-size:13px;color:var(--muted)}
 
-  /* 灰底展示區 */
   .stage{background:var(--stage);border-radius:24px;padding:56px 56px 26px;margin-top:56px}
   .stage.sm{padding:32px 32px 20px;margin-top:0}
 
-  /* 主畫面 */
   .stage.studio{padding:0;background:none;margin-top:56px}
   .stage.studio .demo-stage{max-width:none}
-  /* Studio Display：純 CSS 繪製，以場景寬度（cqw）為單位，任何解析度都銳利 */
   .sd-scene{container-type:inline-size;position:relative;margin:0;border-radius:24px;overflow:hidden;padding:5.5cqw 0 6.5cqw;background:radial-gradient(ellipse 70% 62% at 50% 34%,#fff 0%,#f5f5f4 58%,#ebebe9 100%)}
   .sd{position:relative;width:64cqw;margin:0 auto}
   .sd-body{position:relative;z-index:2;padding:.17cqw;border-radius:.75cqw;background:linear-gradient(180deg,#eceef0 0%,#c9cbce 55%,#b8babd 100%);box-shadow:0 3.2cqw 5cqw -2.6cqw rgba(0,0,0,.32),0 .4cqw .8cqw -.3cqw rgba(0,0,0,.18)}
@@ -176,7 +165,6 @@
   .sd-foot::before{content:"";position:absolute;left:-60%;right:-60%;top:10%;height:3.2cqw;z-index:-1;background:radial-gradient(closest-side,rgba(0,0,0,.13),transparent);filter:blur(1.2cqw)}
   .sd-foot::after{content:"";position:absolute;left:-8%;right:-8%;top:55%;height:1.1cqw;z-index:-1;background:radial-gradient(closest-side,rgba(0,0,0,.42),transparent);filter:blur(.3cqw)}
 
-  /* App 視窗維持深色 */
   .window{--ink:#eaf2ff;--muted:#8ea2c2;--faint:#5d7090;color:var(--ink);position:relative;border-radius:14px;background:#050f1f;box-shadow:0 30px 60px -28px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.08);overflow:hidden}
   .titlebar{position:absolute;top:0;left:0;right:0;height:38px;display:flex;align-items:center;gap:8px;padding:0 14px;z-index:4;background:linear-gradient(180deg,rgba(5,15,31,.92),rgba(5,15,31,.55));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
   .dots{display:flex;gap:7px;margin-right:6px}
@@ -196,7 +184,6 @@
   .player .prog{position:absolute;left:58px;right:18px;bottom:5px;height:2px;border-radius:2px;background:rgba(234,242,255,.12);overflow:hidden}
   .player .prog i{display:block;height:100%;width:38%;background:var(--orange)}
 
-  /* INFINITY live wall */
   .demo-stage{max-width:980px;margin:0 auto}
   .wall-window{aspect-ratio:16/10}
   .wall{position:absolute;inset:38px 0 0 0;overflow:hidden}
@@ -218,7 +205,6 @@
 
   section.block{padding:120px 0 0}
 
-  /* MODES */
   .mode{display:grid;grid-template-columns:1fr 1.35fr;gap:56px;align-items:center;margin-top:72px}
   .mode.flip{grid-template-columns:1.35fr 1fr}
   .mode.flip .mode-text{order:2}
@@ -229,7 +215,6 @@
   .mode h3 em{font-style:normal}
   .mode p.desc{color:var(--muted);font-size:15.5px}
 
-  /* Modern mock */
   .modern-window{aspect-ratio:16/11.6}
   .mm{position:absolute;inset:38px 0 0 0;display:grid;grid-template-columns:24% 1fr}
   .mm-side{background:linear-gradient(180deg,rgba(47,107,255,.10),rgba(167,139,255,.06));border-right:1px solid rgba(234,242,255,.07);padding:12px 10px;display:flex;flex-direction:column;gap:3px}
@@ -256,7 +241,6 @@
   .mm-row{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
   .mm-row img{width:100%;aspect-ratio:1;border-radius:6px;object-fit:cover}
 
-  /* Cover Flow demo */
   .flow-window{aspect-ratio:16/10;background:radial-gradient(70% 60% at 50% 40%,var(--glow,rgba(47,107,255,.35)),transparent 70%),#050f1f;transition:background .8s ease}
   .flow{position:absolute;inset:38px 0 0 0;perspective:1100px;overflow:hidden}
   .flow-item{position:absolute;left:50%;top:40%;width:30%;aspect-ratio:1;margin-left:-15%;margin-top:-15%;transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .6s,filter .6s;cursor:pointer;-webkit-box-reflect:below 2px linear-gradient(transparent 62%,rgba(255,255,255,.22))}
@@ -268,7 +252,6 @@
   .flow-nav:hover{background:rgba(234,242,255,.14)}
   .flow-nav.l{left:14px}.flow-nav.r{right:14px}
 
-  /* 三欄：圖示＋「粗體。灰字」 */
   .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 40px;margin-top:56px}
   .cols.two{grid-template-columns:repeat(2,1fr)}
   .item .ic{width:28px;height:28px;margin-bottom:14px;color:var(--ink);display:flex;align-items:center}
@@ -282,12 +265,10 @@
   .logo{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
   .logo.jf{background:linear-gradient(135deg,#aa5cc3,#00a4dc)}
   .logo.yt{background:#ff0033}
-  /* 配色預覽：色碼取自 ColorTheme.swift，深色底＋互動色圓點 */
   .swatches{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
   .swatches i{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--bg),var(--bg2));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12)}
   .swatches i::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac)}
 
-  /* FAQ */
   .faq{max-width:760px;margin:0 auto}
   .faq h2{font-size:clamp(28px,3.4vw,40px);font-weight:500;letter-spacing:-.025em;margin-bottom:28px}
   .faq details{border-bottom:1px solid var(--line)}
@@ -300,7 +281,6 @@
   .faq .ans b{color:var(--ink);font-weight:500}
   .faq .ans a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
 
-  /* 安裝步驟（給第一次用終端機的人） */
   .how-steps{list-style:none;display:grid;gap:10px;margin-top:14px;counter-reset:st}
   .how-steps li{position:relative;padding-left:34px;counter-increment:st}
   .how-steps li::before{content:counter(st);position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center}
@@ -319,7 +299,6 @@
   .naming .eq{background:none;padding:0;color:var(--faint)}
   .naming .res{background:var(--ink);color:#fff}
 
-  /* FOOTER */
   footer{margin-top:140px;padding:40px 0 56px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
   footer .wrap{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:32px}
   footer a:hover{color:var(--ink)}
@@ -383,7 +362,6 @@
     </div>
     <p class="meta" data-i="hero.meta">macOS 14 or later · v0.9.1 · Apple silicon and Intel</p>
 
-    <!-- INFINITY LIVE DEMO -->
     <div class="stage studio">
       <div class="demo-stage">
         <figure class="sd-scene" data-i-aria-label="device.aria" aria-label="Flione running on a Studio Display: the Infinity cover wall">
@@ -420,7 +398,6 @@
   <div class="wrap">
     <h2 class="statement" data-i="modes.h2">Your library, three experiences.<span class="dim">One for every day, one that drifts, one you flip through.</span></h2>
 
-    <!-- MODERN -->
     <div class="mode">
       <div class="mode-text">
         <div class="mode-tag"><span class="k">⌘1</span><span class="w">Modern · Presence</span></div>
@@ -468,7 +445,6 @@
       </div>
     </div>
 
-    <!-- INFINITY -->
     <div class="mode flip">
       <div class="mode-text">
         <div class="mode-tag"><span class="k">⌘2</span><span class="w">Infinity · Depth</span></div>
@@ -484,7 +460,6 @@
       </div>
     </div>
 
-    <!-- COVER FLOW -->
     <div class="mode">
       <div class="mode-text">
         <div class="mode-tag"><span class="k">⌘3</span><span class="w">Cover Flow · Visual</span></div>
@@ -645,7 +620,6 @@
 </footer>
 
 <script>
-/* 語言：中文在 /，英文在 /en/（由 scripts/site/build.py 產生）。第一次來、瀏覽器不是中文就導到英文版 */
 document.querySelectorAll(".lang a").forEach(a=>a.addEventListener("click",()=>{try{localStorage.setItem("flione-lang",a.dataset.lang)}catch(e){}}));
 (function(){
   if(document.documentElement.lang!=="zh-Hant"||/bot|crawl|spider|slurp|preview/i.test(navigator.userAgent)) return;
@@ -653,15 +627,12 @@ document.querySelectorAll(".lang a").forEach(a=>a.addEventListener("click",()=>{
   if(!saved&&!(navigator.language||"").toLowerCase().startsWith("zh")) location.replace("/en/"+location.hash);
 })();
 
-/* 主畫面：App 畫面以 1000×563 排版，再縮放到 Studio Display 螢幕的寬度 */
 const sdScreen=document.getElementById("sdScreen");
 new ResizeObserver(()=>sdScreen.style.setProperty("--s",sdScreen.clientWidth/1000)).observe(sdScreen);
 
-/* 選單：主畫面的按鈕列捲出畫面上方後才出現 */
 const nav=document.querySelector("nav");
 new IntersectionObserver(([e])=>nav.classList.toggle("show",!e.isIntersecting&&e.boundingClientRect.top<0)).observe(document.querySelector(".hero .cta"));
 
-/* Infinity wall: 30 covers, shuffled per column, duplicated so the drift loops seamlessly */
 const COVERS=Array.from({length:30},(_,i)=>`/site/covers/c${String(i+1).padStart(2,"0")}.jpg`);
 const track=document.getElementById("track"), wall=document.getElementById("wall");
 const order=[3,17,9,25,0,12,28,6,20,14,1,23,8,29,11,4,19,26,15,2,22,10,27,5,13,24,7,18,21,16];
@@ -680,7 +651,6 @@ if(reduce) document.getElementById("wall2").classList.add("paused");
 setAuto(!reduce);
 tg.onclick=()=>setAuto(!tg.classList.contains("on"));
 
-/* Cover Flow demo */
 const FLOW=[
   {i:6,t:"Kind of Blue",s:"Miles Davis · 1959"},{i:0,t:"Abbey Road",s:"The Beatles · 1969"},{i:1,t:"The Dark Side of the Moon",s:"Pink Floyd · 1973"},
   {i:4,t:"Rumours",s:"Fleetwood Mac · 1977"},{i:3,t:"Thriller",s:"Michael Jackson · 1982"},{i:2,t:"Nevermind",s:"Nirvana · 1991"},
@@ -717,7 +687,6 @@ document.addEventListener("keydown",e=>{
 layout();
 </script>
 <script>
-/* 安裝指令一鍵複製 */
 document.querySelectorAll(".copy-btn").forEach(b=>b.addEventListener("click",async()=>{
   const t=document.getElementById(b.dataset.target).textContent.trim();
   try{await navigator.clipboard.writeText(t)}catch(e){const r=document.createRange();r.selectNodeContents(document.getElementById(b.dataset.target));const s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy")}
