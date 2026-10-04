@@ -106,7 +106,7 @@ struct HomeView: View {
         case .failed:
             EmptyView()
         default:
-            AlbumShelf(title: title, state: state, action: refresh.map { ("Shuffle picks", $0) })
+            AlbumShelf(title: title, state: state, action: refresh.map { ("Shuffle picks", $0) }, actionIcon: .refresh)
         }
     }
 }
@@ -116,6 +116,8 @@ struct AlbumShelf: View {
     let title: LocalizedStringResource
     let state: Loadable<[Album]>
     var action: (title: LocalizedStringResource, run: () -> Void)?
+    /// 動作前的圖示：「重新推薦」用重新整理，「顯示全部」不需要
+    var actionIcon: Reicon?
     var cardWidth: CGFloat = 168
     @Environment(AppEnvironment.self) private var app
     @Environment(StandardRouter.self) private var router
@@ -131,7 +133,7 @@ struct AlbumShelf: View {
         VStack(alignment: .leading, spacing: Spacing.s16) {
             // 置中對齊：左右箭頭沒有文字基線，用基線對齊會和「重新推薦」上下錯開
             HStack(alignment: .center) {
-                SectionHeader(title: title, action: action, actionIcon: action == nil ? nil : .refresh)
+                SectionHeader(title: title, action: action, actionIcon: actionIcon)
                 if albums.count > visibleCount {
                     HStack(spacing: Spacing.s4) {
                         FinifyIconButton(icon: .chevronLeft, label: "Scroll \(title) left", size: .compact) { page(-1) }
@@ -296,8 +298,9 @@ private struct HeroBackdrop: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .clipped()
                     .blur(radius: 60, opaque: true)
-                    .opacity(0.55)
-                    .blendMode(.softLight)
+                    // 封面的顏色主導整條 Hero（極光漸層只在封面載入前出現）；稍微提高飽和、壓暗，讓白字清楚
+                    .saturation(1.25)
+                    .brightness(-0.12)
                     .transition(.opacity)
             }
         }

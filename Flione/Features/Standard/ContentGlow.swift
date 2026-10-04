@@ -8,17 +8,33 @@ struct ContentGlow: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(SettingsKey.ambient) private var enabled = true
+    @Environment(AppEnvironment.self) private var app
+    /// 沒有 BlurHash（YouTube Music 的封面）時，從封面小圖取色
+    @State private var sampled: (artwork: ArtworkRef, primary: Color, secondary: Color)?
+
+    private var currentPalette: (primary: Color, secondary: Color)? {
+        guard let artwork else { return nil }
+        if let palette = Self.palette(artwork) { return palette }
+        return sampled?.artwork == artwork ? (sampled!.primary, sampled!.secondary) : nil
+    }
 
     var body: some View {
         ZStack {
             FinifyColor.paper
-            if enabled, let palette = artwork.flatMap(Self.palette) {
+            if enabled, let palette = currentPalette {
                 glow(palette)
                     .id(artwork)
                     .transition(.opacity)
             }
         }
         .animation(reduceMotion ? nil : Motion.ambient, value: artwork)
+        .animation(reduceMotion ? nil : Motion.ambient, value: sampled?.artwork)
+        .task(id: artwork) {
+            guard enabled, let artwork, artwork.blurHash == nil,
+                  let image = await app.images?.image(artwork, pixelSize: 96), let colors = ImagePipeline.palette(image) else { return }
+            func color(_ c: (r: Double, g: Double, b: Double)) -> Color { Color(.sRGB, red: c.r, green: c.g, blue: c.b) }
+            sampled = (artwork, color(colors.left), color(colors.right))
+        }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }

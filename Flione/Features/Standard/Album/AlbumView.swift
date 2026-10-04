@@ -49,7 +49,8 @@ struct AlbumView: View {
                     .foregroundStyle(FinifyColor.ink)
                     .lineLimit(2)
                     .minimumScaleFactor(0.6)
-                HStack(spacing: Spacing.s8) {
+                // 間距配合 metadata 的「· 」，點的兩側看起來一樣寬
+                HStack(spacing: Spacing.s4) {
                     Button(album.artistName) { router.openArtist(id: album.artistID, name: album.artistName) }
                         .buttonStyle(.plain)
                         .finifyFont(.bodyEmphasis)

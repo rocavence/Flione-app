@@ -138,6 +138,34 @@ final class ImagePipeline: @unchecked Sendable {
         return context.makeImage() ?? image
     }
 
+    /// 封面左半與右半的代表色，給沒有 BlurHash 的封面（YouTube Music）當背景光暈。
+    /// 鮮豔的像素權重較高：白底或灰底的封面不會被平均成一片灰
+    static func palette(_ image: CGImage) -> (left: (r: Double, g: Double, b: Double), right: (r: Double, g: Double, b: Double))? {
+        let side = 8
+        var pixels = [UInt8](repeating: 0, count: side * side * 4)
+        guard let context = CGContext(data: &pixels, width: side, height: side, bitsPerComponent: 8, bytesPerRow: side * 4,
+                                      space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
+        context.interpolationQuality = .medium
+        context.draw(image, in: CGRect(x: 0, y: 0, width: side, height: side))
+        func weighted(_ columns: Range<Int>) -> (r: Double, g: Double, b: Double) {
+            var sum = (r: 0.0, g: 0.0, b: 0.0), total = 0.0
+            for y in 0..<side {
+                for x in columns {
+                    let i = (y * side + x) * 4
+                    let r = Double(pixels[i]) / 255, g = Double(pixels[i + 1]) / 255, b = Double(pixels[i + 2]) / 255
+                    let high = max(r, g, b), low = min(r, g, b)
+                    let saturation = high > 0 ? (high - low) / high : 0
+                    let weight = 0.05 + saturation * saturation
+                    sum = (sum.r + r * weight, sum.g + g * weight, sum.b + b * weight)
+                    total += weight
+                }
+            }
+            return (sum.r / total, sum.g / total, sum.b / total)
+        }
+        return (weighted(0..<side / 2), weighted(side / 2..<side))
+    }
+
     private static func fileName(_ key: String) -> String {
         SHA256.hash(data: Data(key.utf8)).prefix(16).map { String(format: "%02x", $0) }.joined() + ".img"
     }

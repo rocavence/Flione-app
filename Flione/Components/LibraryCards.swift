@@ -179,7 +179,8 @@ struct TrackRow: View {
             // 0.001 而不是 0：完全透明的 view 會被移出點擊與 VoiceOver
             FavoriteButton(itemID: track.id, name: track.name)
                 .opacity(hovering || app.favorites.contains(track.id) ? 1 : 0.001)
-            Text(track.duration.formattedDuration)
+            // YouTube 部分清單（藝人的熱門歌曲）沒有長度：留空，不顯示「0:00」
+            Text(track.duration > 0 ? track.duration.formattedDuration : "")
                 .finifyFont(.caption)
                 .monospacedDigit()
                 .foregroundStyle(FinifyColor.muted)
