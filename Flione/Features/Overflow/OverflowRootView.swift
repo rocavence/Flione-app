@@ -40,6 +40,7 @@ struct OverflowRootView: View {
     }
 
     private var playingAlbumID: String? { app.player.currentTrack?.albumID }
+    private var playingAlbumOnWall: Bool { playingAlbumID.map { id in sortedAlbums.contains { $0.id == id } } ?? false }
     private var flowSize: Int { flowSizeRaw >= 0 ? flowSizeRaw : AlbumFlowView.autoStep(for: browseSize) }
     private var flowSizeBinding: Binding<Int> { Binding { flowSize } set: { flowSizeRaw = $0 } }
     private var densityStep: Binding<Int> { Binding { density.wrappedValue.rawValue } set: { densityRaw = $0 } }
@@ -198,7 +199,8 @@ struct OverflowRootView: View {
             Button { scrollToPlaying += 1 } label: {
                 HStack(spacing: Spacing.s4) {
                     FinifyIcon(.gps, size: .compact)
-                    Text("Now Playing").finifyFont(.caption)
+                    // 文字放大（睫狀肌舒適）時頂部列較擠，維持一行不換行
+                    Text("Now Playing").finifyFont(.caption).lineLimit(1).fixedSize()
                 }
                 .foregroundStyle(FinifyColor.Overflow.muted)
                 .padding(.horizontal, Spacing.s12)
@@ -207,9 +209,10 @@ struct OverflowRootView: View {
                 .contentShape(Capsule())
             }
             .buttonStyle(PressScaleStyle())
-            .disabled(playingAlbumID == nil)
-            .opacity(playingAlbumID == nil ? 0.4 : 1)
-            .help("Focus on the album that's playing")
+            .disabled(!playingAlbumOnWall)
+            .opacity(playingAlbumOnWall ? 1 : 0.4)
+            // 正在播放的歌不在音樂庫的專輯裡（例如 YouTube 的推薦、電台）時，封面牆上沒有它可以捲過去
+            .help(playingAlbumID != nil && !playingAlbumOnWall ? "The album that's playing isn't in your library" : "Focus on the album that's playing")
             .accessibilityLabel("Focus on the album that's playing")
 
             if layout == .wall { autoScrollToggle }

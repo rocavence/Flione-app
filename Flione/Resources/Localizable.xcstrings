@@ -13303,6 +13303,40 @@
           }
         }
       }
+    },
+    "The album that's playing isn't in your library": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在播放的專輯不在你的音樂庫裡"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再生中のアルバムはライブラリにありません"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생 중인 앨범이 보관함에 없습니다"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El álbum que suena no está en tu biblioteca"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O álbum que está tocando não está na sua biblioteca"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
