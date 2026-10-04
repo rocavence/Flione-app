@@ -160,8 +160,27 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
     func albums(inGenre genreID: String) async throws -> [Album] { [] }
     func randomTracks(inGenre genreID: String, limit: Int) async throws -> [Track] { [] }
     func instantMix(forTrack trackID: String, limit: Int) async throws -> [Track] { [] }
-    func radio(seedID: String, limit: Int) async throws -> [Track] { [] }
-    var supportsRadio: Bool { false }
+    /// YouTube Music 的電台（D47）：專輯 → RDAMPL＋專輯播放清單；藝人 → 藝人頁的 RDEM 電台；歌曲 → RDAMVM＋歌曲
+    func radio(seedID: String, limit: Int) async throws -> [Track] {
+        var body: [String: Any] = ["isAudioOnly": true, "enablePersistentPlaylistPanel": true, "tunerSettingValue": "AUTOMIX_SETTING_NORMAL"]
+        if seedID.hasPrefix("MPREb_") {
+            guard let playlistID = try await albumPlaylistID(seedID) else { return [] }
+            body["playlistId"] = "RDAMPL" + playlistID
+        } else if seedID.hasPrefix("UC") {
+            let json = try await InnerTube.post("browse", body: ["browseId": seedID])
+            guard let radioID = Parse.playlistID(prefix: "RDEM", in: json) else { return [] }
+            body["playlistId"] = radioID
+        } else {
+            body["videoId"] = seedID
+            body["playlistId"] = "RDAMVM" + seedID
+        }
+        let json = try await InnerTube.post("next", body: body)
+        // 同一首歌常同時有歌曲版與 MV 版（id 不同）：依歌名＋藝人只留第一個
+        var seen = Set<String>()
+        return Array(Parse.all("playlistPanelVideoRenderer", in: json).compactMap(Parse.panelTrack)
+            .filter { seen.insert($0.id).inserted && seen.insert($0.radioKey).inserted }.prefix(limit))
+    }
+    var supportsRadio: Bool { true }
 
     func randomTracks(limit: Int) async throws -> [Track] {
         Array(try await likedSongs().shuffled().prefix(limit))
@@ -208,22 +227,33 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
 
     // MARK: - 最愛＝喜歡的歌曲
 
+    /// 按讚的歌＋收藏的專輯：專輯頁的愛心＝「儲存到音樂庫」，已收藏的專輯顯示實心
     func favoriteIDs() async throws -> Set<String> {
-        Set(try await likedSongs().map(\.id))
+        async let songs = likedSongs()
+        async let albums = allAlbums()
+        return Set(try await songs.map(\.id)).union(((try? await albums) ?? []).map(\.id))
     }
 
     func favoriteTracks() async throws -> [Track] {
         try await likedSongs()
     }
 
-    /// 把專輯加入 YouTube Music 收藏：與 YouTube Music 的「儲存到音樂庫」相同，是對專輯的播放清單（OLAK5uy_…）按讚
-    func saveAlbumToLibrary(_ albumID: String) async throws {
-        let json = try await InnerTube.post("browse", body: ["browseId": albumID])
-        guard let playlistID = Parse.albumPlaylistID(json) else { throw Failure.notFound }
-        _ = try await InnerTube.post("like/like", body: ["target": ["playlistId": playlistID]])
+    /// 把專輯加入（或移出）YouTube Music 收藏：與 YouTube Music 的「儲存到音樂庫」相同，是對專輯的播放清單（OLAK5uy_…）按讚
+    func saveAlbumToLibrary(_ albumID: String, _ saved: Bool = true) async throws {
+        guard let playlistID = try await albumPlaylistID(albumID) else { throw Failure.notFound }
+        _ = try await InnerTube.post(saved ? "like/like" : "like/removelike", body: ["target": ["playlistId": playlistID]])
+    }
+
+    private func albumPlaylistID(_ albumID: String) async throws -> String? {
+        Parse.playlistID(prefix: "OLAK5uy_", in: try await InnerTube.post("browse", body: ["browseId": albumID]))
     }
 
     func setFavorite(_ itemID: String, _ isFavorite: Bool) async throws {
+        // 專輯（MPREb_）：收藏或移出收藏；不能對專輯 id 按讚（會被當成一首歌，YouTube 不會收藏）
+        if itemID.hasPrefix("MPREb_") {
+            try await saveAlbumToLibrary(itemID, isFavorite)
+            return
+        }
         _ = try await InnerTube.post(isFavorite ? "like/like" : "like/removelike", body: ["target": ["videoId": itemID]])
         await likedCache.clear()
     }
@@ -393,15 +423,28 @@ enum Parse {
         return config?["musicVideoType"] as? String == "MUSIC_VIDEO_TYPE_ATV"
     }
 
-    /// 專輯頁裡專輯本身的播放清單 id（OLAK5uy_ 開頭）
-    static func albumPlaylistID(_ value: Any) -> String? {
+    /// 回應裡第一個指定開頭的播放清單 id：專輯本身（OLAK5uy_）、藝人電台（RDEM）
+    static func playlistID(prefix: String, in value: Any) -> String? {
         if let dict = value as? [String: Any] {
-            if let id = dict["playlistId"] as? String, id.hasPrefix("OLAK5uy_") { return id }
-            for child in dict.values { if let id = albumPlaylistID(child) { return id } }
+            if let id = dict["playlistId"] as? String, id.hasPrefix(prefix) { return id }
+            for child in dict.values { if let id = playlistID(prefix: prefix, in: child) { return id } }
         } else if let array = value as? [Any] {
-            for child in array { if let id = albumPlaylistID(child) { return id } }
+            for child in array { if let id = playlistID(prefix: prefix, in: child) { return id } }
         }
         return nil
+    }
+
+    /// 電台佇列裡的一首歌（next 回應的 playlistPanelVideoRenderer）：副標題是「藝人 • 專輯 • 年份」
+    static func panelTrack(_ item: [String: Any]) -> Track? {
+        guard let id = item["videoId"] as? String, let name = text(item["title"]), !name.isEmpty else { return nil }
+        let byline = runs(item["longBylineText"])
+        let artists = byline.filter { browse($0)?.pageType == "MUSIC_PAGE_TYPE_ARTIST" }
+        let albumRun = byline.first { browse($0)?.pageType == "MUSIC_PAGE_TYPE_ALBUM" }
+        let artistName = artists.compactMap { $0["text"] as? String }.joined(separator: ", ")
+        return Track(id: id, name: name, albumID: albumRun.flatMap { browse($0)?.id }, albumName: albumRun?["text"] as? String ?? "",
+                     artistName: artistName.isEmpty ? (byline.first?["text"] as? String ?? "") : artistName,
+                     artistID: artists.first.flatMap { browse($0)?.id }, trackNumber: nil, discNumber: nil,
+                     duration: text(item["lengthText"]).map(seconds) ?? 0, container: nil, artwork: artwork(item["thumbnail"]))
     }
 
     static func continuation(_ json: [String: Any]) -> String? {

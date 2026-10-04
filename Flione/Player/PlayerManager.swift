@@ -300,9 +300,10 @@ final class PlayerManager {
         refillingRadio = true
         defer { refillingRadio = false }
         guard let mix = try? await repository.radio(seedID: track.id, limit: 40), radioName != nil else { return }
-        // 最近播過或已在佇列的不再加入
-        let seen = Set(queue.tracks.suffix(300).map(\.id))
-        let fresh = mix.filter { !seen.contains($0.id) }
+        // 最近播過或已在佇列的不再加入（YouTube 的同一首歌可能是不同 id 的 MV 版，所以也比歌名＋藝人）
+        let recent = queue.tracks.suffix(300)
+        let seen = Set(recent.map(\.id)).union(recent.map(\.radioKey))
+        let fresh = mix.filter { !seen.contains($0.id) && !seen.contains($0.radioKey) }
         guard !fresh.isEmpty else { return }
         queue.append(Array(fresh.prefix(25)))
         refreshNextItem()
@@ -648,6 +649,9 @@ final class PlayerManager {
 }
 
 extension Track {
+    /// 電台去重用：歌名＋藝人（忽略大小寫）
+    var radioKey: String { "\(name.lowercased())\u{1F}\(artistName.lowercased())" }
+
     static let placeholderPrefix = "pending:"
     /// 曲目還沒取回時暫代的項目（PlayerManager.pending），不能加愛心、查歌詞
     var isPlaceholder: Bool { id.hasPrefix(Self.placeholderPrefix) }

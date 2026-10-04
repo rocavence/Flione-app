@@ -14,6 +14,8 @@ final class FavoritesStore {
     /// 每次寫入成功後遞增，Favorites 頁據此重新載入
     private(set) var revision = 0
 
+    /// 寫入成功後通知（YouTube 的專輯收藏改變後要重新讀取音樂庫）
+    @ObservationIgnored var onSynced: ((String) -> Void)?
     /// 每次換音樂來源加一：上一個來源晚回來的最愛清單要丟掉
     @ObservationIgnored private var generation = 0
 
@@ -42,6 +44,7 @@ final class FavoritesStore {
                 try await repository.setFavorite(id, target)
                 serverState[id] = target
                 revision += 1
+                onSynced?(id)
             } catch {
                 // 還原成 server 上的狀態
                 if serverState[id] == true { ids.insert(id) } else { ids.remove(id) }

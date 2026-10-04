@@ -138,6 +138,11 @@ final class AppEnvironment {
         let notifier = TrackNotifier { [weak self] in self?.images }
         self.notifier = notifier
         player.onTrackChange = { notifier.trackChanged($0) }
+        // YouTube：專輯頁的愛心是加入／移出收藏，寫入後重新讀取音樂庫，封面牆跟著出現或消失
+        favorites.onSynced = { [weak self] id in
+            guard let self, self.session?.isYouTube == true, id.hasPrefix("MPREb_") else { return }
+            Task { await self.library.refresh() }
+        }
         // 第一次開啟：有 Jellyfin 登入就用 Jellyfin，沒有就用 YouTube Music
         let stored = sessionStore.load()
         source = UserDefaults.standard.string(forKey: Self.sourceKey).flatMap(MusicSource.init) ?? (stored != nil ? .jellyfin : .youtube)

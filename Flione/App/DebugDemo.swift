@@ -54,8 +54,10 @@ enum DebugDemo {
         }
         // -FinifyDemoSaveAlbum <專輯 id>：用 YouTube 的「加入收藏」，結果寫到 -FinifyDiscoverLog（驗證正在播放的加入收藏）
         if let id = defaults.string(forKey: "FinifyDemoSaveAlbum"), let repository = app.repository as? YouTubeMusicRepository {
-            do { try await repository.saveAlbumToLibrary(id); DiscoveryEngine.debugNote("save \(id): ok") }
-            catch { DiscoveryEngine.debugNote("save \(id): \(error)") }
+            // 走專輯頁愛心的同一條路（setFavorite）；-FinifyDemoUnsave YES 時是移出收藏
+            let saved = !defaults.bool(forKey: "FinifyDemoUnsave")
+            do { try await repository.setFavorite(id, saved); DiscoveryEngine.debugNote("favorite \(id) \(saved): ok") }
+            catch { DiscoveryEngine.debugNote("favorite \(id) \(saved): \(error)") }
         }
         // -FinifyDemoQueue YES：先打開佇列面板（檢查窄視窗的版面；與 -FinifyDemoOpen 一起用時，2 秒後才打開專輯）
         if defaults.bool(forKey: "FinifyDemoQueue") {
