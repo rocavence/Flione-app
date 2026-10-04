@@ -97,10 +97,10 @@ extension DiscoveryEngine {
         return cut.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "`\"',，、」")))
     }
 
-    /// DEBUG：-FinifyDiscoverLog <檔案> 記錄每一步，查哪裡慢或失敗
+    /// DEBUG：-FlioneDiscoverLog <檔案> 記錄每一步，查哪裡慢或失敗
     static func debugNote(_ line: String) {
         #if DEBUG
-        guard let path = UserDefaults.standard.string(forKey: "FinifyDiscoverLog") else { return }
+        guard let path = UserDefaults.standard.string(forKey: "FlioneDiscoverLog") else { return }
         if !FileManager.default.fileExists(atPath: path) { FileManager.default.createFile(atPath: path, contents: nil) }
         guard let handle = FileHandle(forWritingAtPath: path) else { return }
         handle.seekToEndOfFile()

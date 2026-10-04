@@ -68,12 +68,12 @@ private struct AlbumBack: View {
         VStack(alignment: .leading, spacing: Spacing.s12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(album.name)
-                    .finifyFont(.heading)
-                    .foregroundStyle(FinifyColor.Overflow.ink)
+                    .flioneFont(.heading)
+                    .foregroundStyle(FlioneColor.Overflow.ink)
                     .lineLimit(2)
                 Text([album.artistName, album.year.map(String.init)].compactMap { $0 }.joined(separator: " · "))
-                    .finifyFont(.caption)
-                    .foregroundStyle(FinifyColor.Overflow.muted)
+                    .flioneFont(.caption)
+                    .foregroundStyle(FlioneColor.Overflow.muted)
                     .lineLimit(1)
             }
             Rectangle().fill(.white.opacity(0.1)).frame(height: 1)
@@ -81,7 +81,7 @@ private struct AlbumBack: View {
             case .loading:
                 VStack(spacing: 6) { ForEach(0..<8, id: \.self) { _ in SkeletonBlock().frame(height: 14) } }
             case .failed:
-                Text("Can't load tracks.").finifyFont(.caption).foregroundStyle(FinifyColor.Overflow.muted)
+                Text("Can't load tracks.").flioneFont(.caption).foregroundStyle(FlioneColor.Overflow.muted)
             case .loaded(let list):
                 ScrollView {
                     VStack(spacing: 0) {
@@ -96,7 +96,7 @@ private struct AlbumBack: View {
         .frame(width: side, height: side, alignment: .topLeading)
         .background(backColor, in: RoundedRectangle(cornerRadius: rounded ? Radius.artwork(for: side) : 0, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: rounded ? Radius.artwork(for: side) : 0, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
-        .finifyShadow(FinifyShadow.playing)
+        .flioneShadow(FlioneShadow.playing)
         .environment(\.overflowStyle, true)
         .task(id: album.id) {
             do { tracks = .loaded(try await app.repository?.tracks(inAlbum: album.id) ?? []) } catch { tracks = .failed }
@@ -105,7 +105,7 @@ private struct AlbumBack: View {
 
     /// 背面底色取自封面平均色並壓暗（ambient color，不是品牌色）
     private var backColor: Color {
-        guard let hash = album.artwork?.blurHash, let c = BlurHash.averageColor(hash) else { return FinifyColor.Ocean.surface2 }
+        guard let hash = album.artwork?.blurHash, let c = BlurHash.averageColor(hash) else { return FlioneColor.Ocean.surface2 }
         return Color(red: c.r * 0.28, green: c.g * 0.28, blue: c.b * 0.28)
     }
 }
@@ -122,18 +122,18 @@ private struct BackTrackRow: View {
         HStack(spacing: Spacing.s8) {
             Text("\(number)")
                 .monospacedDigit()
-                .foregroundStyle(FinifyColor.Overflow.faint)
+                .foregroundStyle(FlioneColor.Overflow.faint)
                 .frame(width: 18, alignment: .trailing)
             Text(track.name)
-                .foregroundStyle(current ? FinifyColor.orange : FinifyColor.Overflow.ink)
-                .finifyGlow(current, radius: 4)
+                .foregroundStyle(current ? FlioneColor.orange : FlioneColor.Overflow.ink)
+                .flioneGlow(current, radius: 4)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text(track.duration.formattedDuration)
                 .monospacedDigit()
-                .foregroundStyle(FinifyColor.Overflow.faint)
+                .foregroundStyle(FlioneColor.Overflow.faint)
         }
-        .finifyFont(.caption)
+        .flioneFont(.caption)
         .padding(.vertical, 5)
         .padding(.horizontal, Spacing.s4)
         .background(hovering ? Color.white.opacity(0.08) : .clear, in: RoundedRectangle(cornerRadius: Radius.small))

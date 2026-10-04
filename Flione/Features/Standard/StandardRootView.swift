@@ -39,7 +39,7 @@ struct StandardRootView: View {
             PlayerBar(onOpenAlbum: openAlbum(id:), onOpenArtist: { router.openArtist(id: $0, name: $1) })
         }
         // 睫狀肌舒適：側欄、內容、佇列與歌詞、播放列的文字放大；右上角控制與搜尋維持原尺寸
-        .environment(\.finifyTextScale, comfort.scale)
+        .environment(\.flioneTextScale, comfort.scale)
         // 模式切換固定在視窗右上角，位置與 Infinity／Cover Flow 完全相同
         .overlay(alignment: .topTrailing) { ViewControls() }
         .overlay {
@@ -49,7 +49,7 @@ struct StandardRootView: View {
             }
         }
         .animation(Motion.respecting(reduceMotion, Motion.micro), value: app.isSearchPresented)
-        .background(FinifyColor.paper)
+        .background(FlioneColor.paper)
         .environment(router)
         .task { await app.library.refreshIfNeeded() }
         .onChange(of: app.requestedAlbumID, initial: true) {
@@ -59,15 +59,15 @@ struct StandardRootView: View {
         }
         #if DEBUG || BENCHMARK
         .task {
-            // -FinifyDemoDiscover "<需求>"：打開探索並送出（DiscoverView 讀取）
-            if UserDefaults.standard.string(forKey: "FinifyDemoDiscover") != nil { router.tab = .discover }
-            if UserDefaults.standard.string(forKey: "FinifyDemoTab") == "library" {
-                let raw = UserDefaults.standard.string(forKey: "FinifyDemoSection") ?? "Albums"
+            // -FlioneDemoDiscover "<需求>"：打開探索並送出（DiscoverView 讀取）
+            if UserDefaults.standard.string(forKey: "FlioneDemoDiscover") != nil { router.tab = .discover }
+            if UserDefaults.standard.string(forKey: "FlioneDemoTab") == "library" {
+                let raw = UserDefaults.standard.string(forKey: "FlioneDemoSection") ?? "Albums"
                 router.tab = .library(LibrarySection(rawValue: raw) ?? .albums)
             }
             await DebugDemo.run(app: app, openAlbum: { router.openAlbum($0) })
-            // -FinifyDemoArtist "<藝人名>"：打開該藝人頁（驗證專輯排序）
-            if let name = UserDefaults.standard.string(forKey: "FinifyDemoArtist") {
+            // -FlioneDemoArtist "<藝人名>"：打開該藝人頁（驗證專輯排序）
+            if let name = UserDefaults.standard.string(forKey: "FlioneDemoArtist") {
                 for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
                 if let album = app.library.albums.first(where: { $0.artistName.localizedCaseInsensitiveContains(name) && $0.artistID != nil }) {
                     router.openArtist(id: album.artistID, name: album.artistName)
@@ -168,10 +168,10 @@ private struct CircleNavButton: View {
 
     var body: some View {
         Button(action: action) {
-            FinifyIcon(icon, size: .compact)
-                .foregroundStyle(FinifyColor.ink)
+            FlioneIcon(icon, size: .compact)
+                .foregroundStyle(FlioneColor.ink)
                 .frame(width: ViewControls.controlHeight, height: ViewControls.controlHeight)
-                .modifier(TopBarSurface(overflow: false, shape: Circle(), fallback: hovering ? FinifyColor.glassHighlight : FinifyColor.glass, interactive: false))
+                .modifier(TopBarSurface(overflow: false, shape: Circle(), fallback: hovering ? FlioneColor.glassHighlight : FlioneColor.glass, interactive: false))
                 .contentShape(Circle())
         }
         .buttonStyle(PressScaleStyle())
@@ -191,16 +191,16 @@ struct SearchTrigger: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: Spacing.s8) {
-                FinifyIcon(.search, size: .compact)
+                FlioneIcon(.search, size: .compact)
                 Text("Search your music")
-                    .finifyFont(.body)
+                    .flioneFont(.body)
                     .lineLimit(1)
                 Spacer()
                 Text("⌘K")
-                    .finifyFont(.caption)
-                    .foregroundStyle(overflow ? FinifyColor.Overflow.faint : FinifyColor.faint)
+                    .flioneFont(.caption)
+                    .foregroundStyle(overflow ? FlioneColor.Overflow.faint : FlioneColor.faint)
             }
-            .foregroundStyle(overflow ? FinifyColor.Overflow.muted : FinifyColor.muted)
+            .foregroundStyle(overflow ? FlioneColor.Overflow.muted : FlioneColor.muted)
             .padding(.horizontal, Spacing.s16)
             .frame(height: ViewControls.controlHeight)
             .modifier(TopBarSurface(overflow: overflow, shape: Capsule(), fallback: background))
@@ -213,8 +213,8 @@ struct SearchTrigger: View {
     }
 
     private var background: Color {
-        if overflow { return hovering ? FinifyColor.Overflow.controlHover : FinifyColor.Overflow.control }
-        return hovering ? FinifyColor.glassHighlight : FinifyColor.glass
+        if overflow { return hovering ? FlioneColor.Overflow.controlHover : FlioneColor.Overflow.control }
+        return hovering ? FlioneColor.glassHighlight : FlioneColor.glass
     }
 }
 
@@ -229,16 +229,16 @@ struct ModeSwitch: View {
         }
         .padding(3)
         // 與搜尋框相同的膠囊外形；Infinity／Cover Flow 浮在封面上，用 Liquid Glass
-        .modifier(TopBarSurface(overflow: overflow, shape: Capsule(), fallback: overflow ? FinifyColor.Overflow.control : FinifyColor.surface))
+        .modifier(TopBarSurface(overflow: overflow, shape: Capsule(), fallback: overflow ? FlioneColor.Overflow.control : FlioneColor.surface))
     }
 
     private func segment(_ mode: ViewMode) -> some View {
         let selected = app.viewMode == mode
         return Button { app.viewMode = mode } label: {
-            FinifyIcon(mode.icon, weight: selected ? .filled : .outline, size: .standard)
+            FlioneIcon(mode.icon, weight: selected ? .filled : .outline, size: .standard)
                 .frame(width: 42, height: 32)
-                .foregroundStyle(selected ? (overflow ? FinifyColor.Overflow.background : FinifyColor.onPrimary) : (overflow ? FinifyColor.Overflow.muted : FinifyColor.muted))
-                .background(selected ? (overflow ? FinifyColor.Overflow.ink : FinifyColor.primary) : .clear, in: Capsule())
+                .foregroundStyle(selected ? (overflow ? FlioneColor.Overflow.background : FlioneColor.onPrimary) : (overflow ? FlioneColor.Overflow.muted : FlioneColor.muted))
+                .background(selected ? (overflow ? FlioneColor.Overflow.ink : FlioneColor.primary) : .clear, in: Capsule())
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -276,7 +276,7 @@ struct TopBarSurface<S: InsettableShape>: ViewModifier {
     var interactive = true
 
     func body(content: Content) -> some View {
-        content.finifyGlass(in: shape, tint: overflow ? FinifyColor.Ocean.surface2.opacity(0.45) : FinifyColor.surface.opacity(0.5),
+        content.flioneGlass(in: shape, tint: overflow ? FlioneColor.Ocean.surface2.opacity(0.45) : FlioneColor.surface.opacity(0.5),
                             interactive: interactive, fallback: fallback)
     }
 }

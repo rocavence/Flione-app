@@ -24,30 +24,30 @@ enum ThemePreference: String, CaseIterable {
 
 /// 設定鍵集中定義，避免各處拼錯字串
 enum SettingsKey {
-    static let theme = "FinifyTheme"
+    static let theme = "FlioneTheme"
     /// Modern 的背景光暈（迷你播放器也跟著這個）
-    static let ambient = "FinifyAmbient"
+    static let ambient = "FlioneAmbient"
     /// Infinity 的模糊封面背景
-    static let wallAmbient = "FinifyWallAmbient"
-    static let menuBar = "FinifyMenuBar"
-    static let floatingOnTop = "FinifyFloatingOnTop"
-    static let wallDrift = "FinifyWallDrift"
+    static let wallAmbient = "FlioneWallAmbient"
+    static let menuBar = "FlioneMenuBar"
+    static let floatingOnTop = "FlioneFloatingOnTop"
+    static let wallDrift = "FlioneWallDrift"
     /// Infinity 漂移速度倍率（0.5／1／2）
-    static let wallDriftSpeed = "FinifyWallDriftSpeed"
+    static let wallDriftSpeed = "FlioneWallDriftSpeed"
     /// Infinity 一直自動捲動（滑鼠在牆上也不停）；頂部列的開關
-    static let wallAutoScroll = "FinifyWallAutoScroll"
+    static let wallAutoScroll = "FlioneWallAutoScroll"
     /// Infinity 封面圓角；關掉時封面之間也沒有間距
-    static let wallRounded = "FinifyWallRounded"
+    static let wallRounded = "FlioneWallRounded"
     /// Cover Flow 封面圓角
-    static let flowRounded = "FinifyFlowRounded"
+    static let flowRounded = "FlioneFlowRounded"
     /// Cover Flow 兩側封面變暗的程度（0 = 不變暗，預設 0.25）
-    static let flowDim = "FinifyFlowDim"
+    static let flowDim = "FlioneFlowDim"
     /// Cover Flow 停下來後背景光暈暗下來的程度（0 = 不變暗，維持移動時的亮度）
-    static let flowSettleDim = "FinifyFlowSettleDim"
-    static let trackNotifications = "FinifyTrackNotifications"
-    static let onlineLyrics = "FinifyOnlineLyrics"
+    static let flowSettleDim = "FlioneFlowSettleDim"
+    static let trackNotifications = "FlioneTrackNotifications"
+    static let onlineLyrics = "FlioneOnlineLyrics"
     /// 睫狀肌舒適：Modern 文字放大的級數（TextComfort）
-    static let textComfort = "FinifyTextComfort"
+    static let textComfort = "FlioneTextComfort"
 }
 
 /// 設定卡片：浮在主視窗上（⌘, 或側欄齒輪打開，Esc 或點外面關閉）。
@@ -93,8 +93,8 @@ struct SettingsCard: View {
     @Environment(AppEnvironment.self) private var app
     @State private var tab: Tab = {
         #if DEBUG
-        // -FinifyDemoSettingsTab <分頁>：截圖用，直接打開指定分頁
-        if let raw = UserDefaults.standard.string(forKey: "FinifyDemoSettingsTab"), let tab = Tab(rawValue: raw) { return tab }
+        // -FlioneDemoSettingsTab <分頁>：截圖用，直接打開指定分頁
+        if let raw = UserDefaults.standard.string(forKey: "FlioneDemoSettingsTab"), let tab = Tab(rawValue: raw) { return tab }
         #endif
         return .general
     }()
@@ -103,7 +103,7 @@ struct SettingsCard: View {
         // 左側分頁（像系統設定），右側內容；標題與關閉鈕在最上面
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
-                Text("Settings").finifyFont(.title).foregroundStyle(FinifyColor.ink)
+                Text("Settings").flioneFont(.title).foregroundStyle(FlioneColor.ink)
                     .accessibilityAddTraits(.isHeader)
                     .padding(.horizontal, Spacing.s8)
                     .padding(.bottom, Spacing.s20)
@@ -113,10 +113,10 @@ struct SettingsCard: View {
             .frame(width: 184, alignment: .leading)
             .padding(.trailing, Spacing.s16)
 
-            FinifyColor.hairline.frame(width: 1).padding(.vertical, -Spacing.s32)
+            FlioneColor.hairline.frame(width: 1).padding(.vertical, -Spacing.s32)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text(tab.title).finifyFont(.heading).foregroundStyle(FinifyColor.ink)
+                Text(tab.title).flioneFont(.heading).foregroundStyle(FlioneColor.ink)
                     .frame(height: 36, alignment: .leading)
                     .padding(.bottom, Spacing.s4)
                 content
@@ -130,10 +130,10 @@ struct SettingsCard: View {
         .frame(width: 900, height: 600)
         .background {
             ZStack {
-                FinifyColor.elevated
+                FlioneColor.elevated
                 // 卡片內的淡淡光暈，和 Modern 的背景光暈同一個語彙
-                RadialGradient(colors: [FinifyColor.accent.opacity(0.08), .clear], center: .top, startRadius: 0, endRadius: 420)
-                RadialGradient(colors: [FinifyColor.violet.opacity(0.08), .clear], center: .bottomTrailing, startRadius: 0, endRadius: 360)
+                RadialGradient(colors: [FlioneColor.accent.opacity(0.08), .clear], center: .top, startRadius: 0, endRadius: 420)
+                RadialGradient(colors: [FlioneColor.violet.opacity(0.08), .clear], center: .bottomTrailing, startRadius: 0, endRadius: 360)
             }
         }
         .overlay(alignment: .topTrailing) {
@@ -141,9 +141,9 @@ struct SettingsCard: View {
                 .padding(Spacing.s16)
         }
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).strokeBorder(FinifyColor.hairline, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).strokeBorder(FlioneColor.hairline, lineWidth: 1))
         .shadow(color: .black.opacity(0.35), radius: 40, y: 20)
-        .tint(FinifyColor.accent)
+        .tint(FlioneColor.accent)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Settings")
     }
@@ -177,9 +177,9 @@ extension SettingsCard {
             }
         }
         #if DEBUG
-        // -FinifyDemoSettingsScroll YES：截圖用，打開後捲到最下面
+        // -FlioneDemoSettingsScroll YES：截圖用，打開後捲到最下面
         .task {
-            guard UserDefaults.standard.bool(forKey: "FinifyDemoSettingsScroll") else { return }
+            guard UserDefaults.standard.bool(forKey: "FlioneDemoSettingsScroll") else { return }
             try? await Task.sleep(for: .seconds(1))
             proxy.scrollTo("bottom", anchor: .bottom)
         }
@@ -197,9 +197,9 @@ private struct SettingRow<Control: View>: View {
     var body: some View {
         HStack(alignment: .center, spacing: Spacing.s24) {
             VStack(alignment: .leading, spacing: Spacing.s4) {
-                Text(title).finifyFont(.subheading).foregroundStyle(FinifyColor.ink)
+                Text(title).flioneFont(.subheading).foregroundStyle(FlioneColor.ink)
                 if let detail {
-                    Text(detail).finifyFont(.body).foregroundStyle(FinifyColor.muted)
+                    Text(detail).flioneFont(.body).foregroundStyle(FlioneColor.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -207,7 +207,7 @@ private struct SettingRow<Control: View>: View {
             control
         }
         .padding(.vertical, Spacing.s16)
-        .overlay(alignment: .bottom) { FinifyColor.hairline.frame(height: 1) }
+        .overlay(alignment: .bottom) { FlioneColor.hairline.frame(height: 1) }
         .accessibilityElement(children: .combine)
     }
 }
@@ -232,11 +232,11 @@ private struct PillSwitchStyle: ToggleStyle {
         Button { configuration.isOn.toggle() } label: {
             Capsule()
                 // 開啟時用主色（與選取的分頁、主要按鈕相同），各種配色都清楚；強調色在「寂靜」是灰色，開著也像關著
-                .fill(configuration.isOn ? FinifyColor.primary : FinifyColor.glassHighlight)
-                .overlay(Capsule().strokeBorder(FinifyColor.hairline, lineWidth: configuration.isOn ? 0 : 1))
+                .fill(configuration.isOn ? FlioneColor.primary : FlioneColor.glassHighlight)
+                .overlay(Capsule().strokeBorder(FlioneColor.hairline, lineWidth: configuration.isOn ? 0 : 1))
                 .frame(width: 42, height: 24)
                 .overlay(alignment: configuration.isOn ? .trailing : .leading) {
-                    Circle().fill(configuration.isOn ? FinifyColor.onPrimary : .white)
+                    Circle().fill(configuration.isOn ? FlioneColor.onPrimary : .white)
                         .shadow(color: .black.opacity(0.2), radius: 1.5, y: 1).padding(3)
                 }
                 .animation(reduceMotion ? nil : Motion.micro, value: configuration.isOn)
@@ -258,7 +258,7 @@ private struct PillButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .finifyFont(.bodyEmphasis)
+                .flioneFont(.bodyEmphasis)
                 .foregroundStyle(color)
                 .padding(.horizontal, Spacing.s16)
                 .frame(height: 32)
@@ -271,7 +271,7 @@ private struct PillButton: View {
         .animation(Motion.micro, value: hovering)
     }
 
-    private var color: Color { destructive ? FinifyColor.danger : FinifyColor.accent }
+    private var color: Color { destructive ? FlioneColor.danger : FlioneColor.accent }
 }
 
 /// 右側的選單（目前值＋上下箭頭），外觀與 PillButton 一致
@@ -290,13 +290,13 @@ private struct PillMenu<Value: Hashable>: View {
         } label: {
             HStack(spacing: Spacing.s4) {
                 if let current = options.first(where: { $0.0 == selection }) { Text(current.1) }
-                FinifyIcon(.chevronDown, size: .compact).scaleEffect(0.75)
+                FlioneIcon(.chevronDown, size: .compact).scaleEffect(0.75)
             }
-            .finifyFont(.bodyEmphasis)
-            .foregroundStyle(FinifyColor.accent)
+            .flioneFont(.bodyEmphasis)
+            .foregroundStyle(FlioneColor.accent)
             .padding(.horizontal, Spacing.s12)
             .frame(height: 32)
-            .background(FinifyColor.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .background(FlioneColor.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             .contentShape(Rectangle())
         }
         .menuStyle(.button)
@@ -317,8 +317,8 @@ private struct TabSidebar: View {
             ForEach(Array(SettingsCard.Tab.groups.enumerated()), id: \.offset) { index, group in
                 if let title = group.title {
                     Text(title)
-                        .finifyFont(.micro)
-                        .foregroundStyle(FinifyColor.faint)
+                        .flioneFont(.micro)
+                        .foregroundStyle(FlioneColor.faint)
                         .padding(.horizontal, Spacing.s8)
                         .padding(.top, Spacing.s16)
                         .padding(.bottom, Spacing.s4)
@@ -344,17 +344,17 @@ private struct TabSidebarRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: Spacing.s8) {
-                FinifyIcon(tab.icon, weight: selected ? .filled : .outline, size: .compact)
+                FlioneIcon(tab.icon, weight: selected ? .filled : .outline, size: .compact)
                     .frame(width: 20)
                 Text(tab.title)
-                    .finifyFont(selected ? .bodyEmphasis : .body)
+                    .flioneFont(selected ? .bodyEmphasis : .body)
                     .lineLimit(1)
                 Spacer(minLength: 0)
             }
-            .foregroundStyle(selected ? FinifyColor.onPrimary : FinifyColor.ink.opacity(0.82))
+            .foregroundStyle(selected ? FlioneColor.onPrimary : FlioneColor.ink.opacity(0.82))
             .padding(.horizontal, Spacing.s8)
             .frame(height: 32)
-            .background(selected ? FinifyColor.primary : (hovering ? FinifyColor.glassHighlight : .clear),
+            .background(selected ? FlioneColor.primary : (hovering ? FlioneColor.glassHighlight : .clear),
                         in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
@@ -460,9 +460,9 @@ private struct ThemePicker: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s12) {
             VStack(alignment: .leading, spacing: Spacing.s4) {
-                Text("Color theme").finifyFont(.subheading).foregroundStyle(FinifyColor.ink)
+                Text("Color theme").flioneFont(.subheading).foregroundStyle(FlioneColor.ink)
                 Text("The colors of every view. The orange that marks what's playing stays the same.")
-                    .finifyFont(.body).foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.body).foregroundStyle(FlioneColor.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }
             HStack(spacing: 10) {
@@ -472,7 +472,7 @@ private struct ThemePicker: View {
             }
         }
         .padding(.vertical, Spacing.s16)
-        .overlay(alignment: .bottom) { FinifyColor.hairline.frame(height: 1) }
+        .overlay(alignment: .bottom) { FlioneColor.hairline.frame(height: 1) }
     }
 }
 
@@ -505,7 +505,7 @@ private struct ThemeSwatch: View {
                         HStack(spacing: 4) {
                             Circle().fill(Color(hex: p.accent)).frame(width: 8, height: 8)
                             Capsule().fill(Color(hex: p.surface2)).frame(height: 3)
-                                .overlay(alignment: .leading) { Capsule().fill(FinifyColor.orange).frame(width: 16, height: 3) }
+                                .overlay(alignment: .leading) { Capsule().fill(FlioneColor.orange).frame(width: 16, height: 3) }
                         }
                         Spacer(minLength: 0)
                     }
@@ -517,7 +517,7 @@ private struct ThemeSwatch: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .strokeBorder(selected ? Color(hex: p.accent) : FinifyColor.hairline, lineWidth: selected ? 2 : 1)
+                        .strokeBorder(selected ? Color(hex: p.accent) : FlioneColor.hairline, lineWidth: selected ? 2 : 1)
                 }
                 .padding(3)
                 .overlay {
@@ -529,8 +529,8 @@ private struct ThemeSwatch: View {
                 }
                 .scaleEffect(hovering && !selected ? 1.04 : 1)
                 Text(theme.title)
-                    .finifyFont(selected ? .bodyEmphasis : .caption)
-                    .foregroundStyle(selected ? FinifyColor.ink : FinifyColor.muted)
+                    .flioneFont(selected ? .bodyEmphasis : .caption)
+                    .foregroundStyle(selected ? FlioneColor.ink : FlioneColor.muted)
                     .lineLimit(1)
             }
             .contentShape(Rectangle())
@@ -560,7 +560,7 @@ private struct InfinitySettings: View {
     @AppStorage(SettingsKey.wallRounded) private var rounded = true
     @AppStorage(SettingsKey.wallDrift) private var wallDrift = true
     @AppStorage(SettingsKey.wallDriftSpeed) private var wallDriftSpeed = 1.0
-    @AppStorage("FinifyWallDensity") private var density = -1
+    @AppStorage("FlioneWallDensity") private var density = -1
 
     /// 漂移：關閉＝0，其餘是速度倍率
     private var drift: Binding<Double> {
@@ -585,7 +585,7 @@ private struct CoverFlowSettings: View {
     @AppStorage(SettingsKey.flowRounded) private var rounded = true
     @AppStorage(SettingsKey.flowDim) private var flowDim = 0.25
     @AppStorage(SettingsKey.flowSettleDim) private var flowSettleDim = 0.0
-    @AppStorage("FinifyFlowSize") private var flowSize = -1
+    @AppStorage("FlioneFlowSize") private var flowSize = -1
 
     var body: some View {
         SettingToggle(title: "Rounded covers", detail: "Turn off for square covers.", isOn: $rounded)
@@ -620,9 +620,9 @@ private struct AboutSettings: View {
                     .frame(width: 64, height: 64)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: Spacing.s4) {
-                    Text(verbatim: "Flione").finifyFont(.subheading).foregroundStyle(FinifyColor.ink)
-                    Text("Listen well. Collect well.").finifyFont(.body).foregroundStyle(FinifyColor.muted)
-                    Text("Version \(version)").finifyFont(.caption).foregroundStyle(FinifyColor.faint)
+                    Text(verbatim: "Flione").flioneFont(.subheading).foregroundStyle(FlioneColor.ink)
+                    Text("Listen well. Collect well.").flioneFont(.body).foregroundStyle(FlioneColor.muted)
+                    Text("Version \(version)").flioneFont(.caption).foregroundStyle(FlioneColor.faint)
                 }
             }
 
@@ -660,14 +660,14 @@ private struct AboutSettings: View {
     }
 
     private func heading(_ title: LocalizedStringResource) -> some View {
-        Text(title).finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
+        Text(title).flioneFont(.micro).textCase(.uppercase).foregroundStyle(FlioneColor.muted)
     }
 
     private func section(_ title: LocalizedStringResource, _ paragraphs: [LocalizedStringResource]) -> some View {
         VStack(alignment: .leading, spacing: Spacing.s8) {
             heading(title)
             ForEach(paragraphs.indices, id: \.self) { index in
-                Text(paragraphs[index]).finifyFont(.body).foregroundStyle(FinifyColor.ink.opacity(0.85))
+                Text(paragraphs[index]).flioneFont(.body).foregroundStyle(FlioneColor.ink.opacity(0.85))
                     .fixedSize(horizontal: false, vertical: true)
                     .lineSpacing(3)
             }
@@ -678,13 +678,13 @@ private struct AboutSettings: View {
         VStack(alignment: .leading, spacing: Spacing.s4) {
             Link(destination: URL(string: url)!) {
                 HStack(spacing: Spacing.s4) {
-                    Text(verbatim: name).finifyFont(.bodyEmphasis)
-                    Text(verbatim: "↗").finifyFont(.caption)
+                    Text(verbatim: name).flioneFont(.bodyEmphasis)
+                    Text(verbatim: "↗").flioneFont(.caption)
                 }
-                .foregroundStyle(FinifyColor.accent)
+                .foregroundStyle(FlioneColor.accent)
             }
             .buttonStyle(.plain)
-            Text(detail).finifyFont(.body).foregroundStyle(FinifyColor.muted)
+            Text(detail).flioneFont(.body).foregroundStyle(FlioneColor.muted)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -703,18 +703,18 @@ private struct DeveloperCard: View {
                     .clipShape(Circle())
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: "@rocavence").font(.system(size: 15, weight: .semibold)).foregroundStyle(FinifyColor.ink)
-                    Text("Author · GitHub").font(.system(size: 12.5)).foregroundStyle(FinifyColor.muted)
+                    Text(verbatim: "@rocavence").font(.system(size: 15, weight: .semibold)).foregroundStyle(FlioneColor.ink)
+                    Text("Author · GitHub").font(.system(size: 12.5)).foregroundStyle(FlioneColor.muted)
                 }
             }
             .padding(.leading, Spacing.s8)
             .padding(.trailing, Spacing.s16)
             .padding(.vertical, Spacing.s8)
-            .overlay(CapsuleRing().fill(hovering ? Color.white.opacity(0.2) : FinifyColor.hairline, style: FillStyle(eoFill: true)))
+            .overlay(CapsuleRing().fill(hovering ? Color.white.opacity(0.2) : FlioneColor.hairline, style: FillStyle(eoFill: true)))
             .contentShape(Capsule())
             .background {
                 // 陰影只在 hover 時出現，平時不留陰影圖層
-                if hovering { Capsule().fill(FinifyColor.elevated).shadow(color: .black.opacity(0.3), radius: 16, y: 8) }
+                if hovering { Capsule().fill(FlioneColor.elevated).shadow(color: .black.opacity(0.3), radius: 16, y: 8) }
             }
             .offset(y: hovering ? -2 : 0)
         }
@@ -746,10 +746,10 @@ private struct CastServerRow: View {
                    detail: "Cast devices fetch music from your server themselves. If they can't reach \(serverURL?.absoluteString ?? "the server") (for example over Tailscale), enter a local network address, such as http://192.168.1.10:8096.") {
             TextField("", text: $castServer, prompt: Text(verbatim: "http://192.168.1.10:8096"))
                 .textFieldStyle(.plain)
-                .finifyFont(.body)
+                .flioneFont(.body)
                 .padding(.horizontal, Spacing.s12)
                 .frame(width: 210, height: 32)
-                .background(FinifyColor.surface, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+                .background(FlioneColor.surface, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
         }
     }
 }
@@ -794,8 +794,8 @@ private struct SourceSettings: View {
             }
         }
         Text("Flione connects only to the music source you choose. No Flione account, no analytics, no tracking.")
-            .finifyFont(.caption)
-            .foregroundStyle(FinifyColor.faint)
+            .flioneFont(.caption)
+            .foregroundStyle(FlioneColor.faint)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, Spacing.s16)
     }
@@ -808,8 +808,8 @@ private struct SourceSettings: View {
         return SettingRow(title: "Account", detail: detail(for: source)) {
             if active {
                 Text("In use")
-                    .finifyFont(.bodyEmphasis)
-                    .foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.bodyEmphasis)
+                    .foregroundStyle(FlioneColor.muted)
                     .padding(.horizontal, Spacing.s16)
                     .frame(height: 32)
             } else {

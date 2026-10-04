@@ -24,20 +24,20 @@ struct OverflowAlbumPanel: View {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: Spacing.s8) {
                         Text(album.name)
-                            .finifyFont(.title)
-                            .foregroundStyle(FinifyColor.Overflow.ink)
+                            .flioneFont(.title)
+                            .foregroundStyle(FlioneColor.Overflow.ink)
                             .lineLimit(2)
                         Text([album.artistName, album.year.map(String.init)].compactMap { $0 }.joined(separator: " · "))
-                            .finifyFont(.body)
-                            .foregroundStyle(FinifyColor.Overflow.muted)
+                            .flioneFont(.body)
+                            .foregroundStyle(FlioneColor.Overflow.muted)
                     }
                     Spacer()
-                    FinifyIconButton(icon: .x, label: "Close", action: onClose)
+                    FlioneIconButton(icon: .x, label: "Close", action: onClose)
                 }
                 HStack(spacing: Spacing.s8) {
-                    FinifyButton(title: "Play", icon: .play, kind: .primary) { play(at: 0) }
-                    FinifyButton(title: "Shuffle", icon: .shuffle) { if case .loaded(let t) = tracks { app.player.play(t, shuffled: true) } }
-                    FinifyIconButton(icon: .playlist, label: "Add to Queue") { if case .loaded(let t) = tracks { app.player.addToQueue(t) } }
+                    FlioneButton(title: "Play", icon: .play, kind: .primary) { play(at: 0) }
+                    FlioneButton(title: "Shuffle", icon: .shuffle) { if case .loaded(let t) = tracks { app.player.play(t, shuffled: true) } }
+                    FlioneIconButton(icon: .playlist, label: "Add to Queue") { if case .loaded(let t) = tracks { app.player.addToQueue(t) } }
                     FavoriteButton(itemID: album.id, name: album.name, size: .standard)
                 }
                 trackList
@@ -47,9 +47,9 @@ struct OverflowAlbumPanel: View {
             if !moreByArtist.isEmpty, let onOpenAlbum {
                 VStack(alignment: .leading, spacing: Spacing.s12) {
                     Text("More by \(album.artistName)")
-                        .finifyFont(.micro)
+                        .flioneFont(.micro)
                         .textCase(.uppercase)
-                        .foregroundStyle(FinifyColor.Overflow.muted)
+                        .foregroundStyle(FlioneColor.Overflow.muted)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: Spacing.s12) {
                             ForEach(moreByArtist) { other in
@@ -58,8 +58,8 @@ struct OverflowAlbumPanel: View {
                                                 fallbackTitle: other.name, fallbackSubtitle: other.artistName)
                                         .frame(width: 88, height: 88)
                                     Text(other.name)
-                                        .finifyFont(.caption)
-                                        .foregroundStyle(FinifyColor.Overflow.muted)
+                                        .flioneFont(.caption)
+                                        .foregroundStyle(FlioneColor.Overflow.muted)
                                         .lineLimit(1)
                                         .frame(width: 88, alignment: .leading)
                                 }
@@ -78,7 +78,7 @@ struct OverflowAlbumPanel: View {
         }
         .padding(Spacing.s32)
         .modifier(AlbumPanelGlass())
-        .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 60, y: 30))
+        .flioneShadow(FlioneShadow.Style(color: .black.opacity(0.5), radius: 60, y: 30))
         .environment(\.colorScheme, .dark)
         .task(id: album.id) {
             tracks = .loading
@@ -122,22 +122,22 @@ private struct OverflowTrackRow: View {
         let current = app.player.currentTrack?.id == track.id
         HStack(spacing: Spacing.s12) {
             Group {
-                if current { FinifyIcon(.volumeHigh, weight: .filled, size: .compact).foregroundStyle(FinifyColor.orange).finifyGlow() }
-                else if hovering { FinifyIcon(.play, weight: .filled, size: .compact).foregroundStyle(FinifyColor.Overflow.ink) }
-                else { Text("\(number)").monospacedDigit().foregroundStyle(FinifyColor.Overflow.faint) }
+                if current { FlioneIcon(.volumeHigh, weight: .filled, size: .compact).foregroundStyle(FlioneColor.orange).flioneGlow() }
+                else if hovering { FlioneIcon(.play, weight: .filled, size: .compact).foregroundStyle(FlioneColor.Overflow.ink) }
+                else { Text("\(number)").monospacedDigit().foregroundStyle(FlioneColor.Overflow.faint) }
             }
             .frame(width: 20)
             Text(track.name)
-                .foregroundStyle(current ? FinifyColor.orange : FinifyColor.Overflow.ink)
-                .finifyGlow(current, radius: 4)
+                .foregroundStyle(current ? FlioneColor.orange : FlioneColor.Overflow.ink)
+                .flioneGlow(current, radius: 4)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Text(track.duration.formattedDuration).monospacedDigit().foregroundStyle(FinifyColor.Overflow.faint)
+            Text(track.duration.formattedDuration).monospacedDigit().foregroundStyle(FlioneColor.Overflow.faint)
         }
-        .finifyFont(.body)
+        .flioneFont(.body)
         .padding(.horizontal, Spacing.s8)
         .frame(height: 34)
-        .background(hovering ? FinifyColor.Overflow.control : .clear, in: RoundedRectangle(cornerRadius: Radius.small))
+        .background(hovering ? FlioneColor.Overflow.control : .clear, in: RoundedRectangle(cornerRadius: Radius.small))
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .onTapGesture(count: 2, perform: onPlay)
@@ -154,7 +154,7 @@ private struct AlbumPanelGlass: ViewModifier {
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
         if #available(macOS 26.0, *) {
-            content.glassEffect(.regular.tint(FinifyColor.Ocean.abyss.opacity(0.6)), in: shape)
+            content.glassEffect(.regular.tint(FlioneColor.Ocean.abyss.opacity(0.6)), in: shape)
         } else {
             content
                 .background(.black.opacity(0.55), in: shape)

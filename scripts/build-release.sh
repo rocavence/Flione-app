@@ -1,14 +1,14 @@
 #!/bin/zsh
 # 建置 Release 版 Flione.app 並打包成 dmg（未公證）。公開版分成 Apple Silicon 與 Intel 兩包。
-# 這是測試版：本機有 repo 的 .secrets 時自動登入（DEV_LOGIN）。要給別人的正式版用 FINIFY_PUBLIC=1 建置。
-# 用法：FINIFY_PUBLIC=1 scripts/build-release.sh   輸出：dist/Flione-<版本>-AppleSilicon.dmg、dist/Flione-<版本>-Intel.dmg
+# 這是測試版：本機有 repo 的 .secrets 時自動登入（DEV_LOGIN）。要給別人的正式版用 FLIONE_PUBLIC=1 建置。
+# 用法：FLIONE_PUBLIC=1 scripts/build-release.sh   輸出：dist/Flione-<版本>-AppleSilicon.dmg、dist/Flione-<版本>-Intel.dmg
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 xcodegen generate --quiet
 CONDITIONS=()
 # 公開版用 ad-hoc 簽章：開發者憑證的名稱含 Apple ID，簽進 app 裡任何人都看得到；反正都未經公證，開啟流程相同
-[[ "${FINIFY_PUBLIC:-0}" == 1 ]] && CONDITIONS=(CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=) || CONDITIONS=(SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) DEV_LOGIN')
+[[ "${FLIONE_PUBLIC:-${FINIFY_PUBLIC:-0}}" == 1 ]] && CONDITIONS=(CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=) || CONDITIONS=(SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) DEV_LOGIN')
 xcodebuild -project Flione.xcodeproj -scheme Flione -configuration Release \
   -derivedDataPath build-release "${CONDITIONS[@]}" build | grep -E "error:|BUILD" || true
 
@@ -27,7 +27,7 @@ make_dmg() {  # make_dmg <app 路徑> <dmg 檔名>
   rm -rf "$stage"
 }
 
-if [[ "${FINIFY_PUBLIC:-0}" == 1 ]]; then
+if [[ "${FLIONE_PUBLIC:-${FINIFY_PUBLIC:-0}}" == 1 ]]; then
   # 公開版分兩包：Apple Silicon 與 Intel 各一個，每包只有自己的架構，大小約減半（D46）
   for pair in "arm64:AppleSilicon" "x86_64:Intel"; do
     arch=${pair%%:*}; label=${pair##*:}

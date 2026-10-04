@@ -25,8 +25,8 @@ struct LyricsPanel: View {
         .task(id: track?.id) { await load(track) }
     }
 
-    private var ink: Color { overflow ? FinifyColor.Overflow.ink : FinifyColor.ink }
-    private var muted: Color { overflow ? FinifyColor.Overflow.muted : FinifyColor.muted }
+    private var ink: Color { overflow ? FlioneColor.Overflow.ink : FlioneColor.ink }
+    private var muted: Color { overflow ? FlioneColor.Overflow.muted : FlioneColor.muted }
 
     @ViewBuilder
     private var content: some View {
@@ -74,7 +74,7 @@ struct LyricsPanel: View {
                 .padding(.vertical, Spacing.s48)
                 if fromLRCLib {
                     Text("Lyrics from LRCLIB")
-                        .finifyFont(.caption)
+                        .flioneFont(.caption)
                         .foregroundStyle(muted)
                         .padding(.horizontal, Spacing.s16)
                         .padding(.bottom, Spacing.s24)

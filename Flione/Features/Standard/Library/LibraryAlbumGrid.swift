@@ -25,7 +25,7 @@ struct LibraryAlbumGrid: NSViewRepresentable {
         collection.delegate = context.coordinator
         collection.backgroundColors = [.clear]
         collection.register(LibraryAlbumItem.self, forItemWithIdentifier: LibraryAlbumItem.identifier)
-        // 可拖曳到佇列面板（以 finify-album:// URL 傳遞）
+        // 可拖曳到佇列面板（以 flione-album:// URL 傳遞）
         collection.setDraggingSourceOperationMask(.copy, forLocal: true)
         // NSCollectionView 只有在可選取時才會開始拖曳；選取本身不顯示，點擊由 cell 的 mouseUp 處理
         collection.isSelectable = true
@@ -231,22 +231,22 @@ final class LibraryAlbumItem: NSCollectionViewItem {
     /// 深淺色切換時由 view 呼叫
     fileprivate func applyColors() {
         view.effectiveAppearance.performAsCurrentDrawingAppearance {
-            titleField.textColor = playing ? NSColor(FinifyColor.orange) : NSColor(FinifyColor.ink)
-            // 正在播放的標題散發橘色微光（與 SwiftUI 的 finifyGlow 一致）
+            titleField.textColor = playing ? NSColor(FlioneColor.orange) : NSColor(FlioneColor.ink)
+            // 正在播放的標題散發橘色微光（與 SwiftUI 的 flioneGlow 一致）
             titleField.wantsLayer = true
             titleField.shadow = playing ? {
                 let glow = NSShadow()
-                glow.shadowColor = NSColor(FinifyColor.orange).withAlphaComponent(0.55)
+                glow.shadowColor = NSColor(FlioneColor.orange).withAlphaComponent(0.55)
                 glow.shadowBlurRadius = 4
                 glow.shadowOffset = .zero
                 return glow
             }() : nil
-            subtitleField.textColor = NSColor(FinifyColor.muted)
-            artwork.backgroundColor = NSColor(FinifyColor.surface).cgColor
-            artwork.borderColor = NSColor(FinifyColor.ink).withAlphaComponent(0.06).cgColor
-            fallbackTitle.foregroundColor = NSColor(FinifyColor.ink).withAlphaComponent(0.85).cgColor
-            playButton.layer?.backgroundColor = NSColor(FinifyColor.primary).cgColor
-            playButton.contentTintColor = NSColor(FinifyColor.onPrimary)
+            subtitleField.textColor = NSColor(FlioneColor.muted)
+            artwork.backgroundColor = NSColor(FlioneColor.surface).cgColor
+            artwork.borderColor = NSColor(FlioneColor.ink).withAlphaComponent(0.06).cgColor
+            fallbackTitle.foregroundColor = NSColor(FlioneColor.ink).withAlphaComponent(0.85).cgColor
+            playButton.layer?.backgroundColor = NSColor(FlioneColor.primary).cgColor
+            playButton.contentTintColor = NSColor(FlioneColor.onPrimary)
         }
     }
 

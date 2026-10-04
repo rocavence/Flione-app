@@ -41,37 +41,37 @@ struct AlbumView: View {
                 .frame(width: 232, height: 232)
             VStack(alignment: .leading, spacing: Spacing.s12) {
                 Text("Album")
-                    .finifyFont(.micro)
+                    .flioneFont(.micro)
                     .textCase(.uppercase)
-                    .foregroundStyle(FinifyColor.muted)
+                    .foregroundStyle(FlioneColor.muted)
                 Text(album.name)
-                    .finifyFont(.display)
-                    .foregroundStyle(FinifyColor.ink)
+                    .flioneFont(.display)
+                    .foregroundStyle(FlioneColor.ink)
                     .lineLimit(2)
                     .minimumScaleFactor(0.6)
                 // 間距配合 metadata 的「· 」，點的兩側看起來一樣寬
                 HStack(spacing: Spacing.s4) {
                     Button(album.artistName) { router.openArtist(id: album.artistID, name: album.artistName) }
                         .buttonStyle(.plain)
-                        .finifyFont(.bodyEmphasis)
-                        .foregroundStyle(FinifyColor.ink)
+                        .flioneFont(.bodyEmphasis)
+                        .foregroundStyle(FlioneColor.ink)
                     Text(metadata)
-                        .finifyFont(.body)
-                        .foregroundStyle(FinifyColor.muted)
+                        .flioneFont(.body)
+                        .foregroundStyle(FlioneColor.muted)
                 }
                 HStack(spacing: Spacing.s8) {
                     if isPlayingThisAlbum {
-                        FinifyButton(title: app.player.isPlaying ? "Pause" : "Resume", icon: app.player.isPlaying ? .pause : .play, kind: .primary) {
+                        FlioneButton(title: app.player.isPlaying ? "Pause" : "Resume", icon: app.player.isPlaying ? .pause : .play, kind: .primary) {
                             app.player.togglePlayPause()
                         }
                     } else {
-                        FinifyButton(title: "Play", icon: .play, kind: .primary) { app.player.play(tracks) }
+                        FlioneButton(title: "Play", icon: .play, kind: .primary) { app.player.play(tracks) }
                     }
-                    FinifyButton(title: "Shuffle", icon: .shuffle) { app.player.play(tracks, shuffled: true) }
+                    FlioneButton(title: "Shuffle", icon: .shuffle) { app.player.play(tracks, shuffled: true) }
                     if app.repository?.supportsRadio == true {
-                        FinifyIconButton(icon: .radio, label: "Start Radio") { app.player.startRadio(seedID: album.id, name: album.name) }
+                        FlioneIconButton(icon: .radio, label: "Start Radio") { app.player.startRadio(seedID: album.id, name: album.name) }
                     }
-                    FinifyIconButton(icon: .playlist, label: "Add to Queue") { app.player.addToQueue(tracks) }
+                    FlioneIconButton(icon: .playlist, label: "Add to Queue") { app.player.addToQueue(tracks) }
                     FavoriteButton(itemID: album.id, name: album.name, size: .standard)
                 }
                 .disabled(tracks.isEmpty)
@@ -119,10 +119,10 @@ struct AlbumView: View {
                 ForEach(discs.keys.sorted(), id: \.self) { disc in
                     if discs.count > 1 {
                         HStack(spacing: Spacing.s8) {
-                            FinifyIcon(.cd, size: .compact)
-                            Text("Disc \(disc)").finifyFont(.micro).textCase(.uppercase)
+                            FlioneIcon(.cd, size: .compact)
+                            Text("Disc \(disc)").flioneFont(.micro).textCase(.uppercase)
                         }
-                        .foregroundStyle(FinifyColor.muted)
+                        .foregroundStyle(FlioneColor.muted)
                         .padding(.horizontal, Spacing.s12)
                         .padding(.top, disc == discs.keys.min() ? 0 : Spacing.s16)
                         .padding(.bottom, Spacing.s4)

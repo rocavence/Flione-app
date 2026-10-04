@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Finify 唯一的 icon 入口。所有 UI icon 都經過這裡，不直接使用 Image。
-struct FinifyIcon: View {
+/// Flione 唯一的 icon 入口。所有 UI icon 都經過這裡，不直接使用 Image。
+struct FlioneIcon: View {
     enum Weight: String, Sendable {
         /// 一般 UI
         case outline

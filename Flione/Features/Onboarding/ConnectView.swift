@@ -28,13 +28,13 @@ struct ConnectView: View {
                 Text("FLIONE")
                     .font(.system(size: 15, weight: .semibold))
                     .tracking(8)
-                    .foregroundStyle(FinifyColor.ink)
+                    .foregroundStyle(FlioneColor.ink)
                 Text("Listen well. Collect well.")
-                    .finifyFont(.title)
-                    .foregroundStyle(FinifyColor.ink)
+                    .flioneFont(.title)
+                    .foregroundStyle(FlioneColor.ink)
                 Text(showsJellyfin ? "Bring in the library on your Jellyfin server. Browse it the modern way, and get lost in the album covers." : "Bring in your YouTube Music library. Browse it the modern way, and get lost in the album covers.")
-                    .finifyFont(.body)
-                    .foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.body)
+                    .foregroundStyle(FlioneColor.muted)
             }
             .padding(.bottom, Spacing.s40)
             .opacity(contentShown ? 1 : 0)
@@ -49,13 +49,13 @@ struct ConnectView: View {
             VStack(spacing: Spacing.s12) {
                 if let reason = app.signOutReason {
                     HStack(alignment: .top, spacing: Spacing.s8) {
-                        FinifyIcon(.infoCircle, size: .compact)
-                        Text(reason).finifyFont(.caption).fixedSize(horizontal: false, vertical: true)
+                        FlioneIcon(.infoCircle, size: .compact)
+                        Text(reason).flioneFont(.caption).fixedSize(horizontal: false, vertical: true)
                     }
-                    .foregroundStyle(FinifyColor.muted)
+                    .foregroundStyle(FlioneColor.muted)
                     .padding(Spacing.s12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(FinifyColor.surface, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+                    .background(FlioneColor.surface, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
                     .padding(.bottom, Spacing.s8)
                 }
                 field("Server", text: $server, prompt: "mediabox or 192.168.1.10:8096", field: .server)
@@ -64,15 +64,15 @@ struct ConnectView: View {
 
                 if let errorMessage {
                     HStack(alignment: .top, spacing: Spacing.s8) {
-                        FinifyIcon(.warning, size: .compact)
-                        Text(errorMessage).finifyFont(.caption).fixedSize(horizontal: false, vertical: true)
+                        FlioneIcon(.warning, size: .compact)
+                        Text(errorMessage).flioneFont(.caption).fixedSize(horizontal: false, vertical: true)
                     }
-                    .foregroundStyle(FinifyColor.danger)
+                    .foregroundStyle(FlioneColor.danger)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .transition(.opacity)
                 }
 
-                FinifyButton(title: isConnecting ? "Connecting…" : "Connect", kind: .primary, isLoading: isConnecting, expands: true, action: connect)
+                FlioneButton(title: isConnecting ? "Connecting…" : "Connect", kind: .primary, isLoading: isConnecting, expands: true, action: connect)
                     .disabled(server.isEmpty || user.isEmpty)
                     .keyboardShortcut(.defaultAction)
                     .padding(.top, Spacing.s8)
@@ -87,14 +87,14 @@ struct ConnectView: View {
 
             Spacer()
             Text("Flione connects only to the music source you choose. No Flione account, no tracking.")
-                .finifyFont(.caption)
-                .foregroundStyle(FinifyColor.faint)
+                .flioneFont(.caption)
+                .foregroundStyle(FlioneColor.faint)
                 .padding(.bottom, Spacing.s24)
                 .opacity(contentShown ? 1 : 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         // 登入畫面固定深色：花翼是黑底發光的圖，深色底才能讓它從黑暗中浮出來；底色跟著配色
-        .background(FinifyColor.Ocean.abyss)
+        .background(FlioneColor.Ocean.abyss)
         .environment(\.colorScheme, .dark)
         .onAppear {
             focus = server.isEmpty ? .server : .user
@@ -105,13 +105,13 @@ struct ConnectView: View {
     /// YouTube Music：主要按鈕開 Google 登入視窗；Jellyfin 是次要選項
     private var youtubeOptions: some View {
         VStack(spacing: Spacing.s16) {
-            FinifyButton(title: "Sign in to YouTube Music with Google", kind: .primary, expands: true) {
+            FlioneButton(title: "Sign in to YouTube Music with Google", kind: .primary, expands: true) {
                 GoogleSignIn.present { Task { await app.signInYouTube() } }
             }
             .keyboardShortcut(.defaultAction)
             Text("Google's sign-in page opens in a separate window.")
-                .finifyFont(.caption)
-                .foregroundStyle(FinifyColor.muted)
+                .flioneFont(.caption)
+                .foregroundStyle(FlioneColor.muted)
                 .multilineTextAlignment(.center)
         }
         .frame(width: 320)
@@ -150,7 +150,7 @@ struct ConnectView: View {
 
     private func field(_ label: LocalizedStringResource, text: Binding<String>, prompt: LocalizedStringResource, field: Field, secure: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: Spacing.s4) {
-            Text(label).finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
+            Text(label).flioneFont(.micro).textCase(.uppercase).foregroundStyle(FlioneColor.muted)
             Group {
                 if secure {
                     SecureField("", text: text, prompt: Text(prompt))
@@ -159,14 +159,14 @@ struct ConnectView: View {
                 }
             }
             .textFieldStyle(.plain)
-            .finifyFont(.body)
+            .flioneFont(.body)
             .focused($focus, equals: field)
             .padding(.horizontal, Spacing.s12)
             .frame(height: 34)
-            .background(FinifyColor.surface, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+            .background(FlioneColor.surface, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: Radius.ui, style: .continuous)
-                    .strokeBorder(focus == field ? FinifyColor.accent.opacity(0.7) : .clear, lineWidth: 1)
+                    .strokeBorder(focus == field ? FlioneColor.accent.opacity(0.7) : .clear, lineWidth: 1)
             }
             .onSubmit(connect)
         }
@@ -206,11 +206,11 @@ private struct SourcePicker: View {
                     withAnimation(Motion.ui) { app.source = source }
                 } label: {
                     Text(verbatim: source.title)
-                        .finifyFont(selected ? .bodyEmphasis : .body)
-                        .foregroundStyle(selected ? FinifyColor.onPrimary : FinifyColor.muted)
+                        .flioneFont(selected ? .bodyEmphasis : .body)
+                        .foregroundStyle(selected ? FlioneColor.onPrimary : FlioneColor.muted)
                         .padding(.horizontal, Spacing.s16)
                         .frame(height: 30)
-                        .background(selected ? FinifyColor.primary : .clear, in: Capsule())
+                        .background(selected ? FlioneColor.primary : .clear, in: Capsule())
                         .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -218,6 +218,6 @@ private struct SourcePicker: View {
             }
         }
         .padding(3)
-        .background(FinifyColor.glassHighlight, in: Capsule())
+        .background(FlioneColor.glassHighlight, in: Capsule())
     }
 }

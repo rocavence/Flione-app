@@ -38,7 +38,7 @@ struct LibraryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: Spacing.s24) {
-                Text(title ?? section.title).finifyFont(.title).foregroundStyle(FinifyColor.ink)
+                Text(title ?? section.title).flioneFont(.title).foregroundStyle(FlioneColor.ink)
                     .accessibilityAddTraits(.isHeader)
                 Spacer()
                 if section == .artists, followed != nil {
@@ -46,7 +46,7 @@ struct LibraryView: View {
                         .fixedSize()
                 }
                 if section == .playlists {
-                    FinifyButton(title: "New Playlist", icon: .plus) { app.newPlaylistTracks = [] }
+                    FlioneButton(title: "New Playlist", icon: .plus) { app.newPlaylistTracks = [] }
                 }
                 if section == .albums {
                     Menu {
@@ -55,7 +55,7 @@ struct LibraryView: View {
                         }
                         .pickerStyle(.inline)
                     } label: {
-                        Text("Sort by: \(sort.title)").finifyFont(.caption)
+                        Text("Sort by: \(sort.title)").flioneFont(.caption)
                     }
                     .menuStyle(.borderlessButton)
                     .fixedSize()
@@ -109,7 +109,7 @@ struct LibraryView: View {
             followed = try? await app.repository?.followedArtists()
             if followed == nil { artistScope = .all }
             #if DEBUG
-            if followed != nil, UserDefaults.standard.string(forKey: "FinifyDemoArtistScope") == "following" { artistScope = .following }
+            if followed != nil, UserDefaults.standard.string(forKey: "FlioneDemoArtistScope") == "following" { artistScope = .following }
             #endif
         }
     }

@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Finify 字級 token（SF Pro）。原則：字比 UI 安靜，避免大量 bold。
-enum FinifyFont {
+/// Flione 字級 token（SF Pro）。原則：字比 UI 安靜，避免大量 bold。
+enum FlioneFont {
     /// 專輯 / 藝人頁標題
     case display
     /// 頁面標題（Home 問候語）
@@ -84,19 +84,19 @@ enum TextComfort: Int, CaseIterable {
 }
 
 extension EnvironmentValues {
-    /// finifyFont 的放大倍率；由 StandardRootView／OverflowRootView 依設定提供（D41）
-    @Entry var finifyTextScale: CGFloat = 1
+    /// flioneFont 的放大倍率；由 StandardRootView／OverflowRootView 依設定提供（D41）
+    @Entry var flioneTextScale: CGFloat = 1
 }
 
 extension View {
-    func finifyFont(_ style: FinifyFont) -> some View {
-        modifier(FinifyFontModifier(style: style))
+    func flioneFont(_ style: FlioneFont) -> some View {
+        modifier(FlioneFontModifier(style: style))
     }
 }
 
-private struct FinifyFontModifier: ViewModifier {
-    let style: FinifyFont
-    @Environment(\.finifyTextScale) private var scale
+private struct FlioneFontModifier: ViewModifier {
+    let style: FlioneFont
+    @Environment(\.flioneTextScale) private var scale
 
     func body(content: Content) -> some View {
         content.font(style.font(scale: scale)).tracking(style.tracking)

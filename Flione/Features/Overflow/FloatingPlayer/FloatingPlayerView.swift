@@ -21,21 +21,21 @@ struct FloatingPlayerView: View {
             VStack(spacing: Spacing.s8) {
                 if let track {
                     VStack(spacing: 2) {
-                        Text(track.name).finifyFont(.bodyEmphasis).foregroundStyle(FinifyColor.Overflow.ink).lineLimit(1)
-                        Text(track.artistName).finifyFont(.caption).foregroundStyle(FinifyColor.Overflow.muted).lineLimit(1)
+                        Text(track.name).flioneFont(.bodyEmphasis).foregroundStyle(FlioneColor.Overflow.ink).lineLimit(1)
+                        Text(track.artistName).flioneFont(.caption).foregroundStyle(FlioneColor.Overflow.muted).lineLimit(1)
                     }
                     ProgressBar(value: app.player.progress) { app.player.seek(to: $0 * app.player.duration) }
                 }
                 HStack(spacing: Spacing.s8) {
-                    FinifyIconButton(icon: .skipPrev, label: "Previous") { app.player.previous() }
-                    FinifyIconButton(icon: app.player.isPlaying ? .pause : .play, label: app.player.isPlaying ? "Pause" : "Play", prominent: true) {
+                    FlioneIconButton(icon: .skipPrev, label: "Previous") { app.player.previous() }
+                    FlioneIconButton(icon: app.player.isPlaying ? .pause : .play, label: app.player.isPlaying ? "Pause" : "Play", prominent: true) {
                         app.player.togglePlayPause()
                     }
-                    FinifyIconButton(icon: .skipNext, label: "Next") { app.player.next() }
+                    FlioneIconButton(icon: .skipNext, label: "Next") { app.player.next() }
                 }
                 .disabled(track == nil)
                 HStack {
-                    FinifyIconButton(icon: .layers, label: alwaysOnTop ? "Stop keeping on top" : "Keep on top", size: .compact, isActive: alwaysOnTop) {
+                    FlioneIconButton(icon: .layers, label: alwaysOnTop ? "Stop keeping on top" : "Keep on top", size: .compact, isActive: alwaysOnTop) {
                         alwaysOnTop.toggle()
                     }
                     Spacer()

@@ -18,7 +18,7 @@ final class CastManager {
     private(set) var activeDevice: CastDevice?
 
     /// 投放用的伺服器位址（設定 → 音樂來源）：Jellyfin 的位址裝置連不到時（例如 Tailscale），改用這個
-    static let serverKey = "FinifyCastServer"
+    static let serverKey = "FlioneCastServer"
 
     @ObservationIgnored private var browser: NWBrowser?
     @ObservationIgnored private var session: CastSession?
@@ -78,10 +78,10 @@ final class CastManager {
     #if DEBUG
     @ObservationIgnored private var probeChannel: CastChannel?
 
-    /// -FinifyDemoCastProbe <檔案>：連到第一台裝置、只問接收器狀態（不開啟任何 app，電視不會被喚醒），把結果寫進檔案
+    /// -FlioneDemoCastProbe <檔案>：連到第一台裝置、只問接收器狀態（不開啟任何 app，電視不會被喚醒），把結果寫進檔案
     func runProbeIfRequested(player: PlayerManager) {
-        // -FinifyDemoCastTo <秒>：幾秒後投放到第一台找到的裝置（搭配 -FinifyDemoPlay）
-        let castDelay = UserDefaults.standard.double(forKey: "FinifyDemoCastTo")
+        // -FlioneDemoCastTo <秒>：幾秒後投放到第一台找到的裝置（搭配 -FlioneDemoPlay）
+        let castDelay = UserDefaults.standard.double(forKey: "FlioneDemoCastTo")
         if castDelay > 0 {
             startDiscovery()
             Task {
@@ -89,7 +89,7 @@ final class CastManager {
                 if let device = devices.first { cast(to: device, player: player) }
             }
         }
-        guard let path = UserDefaults.standard.string(forKey: "FinifyDemoCastProbe") else { return }
+        guard let path = UserDefaults.standard.string(forKey: "FlioneDemoCastProbe") else { return }
         startDiscovery()
         func note(_ line: String) {
             let existing = (try? String(contentsOfFile: path, encoding: .utf8)) ?? ""

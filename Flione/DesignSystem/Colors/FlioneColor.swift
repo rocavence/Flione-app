@@ -1,13 +1,13 @@
 import AppKit
 import SwiftUI
 
-/// Finify 色彩 token（Flione Color System：deep-ocean／bioluminescent）。Feature 只能使用這裡定義的顏色。
+/// Flione 色彩 token（Flione Color System：deep-ocean／bioluminescent）。Feature 只能使用這裡定義的顏色。
 /// 原則：深色為主、藍色建立環境、紫色增加深度、橘色帶來生命、白色提供清晰；
 /// 畫面約 60% Abyss／深藍、20% Deep Ocean、12% 藍、5% 紫、3% 橘。
 /// 淺色模式文件沒有定義，沿用原本的淺色值，只換品牌色。
 /// Brand color 與 artwork ambient color 分離：ambient 由封面取色，不在這裡。
 /// 環境色與互動色跟著使用者選的配色（`ColorTheme`，D37）；橘色與狀態色固定。
-enum FinifyColor {
+enum FlioneColor {
     /// 深海表面層級（深色環境；Infinity／Cover Flow、玻璃色調、Hero 用）。數值來自目前的配色
     enum Ocean {
         /// Surface 0：App 背景（Abyss）
@@ -132,9 +132,9 @@ enum FinifyColor {
 
 extension View {
     /// 橘色元素的微光（Flione：發光生物般的焦點）。兩層柔和光暈：貼近的亮一點、外圈淡；`active` 為 false 時不畫
-    func finifyGlow(_ active: Bool = true, radius: CGFloat = 6) -> some View {
-        shadow(color: active ? FinifyColor.orange.opacity(0.55) : .clear, radius: radius * 0.4)
-            .shadow(color: active ? FinifyColor.orangeGlow : .clear, radius: radius)
+    func flioneGlow(_ active: Bool = true, radius: CGFloat = 6) -> some View {
+        shadow(color: active ? FlioneColor.orange.opacity(0.55) : .clear, radius: radius * 0.4)
+            .shadow(color: active ? FlioneColor.orangeGlow : .clear, radius: radius)
     }
 }
 

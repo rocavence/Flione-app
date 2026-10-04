@@ -3,12 +3,12 @@ import AppKit
 import QuartzCore
 
 /// 效能量測：自動捲動 Album Wall，記錄每一 frame 時間與記憶體，輸出 JSON 後關閉 app。
-/// 啟動參數：`-FinifyBenchWall <輸出路徑>`（搭配 `-FinifyStartMode overflow`）
+/// 啟動參數：`-FlioneBenchWall <輸出路徑>`（搭配 `-FlioneStartMode overflow`）
 /// 量測方法與 S3 spike 相同，見 docs/spikes/S3-album-wall.md。
-/// 啟動時間：`-FinifyLaunchMark <輸出路徑>`，記錄「視窗出現」與「首頁資料載入完成」距 process 啟動的秒數
+/// 啟動時間：`-FlioneLaunchMark <輸出路徑>`，記錄「視窗出現」與「首頁資料載入完成」距 process 啟動的秒數
 enum LaunchMark {
     static func record(_ event: String) {
-        guard let path = UserDefaults.standard.string(forKey: "FinifyLaunchMark") else { return }
+        guard let path = UserDefaults.standard.string(forKey: "FlioneLaunchMark") else { return }
         var info = kinfo_proc(), size = MemoryLayout<kinfo_proc>.size
         var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
         sysctl(&mib, 4, &info, &size, nil, 0)
@@ -36,13 +36,13 @@ final class WallBenchmark: NSObject {
     private var lastSample: CFTimeInterval = 0
 
     static func startIfRequested() {
-        guard let path = UserDefaults.standard.string(forKey: "FinifyBenchWall") else { return }
+        guard let path = UserDefaults.standard.string(forKey: "FlioneBenchWall") else { return }
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(4))
             guard let window = NSApp.windows.first(where: \.isVisible), let content = window.contentView else { return }
             let bench = WallBenchmark(output: URL(fileURLWithPath: path))
-            // -FinifyBenchTarget library：量 Standard 的 Library 專輯格線（取內容最長的垂直捲動區）
-            if UserDefaults.standard.string(forKey: "FinifyBenchTarget") == "library" {
+            // -FlioneBenchTarget library：量 Standard 的 Library 專輯格線（取內容最長的垂直捲動區）
+            if UserDefaults.standard.string(forKey: "FlioneBenchTarget") == "library" {
                 bench.scrollView = Self.allScrollViews(in: content).max { ($0.documentView?.frame.height ?? 0) < ($1.documentView?.frame.height ?? 0) }
             } else {
                 bench.scrollView = Self.findWallScrollView(in: content)

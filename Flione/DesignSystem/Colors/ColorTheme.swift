@@ -99,7 +99,7 @@ enum ColorTheme: String, CaseIterable, Sendable {
         }
     }
 
-    private static let key = "FinifyColorTheme"
+    private static let key = "FlioneColorTheme"
 
     /// 目前的配色。色彩 token 在繪製時讀這個值（可能在背景執行緒），所以不綁 MainActor；只在設定變更時寫入
     nonisolated(unsafe) private(set) static var current: ColorTheme =

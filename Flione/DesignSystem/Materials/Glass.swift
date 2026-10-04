@@ -5,13 +5,13 @@ import SwiftUI
 /// 做法參考 Kaset（MIT）的 LiquidGlassCompat。
 extension View {
     /// `backing`：墊在玻璃上的半透明底色。內容是文字為主的面板（搜尋、提示）需要它，否則後面的畫面會透出來影響閱讀
-    func finifyGlass<S: InsettableShape>(in shape: S, tint: Color? = nil, interactive: Bool = false, backing: Color? = nil,
+    func flioneGlass<S: InsettableShape>(in shape: S, tint: Color? = nil, interactive: Bool = false, backing: Color? = nil,
                                          fallback: Color) -> some View {
-        modifier(FinifyGlass(shape: shape, tint: tint, interactive: interactive, backing: backing, fallback: fallback))
+        modifier(FlioneGlass(shape: shape, tint: tint, interactive: interactive, backing: backing, fallback: fallback))
     }
 }
 
-private struct FinifyGlass<S: InsettableShape>: ViewModifier {
+private struct FlioneGlass<S: InsettableShape>: ViewModifier {
     let shape: S
     let tint: Color?
     let interactive: Bool

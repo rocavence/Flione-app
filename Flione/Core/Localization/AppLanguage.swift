@@ -12,7 +12,7 @@ enum AppLanguage: String, CaseIterable, Sendable {
     case spanish = "es"
     case portuguese = "pt-BR"
 
-    private static let key = "FinifyLanguage"
+    private static let key = "FlioneLanguage"
 
     /// 語言名稱一律用該語言本身的寫法，不翻譯（看不懂目前語言的人也找得到自己的語言）
     var title: LocalizedStringResource {

@@ -16,10 +16,10 @@ struct AlbumCard: View {
         VStack(alignment: .leading, spacing: Spacing.s8) {
             ArtworkView(artwork: album.artwork, elevation: isPlaying ? .playing : .standard, interactive: true, fallbackTitle: album.name, fallbackSubtitle: album.artistName)
                 .overlay(alignment: .bottomTrailing) {
-                    FinifyIconButton(icon: isPlaying && app.player.isPlaying ? .pause : .play, label: "Play \(album.name)", size: .standard, prominent: true) {
+                    FlioneIconButton(icon: isPlaying && app.player.isPlaying ? .pause : .play, label: "Play \(album.name)", size: .standard, prominent: true) {
                         if isPlaying { app.player.togglePlayPause() } else { onPlay() }
                     }
-                    .finifyShadow(FinifyShadow.elevated)
+                    .flioneShadow(FlioneShadow.elevated)
                     .padding(Spacing.s8)
                     .opacity(hovering || isPlaying ? 1 : 0)
                     .offset(y: hovering || isPlaying ? 0 : 6)
@@ -27,13 +27,13 @@ struct AlbumCard: View {
                 }
             VStack(alignment: .leading, spacing: 2) {
                 Text(album.name)
-                    .finifyFont(.subheading)
-                    .foregroundStyle(isPlaying ? FinifyColor.orange : FinifyColor.ink)
-                    .finifyGlow(isPlaying, radius: 4)
+                    .flioneFont(.subheading)
+                    .foregroundStyle(isPlaying ? FlioneColor.orange : FlioneColor.ink)
+                    .flioneGlow(isPlaying, radius: 4)
                     .lineLimit(1)
                 Text(subtitle ?? album.artistName)
-                    .finifyFont(.caption)
-                    .foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.caption)
+                    .foregroundStyle(FlioneColor.muted)
                     .lineLimit(1)
             }
         }
@@ -83,8 +83,8 @@ struct ArtistCard: View {
         VStack(spacing: Spacing.s8) {
             ArtworkView(artwork: app.library.artwork(for: artist), cornerRadius: 999, interactive: true, fallbackTitle: artist.name)
             Text(artist.name)
-                .finifyFont(.subheading)
-                .foregroundStyle(FinifyColor.ink)
+                .flioneFont(.subheading)
+                .foregroundStyle(FlioneColor.ink)
                 .lineLimit(1)
         }
         .contentShape(Rectangle())
@@ -135,8 +135,8 @@ struct TrackRow: View {
                     Text(last, format: .relative(presentation: .named, unitsStyle: .abbreviated))
                 }
             }
-            .finifyFont(.caption)
-            .foregroundStyle(FinifyColor.faint)
+            .flioneFont(.caption)
+            .foregroundStyle(FlioneColor.faint)
             .lineLimit(1)
             .help(lastPlayed.map { Text("Last played \($0.formatted(date: .long, time: .shortened))") } ?? Text(""))
         } else {
@@ -148,17 +148,17 @@ struct TrackRow: View {
         HStack(spacing: Spacing.s12) {
             ZStack {
                 if hovering {
-                    FinifyIcon(isCurrent && app.player.isPlaying ? .pause : .play, weight: .filled, size: .compact)
-                        .foregroundStyle(FinifyColor.ink)
+                    FlioneIcon(isCurrent && app.player.isPlaying ? .pause : .play, weight: .filled, size: .compact)
+                        .foregroundStyle(FlioneColor.ink)
                 } else if isCurrent {
-                    FinifyIcon(.volumeHigh, weight: .filled, size: .compact)
-                        .foregroundStyle(FinifyColor.orange)
-                        .finifyGlow()
+                    FlioneIcon(.volumeHigh, weight: .filled, size: .compact)
+                        .foregroundStyle(FlioneColor.orange)
+                        .flioneGlow()
                 } else if let number {
                     Text("\(number)")
-                        .finifyFont(.body)
+                        .flioneFont(.body)
                         .monospacedDigit()
-                        .foregroundStyle(FinifyColor.muted)
+                        .foregroundStyle(FlioneColor.muted)
                 }
             }
             .frame(width: 24)
@@ -172,24 +172,24 @@ struct TrackRow: View {
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(track.name)
-                    .finifyFont(.body)
-                    .foregroundStyle(isCurrent ? FinifyColor.orange : FinifyColor.ink)
-                    .finifyGlow(isCurrent, radius: 4)
+                    .flioneFont(.body)
+                    .foregroundStyle(isCurrent ? FlioneColor.orange : FlioneColor.ink)
+                    .flioneGlow(isCurrent, radius: 4)
                     .lineLimit(1)
                 if showsArtist || suggested {
                     HStack(spacing: Spacing.s4) {
                         if suggested {
-                            FinifyIcon(.shuffle, size: .compact)
+                            FlioneIcon(.shuffle, size: .compact)
                                 .scaleEffect(0.7)
                                 .frame(width: 12, height: 12)
-                                .foregroundStyle(FinifyColor.accent)
+                                .foregroundStyle(FlioneColor.accent)
                                 .help("Suggested by Smart Shuffle")
                                 .accessibilityLabel("Suggested")
                         }
                         if showsArtist { Text(track.artistName) }
                     }
-                    .finifyFont(.caption)
-                    .foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.caption)
+                    .foregroundStyle(FlioneColor.muted)
                     .lineLimit(1)
                 }
             }
@@ -197,8 +197,8 @@ struct TrackRow: View {
 
             if showsAlbum {
                 Text(track.albumName)
-                    .finifyFont(.caption)
-                    .foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.caption)
+                    .foregroundStyle(FlioneColor.muted)
                     .lineLimit(1)
                     .frame(maxWidth: 240, alignment: .leading)
             }
@@ -213,14 +213,14 @@ struct TrackRow: View {
                 .opacity(hovering || app.favorites.contains(track.id) ? 1 : 0.001)
             // YouTube 部分清單（藝人的熱門歌曲）沒有長度：留空，不顯示「0:00」
             Text(track.duration > 0 ? track.duration.formattedDuration : "")
-                .finifyFont(.caption)
+                .flioneFont(.caption)
                 .monospacedDigit()
-                .foregroundStyle(FinifyColor.muted)
+                .foregroundStyle(FlioneColor.muted)
                 .frame(width: 48, alignment: .trailing)
         }
         .padding(.horizontal, Spacing.s12)
         .frame(height: showsArtwork ? 52 : (showsArtist ? 44 : 36))
-        .background(hovering ? FinifyColor.surface : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+        .background(hovering ? FlioneColor.surface : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .onTapGesture(count: 2) { if isCurrent { app.player.togglePlayPause() } else { onPlay() } }
@@ -257,11 +257,11 @@ struct PlaylistCard: View {
         VStack(alignment: .leading, spacing: Spacing.s8) {
             ArtworkView(artwork: playlist.artwork, interactive: true, fallbackTitle: playlist.name)
             VStack(alignment: .leading, spacing: 2) {
-                Text(playlist.name).finifyFont(.subheading).foregroundStyle(FinifyColor.ink).lineLimit(1)
+                Text(playlist.name).flioneFont(.subheading).foregroundStyle(FlioneColor.ink).lineLimit(1)
                 // YouTube 的清單列表不提供曲目數：不知道時不顯示，避免寫成「0 首歌」
                 if playlist.trackCount > 0 {
                     Text("\(playlist.trackCount) songs")
-                        .finifyFont(.caption).foregroundStyle(FinifyColor.muted)
+                        .flioneFont(.caption).foregroundStyle(FlioneColor.muted)
                 }
             }
         }
@@ -282,7 +282,7 @@ struct GenreCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s8) {
             ArtworkView(artwork: genre.artwork, interactive: true, fallbackTitle: genre.name)
-            Text(genre.name).finifyFont(.subheading).foregroundStyle(FinifyColor.ink).lineLimit(1)
+            Text(genre.name).flioneFont(.subheading).foregroundStyle(FlioneColor.ink).lineLimit(1)
         }
         .contentShape(Rectangle())
         .onTapGesture(perform: onOpen)

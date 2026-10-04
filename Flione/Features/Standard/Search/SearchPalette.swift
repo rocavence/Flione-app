@@ -90,7 +90,7 @@ struct SearchPalette: View {
         @Bindable var model = model
         VStack(spacing: 0) {
             HStack(spacing: Spacing.s12) {
-                FinifyIcon(.search, size: .primary).foregroundStyle(FinifyColor.muted)
+                FlioneIcon(.search, size: .primary).foregroundStyle(FlioneColor.muted)
                 TextField("", text: $model.query, prompt: Text("Search artists, albums, and songs"))
                     .textFieldStyle(.plain)
                     .font(.system(size: 24, weight: .medium))
@@ -100,22 +100,22 @@ struct SearchPalette: View {
                     .onKeyPress(.upArrow) { move(-1); return .handled }
                     .onSubmit(activateSelection)
                 if !model.query.isEmpty {
-                    FinifyIconButton(icon: .x, label: "Clear search", size: .compact) { model.query = "" }
+                    FlioneIconButton(icon: .x, label: "Clear search", size: .compact) { model.query = "" }
                 }
             }
             .padding(.horizontal, Spacing.s24)
             .frame(height: Self.fieldHeight)
 
             if model.results != nil {
-                FinifyColor.hairline.frame(height: 1)
+                FlioneColor.hairline.frame(height: 1)
                 resultsView
                     .frame(maxHeight: min(460, maxResultsHeight))
             }
         }
         .frame(width: 720)
-        .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous), tint: FinifyColor.elevated.opacity(0.4), backing: FinifyColor.elevated.opacity(0.75),
-                     fallback: FinifyColor.elevated)
-        .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.3), radius: 40, y: 20))
+        .flioneGlass(in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous), tint: FlioneColor.elevated.opacity(0.4), backing: FlioneColor.elevated.opacity(0.75),
+                     fallback: FlioneColor.elevated)
+        .flioneShadow(FlioneShadow.Style(color: .black.opacity(0.3), radius: 40, y: 20))
         .defaultFocus($fieldFocused, true)
         .onAppear {
             fieldFocused = true
@@ -179,9 +179,9 @@ struct SearchPalette: View {
     private func section(_ title: LocalizedStringResource, count: Int) -> some View {
         if count > 0 {
             Text(title)
-                .finifyFont(.micro)
+                .flioneFont(.micro)
                 .textCase(.uppercase)
-                .foregroundStyle(FinifyColor.muted)
+                .foregroundStyle(FlioneColor.muted)
                 .padding(.horizontal, Spacing.s8)
                 .padding(.top, Spacing.s12)
                 .padding(.bottom, Spacing.s4)
@@ -203,22 +203,22 @@ struct SearchPalette: View {
             case .track(let track):
                 ArtworkView(artwork: track.artwork, elevation: .none).frame(width: 36, height: 36)
                 text(track.name, "Song · \(track.artistName)")
-                Text(track.duration.formattedDuration).finifyFont(.caption).monospacedDigit().foregroundStyle(FinifyColor.muted)
+                Text(track.duration.formattedDuration).flioneFont(.caption).monospacedDigit().foregroundStyle(FlioneColor.muted)
             }
             if selected {
-                Text("↩").finifyFont(.caption).foregroundStyle(FinifyColor.faint)
+                Text("↩").flioneFont(.caption).foregroundStyle(FlioneColor.faint)
             }
         }
         .padding(.horizontal, Spacing.s8)
         .frame(height: 48)
-        .background(selected ? FinifyColor.surface : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+        .background(selected ? FlioneColor.surface : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
         .contentShape(Rectangle())
     }
 
     private func text(_ title: String, _ subtitle: LocalizedStringResource) -> some View {
         VStack(alignment: .leading, spacing: 1) {
-            Text(title).finifyFont(.body).foregroundStyle(FinifyColor.ink).lineLimit(1)
-            Text(subtitle).finifyFont(.caption).foregroundStyle(FinifyColor.muted).lineLimit(1)
+            Text(title).flioneFont(.body).foregroundStyle(FlioneColor.ink).lineLimit(1)
+            Text(subtitle).flioneFont(.caption).foregroundStyle(FlioneColor.muted).lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

@@ -74,8 +74,8 @@ final class AppEnvironment {
         }
     }
     /// Overflow 畫面的版面：Infinity（封面牆）或 Cover Flow
-    var overflowLayout: OverflowLayout = OverflowLayout(rawValue: UserDefaults.standard.string(forKey: "FinifyOverflowLayout") ?? "") ?? .wall {
-        didSet { UserDefaults.standard.set(overflowLayout.rawValue, forKey: "FinifyOverflowLayout") }
+    var overflowLayout: OverflowLayout = OverflowLayout(rawValue: UserDefaults.standard.string(forKey: "FlioneOverflowLayout") ?? "") ?? .wall {
+        didSet { UserDefaults.standard.set(overflowLayout.rawValue, forKey: "FlioneOverflowLayout") }
     }
 
     var viewMode: ViewMode {
@@ -111,7 +111,7 @@ final class AppEnvironment {
     }
     /// 要建立新 playlist 時的曲目（非 nil 時顯示命名對話框）
     var newPlaylistTracks: [Track]?
-    /// `finify://album/<id>` 要打開的專輯；由目前的 mode 打開後清掉
+    /// `flione://album/<id>` 要打開的專輯；由目前的 mode 打開後清掉
     var requestedAlbumID: String?
     var isQueuePresented = false {
         didSet { if isQueuePresented { isLyricsPresented = false } }
@@ -128,8 +128,8 @@ final class AppEnvironment {
     @ObservationIgnored private var expiryObserver: NSObjectProtocol?
     @ObservationIgnored private var terminateObserver: NSObjectProtocol?
     @ObservationIgnored private var lastSavedPlayback: Data?
-    private static let modeKey = "FinifyMode"
-    private static let rememberKey = "FinifyRememberMode"
+    private static let modeKey = "FlioneMode"
+    private static let rememberKey = "FlioneRememberMode"
 
     init(sessionStore: any SessionStore) {
         self.sessionStore = sessionStore
@@ -159,7 +159,7 @@ final class AppEnvironment {
         } else {
             Task { await restoreYouTube() }
         }
-        expiryObserver = NotificationCenter.default.addObserver(forName: .finifySessionExpired, object: nil, queue: .main) { [weak self] _ in
+        expiryObserver = NotificationCenter.default.addObserver(forName: .flioneSessionExpired, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, self.session != nil else { return }
                 self.signOut(reason: String(localized: "Your session with the music server ended. Sign in again to keep listening."))
@@ -188,18 +188,20 @@ final class AppEnvironment {
     }
 
     /// 上次連線的 server 位址（不含帳密），用來預填登入畫面
-    static var lastServerAddress: String? { UserDefaults.standard.string(forKey: "FinifyLastServer") }
+    static var lastServerAddress: String? { UserDefaults.standard.string(forKey: "FlioneLastServer") }
 
     static func bootstrap() -> AppEnvironment {
+        // 改名（Finify → Flione）後第一次啟動：在任何東西讀取設定與資料前搬過來（D52）
+        LegacyMigration.runIfNeeded()
         #if DEBUG || BENCHMARK
-        if let path = UserDefaults.standard.string(forKey: "FinifySecrets") {
+        if let path = UserDefaults.standard.string(forKey: "FlioneSecrets") {
             let env = AppEnvironment(sessionStore: DevelopmentSessionStore(directory: URL(fileURLWithPath: path)))
-            if let mode = UserDefaults.standard.string(forKey: "FinifyStartMode").flatMap(AppMode.init) { env.mode = mode }
+            if let mode = UserDefaults.standard.string(forKey: "FlioneStartMode").flatMap(AppMode.init) { env.mode = mode }
             return env
         }
         // 當 test host 時不碰 Keychain：重新簽章後系統會跳授權框，test runner 會一直卡住
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
-            return AppEnvironment(sessionStore: DevelopmentSessionStore(directory: FileManager.default.temporaryDirectory.appending(path: "FinifyTestHost")))
+            return AppEnvironment(sessionStore: DevelopmentSessionStore(directory: FileManager.default.temporaryDirectory.appending(path: "FlioneTestHost")))
         }
         #endif
         #if DEBUG || BENCHMARK || DEV_LOGIN
@@ -221,7 +223,7 @@ final class AppEnvironment {
 
     // MARK: - 音樂來源（D39）
 
-    private static let sourceKey = "FinifySource"
+    private static let sourceKey = "FlioneSource"
 
     /// 使用者選的音樂來源；沒登入時登入畫面也顯示這一邊
     var source: MusicSource = .youtube {
@@ -309,7 +311,7 @@ final class AppEnvironment {
 
     private var playbackFile: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("app.finify.Finify/playback.json")
+            .appendingPathComponent("com.rocavence.Flione/playback.json")
     }
 
     private var sessionOwner: String? { session.map { $0.serverURL.absoluteString + "|" + $0.userID } }
@@ -340,7 +342,7 @@ final class AppEnvironment {
             repository = YouTubeMusicRepository()
             player.attach(webPlayer: youtubePlayer)
         } else {
-            UserDefaults.standard.set(session.serverURL.absoluteString, forKey: "FinifyLastServer")
+            UserDefaults.standard.set(session.serverURL.absoluteString, forKey: "FlioneLastServer")
             repository = JellyfinRepository(session: session)
             player.attach(webPlayer: nil)
         }

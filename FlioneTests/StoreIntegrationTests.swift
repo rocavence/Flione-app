@@ -15,11 +15,11 @@ final class StoreIntegrationTests: XCTestCase {
     func testRapidPlaylistEditsArriveInOrder() async throws {
         let store = PlaylistStore()
         store.attach(repository: repository)
-        for leftover in try await repository.playlists() where leftover.name.hasPrefix("Finify Test") {
+        for leftover in try await repository.playlists() where leftover.name.hasPrefix("Flione Test") {
             try await repository.deletePlaylist(leftover.id)
         }
         let t = try await IntegrationFixture.album(from: repository).tracks
-        let created = try await store.create(name: "Finify Test (order)", tracks: Array(t.prefix(4)))
+        let created = try await store.create(name: "Flione Test (order)", tracks: Array(t.prefix(4)))
         let playlist = try XCTUnwrap(created)
 
         // 連續兩次移除，同時送出：最後的結果必須是第二次的狀態

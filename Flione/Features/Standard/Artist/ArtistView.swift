@@ -53,7 +53,7 @@ struct ArtistView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(StandardRouter.self) private var router
     @State private var model = ArtistViewModel()
-    @AppStorage("FinifyArtistAlbumSort") private var sort: ArtistAlbumSort = .newest
+    @AppStorage("FlioneArtistAlbumSort") private var sort: ArtistAlbumSort = .newest
 
     var body: some View {
         ScrollView {
@@ -78,13 +78,13 @@ struct ArtistView: View {
             ArtworkView(artwork: model.artist?.artwork ?? firstAlbumArtwork, cornerRadius: 999, elevation: .playing)
                 .frame(width: 200, height: 200)
             VStack(alignment: .leading, spacing: Spacing.s12) {
-                Text("Artist").finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
-                Text(name).finifyFont(.display).foregroundStyle(FinifyColor.ink).lineLimit(2).minimumScaleFactor(0.6)
+                Text("Artist").flioneFont(.micro).textCase(.uppercase).foregroundStyle(FlioneColor.muted)
+                Text(name).flioneFont(.display).foregroundStyle(FlioneColor.ink).lineLimit(2).minimumScaleFactor(0.6)
                 HStack(spacing: Spacing.s8) {
-                    FinifyButton(title: "Play", icon: .play, kind: .primary) { Task { await playAll(shuffled: false) } }
-                    FinifyButton(title: "Shuffle", icon: .shuffle) { Task { await playAll(shuffled: true) } }
+                    FlioneButton(title: "Play", icon: .play, kind: .primary) { Task { await playAll(shuffled: false) } }
+                    FlioneButton(title: "Shuffle", icon: .shuffle) { Task { await playAll(shuffled: true) } }
                     if app.repository?.supportsRadio == true {
-                        FinifyButton(title: "Radio", icon: .radio) { app.player.startRadio(seedID: artistID, name: name) }
+                        FlioneButton(title: "Radio", icon: .radio) { app.player.startRadio(seedID: artistID, name: name) }
                     }
                 }
                 .padding(.top, Spacing.s8)
@@ -122,7 +122,7 @@ struct ArtistView: View {
                     }
                     .pickerStyle(.inline)
                 } label: {
-                    Text("Sort by: \(sort.title)").finifyFont(.caption)
+                    Text("Sort by: \(sort.title)").flioneFont(.caption)
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()

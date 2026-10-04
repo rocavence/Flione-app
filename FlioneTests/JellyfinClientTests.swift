@@ -18,7 +18,7 @@ final class JellyfinClientTests: XCTestCase {
 
     func testAuthorizationHeaderIncludesToken() {
         let header = JellyfinClient.authorizationHeader(token: "abc")
-        XCTAssertTrue(header.hasPrefix("MediaBrowser Client=\"Finify\""))
+        XCTAssertTrue(header.hasPrefix("MediaBrowser Client=\"Flione\""))
         XCTAssertTrue(header.contains("Token=\"abc\""))
     }
 

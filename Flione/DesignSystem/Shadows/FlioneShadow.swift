@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum FinifyShadow {
+enum FlioneShadow {
     struct Style {
         let color: Color
         let radius: CGFloat
@@ -18,7 +18,7 @@ enum FinifyShadow {
 }
 
 extension View {
-    func finifyShadow(_ style: FinifyShadow.Style) -> some View {
+    func flioneShadow(_ style: FlioneShadow.Style) -> some View {
         shadow(color: style.color, radius: style.radius, y: style.y)
     }
 }

@@ -13,13 +13,13 @@ struct GenreView: View {
                     ArtworkView(artwork: genre.artwork, elevation: .playing, fallbackTitle: genre.name)
                         .frame(width: 200, height: 200)
                     VStack(alignment: .leading, spacing: Spacing.s12) {
-                        Text("Genre").finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
-                        Text(genre.name).finifyFont(.display).foregroundStyle(FinifyColor.ink).lineLimit(2).minimumScaleFactor(0.6)
+                        Text("Genre").flioneFont(.micro).textCase(.uppercase).foregroundStyle(FlioneColor.muted)
+                        Text(genre.name).flioneFont(.display).foregroundStyle(FlioneColor.ink).lineLimit(2).minimumScaleFactor(0.6)
                         if case .loaded(let list) = albums {
-                            Text("\(list.count) albums").finifyFont(.body).foregroundStyle(FinifyColor.muted)
+                            Text("\(list.count) albums").flioneFont(.body).foregroundStyle(FlioneColor.muted)
                         }
                         HStack(spacing: Spacing.s8) {
-                            FinifyButton(title: "Shuffle", icon: .shuffle, kind: .primary) {
+                            FlioneButton(title: "Shuffle", icon: .shuffle, kind: .primary) {
                                 Task {
                                     if let tracks = try? await app.repository?.randomTracks(inGenre: genre.id, limit: 200) {
                                         app.player.play(tracks)
@@ -27,7 +27,7 @@ struct GenreView: View {
                                 }
                             }
                             if app.repository?.supportsRadio == true {
-                                FinifyButton(title: "Radio", icon: .radio) { app.player.startRadio(seedID: genre.id, name: genre.name) }
+                                FlioneButton(title: "Radio", icon: .radio) { app.player.startRadio(seedID: genre.id, name: genre.name) }
                             }
                         }
                         .padding(.top, Spacing.s8)

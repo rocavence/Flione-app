@@ -129,9 +129,9 @@ enum AlbumSort: String, CaseIterable, Sendable {
 
 /// 拖放專輯時傳遞的內容。用 URL 型別，與佇列內排序（純文字）區分
 enum DragPayload {
-    static func album(_ id: String) -> URL { URL(string: "finify-album://\(id)")! }
+    static func album(_ id: String) -> URL { URL(string: "flione-album://\(id)")! }
 
     static func albumID(from url: URL) -> String? {
-        url.scheme == "finify-album" ? url.host : nil
+        url.scheme == "flione-album" ? url.host : nil
     }
 }

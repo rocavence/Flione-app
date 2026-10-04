@@ -12,9 +12,9 @@ struct SectionHeader: View {
         // 置中對齊：右側動作按鈕與旁邊的箭頭按鈕同高，用基線對齊會比箭頭低
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).finifyFont(.heading).foregroundStyle(FinifyColor.ink)
+                Text(title).flioneFont(.heading).foregroundStyle(FlioneColor.ink)
                 if let subtitle {
-                    Text(subtitle).finifyFont(.caption).foregroundStyle(FinifyColor.muted)
+                    Text(subtitle).flioneFont(.caption).foregroundStyle(FlioneColor.muted)
                 }
             }
             Spacer()
@@ -35,7 +35,7 @@ struct SkeletonBlock: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(overflow ? FinifyColor.Overflow.control : FinifyColor.surface)
+            .fill(overflow ? FlioneColor.Overflow.control : FlioneColor.surface)
             .opacity(dim ? 0.55 : 1)
             .onAppear {
                 guard !reduceMotion else { return }
@@ -45,7 +45,7 @@ struct SkeletonBlock: View {
     }
 }
 
-/// 區塊標題右側的動作（例如「重新推薦」「顯示全部」）：與旁邊的左右箭頭（FinifyIconButton）同一套樣式，
+/// 區塊標題右側的動作（例如「重新推薦」「顯示全部」）：與旁邊的左右箭頭（FlioneIconButton）同一套樣式，
 /// 平常沒有框也沒有底，只有圖示與文字；hover 時出現同樣的圓角底色
 /// 段落標題右側的動作（例如「重新推薦」）：macOS 原生的無邊框按鈕，與排序選單同一種樣式
 private struct SectionActionButton: View {
@@ -56,10 +56,10 @@ private struct SectionActionButton: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: Spacing.s4) {
-                if let icon { FinifyIcon(icon, size: .compact).scaleEffect(0.85) }
+                if let icon { FlioneIcon(icon, size: .compact).scaleEffect(0.85) }
                 Text(title)
             }
-            .finifyFont(.caption)
+            .flioneFont(.caption)
         }
         .buttonStyle(.borderless)
         .foregroundStyle(.tint)
@@ -76,7 +76,7 @@ private struct HoverBezel: ViewModifier {
         content
             .padding(.horizontal, Spacing.s8)
             .frame(height: 26)
-            .background(hovering ? (overflow ? FinifyColor.Overflow.controlHover : FinifyColor.surface) : .clear,
+            .background(hovering ? (overflow ? FlioneColor.Overflow.controlHover : FlioneColor.surface) : .clear,
                         in: RoundedRectangle(cornerRadius: 6, style: .continuous))
             .onHover { hovering = $0 }
             .animation(Motion.micro, value: hovering)
@@ -98,22 +98,22 @@ struct MessageState: View {
 
     var body: some View {
         VStack(spacing: Spacing.s16) {
-            FinifyIcon(icon, size: .large)
-                .foregroundStyle(overflow ? FinifyColor.Overflow.faint : FinifyColor.faint)
+            FlioneIcon(icon, size: .large)
+                .foregroundStyle(overflow ? FlioneColor.Overflow.faint : FlioneColor.faint)
             VStack(spacing: Spacing.s8) {
                 Text(title)
-                    .finifyFont(.heading)
-                    .foregroundStyle(overflow ? FinifyColor.Overflow.ink : FinifyColor.ink)
+                    .flioneFont(.heading)
+                    .foregroundStyle(overflow ? FlioneColor.Overflow.ink : FlioneColor.ink)
                 Text(message)
-                    .finifyFont(.body)
-                    .foregroundStyle(overflow ? FinifyColor.Overflow.muted : FinifyColor.muted)
+                    .flioneFont(.body)
+                    .foregroundStyle(overflow ? FlioneColor.Overflow.muted : FlioneColor.muted)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 320)
             }
             if primary != nil || secondary != nil {
                 HStack(spacing: Spacing.s8) {
-                    if let primary { FinifyButton(title: primary.title, kind: .primary, action: primary.run) }
-                    if let secondary { FinifyButton(title: secondary.title, kind: .secondary, action: secondary.run) }
+                    if let primary { FlioneButton(title: primary.title, kind: .primary, action: primary.run) }
+                    if let secondary { FlioneButton(title: secondary.title, kind: .secondary, action: secondary.run) }
                 }
                 .padding(.top, Spacing.s8)
             }
@@ -146,19 +146,19 @@ struct ProgressBar: View {
             // hover／拖曳時圓點放大到 160%（11 → 18）
             let knob: CGFloat = active ? 18 : 11
             ZStack(alignment: .leading) {
-                Capsule().fill(overflow ? Color.white.opacity(0.18) : FinifyColor.hairline)
+                Capsule().fill(overflow ? Color.white.opacity(0.18) : FlioneColor.hairline)
                 Capsule()
                     // 播放進度一律用橘色；音量、大小這類控制在三種模式一致：平常是文字色，hover／拖曳時變藍
-                    .fill(isPlayback ? FinifyColor.orange : (active ? FinifyColor.accent : (overflow ? FinifyColor.Overflow.ink : FinifyColor.ink)))
+                    .fill(isPlayback ? FlioneColor.orange : (active ? FlioneColor.accent : (overflow ? FlioneColor.Overflow.ink : FlioneColor.ink)))
                     .frame(width: max(0, min(1, shown)) * geo.size.width)
-                    .finifyGlow(isPlayback, radius: 5)
+                    .flioneGlow(isPlayback, radius: 5)
             }
             // 軌道 3pt，hover／拖曳時 1.5 倍；圓點放在 overlay，不參與排版
             .frame(height: active ? 4.5 : 3)
             .overlay(alignment: .leading) {
                 if onSeek != nil, active || alwaysShowsKnob {
                     Circle()
-                        .fill(overflow ? FinifyColor.Overflow.ink : FinifyColor.ink)
+                        .fill(overflow ? FlioneColor.Overflow.ink : FlioneColor.ink)
                         .frame(width: knob, height: knob)
                         .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
                         .offset(x: max(0, min(1, shown)) * geo.size.width - knob / 2)

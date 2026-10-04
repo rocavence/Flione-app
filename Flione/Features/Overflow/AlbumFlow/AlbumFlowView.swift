@@ -155,10 +155,10 @@ struct AlbumFlowView: View {
             focused = true
             installWheelMonitor()
             #if DEBUG
-            // -FinifyDemoFlowSteps <張數> -FinifyDemoFlowInterval <秒>：自動連續往右翻，重現快速翻頁時的交疊
-            let steps = UserDefaults.standard.integer(forKey: "FinifyDemoFlowSteps")
+            // -FlioneDemoFlowSteps <張數> -FlioneDemoFlowInterval <秒>：自動連續往右翻，重現快速翻頁時的交疊
+            let steps = UserDefaults.standard.integer(forKey: "FlioneDemoFlowSteps")
             if steps > 0 {
-                let interval = UserDefaults.standard.double(forKey: "FinifyDemoFlowInterval")
+                let interval = UserDefaults.standard.double(forKey: "FlioneDemoFlowInterval")
                 Task {
                     try? await Task.sleep(for: .seconds(2))
                     for _ in 0..<steps {
@@ -245,15 +245,15 @@ struct AlbumFlowView: View {
         if let album = centered {
             VStack(spacing: Spacing.s8) {
                 Text(album.name)
-                    .finifyFont(.title)
-                    .foregroundStyle(FinifyColor.Overflow.ink)
+                    .flioneFont(.title)
+                    .foregroundStyle(FlioneColor.Overflow.ink)
                     .lineLimit(1)
                 Text([album.artistName, album.year.map(String.init)].compactMap { $0 }.joined(separator: " · "))
-                    .finifyFont(.body)
-                    .foregroundStyle(FinifyColor.Overflow.muted)
+                    .flioneFont(.body)
+                    .foregroundStyle(FlioneColor.Overflow.muted)
                 HStack(spacing: Spacing.s8) {
-                    FinifyButton(title: "Play", icon: .play, kind: .primary) { onPlay(album) }
-                    FinifyButton(title: flippedID == album.id ? "Cover" : "Tracks", icon: .cd) {
+                    FlioneButton(title: "Play", icon: .play, kind: .primary) { onPlay(album) }
+                    FlioneButton(title: flippedID == album.id ? "Cover" : "Tracks", icon: .cd) {
                         flippedID = flippedID == album.id ? nil : album.id
                     }
                 }
@@ -384,7 +384,7 @@ private struct FlowBackdrop: View {
 
     var body: some View {
         ZStack {
-            FinifyColor.Overflow.background
+            FlioneColor.Overflow.background
             Color.clear.overlay {
                 // 一律用 BlurHash，不下載封面大圖：原本停下來後 1600px 大圖載完會取代 BlurHash，
                 // 背景明顯變暗（BlurHash 較亮、沒有暗部）；模糊 110 之後也看不出解析度的差別

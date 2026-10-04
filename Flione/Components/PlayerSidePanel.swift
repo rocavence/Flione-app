@@ -14,10 +14,10 @@ struct PlayerSidePanel: View {
             if let radio = app.player.radioName, !app.isLyricsPresented {
                 // 電台：佇列會自動補歌；可以停止，目前的佇列照常播完
                 HStack(spacing: Spacing.s8) {
-                    FinifyIcon(.radio, size: .compact).foregroundStyle(FinifyColor.accent)
-                    Text("\(radio) Radio").finifyFont(.bodyEmphasis).foregroundStyle(FinifyColor.ink).lineLimit(1)
+                    FlioneIcon(.radio, size: .compact).foregroundStyle(FlioneColor.accent)
+                    Text("\(radio) Radio").flioneFont(.bodyEmphasis).foregroundStyle(FlioneColor.ink).lineLimit(1)
                     Spacer(minLength: 0)
-                    FinifyButton(title: "Stop Radio", kind: .ghost) { app.player.stopRadio() }
+                    FlioneButton(title: "Stop Radio", kind: .ghost) { app.player.stopRadio() }
                 }
                 .padding(.horizontal, Spacing.s16)
                 .padding(.bottom, Spacing.s8)
@@ -34,10 +34,10 @@ struct PlayerSidePanel: View {
         .frame(width: 360)
         .clipShape(shape)
         // 文字為主的面板：玻璃上墊一層半透明底，後面的封面才不會干擾閱讀
-        .finifyGlass(in: shape, tint: overflow ? FinifyColor.Ocean.surface1.opacity(0.5) : FinifyColor.elevated.opacity(0.4),
-                     backing: overflow ? FinifyColor.Ocean.surface1.opacity(0.55) : FinifyColor.elevated.opacity(0.7),
-                     fallback: FinifyColor.elevated)
-        .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.4), radius: 40, y: 16))
+        .flioneGlass(in: shape, tint: overflow ? FlioneColor.Ocean.surface1.opacity(0.5) : FlioneColor.elevated.opacity(0.4),
+                     backing: overflow ? FlioneColor.Ocean.surface1.opacity(0.55) : FlioneColor.elevated.opacity(0.7),
+                     fallback: FlioneColor.elevated)
+        .flioneShadow(FlioneShadow.Style(color: .black.opacity(0.4), radius: 40, y: 16))
         // 面板內一律用一般配色（Overflow 的半透明白字不適合長清單）
         .environment(\.overflowStyle, false)
         .accessibilityElement(children: .contain)
@@ -51,12 +51,12 @@ struct PlayerSidePanel: View {
                 tab("Lyrics", selected: app.isLyricsPresented) { app.isLyricsPresented = true }
             }
             .padding(3)
-            .background(FinifyColor.glass, in: Capsule())
+            .background(FlioneColor.glass, in: Capsule())
             Spacer()
             if !app.isLyricsPresented, !app.player.queue.upcoming.isEmpty {
-                FinifyButton(title: "Clear", kind: .ghost) { app.player.clearUpcoming() }
+                FlioneButton(title: "Clear", kind: .ghost) { app.player.clearUpcoming() }
             }
-            FinifyIconButton(icon: .x, label: "Close", size: .compact) {
+            FlioneIconButton(icon: .x, label: "Close", size: .compact) {
                 app.isQueuePresented = false
                 app.isLyricsPresented = false
             }
@@ -68,11 +68,11 @@ struct PlayerSidePanel: View {
     private func tab(_ title: LocalizedStringResource, selected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .finifyFont(selected ? .bodyEmphasis : .body)
-                .foregroundStyle(selected ? FinifyColor.onPrimary : FinifyColor.muted)
+                .flioneFont(selected ? .bodyEmphasis : .body)
+                .foregroundStyle(selected ? FlioneColor.onPrimary : FlioneColor.muted)
                 .padding(.horizontal, Spacing.s12)
                 .frame(height: 28)
-                .background(selected ? FinifyColor.primary : .clear, in: Capsule())
+                .background(selected ? FlioneColor.primary : .clear, in: Capsule())
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)

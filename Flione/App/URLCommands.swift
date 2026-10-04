@@ -1,6 +1,6 @@
 import Foundation
 
-/// `flione://` 網址（舊的 `finify://` 仍可用）：讓 Raycast、Alfred、捷徑等工具控制 Finify。做法參考 Kaset（MIT）的 URLHandler。
+/// `flione://` 網址（舊的 `finify://` 仍可用）：讓 Raycast、Alfred、捷徑等工具控制 Flione。做法參考 Kaset（MIT）的 URLHandler。
 ///
 ///     flione://play | pause | toggle | next | previous
 ///     flione://album/<id>               打開專輯

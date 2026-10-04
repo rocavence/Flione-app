@@ -15,7 +15,7 @@ final class ImagePipeline: @unchecked Sendable {
     /// S3 建議值：捲動萬張專輯時記憶體穩定在可接受範圍
     static let memoryBudgetMB = 100
     /// 磁碟快取上限（設定 → 一般 → 封面快取），預設 400 MB（D45）
-    static let diskLimitKey = "FinifyArtworkCacheMB"
+    static let diskLimitKey = "FlioneArtworkCacheMB"
     static let diskLimitOptions = [200, 400, 800, 1500]
     static var diskBudgetMB: Int {
         let value = UserDefaults.standard.integer(forKey: diskLimitKey)
@@ -172,7 +172,7 @@ final class ImagePipeline: @unchecked Sendable {
 
     static var diskDirectoryURL: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("app.finify.Finify/Artwork", isDirectory: true)
+            .appendingPathComponent("com.rocavence.Flione/Artwork", isDirectory: true)
     }
 
     static func diskCacheSizeDescription() -> String {

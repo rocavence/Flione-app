@@ -15,8 +15,8 @@ final class LocalPlayCounts {
         var last: Date
     }
 
-    static let syncKey = "FinifyYouTubePlaysICloud"
-    private static let deviceKey = "FinifyDeviceID"
+    static let syncKey = "FlioneYouTubePlaysICloud"
+    private static let deviceKey = "FlioneDeviceID"
 
     /// 這台 Mac 的紀錄
     private var own: [String: Entry] = [:]
@@ -45,7 +45,7 @@ final class LocalPlayCounts {
 
     static var defaultFile: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("app.finify.Finify/youtube-plays.json")
+            .appendingPathComponent("com.rocavence.Flione/youtube-plays.json")
     }
 
     /// iCloud Drive 的資料夾；沒有開 iCloud Drive 時為 nil

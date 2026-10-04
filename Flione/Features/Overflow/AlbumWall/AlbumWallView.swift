@@ -168,8 +168,8 @@ struct AlbumWallView: NSViewRepresentable {
             item.configure(album, side: side, images: parent.images, isPlaying: album.id == parent.playingAlbumID, anyPlaying: parent.playingAlbumID != nil,
                            rounded: parent.rounded)
             #if DEBUG
-            // -FinifyDemoHoverAll YES：所有封面都呈現 hover 狀態，截圖檢查 hover 效果
-            if UserDefaults.standard.bool(forKey: "FinifyDemoHoverAll") {
+            // -FlioneDemoHoverAll YES：所有封面都呈現 hover 狀態，截圖檢查 hover 效果
+            if UserDefaults.standard.bool(forKey: "FlioneDemoHoverAll") {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { item.debugForceHover() }
             }
             #endif
@@ -680,7 +680,7 @@ final class WallItem: NSCollectionViewItem {
         titleLayer.string = nil
         guard let ref = album.artwork, let images else {
             artwork.contents = nil
-            artwork.backgroundColor = NSColor(FinifyColor.Ocean.surface2).cgColor
+            artwork.backgroundColor = NSColor(FlioneColor.Ocean.surface2).cgColor
             titleLayer.contentsScale = view.window?.backingScaleFactor ?? 2
             titleLayer.string = "\(album.name)\n\(album.artistName)"
             return
@@ -690,7 +690,7 @@ final class WallItem: NSCollectionViewItem {
             return
         }
         artwork.contents = ref.blurHash.flatMap { BlurHash.image($0) }
-        artwork.backgroundColor = NSColor(FinifyColor.Ocean.surface1).cgColor
+        artwork.backgroundColor = NSColor(FlioneColor.Ocean.surface1).cgColor
         let id = album.id
         let bucket = ImagePipeline.bucket(pixels)
         task = Task { [weak self] in
@@ -774,7 +774,7 @@ final class WallItem: NSCollectionViewItem {
         didSet {
             // 鍵盤焦點框
             artwork.borderWidth = isSelected ? 3 : 0
-            artwork.borderColor = NSColor(FinifyColor.accent).cgColor
+            artwork.borderColor = NSColor(FlioneColor.accent).cgColor
         }
     }
 

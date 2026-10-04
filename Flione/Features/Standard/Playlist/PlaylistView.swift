@@ -51,21 +51,21 @@ struct PlaylistView: View {
             ArtworkView(artwork: playlist.artwork ?? list.first?.artwork, elevation: .playing, fallbackTitle: name)
                 .frame(width: 232, height: 232)
             VStack(alignment: .leading, spacing: Spacing.s12) {
-                Text("Playlist").finifyFont(.micro).textCase(.uppercase).foregroundStyle(FinifyColor.muted)
-                Text(name).finifyFont(.display).foregroundStyle(FinifyColor.ink).lineLimit(2).minimumScaleFactor(0.6)
+                Text("Playlist").flioneFont(.micro).textCase(.uppercase).foregroundStyle(FlioneColor.muted)
+                Text(name).flioneFont(.display).foregroundStyle(FlioneColor.ink).lineLimit(2).minimumScaleFactor(0.6)
                 Text("\(list.count) songs · \(list.reduce(0) { $0 + $1.duration }.formattedDuration)")
-                    .finifyFont(.body)
-                    .foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.body)
+                    .foregroundStyle(FlioneColor.muted)
                 HStack(spacing: Spacing.s8) {
-                    FinifyButton(title: "Play", icon: .play, kind: .primary) { app.player.play(list) }
+                    FlioneButton(title: "Play", icon: .play, kind: .primary) { app.player.play(list) }
                         .disabled(list.isEmpty)
-                    FinifyButton(title: "Shuffle", icon: .shuffle) { app.player.play(list, shuffled: true) }
+                    FlioneButton(title: "Shuffle", icon: .shuffle) { app.player.play(list, shuffled: true) }
                         .disabled(list.isEmpty)
-                    FinifyIconButton(icon: .edit, label: "Rename playlist") {
+                    FlioneIconButton(icon: .edit, label: "Rename playlist") {
                         draftName = name
                         isRenaming = true
                     }
-                    FinifyIconButton(icon: .trash, label: "Delete playlist") { isConfirmingDelete = true }
+                    FlioneIconButton(icon: .trash, label: "Delete playlist") { isConfirmingDelete = true }
                 }
                 .padding(.top, Spacing.s8)
             }

@@ -20,7 +20,7 @@ struct ContentGlow: View {
 
     var body: some View {
         ZStack {
-            FinifyColor.paper
+            FlioneColor.paper
             if enabled, let palette = currentPalette {
                 glow(palette)
                     .id(artwork)

@@ -1,6 +1,6 @@
 import Foundation
 
-// Jellyfin API 回應格式（只解碼 Finify 用到的欄位）
+// Jellyfin API 回應格式（只解碼 Flione 用到的欄位）
 
 struct ItemsResponse: Decodable, Sendable {
     let items: [BaseItemDTO]

@@ -27,11 +27,11 @@ final class PlayerManager {
     /// 播放失敗時給使用者看的訊息（顯示為 toast）
     private(set) var notice: PlayerNotice?
     /// 音量記在 UserDefaults（UI 偏好，不是敏感資料）
-    var volume: Float = UserDefaults.standard.object(forKey: "FinifyVolume") as? Float ?? 0.8 {
+    var volume: Float = UserDefaults.standard.object(forKey: "FlioneVolume") as? Float ?? 0.8 {
         didSet {
             player.volume = volume
             remote?.volume = volume
-            UserDefaults.standard.set(volume, forKey: "FinifyVolume")
+            UserDefaults.standard.set(volume, forKey: "FlioneVolume")
         }
     }
 

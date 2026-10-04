@@ -47,7 +47,7 @@ final class LibraryStore {
         state = .idle
         self.repository = repository
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("app.finify.Finify", isDirectory: true)
+            .appendingPathComponent("com.rocavence.Flione", isDirectory: true)
         try? FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
         let name = String(serverID.unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) }.prefix(80))
         snapshotURL = support.appendingPathComponent("library-\(name).json")

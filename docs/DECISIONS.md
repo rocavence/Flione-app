@@ -190,7 +190,7 @@
 ## D25　App 改名 Flione；測試版自動登入
 
 * **名稱**：對外名稱改為 Flione（Flione.app、Dock、選單、登入畫面、設定、User-Agent、`flione://` 網址；舊的 `finify://` 仍可用）。模式選擇畫面的說明依《Flione Three Browsing Modes》改為 Presence／Depth／Visual。
-* **保留**：bundle id `app.finify.Finify`、UserDefaults 鍵名與鑰匙圈 service 不變。改這些會讓所有設定、音樂庫快取與登入資訊遺失。
+* **保留**：bundle id `app.finify.Finify`、UserDefaults 鍵名與鑰匙圈 service 不變。改這些會讓所有設定、音樂庫快取與登入資訊遺失。（0.9.7 起已全部改名並自動搬移，見 D52）
 * **自動登入**：Debug 版與 `scripts/build-release.sh` 建出的測試版（`DEV_LOGIN`），啟動時若找得到這份原始碼 repo 的 `.secrets/`，就直接用它登入，不顯示登入畫面。只記路徑，不把登入資訊打包進 app；其他電腦上沒有這個路徑，照常顯示登入畫面。要建給別人的版本用 `FINIFY_PUBLIC=1 scripts/build-release.sh`。
 
 ## D26　按下播放立刻有反應（樂觀播放）
@@ -388,3 +388,12 @@
 * **來源**：YouTube Music 不提供每首歌的播放次數，由 Flione 在這台 Mac 記錄（`Application Support/app.finify.Finify/youtube-plays.json`）。播放超過 30 秒（短於 1 分鐘的歌聽一半）的那一刻算一次，不等播完；同一首重播算新的一次。
 * **顯示**：與 Jellyfin 的播放次數同一欄（歌曲列的愛心左邊）。從開始記錄那天起算，以前的播放不在裡面。
 * **iCloud 同步**（設定 → 音樂來源 → YouTube Music，預設關閉）：每台 Mac 只寫自己的檔案到 iCloud 雲碟 `Flione/YouTube Plays/<電腦名稱> (<id>).json`，顯示時加總（次數相加、最後播放取最新）。各寫各的，不會互相蓋掉。關掉時刪除這台在 iCloud 的檔案，紀錄只留在本機。用 iCloud 雲碟的檔案而不是 CloudKit：CloudKit 要付費的開發者帳號，公開版的簽章也不能用。
+
+## D52　底層名稱也改為 Flione（bundle id 與資料自動搬移）
+
+* **改名**：bundle id `app.finify.Finify` → `com.rocavence.Flione`；設定鍵 `Finify…` → `Flione…`；鑰匙圈 service、Application Support 與快取資料夾、通知與記錄的名稱一起改；程式碼的型別（`FinifyColor` 等）與 DEBUG 啟動參數（`-FlioneDemo…`）也改。`finify://` 網址仍可用；建置參數 `FINIFY_PUBLIC` 仍可用（新名稱 `FLIONE_PUBLIC`）。
+* **搬移**（`LegacyMigration`，第一次啟動新版、讀取任何資料之前執行一次）：
+  * 設定：舊網域每個鍵複製到新網域，`Finify` 開頭換成 `Flione`。只看新網域自己的值，不用 `object(forKey:)`（會讀到系統全域的 AppleLanguages，誤以為已經設過）
+  * 檔案：Application Support、WebKit（YouTube 的登入）、HTTPStorages 用複製，舊版還能開；快取用搬移。新位置已有的東西以舊資料取代（搬移前只可能是開發、測試時建立的空資料）
+  * 鑰匙圈：Jellyfin 的登入在找不到新項目時讀舊的、存成新的。系統可能會問一次是否允許
+* **代價**：系統設定裡的通知、本機網路（投放）等權限要重新允許一次。

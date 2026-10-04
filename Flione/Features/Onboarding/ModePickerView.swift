@@ -9,11 +9,11 @@ struct ModePickerView: View {
         VStack(spacing: Spacing.s40) {
             VStack(spacing: Spacing.s8) {
                 Text("Choose your experience")
-                    .finifyFont(.title)
-                    .foregroundStyle(FinifyColor.ink)
+                    .flioneFont(.title)
+                    .foregroundStyle(FlioneColor.ink)
                 Text("You can switch anytime with ⌘1, ⌘2, and ⌘3, or from the top-right corner.")
-                    .finifyFont(.body)
-                    .foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.body)
+                    .foregroundStyle(FlioneColor.muted)
             }
             HStack(spacing: Spacing.s24) {
                 ModeCard(mode: .standard, title: "Modern", subtitle: "Presence. Drift through your music,\nalways knowing where you are.") { app.viewMode = .standard }
@@ -22,11 +22,11 @@ struct ModePickerView: View {
             }
             Toggle("Remember my choice", isOn: $app.rememberMode)
                 .toggleStyle(.checkbox)
-                .finifyFont(.body)
-                .foregroundStyle(FinifyColor.muted)
+                .flioneFont(.body)
+                .foregroundStyle(FlioneColor.muted)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(FinifyColor.paper)
+        .background(FlioneColor.paper)
         .task { await app.library.refreshIfNeeded() }
     }
 }
@@ -48,19 +48,19 @@ private struct ModeCard: View {
                     .frame(width: 280, height: 190)
                     .clipped()
                 VStack(alignment: .leading, spacing: Spacing.s4) {
-                    Text(title).finifyFont(.heading).foregroundStyle(FinifyColor.ink)
-                    Text(subtitle).finifyFont(.caption).foregroundStyle(FinifyColor.muted).fixedSize(horizontal: false, vertical: true)
+                    Text(title).flioneFont(.heading).foregroundStyle(FlioneColor.ink)
+                    Text(subtitle).flioneFont(.caption).foregroundStyle(FlioneColor.muted).fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(Spacing.s20)
             }
             .frame(width: 280)
-            .background(FinifyColor.elevated, in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+            .background(FlioneColor.elevated, in: RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
             .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
-                    .strokeBorder(hovering ? FinifyColor.accent.opacity(0.6) : FinifyColor.hairline, lineWidth: 1)
+                    .strokeBorder(hovering ? FlioneColor.accent.opacity(0.6) : FlioneColor.hairline, lineWidth: 1)
             }
-            .finifyShadow(hovering ? FinifyShadow.artworkHover : FinifyShadow.artwork)
+            .flioneShadow(hovering ? FlioneShadow.artworkHover : FlioneShadow.artwork)
             .scaleEffect(hovering && !reduceMotion ? 1.01 : 1)
         }
         .buttonStyle(PressScaleStyle())
@@ -77,7 +77,7 @@ private struct ModeCard: View {
         case .standard:
             // 示意：資訊架構清楚的清單與卡片
             VStack(alignment: .leading, spacing: Spacing.s12) {
-                RoundedRectangle(cornerRadius: 2).fill(FinifyColor.ink.opacity(0.8)).frame(width: 110, height: 10)
+                RoundedRectangle(cornerRadius: 2).fill(FlioneColor.ink.opacity(0.8)).frame(width: 110, height: 10)
                 HStack(spacing: Spacing.s8) {
                     ForEach(Array(sample.prefix(4)), id: \.id) { album in
                         ArtworkView(artwork: album.artwork, elevation: .none)
@@ -85,16 +85,16 @@ private struct ModeCard: View {
                 }
                 ForEach(0..<4, id: \.self) { i in
                     HStack(spacing: Spacing.s8) {
-                        RoundedRectangle(cornerRadius: 2).fill(FinifyColor.faint.opacity(0.5)).frame(width: 12, height: 6)
-                        RoundedRectangle(cornerRadius: 2).fill(FinifyColor.muted.opacity(0.5)).frame(width: CGFloat(120 - i * 14), height: 6)
+                        RoundedRectangle(cornerRadius: 2).fill(FlioneColor.faint.opacity(0.5)).frame(width: 12, height: 6)
+                        RoundedRectangle(cornerRadius: 2).fill(FlioneColor.muted.opacity(0.5)).frame(width: CGFloat(120 - i * 14), height: 6)
                         Spacer()
-                        RoundedRectangle(cornerRadius: 2).fill(FinifyColor.faint.opacity(0.5)).frame(width: 24, height: 6)
+                        RoundedRectangle(cornerRadius: 2).fill(FlioneColor.faint.opacity(0.5)).frame(width: 24, height: 6)
                     }
                 }
             }
             .padding(Spacing.s20)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(FinifyColor.paper)
+            .background(FlioneColor.paper)
         case .coverFlow:
             CoverFlowPreview(albums: Array(sample.prefix(5)))
         case .infinity:
@@ -107,7 +107,7 @@ private struct ModeCard: View {
             }
             .padding(6)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(FinifyColor.Overflow.background)
+            .background(FlioneColor.Overflow.background)
         }
     }
 }
@@ -119,8 +119,8 @@ private struct CoverFlowPreview: View {
 
     var body: some View {
         ZStack {
-            FinifyColor.Overflow.background
-            RadialGradient(colors: [FinifyColor.accent.opacity(0.18), .clear], center: .center, startRadius: 0, endRadius: 150)
+            FlioneColor.Overflow.background
+            RadialGradient(colors: [FlioneColor.accent.opacity(0.18), .clear], center: .center, startRadius: 0, endRadius: 150)
             ZStack {
                 // 由外往內畫，中間那張疊在最上面
                 ForEach([-2, 2, -1, 1, 0], id: \.self) { offset in

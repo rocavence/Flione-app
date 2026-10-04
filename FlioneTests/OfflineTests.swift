@@ -51,7 +51,7 @@ final class FakeRepository: MusicRepository, @unchecked Sendable {
 final class OfflineTests: XCTestCase {
     /// 清掉測試留下的音樂庫快照
     override func tearDown() async throws {
-        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("app.finify.Finify")
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("com.rocavence.Flione")
         for file in (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? [] where file.hasPrefix("library-test") {
             try? FileManager.default.removeItem(at: dir.appendingPathComponent(file))
         }

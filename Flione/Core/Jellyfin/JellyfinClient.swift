@@ -27,7 +27,7 @@ enum JellyfinError: Error, Equatable {
 
 /// Jellyfin HTTP API。View 不直接使用，一律經過 `JellyfinRepository`。
 final class JellyfinClient: Sendable {
-    static let clientName = "Finify"
+    static let clientName = "Flione"
     static let clientVersion = "0.1.0"
 
     let serverURL: URL
@@ -41,7 +41,7 @@ final class JellyfinClient: Sendable {
     }
 
     static let deviceID: String = {
-        let key = "FinifyDeviceID"
+        let key = "FlioneDeviceID"
         if let id = UserDefaults.standard.string(forKey: key) { return id }
         let id = UUID().uuidString
         UserDefaults.standard.set(id, forKey: key)
@@ -156,7 +156,7 @@ final class JellyfinClient: Sendable {
         case 200..<300: return data
         case 401, 403:
             // 已登入的請求被拒絕：token 失效，通知 app 回到登入畫面
-            if accessToken != nil { NotificationCenter.default.post(name: .finifySessionExpired, object: nil) }
+            if accessToken != nil { NotificationCenter.default.post(name: .flioneSessionExpired, object: nil) }
             throw JellyfinError.sessionExpired
         default: throw JellyfinError.unexpectedResponse(status)
         }
@@ -199,5 +199,5 @@ final class JellyfinClient: Sendable {
 }
 
 extension Notification.Name {
-    static let finifySessionExpired = Notification.Name("FinifySessionExpired")
+    static let flioneSessionExpired = Notification.Name("FlioneSessionExpired")
 }

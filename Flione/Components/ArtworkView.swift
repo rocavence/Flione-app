@@ -66,7 +66,7 @@ struct ArtworkView: View {
             RoundedRectangle(cornerRadius: radius, style: .continuous)
                 .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
         }
-        .finifyShadow(shadowStyle)
+        .flioneShadow(shadowStyle)
         .scaleEffect(interactive && hovering && !reduceMotion ? 1.015 : 1)
         .animation(Motion.micro, value: hovering)
         .animation(Motion.respecting(reduceMotion, Motion.artwork), value: elevation)
@@ -74,11 +74,11 @@ struct ArtworkView: View {
         .accessibilityHidden(true)
     }
 
-    private var shadowStyle: FinifyShadow.Style {
+    private var shadowStyle: FlioneShadow.Style {
         switch elevation {
-        case .none: FinifyShadow.Style(color: .clear, radius: 0, y: 0)
-        case .standard: interactive && hovering ? FinifyShadow.artworkHover : FinifyShadow.artwork
-        case .playing: FinifyShadow.playing
+        case .none: FlioneShadow.Style(color: .clear, radius: 0, y: 0)
+        case .standard: interactive && hovering ? FlioneShadow.artworkHover : FlioneShadow.artwork
+        case .playing: FlioneShadow.playing
         }
     }
 
@@ -126,9 +126,9 @@ struct ArtworkView: View {
             }
         } else {
             ZStack {
-                FinifyColor.surface
-                FinifyIcon(.musicNote, size: .large)
-                    .foregroundStyle(FinifyColor.faint)
+                FlioneColor.surface
+                FlioneIcon(.musicNote, size: .large)
+                    .foregroundStyle(FlioneColor.faint)
             }
         }
     }

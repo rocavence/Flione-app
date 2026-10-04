@@ -26,13 +26,13 @@ struct FlioneApp: App {
         }
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 1360, height: 860)
-        .commands { FinifyCommands(app: app) }
+        .commands { FlioneCommands(app: app) }
 
         Window("Mini Player", id: "floating") {
             FloatingPlayerView()
                 .id(app.colorTheme)
                 .environment(app)
-                .tint(FinifyColor.accent)
+                .tint(FlioneColor.accent)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
@@ -44,7 +44,7 @@ struct FlioneApp: App {
             MenuBarPlayer()
                 .id(app.colorTheme)
                 .environment(app)
-                .tint(FinifyColor.accent)
+                .tint(FlioneColor.accent)
         } label: {
             // 平常是 template（跟著選單列變黑／白），播放中換成 Finity Blue 加小點
             Image(app.player.isPlaying ? "MenuBarIconPlaying" : "MenuBarIcon")
@@ -106,9 +106,9 @@ struct RootView: View {
             }
         }
         #if DEBUG
-        // -FinifyDemoMenuBar YES：把選單列展開的畫面疊在主視窗右上角，方便截圖檢查（選單列無法自動點開）
+        // -FlioneDemoMenuBar YES：把選單列展開的畫面疊在主視窗右上角，方便截圖檢查（選單列無法自動點開）
         .overlay(alignment: .topTrailing) {
-            if UserDefaults.standard.bool(forKey: "FinifyDemoMenuBar") {
+            if UserDefaults.standard.bool(forKey: "FlioneDemoMenuBar") {
                 MenuBarPlayer()
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .padding(Spacing.s48)
@@ -122,12 +122,12 @@ struct RootView: View {
         .ignoresSafeArea()
         .modifier(NewPlaylistPrompt())
         .preferredColorScheme(theme.colorScheme)
-        .tint(FinifyColor.accent)
+        .tint(FlioneColor.accent)
     }
 }
 
 /// 選單與快捷鍵
-struct FinifyCommands: Commands {
+struct FlioneCommands: Commands {
     let app: AppEnvironment
 
     var body: some Commands {

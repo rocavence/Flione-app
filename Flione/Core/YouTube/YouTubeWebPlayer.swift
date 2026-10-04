@@ -67,8 +67,8 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler, RemotePlaybackEn
         configuration.userContentController.add(self, name: "flione")
         configuration.userContentController.addUserScript(WKUserScript(source: Self.observer, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         #if DEBUG
-        // -FinifyMuted YES 的測試不出聲
-        if UserDefaults.standard.bool(forKey: "FinifyMuted") {
+        // -FlioneMuted YES 的測試不出聲
+        if UserDefaults.standard.bool(forKey: "FlioneMuted") {
             configuration.userContentController.addUserScript(WKUserScript(source: "window.__flioneMute = true;", injectionTime: .atDocumentStart, forMainFrameOnly: true))
         }
         #endif
@@ -206,9 +206,9 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler, RemotePlaybackEn
     }
 
     #if DEBUG
-    /// -FinifyRouterLog <檔案>：記錄 YouTube 換歌走頁面內 router 或整頁重新載入
+    /// -FlioneRouterLog <檔案>：記錄 YouTube 換歌走頁面內 router 或整頁重新載入
     private static func debugNote(_ line: String) {
-        guard let path = UserDefaults.standard.string(forKey: "FinifyRouterLog") else { return }
+        guard let path = UserDefaults.standard.string(forKey: "FlioneRouterLog") else { return }
         if !FileManager.default.fileExists(atPath: path) { FileManager.default.createFile(atPath: path, contents: nil) }
         guard let handle = FileHandle(forWritingAtPath: path) else { return }
         handle.seekToEndOfFile(); handle.write(Data((line + "\n").utf8)); try? handle.close()

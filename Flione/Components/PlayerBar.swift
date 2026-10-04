@@ -28,20 +28,20 @@ struct PlayerBar: View {
                         .fixedSize()
                         .frame(minWidth: 44, alignment: .leading)
                 }
-                .finifyFont(.caption)
+                .flioneFont(.caption)
                 .monospacedDigit()
-                .foregroundStyle(FinifyColor.muted)
+                .foregroundStyle(FlioneColor.muted)
                 .disabled(player.currentTrack == nil)
             }
             .frame(maxWidth: 520)
             Spacer(minLength: 0)
             HStack(spacing: Spacing.s8) {
-                FinifyIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) {
+                FlioneIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) {
                     app.isQueuePresented.toggle()
                 }
                 .keyboardShortcut("u", modifiers: [.command])
                     .disabled(app.player.currentTrack == nil)
-                FinifyIconButton(icon: .notes2, label: "Lyrics", isActive: app.isLyricsPresented) {
+                FlioneIconButton(icon: .notes2, label: "Lyrics", isActive: app.isLyricsPresented) {
                     app.isLyricsPresented.toggle()
                 }
                 .keyboardShortcut("l", modifiers: [.command, .option])
@@ -51,8 +51,8 @@ struct PlayerBar: View {
         }
         .padding(.horizontal, Spacing.s24)
         .frame(height: 80)
-        .background(FinifyColor.panel)
-        .overlay(alignment: .top) { FinifyColor.hairline.frame(height: 1) }
+        .background(FlioneColor.panel)
+        .overlay(alignment: .top) { FlioneColor.hairline.frame(height: 1) }
     }
 
     @ViewBuilder
@@ -65,13 +65,13 @@ struct PlayerBar: View {
                         .onTapGesture { onOpenAlbum(track.albumID) }
                     VStack(alignment: .leading, spacing: 2) {
                         Text(track.name)
-                            .finifyFont(.bodyEmphasis)
-                            .foregroundStyle(FinifyColor.ink)
+                            .flioneFont(.bodyEmphasis)
+                            .foregroundStyle(FlioneColor.ink)
                             .lineLimit(1)
                             .onTapGesture { onOpenAlbum(track.albumID) }
                         Text(track.artistName)
-                            .finifyFont(.caption)
-                            .foregroundStyle(FinifyColor.muted)
+                            .flioneFont(.caption)
+                            .foregroundStyle(FlioneColor.muted)
                             .lineLimit(1)
                             .onTapGesture { onOpenArtist(track.artistID, track.artistName) }
                     }
@@ -86,10 +86,10 @@ struct PlayerBar: View {
             }
         } else {
             HStack(spacing: Spacing.s12) {
-                RoundedRectangle(cornerRadius: Radius.artwork).fill(FinifyColor.surface).frame(width: 52, height: 52)
+                RoundedRectangle(cornerRadius: Radius.artwork).fill(FlioneColor.surface).frame(width: 52, height: 52)
                 Text("Nothing playing")
-                    .finifyFont(.caption)
-                    .foregroundStyle(FinifyColor.faint)
+                    .flioneFont(.caption)
+                    .foregroundStyle(FlioneColor.faint)
             }
         }
     }
@@ -97,38 +97,38 @@ struct PlayerBar: View {
 
 /// shuffle / 上一首 / 播放 / 下一首 / repeat。Standard 與 Overflow 共用。
 struct PlaybackControls: View {
-    var size: FinifyIcon.Size = .standard
+    var size: FlioneIcon.Size = .standard
     @Environment(AppEnvironment.self) private var app
 
     var body: some View {
         let player = app.player
         HStack(spacing: Spacing.s12) {
-            FinifyIconButton(icon: .shuffle, label: shuffleLabel, size: .compact, isActive: player.isShuffled, activeColor: FinifyColor.orange) {
+            FlioneIconButton(icon: .shuffle, label: shuffleLabel, size: .compact, isActive: player.isShuffled, activeColor: FlioneColor.orange) {
                 Haptics.perform(.toggle)
                 player.toggleShuffle()
             }
             // Smart Shuffle：在 shuffle 圖示右上角加一個小點
             .overlay(alignment: .topTrailing) {
                 if player.isSmartShuffle {
-                    Circle().fill(FinifyColor.orange).frame(width: 5, height: 5).offset(x: -4, y: 5).allowsHitTesting(false)
+                    Circle().fill(FlioneColor.orange).frame(width: 5, height: 5).offset(x: -4, y: 5).allowsHitTesting(false)
                 }
             }
             .help(Text(shuffleLabel))
             // shuffle、repeat 與主要控制（上一首、播放／暫停、下一首）拉開距離
             .padding(.trailing, Spacing.s16)
-            FinifyIconButton(icon: .skipPrev, label: "Previous", size: size) {
+            FlioneIconButton(icon: .skipPrev, label: "Previous", size: size) {
                 Haptics.perform(.playback)
                 player.previous()
             }
-            FinifyIconButton(icon: player.isPlaying ? .pause : .play, label: player.isPlaying ? "Pause" : "Play", size: size, prominent: true) {
+            FlioneIconButton(icon: player.isPlaying ? .pause : .play, label: player.isPlaying ? "Pause" : "Play", size: size, prominent: true) {
                 Haptics.perform(.playback)
                 player.togglePlayPause()
             }
-            FinifyIconButton(icon: .skipNext, label: "Next", size: size) {
+            FlioneIconButton(icon: .skipNext, label: "Next", size: size) {
                 Haptics.perform(.playback)
                 player.next()
             }
-            FinifyIconButton(icon: player.repeatMode == .one ? .repeatOne : .repeat, label: repeatLabel, size: .compact, isActive: player.repeatMode != .off, activeColor: FinifyColor.orange) {
+            FlioneIconButton(icon: player.repeatMode == .one ? .repeatOne : .repeat, label: repeatLabel, size: .compact, isActive: player.repeatMode != .off, activeColor: FlioneColor.orange) {
                 Haptics.perform(.toggle)
                 player.cycleRepeat()
             }
@@ -158,7 +158,7 @@ struct VolumeControl: View {
     var body: some View {
         let player = app.player
         HStack(spacing: Spacing.s4) {
-            FinifyIconButton(icon: player.volume == 0 ? .volumeOff : (player.volume < 0.5 ? .volumeLow : .volumeHigh), label: player.volume == 0 ? "Unmute" : "Mute", size: .compact) {
+            FlioneIconButton(icon: player.volume == 0 ? .volumeOff : (player.volume < 0.5 ? .volumeLow : .volumeHigh), label: player.volume == 0 ? "Unmute" : "Mute", size: .compact) {
                 if player.volume == 0 { player.volume = lastVolume } else { lastVolume = player.volume; player.volume = 0 }
             }
             ProgressBar(value: Double(player.volume), continuous: true, isPlayback: false) { player.volume = Float($0) }
@@ -207,8 +207,8 @@ struct QueuePanel: View {
                         }
                     } else if player.currentTrack != nil {
                         Text("Nothing up next. Add songs with “Add to Queue”.")
-                            .finifyFont(.caption)
-                            .foregroundStyle(FinifyColor.faint)
+                            .flioneFont(.caption)
+                            .foregroundStyle(FlioneColor.faint)
                             .padding(.horizontal, Spacing.s12)
                             .padding(.top, Spacing.s16)
                     } else {
@@ -223,7 +223,7 @@ struct QueuePanel: View {
         .overlay {
             if isTargeted {
                 RoundedRectangle(cornerRadius: Radius.ui, style: .continuous)
-                    .strokeBorder(FinifyColor.accent, style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                    .strokeBorder(FlioneColor.accent, style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
                     .padding(Spacing.s4)
                     .allowsHitTesting(false)
             }
@@ -243,9 +243,9 @@ struct QueuePanel: View {
 
     private func label(_ text: LocalizedStringResource) -> some View {
         Text(text)
-            .finifyFont(.micro)
+            .flioneFont(.micro)
             .textCase(.uppercase)
-            .foregroundStyle(FinifyColor.muted)
+            .foregroundStyle(FlioneColor.muted)
             .padding(.horizontal, Spacing.s12)
             .padding(.bottom, Spacing.s4)
     }

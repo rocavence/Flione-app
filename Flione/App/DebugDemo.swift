@@ -4,85 +4,85 @@ import AVFoundation
 
 /// 開發用：以啟動參數把 app 帶到指定狀態，方便無人值守時截圖驗證。Release build 不包含。
 ///
-///     -FinifyMuted YES              播放音量 0
-///     -FinifyDemoPlay "<專輯名>"     播放該專輯
-///     -FinifyDemoOpen "<專輯名>"     打開該專輯頁
-///     -FinifyDemoSearch "<關鍵字>"   打開 ⌘K 並搜尋
-///     -FinifyDemoSettings YES       打開設定卡片
-///     -FinifyDemoSwitchTo coverFlow  幾秒後切換模式（-FinifyDemoSwitchAfter 秒數）
-///     -FinifyDemoSeekToEnd 5        播放後跳到第一首結尾前 5 秒
-///     -FinifyLatencyProbe <檔案>     量測按下播放到出聲的時間（-FinifyDemoPlay 指定專輯，沒指定時隨機）
+///     -FlioneMuted YES              播放音量 0
+///     -FlioneDemoPlay "<專輯名>"     播放該專輯
+///     -FlioneDemoOpen "<專輯名>"     打開該專輯頁
+///     -FlioneDemoSearch "<關鍵字>"   打開 ⌘K 並搜尋
+///     -FlioneDemoSettings YES       打開設定卡片
+///     -FlioneDemoSwitchTo coverFlow  幾秒後切換模式（-FlioneDemoSwitchAfter 秒數）
+///     -FlioneDemoSeekToEnd 5        播放後跳到第一首結尾前 5 秒
+///     -FlioneLatencyProbe <檔案>     量測按下播放到出聲的時間（-FlioneDemoPlay 指定專輯，沒指定時隨機）
 @MainActor
 enum DebugDemo {
     static var defaults: UserDefaults { .standard }
 
     static func run(app: AppEnvironment, openAlbum: @escaping (Album) -> Void) async {
-        if defaults.bool(forKey: "FinifyMuted") { app.player.muteForTesting() }
-        if defaults.string(forKey: "FinifyLatencyProbe") != nil {
+        if defaults.bool(forKey: "FlioneMuted") { app.player.muteForTesting() }
+        if defaults.string(forKey: "FlioneLatencyProbe") != nil {
             for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
             await latencyProbe(app: app)
             return
         }
-        if defaults.string(forKey: "FinifyGaplessProbe") != nil {
+        if defaults.string(forKey: "FlioneGaplessProbe") != nil {
             for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
             await gaplessProbe(app: app)
             return
         }
-        let wantsLibrary = ["FinifyDemoPlay", "FinifyDemoOpen"].contains { defaults.string(forKey: $0) != nil }
+        let wantsLibrary = ["FlioneDemoPlay", "FlioneDemoOpen"].contains { defaults.string(forKey: $0) != nil }
         if wantsLibrary {
             for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
         }
-        if let name = defaults.string(forKey: "FinifyDemoPlay"), let album = find(name, in: app),
+        if let name = defaults.string(forKey: "FlioneDemoPlay"), let album = find(name, in: app),
            var tracks = try? await app.repository?.tracks(inAlbum: album.id) {
-            // -FinifyDemoBrokenFirst YES：最前面插入不存在的曲目，驗證播放失敗的處理
-            if defaults.bool(forKey: "FinifyDemoBrokenFirst"), let first = tracks.first {
+            // -FlioneDemoBrokenFirst YES：最前面插入不存在的曲目，驗證播放失敗的處理
+            if defaults.bool(forKey: "FlioneDemoBrokenFirst"), let first = tracks.first {
                 tracks.insert(Track(id: "does-not-exist", name: "Missing Song", albumID: first.albumID, albumName: first.albumName,
                                     artistName: first.artistName, artistID: first.artistID, trackNumber: 0, discNumber: 1,
                                     duration: 100, container: "mp3", artwork: first.artwork), at: 0)
             }
             app.player.play(tracks)
-            // -FinifyDemoSeekToEnd <秒>：跳到第一首結尾前 N 秒，用來驗證自動換曲
-            let seconds = defaults.double(forKey: "FinifyDemoSeekToEnd")
+            // -FlioneDemoSeekToEnd <秒>：跳到第一首結尾前 N 秒，用來驗證自動換曲
+            let seconds = defaults.double(forKey: "FlioneDemoSeekToEnd")
             if seconds > 0, let first = tracks.first {
                 try? await Task.sleep(for: .seconds(2))
                 app.player.seek(to: first.duration - seconds)
             }
         }
-        // -FinifyDemoPlayAlbumID <專輯 id>：播放不在音樂庫的專輯（驗證正在播放的加入收藏提示）
-        if let id = defaults.string(forKey: "FinifyDemoPlayAlbumID"), let tracks = try? await app.repository?.tracks(inAlbum: id), !tracks.isEmpty {
+        // -FlioneDemoPlayAlbumID <專輯 id>：播放不在音樂庫的專輯（驗證正在播放的加入收藏提示）
+        if let id = defaults.string(forKey: "FlioneDemoPlayAlbumID"), let tracks = try? await app.repository?.tracks(inAlbum: id), !tracks.isEmpty {
             app.player.play(tracks)
         }
-        // -FinifyDemoSaveAlbum <專輯 id>：用 YouTube 的「加入收藏」，結果寫到 -FinifyDiscoverLog（驗證正在播放的加入收藏）
-        if let id = defaults.string(forKey: "FinifyDemoSaveAlbum"), let repository = app.repository as? YouTubeMusicRepository {
-            // 走專輯頁愛心的同一條路（setFavorite）；-FinifyDemoUnsave YES 時是移出收藏
-            let saved = !defaults.bool(forKey: "FinifyDemoUnsave")
+        // -FlioneDemoSaveAlbum <專輯 id>：用 YouTube 的「加入收藏」，結果寫到 -FlioneDiscoverLog（驗證正在播放的加入收藏）
+        if let id = defaults.string(forKey: "FlioneDemoSaveAlbum"), let repository = app.repository as? YouTubeMusicRepository {
+            // 走專輯頁愛心的同一條路（setFavorite）；-FlioneDemoUnsave YES 時是移出收藏
+            let saved = !defaults.bool(forKey: "FlioneDemoUnsave")
             do { try await repository.setFavorite(id, saved); DiscoveryEngine.debugNote("favorite \(id) \(saved): ok") }
             catch { DiscoveryEngine.debugNote("favorite \(id) \(saved): \(error)") }
         }
-        // -FinifyDemoMood <chill|focus|…>：開始心情電台並打開佇列
-        if let raw = defaults.string(forKey: "FinifyDemoMood"), let mood = Mood(rawValue: raw) {
+        // -FlioneDemoMood <chill|focus|…>：開始心情電台並打開佇列
+        if let raw = defaults.string(forKey: "FlioneDemoMood"), let mood = Mood(rawValue: raw) {
             await app.player.startMoodRadio(mood)
             app.isQueuePresented = true
         }
-        // -FinifyDemoQueue YES：先打開佇列面板（檢查窄視窗的版面；與 -FinifyDemoOpen 一起用時，2 秒後才打開專輯）
-        if defaults.bool(forKey: "FinifyDemoQueue") {
+        // -FlioneDemoQueue YES：先打開佇列面板（檢查窄視窗的版面；與 -FlioneDemoOpen 一起用時，2 秒後才打開專輯）
+        if defaults.bool(forKey: "FlioneDemoQueue") {
             app.isQueuePresented = true
             try? await Task.sleep(for: .seconds(2))
         }
-        if let name = defaults.string(forKey: "FinifyDemoOpen"), let album = find(name, in: app) {
+        if let name = defaults.string(forKey: "FlioneDemoOpen"), let album = find(name, in: app) {
             openAlbum(album)
         }
-        // -FinifyDemoRadio "<專輯名>"：開始該專輯的電台並打開佇列；-FinifyDemoRadioJump <位置>：幾秒後跳到佇列該位置（驗證自動補歌）
-        if let name = defaults.string(forKey: "FinifyDemoRadio") {
+        // -FlioneDemoRadio "<專輯名>"：開始該專輯的電台並打開佇列；-FlioneDemoRadioJump <位置>：幾秒後跳到佇列該位置（驗證自動補歌）
+        if let name = defaults.string(forKey: "FlioneDemoRadio") {
             for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
             if let album = find(name, in: app) {
                 app.player.startRadio(seedID: album.id, name: album.name)
                 app.isQueuePresented = true
-                let jump = defaults.integer(forKey: "FinifyDemoRadioJump")
+                let jump = defaults.integer(forKey: "FlioneDemoRadioJump")
                 if jump > 0 {
                     try? await Task.sleep(for: .seconds(3))
                     app.player.jump(toQueuePosition: jump)
-                    if let path = defaults.string(forKey: "FinifyDemoRadioLog") {
+                    if let path = defaults.string(forKey: "FlioneDemoRadioLog") {
                         let before = app.player.queue.entries.count
                         try? await Task.sleep(for: .seconds(4))
                         try? "after jump to \(jump): queue \(before) → \(app.player.queue.entries.count), upcoming \(app.player.queue.upcomingEntries.count), radio=\(app.player.radioName ?? "nil")".write(toFile: path, atomically: true, encoding: .utf8)
@@ -90,18 +90,18 @@ enum DebugDemo {
                 }
             }
         }
-        if defaults.string(forKey: "FinifyDemoSearch") != nil { app.isSearchPresented = true }
-        if defaults.bool(forKey: "FinifyDemoSettings") { app.isSettingsPresented = true }
-        if defaults.bool(forKey: "FinifyDumpViews") {
+        if defaults.string(forKey: "FlioneDemoSearch") != nil { app.isSearchPresented = true }
+        if defaults.bool(forKey: "FlioneDemoSettings") { app.isSettingsPresented = true }
+        if defaults.bool(forKey: "FlioneDumpViews") {
             try? await Task.sleep(for: .seconds(6))
             if let root = NSApp.windows.first(where: \.isVisible)?.contentView { dump(root, depth: 0) }
         }
-        if defaults.string(forKey: "FinifySoak") != nil { await soak(app: app) }
+        if defaults.string(forKey: "FlioneSoak") != nil { await soak(app: app) }
     }
 
-    /// -FinifySoak <輸出檔>：連續換曲 40 次（每 8 秒一次），記錄記憶體，用來找長時間使用的洩漏
+    /// -FlioneSoak <輸出檔>：連續換曲 40 次（每 8 秒一次），記錄記憶體，用來找長時間使用的洩漏
     static func soak(app: AppEnvironment) async {
-        guard let path = defaults.string(forKey: "FinifySoak") else { return }
+        guard let path = defaults.string(forKey: "FlioneSoak") else { return }
         try? await Task.sleep(for: .seconds(4))
         var lines = ["start \(Int(WallBenchmark.footprintMB())) MB"]
         for i in 1...40 {
@@ -115,11 +115,11 @@ enum DebugDemo {
         NSApp.terminate(nil)
     }
 
-    /// -FinifyDemoSwitchTo coverFlow|infinity|modern -FinifyDemoSwitchAfter <秒>：啟動後幾秒切換模式，用來重現切換時的問題
+    /// -FlioneDemoSwitchTo coverFlow|infinity|modern -FlioneDemoSwitchAfter <秒>：啟動後幾秒切換模式，用來重現切換時的問題
     static func scheduleModeSwitch(app: AppEnvironment) {
         scheduleSnapshot()
-        // -FinifyWindowSize 1040x680：把主視窗設成這個大小（檢查最小視窗的版面）
-        if let raw = defaults.string(forKey: "FinifyWindowSize") {
+        // -FlioneWindowSize 1040x680：把主視窗設成這個大小（檢查最小視窗的版面）
+        if let raw = defaults.string(forKey: "FlioneWindowSize") {
             let parts = raw.split(separator: "x").compactMap { Double($0) }
             if parts.count == 2 {
                 Task { @MainActor in
@@ -129,27 +129,27 @@ enum DebugDemo {
                 }
             }
         }
-        // -FinifyDemoSwitchSource youtube|jellyfin：幾秒後切換音樂來源（-FinifyDemoSwitchAfter 秒數）
-        if let raw = defaults.string(forKey: "FinifyDemoSwitchSource"), let source = MusicSource(rawValue: raw) {
-            let delay = defaults.double(forKey: "FinifyDemoSwitchAfter")
+        // -FlioneDemoSwitchSource youtube|jellyfin：幾秒後切換音樂來源（-FlioneDemoSwitchAfter 秒數）
+        if let raw = defaults.string(forKey: "FlioneDemoSwitchSource"), let source = MusicSource(rawValue: raw) {
+            let delay = defaults.double(forKey: "FlioneDemoSwitchAfter")
             Task {
                 try? await Task.sleep(for: .seconds(delay > 0 ? delay : 6))
                 await app.switchSource(to: source)
             }
         }
-        guard let target = defaults.string(forKey: "FinifyDemoSwitchTo") else { return }
+        guard let target = defaults.string(forKey: "FlioneDemoSwitchTo") else { return }
         let mode: ViewMode = switch target { case "coverFlow": .coverFlow; case "infinity": .infinity; default: .standard }
-        let delay = defaults.double(forKey: "FinifyDemoSwitchAfter")
+        let delay = defaults.double(forKey: "FlioneDemoSwitchAfter")
         Task {
             try? await Task.sleep(for: .seconds(delay > 0 ? delay : 6))
             app.viewMode = mode
         }
     }
 
-    /// -FinifyLatencyProbe <輸出檔>：按下播放專輯後，畫面進入播放狀態、取回曲目、真正出聲各花多久（D26）
+    /// -FlioneLatencyProbe <輸出檔>：按下播放專輯後，畫面進入播放狀態、取回曲目、真正出聲各花多久（D26）
     static func latencyProbe(app: AppEnvironment) async {
-        guard let path = defaults.string(forKey: "FinifyLatencyProbe"),
-              let album = defaults.string(forKey: "FinifyDemoPlay").flatMap({ find($0, in: app) }) ?? app.library.albums.randomElement() else { return }
+        guard let path = defaults.string(forKey: "FlioneLatencyProbe"),
+              let album = defaults.string(forKey: "FlioneDemoPlay").flatMap({ find($0, in: app) }) ?? app.library.albums.randomElement() else { return }
         let start = CACurrentMediaTime()
         func ms() -> String { String(format: "%.0f ms", (CACurrentMediaTime() - start) * 1000) }
         app.player.play(album: album)
@@ -162,11 +162,11 @@ enum DebugDemo {
         NSApp.terminate(nil)
     }
 
-    /// -FinifyGaplessProbe <輸出檔>：在真正的 PlayerManager 上量測換曲停頓（與 S2 時鐘法相同）
-    /// 依序播放 -FinifyDemoPlay 指定專輯的每一個換曲：跳到該曲結尾前 3 秒，量測換到下一首時多出來的時間
+    /// -FlioneGaplessProbe <輸出檔>：在真正的 PlayerManager 上量測換曲停頓（與 S2 時鐘法相同）
+    /// 依序播放 -FlioneDemoPlay 指定專輯的每一個換曲：跳到該曲結尾前 3 秒，量測換到下一首時多出來的時間
     static func gaplessProbe(app: AppEnvironment) async {
-        guard let path = defaults.string(forKey: "FinifyGaplessProbe"),
-              let name = defaults.string(forKey: "FinifyDemoPlay"), let album = find(name, in: app),
+        guard let path = defaults.string(forKey: "FlioneGaplessProbe"),
+              let name = defaults.string(forKey: "FlioneDemoPlay"), let album = find(name, in: app),
               let tracks = try? await app.repository?.tracks(inAlbum: album.id) else { return }
         let player = app.player.debugQueuePlayer
         var lines: [String] = []
@@ -201,10 +201,10 @@ enum DebugDemo {
         NSApp.terminate(nil)
     }
 
-    /// -FinifySnapshot <png> -FinifySnapshotAfter <秒>：幾秒後把主視窗內容存成 PNG 並結束，螢幕鎖定時也能截圖
+    /// -FlioneSnapshot <png> -FlioneSnapshotAfter <秒>：幾秒後把主視窗內容存成 PNG 並結束，螢幕鎖定時也能截圖
     static func scheduleSnapshot() {
-        guard let path = defaults.string(forKey: "FinifySnapshot") else { return }
-        let delay = defaults.double(forKey: "FinifySnapshotAfter")
+        guard let path = defaults.string(forKey: "FlioneSnapshot") else { return }
+        let delay = defaults.double(forKey: "FlioneSnapshotAfter")
         Task {
             try? await Task.sleep(for: .seconds(delay > 0 ? delay : 8))
             if let view = NSApp.windows.first(where: { $0.isVisible && $0.contentView != nil && $0.frame.width > 400 })?.contentView,
@@ -222,7 +222,7 @@ enum DebugDemo {
         for sub in view.subviews { dump(sub, depth: depth + 1) }
     }
 
-    static var searchTerm: String? { defaults.string(forKey: "FinifyDemoSearch") }
+    static var searchTerm: String? { defaults.string(forKey: "FlioneDemoSearch") }
 
     private static func find(_ name: String, in app: AppEnvironment) -> Album? {
         app.library.albums.first { $0.name.localizedCaseInsensitiveCompare(name) == .orderedSame }

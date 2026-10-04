@@ -12,9 +12,9 @@ struct OverflowRootView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// -1 = Auto（依視窗尺寸）；使用者拖過大小滑軌後才記住選擇
-    @AppStorage("FinifyWallDensity") private var densityRaw = -1
-    @AppStorage("FinifyWallSort") private var sort: AlbumSort = .artist
-    @AppStorage("FinifyFlowSize") private var flowSizeRaw = -1
+    @AppStorage("FlioneWallDensity") private var densityRaw = -1
+    @AppStorage("FlioneWallSort") private var sort: AlbumSort = .artist
+    @AppStorage("FlioneFlowSize") private var flowSizeRaw = -1
     /// 封面牆／Cover Flow 可用的大小，用來算 Auto 預設
     @State private var browseSize = CGSize(width: 1360, height: 860)
     /// 浮動播放列的實際高度（量測），封面牆下方留白依它計算
@@ -27,7 +27,7 @@ struct OverflowRootView: View {
     /// 排序結果只在專輯清單或排序方式改變時重算
     @State private var sortedAlbums: [Album] = []
     /// Magic 排序（"" = 關閉）；選了會暫時取代一般排序
-    @AppStorage("FinifyMagicSort") private var magicRaw = ""
+    @AppStorage("FlioneMagicSort") private var magicRaw = ""
     @AppStorage(SettingsKey.wallRounded) private var wallRounded = true
     @AppStorage(SettingsKey.wallAmbient) private var wallAmbient = true
     @AppStorage(SettingsKey.wallAutoScroll) private var autoScroll = false
@@ -84,15 +84,15 @@ struct OverflowRootView: View {
         .task { await app.library.refreshIfNeeded() }
         .onChange(of: app.library.albums, initial: true) { resort() }
         #if DEBUG
-        // -FinifyDemoFocusPlaying <秒>：幾秒後按「正在播放」（除錯用）
+        // -FlioneDemoFocusPlaying <秒>：幾秒後按「正在播放」（除錯用）
         .task {
-            // -FinifyDemoControlsOpen <秒>：幾秒後展開左上角的調整（截圖用）
-            let open = UserDefaults.standard.double(forKey: "FinifyDemoControlsOpen")
+            // -FlioneDemoControlsOpen <秒>：幾秒後展開左上角的調整（截圖用）
+            let open = UserDefaults.standard.double(forKey: "FlioneDemoControlsOpen")
             if open > 0 {
                 try? await Task.sleep(for: .seconds(open))
                 withAnimation(.spring(response: 0.42, dampingFraction: 0.82)) { controlsOpen = true }
             }
-            let delay = UserDefaults.standard.double(forKey: "FinifyDemoFocusPlaying")
+            let delay = UserDefaults.standard.double(forKey: "FlioneDemoFocusPlaying")
             guard delay > 0 else { return }
             try? await Task.sleep(for: .seconds(delay))
             focusPlaying()
@@ -150,14 +150,14 @@ struct OverflowRootView: View {
             .opacity(openAlbum == nil ? 1 : 0.25)
             .allowsHitTesting(openAlbum == nil)
             // 睫狀肌舒適：封面標題、浮動播放列、專輯面板、佇列與歌詞放大；上方的控制列與搜尋維持原尺寸（D41）
-            .environment(\.finifyTextScale, comfort.scale)
+            .environment(\.flioneTextScale, comfort.scale)
 
             VStack(spacing: 0) {
                 topBar
                 Spacer()
                 if openAlbum == nil {
                     NowPlayingPill(onOpen: openPlayingAlbum, onHeight: { pillHeight = $0 })
-                        .environment(\.finifyTextScale, comfort.scale)
+                        .environment(\.flioneTextScale, comfort.scale)
                 }
             }
 
@@ -165,7 +165,7 @@ struct OverflowRootView: View {
                 Color.black.opacity(0.45)
                     .onTapGesture { openAlbum = nil }
                 OverflowAlbumPanel(album: album, onClose: { openAlbum = nil }, onOpenAlbum: { openAlbum = $0 })
-                    .environment(\.finifyTextScale, comfort.scale)
+                    .environment(\.flioneTextScale, comfort.scale)
                     .transition(.scale(scale: 0.96).combined(with: .opacity))
                     .onExitCommand { openAlbum = nil }
             }
@@ -178,7 +178,7 @@ struct OverflowRootView: View {
                         .padding(.bottom, 108)
                         .padding(.trailing, Spacing.s16)
                 }
-                .environment(\.finifyTextScale, comfort.scale)
+                .environment(\.flioneTextScale, comfort.scale)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
 
@@ -202,7 +202,7 @@ struct OverflowRootView: View {
         .padding(.leading, Spacing.s16)
         .frame(height: ViewControls.barHeight)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { barWidth = $0 }
-        .background(LinearGradient(colors: [FinifyColor.Ocean.abyss.opacity(0.75), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
+        .background(LinearGradient(colors: [FlioneColor.Ocean.abyss.opacity(0.75), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
     }
 
     /// 收合按鈕：收起時是調整圖示，展開時變成 ✕
@@ -211,16 +211,16 @@ struct OverflowRootView: View {
             withAnimation(reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.82)) { controlsOpen.toggle() }
         } label: {
             ZStack {
-                FinifyIcon(.sliders, size: .compact)
+                FlioneIcon(.sliders, size: .compact)
                     .opacity(controlsOpen ? 0 : 1)
                     .rotationEffect(.degrees(controlsOpen ? 90 : 0))
-                FinifyIcon(.x, size: .compact)
+                FlioneIcon(.x, size: .compact)
                     .opacity(controlsOpen ? 1 : 0)
                     .rotationEffect(.degrees(controlsOpen ? 0 : -90))
             }
-            .foregroundStyle(controlsOpen ? FinifyColor.Overflow.ink : FinifyColor.Overflow.muted)
+            .foregroundStyle(controlsOpen ? FlioneColor.Overflow.ink : FlioneColor.Overflow.muted)
             .frame(width: ViewControls.controlHeight, height: ViewControls.controlHeight)
-            .modifier(TopBarSurface(overflow: true, shape: Circle(), fallback: FinifyColor.Overflow.control))
+            .modifier(TopBarSurface(overflow: true, shape: Circle(), fallback: FlioneColor.Overflow.control))
             .contentShape(Circle())
         }
         .buttonStyle(PressScaleStyle())
@@ -246,12 +246,12 @@ struct OverflowRootView: View {
             .pickerStyle(.inline)
         } label: {
             Text("Sort by: \(sort.title)")
-                .finifyFont(.caption)
-                .foregroundStyle(FinifyColor.Overflow.muted)
+                .flioneFont(.caption)
+                .foregroundStyle(FlioneColor.Overflow.muted)
         }
         // 與 Modern 的排序同一套：macOS 原生的無邊框下拉選單，滑過才有淡淡的圓角底
         .menuStyle(.borderlessButton)
-        .tint(FinifyColor.Overflow.muted)
+        .tint(FlioneColor.Overflow.muted)
         .fixedSize()
         .hoverBezel()
         .frame(height: ViewControls.controlHeight)
@@ -279,14 +279,14 @@ struct OverflowRootView: View {
 
         Button { focusPlaying() } label: {
             HStack(spacing: Spacing.s4) {
-                FinifyIcon(.gps, size: .compact)
+                FlioneIcon(.gps, size: .compact)
                 // 文字放大（睫狀肌舒適）時頂部列較擠，維持一行不換行
-                if !compactBar { Text("Now Playing").finifyFont(.caption).lineLimit(1).fixedSize() }
+                if !compactBar { Text("Now Playing").flioneFont(.caption).lineLimit(1).fixedSize() }
             }
-            .foregroundStyle(FinifyColor.Overflow.muted)
+            .foregroundStyle(FlioneColor.Overflow.muted)
             .padding(.horizontal, Spacing.s12)
             .frame(height: ViewControls.controlHeight)
-            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FlioneColor.Overflow.control))
             .contentShape(Capsule())
         }
         .buttonStyle(PressScaleStyle())
@@ -303,14 +303,14 @@ struct OverflowRootView: View {
     private var autoScrollToggle: some View {
         Button { autoScroll.toggle() } label: {
             HStack(spacing: Spacing.s4) {
-                FinifyIcon(.infinite, weight: autoScroll ? .filled : .outline, size: .compact)
-                if !compactBar { Text("Auto-scroll").finifyFont(.caption).lineLimit(1).fixedSize() }
+                FlioneIcon(.infinite, weight: autoScroll ? .filled : .outline, size: .compact)
+                if !compactBar { Text("Auto-scroll").flioneFont(.caption).lineLimit(1).fixedSize() }
             }
-            .foregroundStyle(autoScroll ? FinifyColor.accent : FinifyColor.Overflow.muted)
+            .foregroundStyle(autoScroll ? FlioneColor.accent : FlioneColor.Overflow.muted)
             .padding(.horizontal, Spacing.s12)
             .frame(height: ViewControls.controlHeight)
-            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
-            .overlay { if autoScroll { Capsule().strokeBorder(FinifyColor.accent.opacity(0.6), lineWidth: 1) } }
+            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FlioneColor.Overflow.control))
+            .overlay { if autoScroll { Capsule().strokeBorder(FlioneColor.accent.opacity(0.6), lineWidth: 1) } }
             .contentShape(Capsule())
         }
         .buttonStyle(PressScaleStyle())
@@ -409,8 +409,8 @@ private struct NowPlayingPill: View {
                     .frame(width: 44, height: 44)
                     .onTapGesture(perform: onOpen)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(track.name).finifyFont(.bodyEmphasis).foregroundStyle(FinifyColor.Overflow.ink).lineLimit(1)
-                    Text(track.artistName).finifyFont(.caption).foregroundStyle(FinifyColor.Overflow.muted).lineLimit(1)
+                    Text(track.name).flioneFont(.bodyEmphasis).foregroundStyle(FlioneColor.Overflow.ink).lineLimit(1)
+                    Text(track.artistName).flioneFont(.caption).foregroundStyle(FlioneColor.Overflow.muted).lineLimit(1)
                 }
                 .frame(width: 200, alignment: .leading)
                 .onTapGesture(perform: onOpen)
@@ -419,16 +419,16 @@ private struct NowPlayingPill: View {
                     ProgressBar(value: app.player.progress) { app.player.seek(to: $0 * app.player.duration) }
                         .frame(width: 300)
                 }
-                FinifyIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) { app.isQueuePresented.toggle() }
-                FinifyIconButton(icon: .notes2, label: "Lyrics", isActive: app.isLyricsPresented) { app.isLyricsPresented.toggle() }
+                FlioneIconButton(icon: .playlist, label: "Queue", isActive: app.isQueuePresented) { app.isQueuePresented.toggle() }
+                FlioneIconButton(icon: .notes2, label: "Lyrics", isActive: app.isLyricsPresented) { app.isLyricsPresented.toggle() }
                 VolumeControl()
             }
             // 左右最邊緣留較寬的內距，控制不貼邊
             .padding(.horizontal, Spacing.s32)
             .padding(.vertical, Spacing.s8)
             // 膠囊形：兩側全圓角
-            .finifyGlass(in: Capsule(), tint: FinifyColor.Ocean.surface1.opacity(0.55), fallback: FinifyColor.Ocean.surface1.opacity(0.88))
-            .finifyShadow(FinifyShadow.Style(color: .black.opacity(0.5), radius: 30, y: 12))
+            .flioneGlass(in: Capsule(), tint: FlioneColor.Ocean.surface1.opacity(0.55), fallback: FlioneColor.Ocean.surface1.opacity(0.88))
+            .flioneShadow(FlioneShadow.Style(color: .black.opacity(0.5), radius: 30, y: 12))
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { onHeight($0) }
             .padding(.bottom, Self.bottomMargin)
             .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -447,7 +447,7 @@ private struct SizeSlider: View {
     var body: some View {
         let last = Double(count - 1)
         HStack(spacing: Spacing.s4) {
-            FinifyIconButton(icon: .minus, label: "Smaller", size: .compact) { change(-1) }
+            FlioneIconButton(icon: .minus, label: "Smaller", size: .compact) { change(-1) }
                 .disabled(step <= 0)
             ProgressBar(value: Double(step) / last, continuous: true, steps: count, alwaysShowsKnob: true, isPlayback: false) {
                 let next = Int(($0 * last).rounded())
@@ -457,12 +457,12 @@ private struct SizeSlider: View {
                 .frame(width: 96)
                 .accessibilityLabel(Text(label))
                 .accessibilityValue(Text(valueText))
-            FinifyIconButton(icon: .plus, label: "Larger", size: .compact) { change(1) }
+            FlioneIconButton(icon: .plus, label: "Larger", size: .compact) { change(1) }
                 .disabled(step >= count - 1)
         }
         .padding(.horizontal, Spacing.s4)
         .frame(height: ViewControls.controlHeight)
-        .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+        .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FlioneColor.Overflow.control))
     }
 
     /// 兩端的 − ＋：一次一段
@@ -495,15 +495,15 @@ private struct MagicSortMenu: View {
             }
         } label: {
             HStack(spacing: Spacing.s4) {
-                FinifyIcon(.wandSparkle, weight: selection == nil ? .outline : .filled, size: .compact)
-                (selection.map { Text($0.title) } ?? Text("Magic")).finifyFont(.caption)
+                FlioneIcon(.wandSparkle, weight: selection == nil ? .outline : .filled, size: .compact)
+                (selection.map { Text($0.title) } ?? Text("Magic")).flioneFont(.caption)
             }
-            .foregroundStyle(selection == nil ? FinifyColor.Overflow.muted : FinifyColor.Overflow.ink)
+            .foregroundStyle(selection == nil ? FlioneColor.Overflow.muted : FlioneColor.Overflow.ink)
             .padding(.horizontal, Spacing.s12)
             .frame(height: ViewControls.controlHeight)
-            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FlioneColor.Overflow.control))
             // 啟用中：膠囊外圈一道細橘光
-            .overlay { if selection != nil { Capsule().strokeBorder(FinifyColor.orange.opacity(0.7), lineWidth: 1).finifyGlow(radius: 5) } }
+            .overlay { if selection != nil { Capsule().strokeBorder(FlioneColor.orange.opacity(0.7), lineWidth: 1).flioneGlow(radius: 5) } }
             .contentShape(Capsule())
         }
         .menuStyle(.button)

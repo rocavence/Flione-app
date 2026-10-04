@@ -48,7 +48,7 @@ final class RepositoryIntegrationTests: XCTestCase {
     }
 
     func testReadsExistingPlaylists() async throws {
-        let playlists = try await repository.playlists().filter { !$0.name.hasPrefix("Finify Test") }
+        let playlists = try await repository.playlists().filter { !$0.name.hasPrefix("Flione Test") }
         for playlist in playlists {
             let tracks = try await repository.playlistTracks(playlist.id)
             guard !tracks.isEmpty else { continue }
@@ -62,28 +62,28 @@ final class RepositoryIntegrationTests: XCTestCase {
     func testPlaylistWriteOperationsOnTemporaryPlaylist() async throws {
         let repository = repository!
         // 先清掉之前測試失敗時可能留下的暫存 playlist
-        for leftover in try await repository.playlists() where leftover.name.hasPrefix("Finify Test") {
+        for leftover in try await repository.playlists() where leftover.name.hasPrefix("Flione Test") {
             try await repository.deletePlaylist(leftover.id)
         }
         let t = try await IntegrationFixture.album(from: repository).tracks.map(\.id)
 
-        let id = try await repository.createPlaylist(name: "Finify Test (temporary)", trackIDs: [t[0], t[1]])
+        let id = try await repository.createPlaylist(name: "Flione Test (temporary)", trackIDs: [t[0], t[1]])
         defer { Task { try? await repository.deletePlaylist(id) } }
         // Jellyfin 建立後會在背景再存一次，太快更新會被蓋掉（PlaylistStore 也會等待）
         try await Task.sleep(for: .seconds(1.5))
 
         // 改名＋加入＋排序一次完成
-        try await repository.updatePlaylist(id, name: "Finify Test (renamed)", trackIDs: [t[2], t[0], t[1]])
+        try await repository.updatePlaylist(id, name: "Flione Test (renamed)", trackIDs: [t[2], t[0], t[1]])
         var playlist = try await repository.playlist(id: id)
         var items = try await repository.playlistTracks(id).map(\.id)
-        XCTAssertEqual(playlist.name, "Finify Test (renamed)")
+        XCTAssertEqual(playlist.name, "Flione Test (renamed)")
         XCTAssertEqual(items, [t[2], t[0], t[1]])
 
         // 移除後名稱不能被還原
-        try await repository.updatePlaylist(id, name: "Finify Test (renamed)", trackIDs: [t[2], t[1]])
+        try await repository.updatePlaylist(id, name: "Flione Test (renamed)", trackIDs: [t[2], t[1]])
         playlist = try await repository.playlist(id: id)
         items = try await repository.playlistTracks(id).map(\.id)
-        XCTAssertEqual(playlist.name, "Finify Test (renamed)")
+        XCTAssertEqual(playlist.name, "Flione Test (renamed)")
         XCTAssertEqual(items, [t[2], t[1]])
 
         try await repository.deletePlaylist(id)

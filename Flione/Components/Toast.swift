@@ -8,19 +8,19 @@ struct Toast: View {
 
     var body: some View {
         HStack(spacing: Spacing.s12) {
-            FinifyIcon(icon, size: .compact)
-                .foregroundStyle(FinifyColor.warning)
+            FlioneIcon(icon, size: .compact)
+                .foregroundStyle(FlioneColor.warning)
             Text(message)
-                .finifyFont(.body)
-                .foregroundStyle(FinifyColor.ink)
+                .flioneFont(.body)
+                .foregroundStyle(FlioneColor.ink)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, Spacing.s16)
         .padding(.vertical, Spacing.s12)
         .frame(maxWidth: 460)
-        .finifyGlass(in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous), tint: FinifyColor.elevated.opacity(0.4), backing: FinifyColor.elevated.opacity(0.75),
-                     fallback: FinifyColor.elevated)
-        .finifyShadow(FinifyShadow.elevated)
+        .flioneGlass(in: RoundedRectangle(cornerRadius: Radius.card, style: .continuous), tint: FlioneColor.elevated.opacity(0.4), backing: FlioneColor.elevated.opacity(0.75),
+                     fallback: FlioneColor.elevated)
+        .flioneShadow(FlioneShadow.elevated)
         .onTapGesture(perform: onDismiss)
         .task {
             // 被新的提示取代時 task 會被取消，此時不能關掉新的提示

@@ -1,6 +1,6 @@
 name: Flione
 options:
-  bundleIdPrefix: app.finify
+  bundleIdPrefix: com.rocavence
   developmentLanguage: en
   deploymentTarget:
     macOS: "14.0"
@@ -35,9 +35,9 @@ targets:
       Release: Config/Signing.xcconfig
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.finify.Finify
+        PRODUCT_BUNDLE_IDENTIFIER: com.rocavence.Flione
         GENERATE_INFOPLIST_FILE: YES
-        # bundle id 仍是 app.finify.Finify：換掉會讓設定、音樂庫快取與鑰匙圈資料全部遺失（D25）
+        # 舊的 bundle id 是 app.finify.Finify；改名後第一次啟動由 LegacyMigration 搬移設定、資料與登入（D52）
         INFOPLIST_KEY_CFBundleDisplayName: Flione
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -52,14 +52,14 @@ targets:
           STRIP_INSTALLED_PRODUCT: YES
           STRIP_STYLE: all
           DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
-    # finify:// 網址（URLCommands.swift）；其餘 Info.plist 內容由 GENERATE_INFOPLIST_FILE 產生
+    # flione:// 網址（舊的 finify:// 仍可用）（URLCommands.swift）；其餘 Info.plist 內容由 GENERATE_INFOPLIST_FILE 產生
     info:
       path: Flione/Info.plist
       properties:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleURLTypes:
-          - CFBundleURLName: app.finify.Finify
+          - CFBundleURLName: com.rocavence.Flione
             CFBundleURLSchemes: [flione, finify]
         # 投放：在區域網路找 Chromecast（macOS 15 以上需要宣告，D43）
         NSLocalNetworkUsageDescription: Flione looks for Chromecast devices on your local network so you can play music on them.
@@ -88,7 +88,7 @@ targets:
           - make-artwork.swift
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.finify.spike.AlbumWall
+        PRODUCT_BUNDLE_IDENTIFIER: com.rocavence.Flione.spike.AlbumWall
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGN_IDENTITY: "-"
   # 技術驗證用，不隨 app 出貨
@@ -101,7 +101,7 @@ targets:
       - package: AudioStreaming
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.finify.spike.Gapless
+        PRODUCT_BUNDLE_IDENTIFIER: com.rocavence.Flione.spike.Gapless
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGN_IDENTITY: "-"
         SWIFT_VERSION: "5.0"

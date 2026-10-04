@@ -5,7 +5,7 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var app: AppEnvironment?
 
-    /// 全螢幕放在「視窗」選單（FinifyCommands），不要系統自動加在「顯示方式」選單的那一個
+    /// 全螢幕放在「視窗」選單（FlioneCommands），不要系統自動加在「顯示方式」選單的那一個
     func applicationWillFinishLaunching(_ notification: Notification) {
         UserDefaults.standard.set(false, forKey: "NSFullScreenMenuItemEverywhere")
     }

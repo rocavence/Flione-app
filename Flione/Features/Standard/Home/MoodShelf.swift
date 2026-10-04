@@ -18,9 +18,9 @@ struct MoodShelf: View {
                 SectionHeader(title: "Mood Radio")
                 if moods.count > visibleCount {
                     HStack(spacing: Spacing.s4) {
-                        FinifyIconButton(icon: .chevronLeft, label: "Scroll Mood Radio left", size: .compact) { page(-1) }
+                        FlioneIconButton(icon: .chevronLeft, label: "Scroll Mood Radio left", size: .compact) { page(-1) }
                             .disabled(firstVisible == 0)
-                        FinifyIconButton(icon: .chevronRight, label: "Scroll Mood Radio right", size: .compact) { page(1) }
+                        FlioneIconButton(icon: .chevronRight, label: "Scroll Mood Radio right", size: .compact) { page(1) }
                             .disabled(firstVisible + visibleCount >= moods.count)
                     }
                 }
@@ -152,11 +152,11 @@ private struct MoodCard: View {
         if loading {
             ProgressView().controlSize(.small).tint(.white)
         } else if playing {
-            FinifyIcon(.radio, size: .compact).foregroundStyle(.white)
+            FlioneIcon(.radio, size: .compact).foregroundStyle(.white)
                 .padding(6)
                 .background(.black.opacity(0.25), in: Circle())
         } else {
-            FinifyIcon(.play, weight: .filled, size: .compact)
+            FlioneIcon(.play, weight: .filled, size: .compact)
                 .foregroundStyle(mood.colors[1])
                 .padding(8)
                 .background(.white, in: Circle())

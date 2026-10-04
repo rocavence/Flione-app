@@ -4,12 +4,12 @@ import SwiftUI
 struct FavoriteButton: View {
     let itemID: String
     let name: String
-    var size: FinifyIcon.Size = .compact
+    var size: FlioneIcon.Size = .compact
     @Environment(AppEnvironment.self) private var app
 
     var body: some View {
         let isFavorite = app.favorites.contains(itemID)
-        FinifyIconButton(icon: .heart, label: isFavorite ? "Remove \(name) from Favorites" : "Add \(name) to Favorites",
+        FlioneIconButton(icon: .heart, label: isFavorite ? "Remove \(name) from Favorites" : "Add \(name) to Favorites",
                          size: size, isActive: isFavorite) {
             Haptics.perform(.toggle)
             app.favorites.toggle(itemID)

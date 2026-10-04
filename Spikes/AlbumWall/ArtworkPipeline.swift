@@ -30,7 +30,7 @@ final class CGImageBox {
     init(_ image: CGImage) { self.image = image }
 }
 
-/// 模擬 Finify 的 artwork pipeline：memory cache（有 byte 上限）→ disk（假封面檔）＋ 模擬網路延遲。
+/// 模擬 Flione 的 artwork pipeline：memory cache（有 byte 上限）→ disk（假封面檔）＋ 模擬網路延遲。
 final class ArtworkPipeline: @unchecked Sendable {
     struct Stats: Sendable {
         var requested = 0

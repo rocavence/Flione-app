@@ -13,13 +13,13 @@ struct GlassSegmentedControl<Value: Hashable>: View {
                 let selected = option.value == selection
                 Button { selection = option.value } label: {
                     Text(option.title)
-                        .finifyFont(selected ? .bodyEmphasis : .body)
+                        .flioneFont(selected ? .bodyEmphasis : .body)
                         .lineLimit(1)
                         .padding(.horizontal, Spacing.s16)
                         .frame(height: 30)
-                        .foregroundStyle(selected ? (overflow ? FinifyColor.Overflow.background : FinifyColor.onPrimary)
-                                                  : (overflow ? FinifyColor.Overflow.muted : FinifyColor.muted))
-                        .background(selected ? (overflow ? FinifyColor.Overflow.ink : FinifyColor.primary) : .clear, in: Capsule())
+                        .foregroundStyle(selected ? (overflow ? FlioneColor.Overflow.background : FlioneColor.onPrimary)
+                                                  : (overflow ? FlioneColor.Overflow.muted : FlioneColor.muted))
+                        .background(selected ? (overflow ? FlioneColor.Overflow.ink : FlioneColor.primary) : .clear, in: Capsule())
                         .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -27,7 +27,7 @@ struct GlassSegmentedControl<Value: Hashable>: View {
             }
         }
         .padding(3)
-        .modifier(TopBarSurface(overflow: overflow, shape: Capsule(), fallback: overflow ? FinifyColor.Overflow.control : FinifyColor.surface))
+        .modifier(TopBarSurface(overflow: overflow, shape: Capsule(), fallback: overflow ? FlioneColor.Overflow.control : FlioneColor.surface))
         .animation(Motion.micro, value: selection)
     }
 }

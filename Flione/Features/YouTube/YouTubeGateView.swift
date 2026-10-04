@@ -16,7 +16,7 @@ struct YouTubeGateView: View {
                 .frame(width: 400)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(FinifyColor.Ocean.abyss)
+        .background(FlioneColor.Ocean.abyss)
         .environment(\.colorScheme, .dark)
     }
 
@@ -27,13 +27,13 @@ struct YouTubeGateView: View {
             VStack(spacing: Spacing.s12) {
                 ProgressView().controlSize(.small)
                 Text("Connecting to YouTube Music…")
-                    .finifyFont(.body).foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.body).foregroundStyle(FlioneColor.muted)
             }
         case .connected:
             EmptyView()
         case .failed(let reason):
             message(title: "Can't connect to YouTube Music", detail: "\(reason)") {
-                FinifyButton(title: "Retry", kind: .primary) { Task { await app.signInYouTube() } }
+                FlioneButton(title: "Retry", kind: .primary) { Task { await app.signInYouTube() } }
             }
         }
     }
@@ -41,12 +41,12 @@ struct YouTubeGateView: View {
     private func message<Actions: View>(title: LocalizedStringResource, detail: LocalizedStringResource,
                                         @ViewBuilder actions: () -> Actions = { EmptyView() }) -> some View {
         VStack(spacing: Spacing.s12) {
-            Text(title).finifyFont(.title).foregroundStyle(FinifyColor.ink).multilineTextAlignment(.center)
-            Text(detail).finifyFont(.body).foregroundStyle(FinifyColor.muted).multilineTextAlignment(.center)
+            Text(title).flioneFont(.title).foregroundStyle(FlioneColor.ink).multilineTextAlignment(.center)
+            Text(detail).flioneFont(.body).foregroundStyle(FlioneColor.muted).multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: Spacing.s8) {
                 actions()
-                FinifyButton(title: "Sign Out", kind: .secondary) { Task { await app.youtube.signOut() } }
+                FlioneButton(title: "Sign Out", kind: .secondary) { Task { await app.youtube.signOut() } }
             }
             .padding(.top, Spacing.s12)
         }

@@ -9,7 +9,7 @@ protocol SessionStore: Sendable {
 }
 
 struct KeychainSessionStore: SessionStore {
-    private let service = "app.finify.Finify.session"
+    private let service = "com.rocavence.Flione.session"
     private let account = "jellyfin"
 
     private var baseQuery: [String: Any] {
@@ -23,10 +23,22 @@ struct KeychainSessionStore: SessionStore {
         query[kSecReturnData as String] = true
         query[kSecMatchLimit as String] = kSecMatchLimitOne
         var result: AnyObject?
-        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
-              let data = result as? Data else { return nil }
-        return try? JSONDecoder().decode(JellyfinSession.self, from: data)
+        if SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess, let data = result as? Data {
+            return try? JSONDecoder().decode(JellyfinSession.self, from: data)
+        }
+        // 改名前（Finify）存的登入：讀出來存成新的（D52）。只在沒有新項目時讀一次
+        guard !Self.checkedLegacy, let data = LegacyMigration.legacySessionData(account: account),
+              let session = try? JSONDecoder().decode(JellyfinSession.self, from: data) else {
+            Self.checkedLegacy = true
+            return nil
+        }
+        Self.checkedLegacy = true
+        try? save(session)
+        return session
     }
+
+    /// 舊鑰匙圈項目只查一次（每次查都可能讓系統跳出授權視窗）
+    nonisolated(unsafe) private static var checkedLegacy = false
 
     func save(_ session: JellyfinSession) throws {
         let data = try JSONEncoder().encode(session)
@@ -45,7 +57,7 @@ struct KeychainSessionStore: SessionStore {
 
 #if DEBUG || BENCHMARK || DEV_LOGIN
 /// 開發與測試版用：從 `.secrets/` 讀取登入資訊，避免無人值守測試時 Keychain 跳出授權視窗。
-/// 啟動參數：`-FinifySecrets <repo>/.secrets`
+/// 啟動參數：`-FlioneSecrets <repo>/.secrets`
 struct DevelopmentSessionStore: SessionStore {
     let directory: URL
 

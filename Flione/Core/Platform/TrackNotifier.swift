@@ -2,15 +2,15 @@ import AppKit
 import os
 import UserNotifications
 
-/// 換歌時發一則附封面的系統通知。只在 Finify 不在前景時發，避免和畫面重複。
+/// 換歌時發一則附封面的系統通知。只在 Flione 不在前景時發，避免和畫面重複。
 /// 做法參考 Kaset（MIT）的 NotificationService。
 @MainActor
 final class TrackNotifier {
     private let images: () -> ImagePipeline?
     private var authorized: Bool?
     private var task: Task<Void, Never>?
-    private static let identifier = "app.finify.now-playing"
-    private let log = Logger(subsystem: "app.finify.Finify", category: "notifications")
+    private static let identifier = "com.rocavence.Flione.now-playing"
+    private let log = Logger(subsystem: "com.rocavence.Flione", category: "notifications")
 
     init(images: @escaping () -> ImagePipeline?) {
         self.images = images
@@ -62,7 +62,7 @@ final class TrackNotifier {
     private func artworkAttachment(for track: Track) async -> UNNotificationAttachment? {
         guard let ref = track.artwork, let images = images(),
               let image = await images.image(ref, pixelSize: 300) else { return nil }
-        let url = FileManager.default.temporaryDirectory.appending(path: "finify-notification-\(UUID().uuidString).png")
+        let url = FileManager.default.temporaryDirectory.appending(path: "flione-notification-\(UUID().uuidString).png")
         guard let data = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]),
               (try? data.write(to: url)) != nil else { return nil }
         // 系統會把附件搬走，不必自己刪

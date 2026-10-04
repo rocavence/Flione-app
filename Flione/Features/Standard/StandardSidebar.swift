@@ -15,11 +15,11 @@ struct StandardSidebar: View {
         .background {
             ZStack {
                 Rectangle().fill(.ultraThinMaterial)
-                FinifyColor.panel.opacity(0.3)
+                FlioneColor.panel.opacity(0.3)
             }
         }
         // 側欄的框線都壓淡，只留輪廓（使用者要求不要明顯）
-        .overlay(alignment: .trailing) { FinifyColor.hairline.opacity(0.25).frame(width: 1) }
+        .overlay(alignment: .trailing) { FlioneColor.hairline.opacity(0.25).frame(width: 1) }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Sidebar")
     }
@@ -67,8 +67,8 @@ struct StandardSidebar: View {
 
     private func header(_ title: LocalizedStringResource) -> some View {
         Text(title)
-            .finifyFont(.caption)
-            .foregroundStyle(FinifyColor.faint)
+            .flioneFont(.caption)
+            .foregroundStyle(FlioneColor.faint)
             .padding(.horizontal, Spacing.s12)
             .padding(.top, Spacing.s20)
             .padding(.bottom, Spacing.s4)
@@ -86,12 +86,12 @@ private struct SidebarRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: Spacing.s12) {
-                FinifyIcon(icon, weight: isSelected ? .filled : .outline, size: .standard)
-                    .foregroundStyle(isSelected ? FinifyColor.ink : FinifyColor.muted)
+                FlioneIcon(icon, weight: isSelected ? .filled : .outline, size: .standard)
+                    .foregroundStyle(isSelected ? FlioneColor.ink : FlioneColor.muted)
                 // 西文、葡文的名稱較長（「Adicionados recentemente」）：維持一行，必要時稍微縮小
                 Text(title)
-                    .finifyFont(isSelected ? .bodyEmphasis : .body)
-                    .foregroundStyle(isSelected ? FinifyColor.ink : FinifyColor.muted)
+                    .flioneFont(isSelected ? .bodyEmphasis : .body)
+                    .foregroundStyle(isSelected ? FlioneColor.ink : FlioneColor.muted)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 Spacer(minLength: 0)
@@ -102,7 +102,7 @@ private struct SidebarRow: View {
             .overlay {
                 if isSelected {
                     RoundedRectangle(cornerRadius: Radius.ui, style: .continuous)
-                        .strokeBorder(FinifyColor.accent.opacity(0.08), lineWidth: 1)
+                        .strokeBorder(FlioneColor.accent.opacity(0.08), lineWidth: 1)
                 }
             }
             .contentShape(Rectangle())
@@ -114,8 +114,8 @@ private struct SidebarRow: View {
     }
 
     private var background: Color {
-        if isSelected { return FinifyColor.active }
-        return hovering ? FinifyColor.glassHighlight : .clear
+        if isSelected { return FlioneColor.active }
+        return hovering ? FlioneColor.glassHighlight : .clear
     }
 }
 
@@ -131,14 +131,14 @@ private struct PlaylistSidebarRow: View {
                 ArtworkView(artwork: playlist.artwork, cornerRadius: Radius.small, elevation: .none, fallbackTitle: nil)
                     .frame(width: 24, height: 24)
                 Text(playlist.name)
-                    .finifyFont(.body)
-                    .foregroundStyle(isSelected ? FinifyColor.ink : FinifyColor.muted)
+                    .flioneFont(.body)
+                    .foregroundStyle(isSelected ? FlioneColor.ink : FlioneColor.muted)
                     .lineLimit(1)
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, Spacing.s12)
             .frame(height: 34)
-            .background(isSelected ? FinifyColor.active : (hovering ? FinifyColor.glassHighlight : .clear),
+            .background(isSelected ? FlioneColor.active : (hovering ? FlioneColor.glassHighlight : .clear),
                         in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
             .contentShape(Rectangle())
         }
@@ -162,21 +162,21 @@ private struct SidebarProfile: View {
                     UserAvatar(session: session, size: 32)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(session.userName)
-                            .finifyFont(.bodyEmphasis)
-                            .foregroundStyle(FinifyColor.ink)
+                            .flioneFont(.bodyEmphasis)
+                            .foregroundStyle(FlioneColor.ink)
                         Text(session.serverName)
-                            .finifyFont(.caption)
-                            .foregroundStyle(FinifyColor.muted)
+                            .flioneFont(.caption)
+                            .foregroundStyle(FlioneColor.muted)
                     }
                     .lineLimit(1)
                     Spacer(minLength: 0)
-                    FinifyIcon(.chevronUp, size: .compact)
-                        .foregroundStyle(FinifyColor.faint)
+                    FlioneIcon(.chevronUp, size: .compact)
+                        .foregroundStyle(FlioneColor.faint)
                 }
                 // 與上方選單項目相同：外層 12 ＋ 內層 12，頭像與歌單縮圖對齊在 24pt
                 .padding(.horizontal, Spacing.s12)
                 .frame(height: 48)
-                .background(hovering ? FinifyColor.glassHighlight : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+                .background(hovering ? FlioneColor.glassHighlight : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -190,7 +190,7 @@ private struct SidebarProfile: View {
             }
             .padding(.horizontal, Spacing.s12)
             .padding(.vertical, Spacing.s8)
-            .overlay(alignment: .top) { FinifyColor.hairline.opacity(0.25).frame(height: 1) }
+            .overlay(alignment: .top) { FlioneColor.hairline.opacity(0.25).frame(height: 1) }
         }
     }
 }
@@ -206,10 +206,10 @@ private struct AccountPopover: View {
             HStack(spacing: Spacing.s12) {
                 UserAvatar(session: session, size: 44)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(session.userName).finifyFont(.subheading).foregroundStyle(FinifyColor.ink)
+                    Text(session.userName).flioneFont(.subheading).foregroundStyle(FlioneColor.ink)
                     Text(session.serverURL.host() ?? session.serverURL.absoluteString)
-                        .finifyFont(.caption).foregroundStyle(FinifyColor.muted)
-                    Text("\(app.library.albums.count) albums").finifyFont(.caption).foregroundStyle(FinifyColor.faint)
+                        .flioneFont(.caption).foregroundStyle(FlioneColor.muted)
+                    Text("\(app.library.albums.count) albums").flioneFont(.caption).foregroundStyle(FlioneColor.faint)
                 }
                 .lineLimit(1)
             }
@@ -249,14 +249,14 @@ private struct PopoverRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: Spacing.s12) {
-                FinifyIcon(icon, size: .compact)
-                Text(title).finifyFont(.body)
+                FlioneIcon(icon, size: .compact)
+                Text(title).flioneFont(.body)
                 Spacer(minLength: 0)
             }
-            .foregroundStyle(destructive ? FinifyColor.danger : FinifyColor.ink)
+            .foregroundStyle(destructive ? FlioneColor.danger : FlioneColor.ink)
             .padding(.horizontal, Spacing.s12)
             .frame(height: 32)
-            .background(hovering && isEnabled ? FinifyColor.glassHighlight : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
+            .background(hovering && isEnabled ? FlioneColor.glassHighlight : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -276,7 +276,7 @@ struct UserAvatar: View {
                 image.resizable().scaledToFill()
             } else {
                 ZStack {
-                    FinifyColor.aurora
+                    FlioneColor.aurora
                     Text(session.userName.prefix(1).uppercased())
                         .font(.system(size: size * 0.42, weight: .semibold))
                         .foregroundStyle(.white)
@@ -285,7 +285,7 @@ struct UserAvatar: View {
         }
         .frame(width: size, height: size)
         .clipShape(Circle())
-        .overlay(Circle().strokeBorder(FinifyColor.hairline.opacity(0.3), lineWidth: 1))
+        .overlay(Circle().strokeBorder(FlioneColor.hairline.opacity(0.3), lineWidth: 1))
         .accessibilityHidden(true)
     }
 }

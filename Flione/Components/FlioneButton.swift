@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// 文字按鈕。狀態：default、hover、pressed、focused（系統 focus ring）、disabled、loading。
-struct FinifyButton: View {
+struct FlioneButton: View {
     enum Kind {
         /// 主要行動（Play）
         case primary
@@ -25,19 +25,19 @@ struct FinifyButton: View {
                 if isLoading {
                     ProgressView().controlSize(.small)
                 } else if let icon {
-                    FinifyIcon(icon, weight: kind == .primary ? .filled : .outline, size: .compact)
+                    FlioneIcon(icon, weight: kind == .primary ? .filled : .outline, size: .compact)
                 }
-                Text(title).finifyFont(.bodyEmphasis)
+                Text(title).flioneFont(.bodyEmphasis)
             }
             .frame(maxWidth: expands ? .infinity : nil)
         }
-        .buttonStyle(FinifyButtonStyle(kind: kind))
+        .buttonStyle(FlioneButtonStyle(kind: kind))
         .disabled(isLoading)
     }
 }
 
-struct FinifyButtonStyle: ButtonStyle {
-    let kind: FinifyButton.Kind
+struct FlioneButtonStyle: ButtonStyle {
+    let kind: FlioneButton.Kind
 
     func makeBody(configuration: Configuration) -> some View {
         StyledBody(configuration: configuration, kind: kind)
@@ -45,7 +45,7 @@ struct FinifyButtonStyle: ButtonStyle {
 
     private struct StyledBody: View {
         let configuration: Configuration
-        let kind: FinifyButton.Kind
+        let kind: FlioneButton.Kind
         @Environment(\.isEnabled) private var isEnabled
         @Environment(\.overflowStyle) private var overflow
         @State private var hovering = false
@@ -66,34 +66,34 @@ struct FinifyButtonStyle: ButtonStyle {
 
         private var foreground: Color {
             switch kind {
-            case .primary: overflow ? FinifyColor.Overflow.background : FinifyColor.onPrimary
-            case .secondary, .ghost: overflow ? FinifyColor.Overflow.ink : FinifyColor.ink
+            case .primary: overflow ? FlioneColor.Overflow.background : FlioneColor.onPrimary
+            case .secondary, .ghost: overflow ? FlioneColor.Overflow.ink : FlioneColor.ink
             }
         }
 
         private var background: Color {
             switch kind {
             case .primary:
-                let base = overflow ? FinifyColor.Overflow.ink : FinifyColor.primary
+                let base = overflow ? FlioneColor.Overflow.ink : FlioneColor.primary
                 return hovering ? base.opacity(0.88) : base
             case .secondary:
-                if overflow { return hovering ? FinifyColor.Overflow.controlHover : FinifyColor.Overflow.control }
-                return hovering ? FinifyColor.hairline : FinifyColor.surface
+                if overflow { return hovering ? FlioneColor.Overflow.controlHover : FlioneColor.Overflow.control }
+                return hovering ? FlioneColor.hairline : FlioneColor.surface
             case .ghost:
                 guard hovering else { return .clear }
-                return overflow ? FinifyColor.Overflow.control : FinifyColor.surface
+                return overflow ? FlioneColor.Overflow.control : FlioneColor.surface
             }
         }
     }
 }
 
 /// 只有 icon 的按鈕。`isActive` 時改用 Filled + `activeColor`（預設 Flione Blue；shuffle、repeat 用橘色）。
-struct FinifyIconButton: View {
+struct FlioneIconButton: View {
     let icon: Reicon
     let label: LocalizedStringResource
-    var size: FinifyIcon.Size = .standard
+    var size: FlioneIcon.Size = .standard
     var isActive = false
-    var activeColor: Color = FinifyColor.accent
+    var activeColor: Color = FlioneColor.accent
     /// 主要播放按鈕：實心圓底
     var prominent = false
     let action: () -> Void
@@ -104,7 +104,7 @@ struct FinifyIconButton: View {
 
     var body: some View {
         Button(action: action) {
-            FinifyIcon(icon, weight: isActive || prominent ? .filled : .outline, size: size)
+            FlioneIcon(icon, weight: isActive || prominent ? .filled : .outline, size: size)
                 .foregroundStyle(foreground)
                 .frame(width: size.rawValue + (prominent ? 20 : 12), height: size.rawValue + (prominent ? 20 : 12))
                 .background(background, in: prominent ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: Radius.ui, style: .continuous)))
@@ -119,19 +119,19 @@ struct FinifyIconButton: View {
     }
 
     private var foreground: Color {
-        if prominent { return overflow ? FinifyColor.Overflow.background : FinifyColor.onPrimary }
+        if prominent { return overflow ? FlioneColor.Overflow.background : FlioneColor.onPrimary }
         if isActive { return activeColor }
-        let base = overflow ? FinifyColor.Overflow.ink : FinifyColor.ink
+        let base = overflow ? FlioneColor.Overflow.ink : FlioneColor.ink
         return hovering ? base : base.opacity(0.72)
     }
 
     private var background: Color {
         if prominent {
-            let base = overflow ? FinifyColor.Overflow.ink : FinifyColor.primary
+            let base = overflow ? FlioneColor.Overflow.ink : FlioneColor.primary
             return hovering ? base.opacity(0.88) : base
         }
         guard hovering else { return .clear }
-        return overflow ? FinifyColor.Overflow.control : FinifyColor.surface
+        return overflow ? FlioneColor.Overflow.control : FlioneColor.surface
     }
 }
 

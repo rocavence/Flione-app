@@ -101,7 +101,7 @@ struct HomeView: View {
             if let empty {
                 VStack(alignment: .leading, spacing: Spacing.s16) {
                     SectionHeader(title: title)
-                    Text(empty).finifyFont(.body).foregroundStyle(FinifyColor.muted)
+                    Text(empty).flioneFont(.body).foregroundStyle(FlioneColor.muted)
                 }
             }
         case .failed:
@@ -137,9 +137,9 @@ struct AlbumShelf: View {
                 SectionHeader(title: title, action: action, actionIcon: actionIcon)
                 if albums.count > visibleCount {
                     HStack(spacing: Spacing.s4) {
-                        FinifyIconButton(icon: .chevronLeft, label: "Scroll \(title) left", size: .compact) { page(-1) }
+                        FlioneIconButton(icon: .chevronLeft, label: "Scroll \(title) left", size: .compact) { page(-1) }
                             .disabled(firstVisible == 0)
-                        FinifyIconButton(icon: .chevronRight, label: "Scroll \(title) right", size: .compact) { page(1) }
+                        FlioneIconButton(icon: .chevronRight, label: "Scroll \(title) right", size: .compact) { page(1) }
                             .disabled(firstVisible + visibleCount >= albums.count)
                     }
                 }
@@ -207,8 +207,8 @@ private struct HomeHero: View {
                 VStack(alignment: .leading, spacing: Spacing.s12) {
                     Text(greeting)
                         .textCase(.uppercase)
-                        .finifyFont(.micro)
-                        .foregroundStyle(FinifyColor.ice.opacity(0.85))
+                        .flioneFont(.micro)
+                        .foregroundStyle(FlioneColor.ice.opacity(0.85))
                     Text("Listen well. Collect well.")
                         .font(.system(size: 36, weight: .bold))
                         .tracking(-0.8)
@@ -216,8 +216,8 @@ private struct HomeHero: View {
                         .lineLimit(2)
                         .minimumScaleFactor(0.7)
                     Text(subtitle)
-                        .finifyFont(.body)
-                        .foregroundStyle(FinifyColor.ice.opacity(0.85))
+                        .flioneFont(.body)
+                        .foregroundStyle(FlioneColor.ice.opacity(0.85))
                         .lineLimit(2)
                         .frame(maxWidth: 380, alignment: .leading)
                     HStack(spacing: Spacing.s8) {
@@ -243,7 +243,7 @@ private struct HomeHero: View {
         .frame(height: 260)
         .clipShape(RoundedRectangle(cornerRadius: Radius.hero, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: Radius.hero, style: .continuous).strokeBorder(.white.opacity(0.08), lineWidth: 1) }
-        .finifyShadow(FinifyShadow.elevated)
+        .flioneShadow(FlioneShadow.elevated)
         .environment(\.colorScheme, .dark)
     }
 
@@ -256,14 +256,14 @@ private struct HomeHero: View {
 
     private var background: some View {
         ZStack {
-            FinifyColor.aurora
+            FlioneColor.aurora
             if let artwork = album?.artwork {
                 HeroBackdrop(artwork: artwork)
                     .id(artwork)
                     .transition(.opacity)
             }
             // 左側壓暗，讓文字清楚
-            LinearGradient(colors: [FinifyColor.Ocean.abyss.opacity(0.75), FinifyColor.Ocean.abyss.opacity(0.15)], startPoint: .leading, endPoint: .trailing)
+            LinearGradient(colors: [FlioneColor.Ocean.abyss.opacity(0.75), FlioneColor.Ocean.abyss.opacity(0.15)], startPoint: .leading, endPoint: .trailing)
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.8), value: album?.artwork)
         .drawingGroup()
@@ -324,11 +324,11 @@ private struct HeroButton: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: Spacing.s8) {
-                FinifyIcon(icon, weight: .filled, size: .compact)
-                Text(title).finifyFont(.bodyEmphasis)
+                FlioneIcon(icon, weight: .filled, size: .compact)
+                Text(title).flioneFont(.bodyEmphasis)
             }
             .fixedSize()
-            .foregroundStyle(prominent ? FinifyColor.Ocean.surface1 : .white)
+            .foregroundStyle(prominent ? FlioneColor.Ocean.surface1 : .white)
             .padding(.horizontal, Spacing.s20)
             .frame(height: 38)
             .modifier(HeroButtonBackground(prominent: prominent, hovering: hovering))
@@ -348,9 +348,9 @@ private struct HeroButtonBackground: ViewModifier {
 
     func body(content: Content) -> some View {
         if prominent {
-            content.background(FinifyColor.ice.opacity(hovering ? 0.9 : 1), in: Capsule())
+            content.background(FlioneColor.ice.opacity(hovering ? 0.9 : 1), in: Capsule())
         } else {
-            content.finifyGlass(in: Capsule(), interactive: true, fallback: .white.opacity(hovering ? 0.22 : 0.14))
+            content.flioneGlass(in: Capsule(), interactive: true, fallback: .white.opacity(hovering ? 0.22 : 0.14))
         }
     }
 }

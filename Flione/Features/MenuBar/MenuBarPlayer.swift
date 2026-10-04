@@ -12,9 +12,9 @@ struct MenuBarPlayer: View {
                     ArtworkView(artwork: track.artwork, elevation: .none)
                         .frame(width: 56, height: 56)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(track.name).finifyFont(.bodyEmphasis).foregroundStyle(FinifyColor.ink).lineLimit(1)
-                        Text(track.artistName).finifyFont(.caption).foregroundStyle(FinifyColor.muted).lineLimit(1)
-                        Text(track.albumName).finifyFont(.caption).foregroundStyle(FinifyColor.faint).lineLimit(1)
+                        Text(track.name).flioneFont(.bodyEmphasis).foregroundStyle(FlioneColor.ink).lineLimit(1)
+                        Text(track.artistName).flioneFont(.caption).foregroundStyle(FlioneColor.muted).lineLimit(1)
+                        Text(track.albumName).flioneFont(.caption).foregroundStyle(FlioneColor.faint).lineLimit(1)
                     }
                     Spacer(minLength: 0)
                     FavoriteButton(itemID: track.id, name: track.name)
@@ -25,31 +25,31 @@ struct MenuBarPlayer: View {
                     Spacer()
                     Text(app.player.duration.formattedDuration)
                 }
-                .finifyFont(.caption)
+                .flioneFont(.caption)
                 .monospacedDigit()
-                .foregroundStyle(FinifyColor.muted)
+                .foregroundStyle(FlioneColor.muted)
                 .padding(.top, -Spacing.s8)
                 PlaybackControls()
                     .frame(maxWidth: .infinity)
             } else {
                 Text("Nothing playing")
-                    .finifyFont(.body)
-                    .foregroundStyle(FinifyColor.muted)
+                    .flioneFont(.body)
+                    .foregroundStyle(FlioneColor.muted)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, Spacing.s16)
             }
-            FinifyColor.hairline.frame(height: 1)
+            FlioneColor.hairline.frame(height: 1)
             // icon 按鈕：文字按鈕在 300pt 寬的面板裡會換行爆版
             HStack(spacing: Spacing.s4) {
-                FinifyIconButton(icon: .window, label: "Open Flione") {
+                FlioneIconButton(icon: .window, label: "Open Flione") {
                     openWindow(id: "main")
                     NSApp.activate()
                 }
-                FinifyIconButton(icon: .pip, label: "Mini Player") { openWindow(id: "floating") }
+                FlioneIconButton(icon: .pip, label: "Mini Player") { openWindow(id: "floating") }
                 OutputPickerButton()
                 CastButton()
                 Spacer()
-                FinifyIconButton(icon: .power, label: "Quit Flione") { NSApp.terminate(nil) }
+                FlioneIconButton(icon: .power, label: "Quit Flione") { NSApp.terminate(nil) }
             }
         }
         .padding(Spacing.s16)
