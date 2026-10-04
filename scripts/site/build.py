@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""官網建置：改完 docs/index.html（中文）後執行一次。
-
-1. 從頁面上的常見問題產生 FAQ 結構化資料（JSON-LD），寫回中文頁。
-2. 套用 scripts/site/en.json，產生英文頁 docs/en/index.html。
-
-用法：python3 scripts/site/build.py
-標記：data-i="key" 換掉元素內容；data-i-content / data-i-href / data-i-aria-label 換掉同名屬性。
-"""
 import html
 import json
 import re
@@ -20,7 +12,6 @@ STRINGS = json.loads((Path(__file__).parent / "en.json").read_text())
 
 
 def inner_end(s, tag, start):
-    """從 start（開始標籤之後）找對應的結束標籤位置，處理同名標籤巢狀。"""
     depth, i = 1, start
     pat = re.compile(rf"<(/?){tag}\b[^>]*>", re.I)
     while True:
@@ -42,7 +33,6 @@ def apply_strings(s, strings):
             return None
         return strings[key]
 
-    # 屬性
     def attr_sub(m):
         tag = m.group(0)
         for name, key in re.findall(r'data-i-([\w-]+)="([^"]+)"', tag):
@@ -52,8 +42,6 @@ def apply_strings(s, strings):
         return tag
 
     s = re.sub(r"<[^>]*\sdata-i-[\w-]+=\"[^>]*>", attr_sub, s)
-
-    # 元素內容
     out, pos = [], 0
     for m in re.finditer(r'<(\w+)\b[^>]*\sdata-i="([^"]+)"[^>]*>', s):
         if m.start() < pos:
