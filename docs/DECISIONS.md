@@ -341,3 +341,10 @@
 * **清理時機**：啟動時、每新下載 100 張封面、改了上限之後，都在背景依「最久沒用」刪除到上限以內。
 * **單位**：上限用十進位 MB（1 MB = 1,000,000 位元組），與設定裡顯示的用量（`ByteCountFormatter .file`）一致，避免顯示超過上限。
 * **怎麼改**：`ImagePipeline` 的 `diskLimitOptions`、`diskBudgetMB`、`trimEvery`。
+
+## D46　公開版分成 Apple Silicon 與 Intel 兩包
+
+* **選擇**：`FINIFY_PUBLIC=1 scripts/build-release.sh` 建置一次通用版，再用 `lipo -thin` 拆成 `Flione-<版本>-AppleSilicon.dmg` 與 `Flione-<版本>-Intel.dmg`，拆完各自重新 ad-hoc 簽章（保留 hardened runtime）。每包約 2.4 MB，通用版 dmg 是 6.6 MB（已含 D44 的移除符號）。
+* **給使用者的說明**：官網、README、Release 說明都寫明 Apple 晶片（M1 以後）選 AppleSilicon、Intel 處理器選 Intel，不確定時看「關於這台 Mac」。
+* **驗證**：Apple Silicon 版在本機啟動正常。這台 Mac 沒有 Rosetta，Intel 版無法在本機啟動；它是通用版裡原本的 Intel 部分，只是拆出來。
+* **本機自用版**（沒有 `FINIFY_PUBLIC`）仍產生一包通用版。

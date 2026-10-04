@@ -49,7 +49,7 @@ Design decisions not covered by the spec are recorded in [`docs/DECISIONS.md`](d
 
 ## Install
 
-Download the `.dmg` from [Releases](https://github.com/rocavence/Flione-app/releases/latest), open it, and drag Flione to Applications. It isn't notarized by Apple, so run this in Terminal before opening it the first time:
+Download the `.dmg` from [Releases](https://github.com/rocavence/Flione-app/releases/latest) (`AppleSilicon` for Macs with Apple chips, `Intel` for Intel Macs), open it, and drag Flione to Applications. It isn't notarized by Apple, so run this in Terminal before opening it the first time:
 
 ```sh
 xattr -dr com.apple.quarantine /Applications/Flione.app && open /Applications/Flione.app
