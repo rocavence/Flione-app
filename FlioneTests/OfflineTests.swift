@@ -31,6 +31,8 @@ final class FakeRepository: MusicRepository, @unchecked Sendable {
     func randomTracks(inGenre genreID: String, limit: Int) async throws -> [Track] { try check(); return [] }
     func randomTracks(limit: Int) async throws -> [Track] { try check(); return [] }
     func instantMix(forTrack trackID: String, limit: Int) async throws -> [Track] { try check(); return [] }
+    func radio(seedID: String, limit: Int) async throws -> [Track] { try check(); return [] }
+    var supportsRadio: Bool { true }
     func playlists() async throws -> [Playlist] { try check(); return [] }
     func playlistTracks(_ playlistID: String) async throws -> [Track] { try check(); return [] }
     func playlist(id: String) async throws -> Playlist { try check(); return Playlist(id: id, name: "P", trackCount: 0, duration: 0, artwork: nil) }
