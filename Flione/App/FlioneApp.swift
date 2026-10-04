@@ -172,12 +172,44 @@ struct FinifyCommands: Commands {
             OpenWindowButton(title: "Mini Player", windowID: "floating")
                 .keyboardShortcut("m", modifiers: [.command, .option])
         }
+        // 全螢幕在「視窗」選單（原本是右上角的按鈕）
+        CommandGroup(after: .windowSize) {
+            Button(FullscreenTracker.shared.isFullscreen ? "Exit Full Screen" : "Enter Full Screen") {
+                FullscreenTracker.mainWindow?.toggleFullScreen(nil)
+            }
+            .keyboardShortcut("f", modifiers: [.control, .command])
+        }
         // 設定是主視窗裡的卡片，不是獨立視窗
         CommandGroup(replacing: .appSettings) {
             Button("Settings…") { app.isSettingsPresented = true }
                 .keyboardShortcut(",", modifiers: .command)
             Button("Sign Out of Jellyfin…") { app.signOut() }
                 .disabled(app.session == nil)
+        }
+    }
+}
+
+/// 主視窗是否全螢幕：「視窗」選單的「進入／結束全螢幕」依此切換文字
+@MainActor @Observable
+final class FullscreenTracker {
+    static let shared = FullscreenTracker()
+    private(set) var isFullscreen = false
+
+    /// 主視窗（迷你播放器另有自己的視窗，不切換它）
+    static var mainWindow: NSWindow? {
+        NSApp.windows.first { $0.identifier?.rawValue.hasPrefix("main") == true } ?? NSApp.mainWindow
+    }
+
+    private init() {
+        for name in [NSWindow.didEnterFullScreenNotification, NSWindow.didExitFullScreenNotification] {
+            NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] note in
+                let entered = note.name == NSWindow.didEnterFullScreenNotification
+                let windowID = (note.object as AnyObject?).map(ObjectIdentifier.init)
+                MainActor.assumeIsolated {
+                    guard let windowID, let main = Self.mainWindow, ObjectIdentifier(main) == windowID else { return }
+                    self?.isFullscreen = entered
+                }
+            }
         }
     }
 }

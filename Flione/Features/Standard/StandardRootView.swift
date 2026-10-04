@@ -248,62 +248,20 @@ struct ModeSwitch: View {
     }
 }
 
-/// 右上角的模式切換＋全螢幕。三種模式共用，位置固定在視窗右上角
+/// 右上角的模式切換。三種模式共用，位置固定在視窗右上角（全螢幕在「視窗」選單）
 struct ViewControls: View {
     /// 頂部列高度，Standard 與 Infinity／Cover Flow 相同
     /// 頂部列所有控制項的高度（模式切換、全螢幕、搜尋、上一頁／下一頁、Infinity 的排序等）
     static let controlHeight: CGFloat = 38
     /// 頂部列高度：控制項上下各留 11pt（原本上一頁按鈕到邊緣的距離）
     static let barHeight: CGFloat = controlHeight + 22
-    /// 三段切換（3 × 42 + 6）＋ 間距 12 ＋ 全螢幕 40
-    static let width: CGFloat = 132 + 12 + 40
+    /// 三段切換（3 × 42 + 6）
+    static let width: CGFloat = 132
 
     var body: some View {
-        HStack(spacing: Spacing.s12) {
-            ModeSwitch()
-            FullscreenButton()
-        }
+        ModeSwitch()
         .frame(height: Self.barHeight)
         .padding(.trailing, Spacing.s16)
-    }
-}
-
-/// 視窗全螢幕：照目前的畫面放大到整個螢幕（和選單的「進入全螢幕」⌃⌘F 相同）
-struct FullscreenButton: View {
-    @Environment(\.overflowStyle) private var overflow
-    /// 按鈕所在的視窗（不用 keyWindow：app 不在前景時 keyWindow 是 nil）
-    @State private var window: NSWindow?
-    @State private var isFullscreen = false
-    @State private var hovering = false
-
-    var body: some View {
-        let label = isFullscreen ? "Exit Full Screen (⌃⌘F)" : "Enter Full Screen (⌃⌘F)"
-        // 不用 FinifyIconButton：它的 hover 底是圓角方形，放在正圓按鈕裡會露出方角
-        Button { window?.toggleFullScreen(nil) } label: {
-            // 進入與離開全螢幕用同一個圖示；比一般 compact 圖示小 10%
-            FinifyIcon(.fullscreen, size: .compact)
-                .scaleEffect(0.9)
-                .foregroundStyle((overflow ? FinifyColor.Overflow.ink : FinifyColor.ink).opacity(hovering ? 1 : 0.72))
-                // 視覺修正：正圓看起來偏直，寬度多 2pt 才會看起來是圓的
-                .frame(width: 40, height: 38)
-                .modifier(TopBarSurface(overflow: overflow, shape: Ellipse(),
-                                        fallback: hovering ? (overflow ? FinifyColor.Overflow.controlHover : FinifyColor.glassHighlight)
-                                                           : (overflow ? FinifyColor.Overflow.control : FinifyColor.glass),
-                                interactive: false))
-                .contentShape(Ellipse())
-        }
-        .buttonStyle(PressScaleStyle())
-        .onHover { hovering = $0 }
-        .animation(Motion.micro, value: hovering)
-        .help(label)
-        .accessibilityLabel(label)
-        .background(WindowAccessor { window = $0; isFullscreen = $0?.styleMask.contains(.fullScreen) ?? false })
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) {
-            if $0.object as? NSWindow === window { isFullscreen = true }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) {
-            if $0.object as? NSWindow === window { isFullscreen = false }
-        }
     }
 }
 

@@ -5,6 +5,11 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var app: AppEnvironment?
 
+    /// 全螢幕放在「視窗」選單（FinifyCommands），不要系統自動加在「顯示方式」選單的那一個
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        UserDefaults.standard.set(false, forKey: "NSFullScreenMenuItemEverywhere")
+    }
+
     func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
         guard let player = app?.player, let track = player.currentTrack else { return nil }
         let menu = NSMenu()
