@@ -369,18 +369,17 @@ private struct CloseButton: View {
     @State private var hovering = false
 
     var body: some View {
+        // macOS 原生面板的關閉鈕：灰色圓底＋白色 ✕（SF Symbols xmark.circle.fill，與控制中心、通知面板相同）
         Button(action: action) {
-            // 小而安靜：平常只有圖示，滑過才出現淡淡的圓底（與視窗的關閉鈕同一個份量）
-            FinifyIcon(.x, size: .compact)
-                .scaleEffect(0.8)
-                .foregroundStyle(hovering ? FinifyColor.ink : FinifyColor.muted)
-                .frame(width: 28, height: 28)
-                .background(hovering ? FinifyColor.glassHighlight : .clear, in: Circle())
-                .contentShape(Circle())
+            Image(systemName: "xmark.circle.fill")
+                .symbolRenderingMode(.hierarchical)
+                .font(.system(size: 20))
+                .foregroundStyle(.secondary)
+                .opacity(hovering ? 1 : 0.8)
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
-        .animation(Motion.micro, value: hovering)
+        .keyboardShortcut(.cancelAction)
         .help("Close (Esc)")
         .accessibilityLabel("Close Settings")
     }
