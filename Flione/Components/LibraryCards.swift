@@ -117,13 +117,20 @@ struct TrackRow: View {
 
     private var isCurrent: Bool { app.player.currentTrack?.id == track.id }
 
+    private var history: (count: Int, last: Date?)? {
+        if let count = track.playCount { return (count, track.lastPlayed) }
+        guard app.session?.isYouTube == true else { return nil }
+        let entry = app.youtubePlays.entry(for: track.id)
+        return (entry?.count ?? 0, entry?.last)
+    }
+
     /// 「12 次 · 3 週前」：次數與相對時間，滑過時顯示完整日期
     @ViewBuilder
-    private func playHistory(_ count: Int) -> some View {
+    private func playHistory(_ count: Int, last lastPlayed: Date?) -> some View {
         if count > 0 {
             HStack(spacing: Spacing.s4) {
                 Text("\(count) plays").monospacedDigit()
-                if let last = track.lastPlayed {
+                if let last = lastPlayed {
                     Text(verbatim: "·")
                     Text(last, format: .relative(presentation: .named, unitsStyle: .abbreviated))
                 }
@@ -131,7 +138,7 @@ struct TrackRow: View {
             .finifyFont(.caption)
             .foregroundStyle(FinifyColor.faint)
             .lineLimit(1)
-            .help(track.lastPlayed.map { Text("Last played \($0.formatted(date: .long, time: .shortened))") } ?? Text(""))
+            .help(lastPlayed.map { Text("Last played \($0.formatted(date: .long, time: .shortened))") } ?? Text(""))
         } else {
             Color.clear
         }
@@ -196,9 +203,9 @@ struct TrackRow: View {
                     .frame(maxWidth: 240, alignment: .leading)
             }
 
-            // 播放次數與最後一次播放：有資料的來源（Jellyfin）才佔位置，沒播過留空，欄位仍對齊
-            if let count = track.playCount {
-                playHistory(count)
+            // 播放次數與最後一次播放（Jellyfin 的紀錄，或 Flione 在這台 Mac 記的 YouTube Music 播放）；沒播過留空，欄位仍對齊
+            if let history {
+                playHistory(history.count, last: history.last)
                     .frame(width: 128, alignment: .trailing)
             }
             // 0.001 而不是 0：完全透明的 view 會被移出點擊與 VoiceOver

@@ -61,6 +61,8 @@ final class PlayerManager {
     @ObservationIgnored private var activeItem: ObjectIdentifier?
     @ObservationIgnored private var statusObservation: NSKeyValueObservation?
     @ObservationIgnored var onTrackChange: ((Track?) -> Void)?
+    /// 一首歌停止或換歌時（曲目、聽到的秒數）：YouTube Music 的本機播放次數用
+    @ObservationIgnored var onPlaybackStopped: ((Track, TimeInterval) -> Void)?
 
     init() {
         player.volume = volume
@@ -679,6 +681,7 @@ final class PlayerManager {
         #if DEBUG || BENCHMARK
         guard reportsPlayback else { return }
         #endif
+        onPlaybackStopped?(track, position)
         Task { await repository?.reportPlaybackStopped(track, position: position) }
     }
 }

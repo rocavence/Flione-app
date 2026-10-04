@@ -64,6 +64,8 @@ final class AppEnvironment {
     let youtubePlayer = YouTubeWebPlayer()
     /// Chromecast 投放（D43）
     let cast = CastManager()
+    /// YouTube Music 的播放次數（YouTube 不提供，Flione 自己記）
+    let youtubePlays = LocalPlayCounts()
 
     /// nil = 尚未選擇（首次登入後顯示 mode picker）
     var mode: AppMode? {
@@ -138,6 +140,10 @@ final class AppEnvironment {
         let notifier = TrackNotifier { [weak self] in self?.images }
         self.notifier = notifier
         player.onTrackChange = { notifier.trackChanged($0) }
+        player.onPlaybackStopped = { [weak self] track, position in
+            guard let self, self.session?.isYouTube == true else { return }
+            self.youtubePlays.record(track, position: position)
+        }
         // YouTube：專輯頁的愛心是加入／移出收藏，寫入後重新讀取音樂庫，封面牆跟著出現或消失
         favorites.onSynced = { [weak self] id in
             guard let self, self.session?.isYouTube == true, id.hasPrefix("MPREb_") else { return }
