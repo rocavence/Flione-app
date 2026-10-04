@@ -40,6 +40,9 @@ struct Track: Identifiable, Hashable, Sendable, Codable {
     let artwork: ArtworkRef?
     /// 在 playlist 中的項目 id（同一首歌可在 playlist 出現多次）；不在 playlist 時為 nil
     var playlistItemID: String? = nil
+    /// 播放次數與最後一次播放（Jellyfin 的 UserData，包含其他播放器的播放）。YouTube Music 不提供，為 nil
+    var playCount: Int? = nil
+    var lastPlayed: Date? = nil
 }
 
 /// 歌詞。每行有開始時間時為同步歌詞

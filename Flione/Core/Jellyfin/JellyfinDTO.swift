@@ -103,7 +103,9 @@ struct BaseItemDTO: Decodable, Sendable {
             duration: Double(runTimeTicks ?? 0) / 10_000_000,
             container: container?.split(separator: ",").first.map(String.init),
             artwork: albumArtwork,
-            playlistItemID: playlistItemID
+            playlistItemID: playlistItemID,
+            playCount: userData?.playCount ?? 0,
+            lastPlayed: userData?.lastPlayedDate
         )
     }
 

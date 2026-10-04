@@ -117,6 +117,26 @@ struct TrackRow: View {
 
     private var isCurrent: Bool { app.player.currentTrack?.id == track.id }
 
+    /// 「12 次 · 3 週前」：次數與相對時間，滑過時顯示完整日期
+    @ViewBuilder
+    private func playHistory(_ count: Int) -> some View {
+        if count > 0 {
+            HStack(spacing: Spacing.s4) {
+                Text("\(count) plays").monospacedDigit()
+                if let last = track.lastPlayed {
+                    Text(verbatim: "·")
+                    Text(last, format: .relative(presentation: .named, unitsStyle: .abbreviated))
+                }
+            }
+            .finifyFont(.caption)
+            .foregroundStyle(FinifyColor.faint)
+            .lineLimit(1)
+            .help(track.lastPlayed.map { Text("Last played \($0.formatted(date: .long, time: .shortened))") } ?? Text(""))
+        } else {
+            Color.clear
+        }
+    }
+
     var body: some View {
         HStack(spacing: Spacing.s12) {
             ZStack {
@@ -176,6 +196,11 @@ struct TrackRow: View {
                     .frame(maxWidth: 240, alignment: .leading)
             }
 
+            // 播放次數與最後一次播放：有資料的來源（Jellyfin）才佔位置，沒播過留空，欄位仍對齊
+            if let count = track.playCount {
+                playHistory(count)
+                    .frame(width: 128, alignment: .trailing)
+            }
             // 0.001 而不是 0：完全透明的 view 會被移出點擊與 VoiceOver
             FavoriteButton(itemID: track.id, name: track.name)
                 .opacity(hovering || app.favorites.contains(track.id) ? 1 : 0.001)
