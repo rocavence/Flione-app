@@ -29,6 +29,11 @@ struct LibraryView: View {
     /// 標題（例如「Recently Added」）；nil 時用分頁名稱
     var title: LocalizedStringResource?
     @State var sort: AlbumSort = .artist
+    /// 藝人：所有藝人（收藏的專輯）或追蹤中（YouTube Music 才有）
+    @State private var artistScope: ArtistScope = .all
+    @State private var followed: [Artist]?
+
+    enum ArtistScope: Hashable { case all, following }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -36,6 +41,10 @@ struct LibraryView: View {
                 Text(title ?? section.title).finifyFont(.title).foregroundStyle(FinifyColor.ink)
                     .accessibilityAddTraits(.isHeader)
                 Spacer()
+                if section == .artists, followed != nil {
+                    GlassSegmentedControl(selection: $artistScope, options: [(.all, "All Artists"), (.following, "Following")])
+                        .fixedSize()
+                }
                 if section == .playlists {
                     FinifyButton(title: "New Playlist", icon: .plus) { app.newPlaylistTracks = [] }
                 }
@@ -87,10 +96,20 @@ struct LibraryView: View {
     }
 
     private var artists: some View {
-        CollectionGrid(items: app.library.artists, minItemWidth: 140, captionHeight: 28, spacing: Spacing.s24) { artist in
+        CollectionGrid(items: artistScope == .following ? (followed ?? []) : app.library.artists,
+                       minItemWidth: 140, captionHeight: 28, spacing: Spacing.s24) { artist in
             ArtistCard(artist: artist) { router.openArtist(id: artist.id, name: artist.name) }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .environment(app)
+        }
+        .id(artistScope)
+        .task(id: app.source) {
+            // 有「追蹤中」的來源（YouTube Music）才顯示切換
+            followed = try? await app.repository?.followedArtists()
+            if followed == nil { artistScope = .all }
+            #if DEBUG
+            if followed != nil, UserDefaults.standard.string(forKey: "FinifyDemoArtistScope") == "following" { artistScope = .following }
+            #endif
         }
     }
 

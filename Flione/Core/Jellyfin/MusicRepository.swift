@@ -7,6 +7,8 @@ protocol MusicRepository: Sendable {
     func recentlyPlayed(limit: Int) async throws -> [Album]
     func quickPicks(limit: Int) async throws -> [Album]
     func allArtists() async throws -> [Artist]
+    /// 追蹤中的藝人（YouTube Music 的訂閱）；沒有這個概念的來源為 nil
+    func followedArtists() async throws -> [Artist]?
     func artist(id: String) async throws -> Artist
     func albums(byArtist artistID: String) async throws -> [Album]
     func popularTracks(byArtist artistID: String, limit: Int) async throws -> [Track]
@@ -53,6 +55,8 @@ protocol MusicRepository: Sendable {
 }
 
 extension MusicRepository {
+    func followedArtists() async throws -> [Artist]? { nil }
+
     /// 預設（Jellyfin）：曲風名稱符合心情關鍵字的，隨機抽最多 6 個曲風，各取一些歌後打散
     func moodTracks(_ mood: Mood, limit: Int) async throws -> [Track] {
         let matched = try await genres().filter { genre in

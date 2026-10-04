@@ -38,7 +38,25 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
         Array(try await allAlbums().shuffled().prefix(limit))
     }
 
+    /// 「藝人」：收藏的專輯裡所有的藝人（和 Jellyfin 一樣，有專輯的藝人都在），依名稱排序。
+    /// 頭像取自 YouTube 音樂庫的藝人列表（含按讚歌曲的藝人，全部都有頭像）
     func allArtists() async throws -> [Artist] {
+        async let albums = allAlbums()
+        async let library = pages(browseId: "FEmusic_library_corpus_track_artists", item: "musicResponsiveListItemRenderer").compactMap(Parse.artist)
+        // 音樂庫列表的藝人 id 多了「MPLA」前綴（MPLAUC…），去掉才對得上專輯上的頻道 id（UC…）
+        let photos = Dictionary(((try? await library) ?? []).map { ($0.id.hasPrefix("MPLA") ? String($0.id.dropFirst(4)) : $0.id, $0.artwork) },
+                                uniquingKeysWith: { first, _ in first })
+        var seen = Set<String>()
+        return try await albums
+            .compactMap { album -> Artist? in
+                guard let id = album.artistID, !album.artistName.isEmpty, seen.insert(id).inserted else { return nil }
+                return Artist(id: id, name: album.artistName, artwork: photos[id] ?? nil)
+            }
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    /// 「追蹤中」：在 YouTube Music 訂閱的藝人
+    func followedArtists() async throws -> [Artist]? {
         try await pages(browseId: "FEmusic_library_corpus_artists", item: "musicResponsiveListItemRenderer").compactMap(Parse.artist)
     }
 
