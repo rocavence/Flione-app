@@ -1,47 +1,48 @@
 <!DOCTYPE html>
 <!-- 分享圖（og:image）的版面。重做時：複製到 docs/_og.html，用瀏覽器開 /_og.html?lang=zh 與 ?lang=en，
-     截 1200×630 存成 docs/site/og.png 與 og-en.png，再刪掉 docs/_og.html。 -->
+     截 1200×630（裝置像素比 2 再縮回 1200 寬）存成 docs/site/og.png 與 og-en.png，再刪掉 docs/_og.html。
+     顯示器樣式與 docs/index.html 的 .sd-* 相同。 -->
 <html>
 <head>
 <meta charset="UTF-8">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  body{width:1200px;height:630px;overflow:hidden;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang TC",sans-serif;color:#111;-webkit-font-smoothing:antialiased}
-  .photo{position:absolute;left:300px;top:-30px;width:1040px}
-  .photo img{width:100%;display:block}
-  .fade{position:absolute;inset:0;background:linear-gradient(90deg,#fff 0,#fff 300px,rgba(255,255,255,.85) 380px,rgba(255,255,255,0) 520px)}
-  .screen{position:absolute;left:0;top:0;width:1000px;height:563px;transform-origin:0 0;overflow:hidden;background:#050f1f;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(4,1fr)}
-  .screen img{width:100%;height:100%;object-fit:cover;display:block}
-  .text{position:absolute;left:64px;top:0;bottom:0;width:380px;display:flex;flex-direction:column;justify-content:center;gap:18px}
+  body{width:1200px;height:630px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang TC",sans-serif;color:#111;-webkit-font-smoothing:antialiased;background:radial-gradient(ellipse 60% 70% at 68% 40%,#fff 0%,#f5f5f4 60%,#ebebe9 100%)}
+  .text{position:absolute;left:72px;top:0;bottom:0;width:400px;display:flex;flex-direction:column;justify-content:center;gap:20px}
   .mark{display:flex;align-items:center;gap:12px;font-weight:600;font-size:26px}
   .mark img{width:52px;height:52px}
-  h1{font-size:42px;line-height:1.18;letter-spacing:-.02em;font-weight:500}
+  h1{font-size:46px;line-height:1.15;letter-spacing:-.025em;font-weight:500}
   h1 span{display:block;color:rgba(17,17,17,.42)}
-  .meta{font-size:17px;color:rgba(17,17,17,.42)}
+  .meta{font-size:18px;line-height:1.5;color:rgba(17,17,17,.42)}
+  .sd-scene{container-type:inline-size;position:absolute;left:470px;top:58px;width:700px}
+  .sd{position:relative;width:96cqw;margin:0 auto}
+  .sd-body{position:relative;z-index:2;padding:.17cqw;border-radius:.75cqw;background:linear-gradient(180deg,#eceef0 0%,#c9cbce 55%,#b8babd 100%);box-shadow:0 3.2cqw 5cqw -2.6cqw rgba(0,0,0,.32),0 .4cqw .8cqw -.3cqw rgba(0,0,0,.18)}
+  .sd-glass{position:relative;padding:1.45cqw;border-radius:.6cqw;background:#0b0b0c}
+  .sd-glass::before{content:"";position:absolute;top:.62cqw;left:50%;width:.34cqw;height:.34cqw;margin-left:-.17cqw;border-radius:50%;background:#1d1e21}
+  .sd-glass::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:7;background:linear-gradient(158deg,rgba(255,255,255,.09) 0%,rgba(255,255,255,.025) 38%,transparent 39%)}
+  .sd-screen{position:relative;aspect-ratio:16/9;overflow:hidden;background:#050f1f;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(4,1fr);padding-top:3.3%}
+  .sd-screen img{width:100%;height:100%;object-fit:cover;display:block}
+  .bar{position:absolute;top:0;left:0;right:0;height:3.3%;background:#07152b}
+  .sd-neck{position:relative;z-index:1;width:24.4%;margin:0 auto;aspect-ratio:160/114;background:linear-gradient(180deg,rgba(0,0,0,.3) 0%,rgba(0,0,0,.1) 5%,rgba(0,0,0,0) 14%,rgba(0,0,0,0) 90%,rgba(255,255,255,.5) 95.5%,rgba(0,0,0,.18) 99%),linear-gradient(90deg,#b2b4b8 0%,#d8d9dc 5%,#e3e4e6 50%,#d5d6d9 95%,#adafb3 100%)}
+  .sd-foot{position:relative;z-index:1;width:24.4%;margin:0 auto;aspect-ratio:160/6;border-radius:0 0 .25cqw .25cqw;background:linear-gradient(90deg,#9fa1a4 0%,#d0d1d4 3%,#e6e7e9 12%,#dcdde0 50%,#e6e7e9 88%,#d0d1d4 97%,#9fa1a4 100%)}
+  .sd-foot::before{content:"";position:absolute;left:-60%;right:-60%;top:10%;height:3.2cqw;z-index:-1;background:radial-gradient(closest-side,rgba(0,0,0,.13),transparent);filter:blur(1.2cqw)}
+  .sd-foot::after{content:"";position:absolute;left:-8%;right:-8%;top:55%;height:1.1cqw;z-index:-1;background:radial-gradient(closest-side,rgba(0,0,0,.42),transparent);filter:blur(.3cqw)}
 </style>
 </head>
 <body>
-<div class="photo" id="photo"><img src="/site/display.jpg" alt=""><div class="screen" id="screen"></div></div>
-<div class="fade"></div>
 <div class="text">
   <div class="mark"><img src="/site/icon.png" alt=""><span>Flione</span></div>
   <h1 id="h1"></h1>
   <p class="meta" id="meta"></p>
 </div>
+<div class="sd-scene"><div class="sd"><div class="sd-body"><div class="sd-glass"><div class="sd-screen" id="screen"><div class="bar"></div></div></div></div><div class="sd-neck"></div><div class="sd-foot"></div></div></div>
 <script>
 const zh=new URLSearchParams(location.search).get("lang")!=="en";
 document.getElementById("h1").innerHTML=zh?"好好聽歌，<span>也要好好蒐藏。</span>":"Listen well.<span>Collect well.</span>";
-document.getElementById("meta").textContent=zh?"Mac 上的 Jellyfin 與 YouTube Music 播放器 · 免費":"Jellyfin & YouTube Music player for Mac · Free";
+document.getElementById("meta").innerHTML=zh?"Mac 上的 Jellyfin 與<br>YouTube Music 播放器 · 免費":"Jellyfin &amp; YouTube Music<br>player for Mac · Free";
 const order=[3,17,9,25,0,12,28,6,20,14,1,23,8,29,11,4,19,26,15,2,22,10,27,5,13,24,7,18,21,16,0,6];
 const screen=document.getElementById("screen");
 order.forEach(i=>{const im=new Image();im.src=`/site/covers/c${String(i+1).padStart(2,"0")}.jpg`;screen.appendChild(im);});
-/* 與首頁相同的透視貼合（四角以照片 2700×1680 為準） */
-const SCREEN=[[730,233],[2133,213.5],[2146.6,1015.1],[714.4,1011.8]];
-const k=1040/2700, [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=SCREEN.map(([x,y])=>[x*k,y*k]);
-const dx1=x1-x2, dx2=x3-x2, dx3=x0-x1+x2-x3, dy1=y1-y2, dy2=y3-y2, dy3=y0-y1+y2-y3;
-const den=dx1*dy2-dx2*dy1, g=(dx3*dy2-dx2*dy3)/den, h=(dx1*dy3-dx3*dy1)/den;
-const a=x1-x0+g*x1, b=x3-x0+h*x3, d=y1-y0+g*y1, e=y3-y0+h*y3;
-screen.style.transform=`matrix3d(${a/1000},${d/1000},0,${g/1000},${b/563},${e/563},0,${h/563},0,0,1,0,${x0},${y0},0,1)`;
 </script>
 </body>
 </html>

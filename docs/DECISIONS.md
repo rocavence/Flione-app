@@ -368,3 +368,10 @@
 * **品質**：裝置上的模型較小，音樂知識有限，理由偶爾會講錯樂器（已要求不確定就改講年代與氛圍），挑選數量也會變動，所以標示 Beta。
 * **驗證**：DEBUG 參數 `-FinifyDemoDiscover "<需求>"` 自動送出，`-FinifyDiscoverLog <檔案>` 記錄每一步（條件、候選清單、挑選結果）。
 * **怎麼改**：`Core/AI/DiscoveryEngine.swift`、`Features/Standard/Discover/DiscoverView.swift`。
+
+## D49　新增日文、韓文、西班牙文、葡萄牙文（巴西）
+
+* **語言**：`ja`、`ko`、`es`、`pt-BR`，與英文、繁體中文並列在設定的語言選單。翻譯在 `Localizable.xcstrings`，用語參照 Apple 各語言的 macOS 與 Apple Music。
+* **單複數**：西文與葡文的「%lld 張專輯」「%lld 首歌」等 9 句有單數與複數兩種寫法（plural variations）；日文、韓文不分。
+* **版面**：西文、葡文較長。側欄項目維持一行、必要時縮小到 80%；過長的標籤改用較短的寫法（「Recién añadidos」「Recém-adicionados」、設定分頁「Fuente／Fonte」）。
+* **AI 探索**：理由改用介面實際使用的語言（選「系統」時用系統挑中的語言），不再只有中文或英文。

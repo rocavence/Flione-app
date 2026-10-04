@@ -7,6 +7,10 @@ enum AppLanguage: String, CaseIterable, Sendable {
     case system
     case english = "en"
     case traditionalChinese = "zh-Hant"
+    case japanese = "ja"
+    case korean = "ko"
+    case spanish = "es"
+    case portuguese = "pt-BR"
 
     private static let key = "FinifyLanguage"
 
@@ -16,6 +20,29 @@ enum AppLanguage: String, CaseIterable, Sendable {
         case .system: "System"
         case .english: LocalizedStringResource(stringLiteral: "English")
         case .traditionalChinese: LocalizedStringResource(stringLiteral: "繁體中文")
+        case .japanese: LocalizedStringResource(stringLiteral: "日本語")
+        case .korean: LocalizedStringResource(stringLiteral: "한국어")
+        case .spanish: LocalizedStringResource(stringLiteral: "Español")
+        case .portuguese: LocalizedStringResource(stringLiteral: "Português (Brasil)")
+        }
+    }
+
+    /// 介面實際使用的語言（選「系統」時是系統挑中的那一個），給 AI 探索指定回答語言
+    static var effective: AppLanguage {
+        if launched != .system { return launched }
+        let code = Bundle.main.preferredLocalizations.first ?? "en"
+        return allCases.first { $0 != .system && code.hasPrefix($0.rawValue) } ?? .english
+    }
+
+    /// 給模型的語言說明（英文）
+    var modelInstruction: String {
+        switch self {
+        case .traditionalChinese: "Traditional Chinese as used in Taiwan"
+        case .japanese: "Japanese"
+        case .korean: "Korean"
+        case .spanish: "Spanish"
+        case .portuguese: "Brazilian Portuguese"
+        case .system, .english: "English"
         }
     }
 

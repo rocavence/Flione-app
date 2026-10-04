@@ -172,7 +172,7 @@ extension DiscoveryEngine {
             if !recent.contains(album.id) { line += " [not played recently]" }
             return line
         }.joined(separator: "\n")
-        let language = AppLanguage.launched == .traditionalChinese ? "Traditional Chinese as used in Taiwan" : "English"
+        let language = AppLanguage.effective.modelInstruction
         let pickSession = LanguageModelSession(instructions: """
             You recommend albums from the user's own music library. Choose only from the numbered list. \
             Prefer albums marked [not played recently] when they fit equally well. Write each reason in \(language). \

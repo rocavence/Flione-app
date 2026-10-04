@@ -87,9 +87,12 @@ private struct SidebarRow: View {
             HStack(spacing: Spacing.s12) {
                 FinifyIcon(icon, weight: isSelected ? .filled : .outline, size: .standard)
                     .foregroundStyle(isSelected ? FinifyColor.ink : FinifyColor.muted)
+                // 西文、葡文的名稱較長（「Adicionados recentemente」）：維持一行，必要時稍微縮小
                 Text(title)
                     .finifyFont(isSelected ? .bodyEmphasis : .body)
                     .foregroundStyle(isSelected ? FinifyColor.ink : FinifyColor.muted)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, Spacing.s12)
