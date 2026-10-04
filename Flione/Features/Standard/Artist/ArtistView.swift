@@ -15,12 +15,45 @@ final class ArtistViewModel {
     }
 }
 
+/// 藝人頁面的專輯排序；記住上次的選擇
+enum ArtistAlbumSort: String, CaseIterable, Sendable {
+    case newest, oldest, title, recentlyAdded
+
+    var title: LocalizedStringResource {
+        switch self {
+        case .newest: "Newest First"
+        case .oldest: "Oldest First"
+        case .title: "Title"
+        case .recentlyAdded: "Recently Added"
+        }
+    }
+
+    /// 同年份或沒有日期的維持原本順序（Swift 的 sorted 不保證穩定，所以帶上原本的位置）
+    func apply(to albums: [Album]) -> [Album] {
+        let indexed = Array(albums.enumerated())
+        func by(_ before: (Album, Album) -> Bool?) -> [Album] {
+            indexed.sorted { a, b in before(a.element, b.element) ?? (a.offset < b.offset) }.map(\.element)
+        }
+        switch self {
+        case .newest: return by { a, b in a.year == b.year ? nil : (a.year ?? 0) > (b.year ?? 0) }
+        // 沒有年份的排最後
+        case .oldest: return by { a, b in a.year == b.year ? nil : (a.year ?? .max) < (b.year ?? .max) }
+        case .title: return by { a, b in
+            let order = a.name.localizedStandardCompare(b.name)
+            return order == .orderedSame ? nil : order == .orderedAscending
+        }
+        case .recentlyAdded: return by { a, b in a.dateAdded == b.dateAdded ? nil : (a.dateAdded ?? .distantPast) > (b.dateAdded ?? .distantPast) }
+        }
+    }
+}
+
 struct ArtistView: View {
     let artistID: String
     let name: String
     @Environment(AppEnvironment.self) private var app
     @Environment(StandardRouter.self) private var router
     @State private var model = ArtistViewModel()
+    @AppStorage("FinifyArtistAlbumSort") private var sort: ArtistAlbumSort = .newest
 
     var body: some View {
         ScrollView {
@@ -80,7 +113,15 @@ struct ArtistView: View {
     @ViewBuilder
     private var albumsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.s16) {
-            SectionHeader(title: "Albums")
+            HStack(alignment: .center) {
+                SectionHeader(title: "Albums")
+                Picker("Sort", selection: $sort) {
+                    ForEach(ArtistAlbumSort.allCases, id: \.self) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.menu)
+                .fixedSize()
+                .finifyFont(.caption)
+            }
             switch model.albums {
             case .loading:
                 AlbumGrid(albums: nil)
@@ -88,7 +129,7 @@ struct ArtistView: View {
                 MessageState(title: "Can't load albums.", message: "Check your connection to the music server.", icon: .wifiOff,
                              primary: ("Retry", { Task { await model.load(id: artistID, repository: app.repository) } }))
             case .loaded(let albums):
-                AlbumGrid(albums: albums, subtitle: { $0.year.map(String.init) ?? "Album" })
+                AlbumGrid(albums: sort.apply(to: albums), subtitle: { $0.year.map(String.init) ?? "Album" })
             }
         }
     }

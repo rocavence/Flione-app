@@ -66,6 +66,13 @@ struct StandardRootView: View {
                 router.tab = .library(LibrarySection(rawValue: raw) ?? .albums)
             }
             await DebugDemo.run(app: app, openAlbum: { router.openAlbum($0) })
+            // -FinifyDemoArtist "<藝人名>"：打開該藝人頁（驗證專輯排序）
+            if let name = UserDefaults.standard.string(forKey: "FinifyDemoArtist") {
+                for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
+                if let album = app.library.albums.first(where: { $0.artistName.localizedCaseInsensitiveContains(name) && $0.artistID != nil }) {
+                    router.openArtist(id: album.artistID, name: album.artistName)
+                }
+            }
         }
         #endif
     }

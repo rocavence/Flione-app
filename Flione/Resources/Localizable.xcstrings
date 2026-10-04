@@ -3971,6 +3971,26 @@
     },
     "繁體中文": {
       "shouldTranslate": false
+    },
+    "Newest First": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新到舊"
+          }
+        }
+      }
+    },
+    "Oldest First": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "舊到新"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

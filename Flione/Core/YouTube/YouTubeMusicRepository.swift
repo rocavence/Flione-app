@@ -351,8 +351,11 @@ enum Parse {
         (find("nextContinuationData", in: json) as? [String: Any])?["continuation"] as? String
     }
 
-    private static func year(in runs: [[String: Any]]) -> Int? {
-        runs.compactMap { $0["text"] as? String }.first { $0.range(of: #"^\d{4}$"#, options: .regularExpression) != nil }.flatMap(Int.init)
+    /// 年份單獨一段：英文是「2024」，中文、日文是「2024年」，韓文是「2024년」
+    static func year(in runs: [[String: Any]]) -> Int? {
+        runs.compactMap { $0["text"] as? String }
+            .compactMap { $0.wholeMatch(of: /((?:19|20)\d{2})\s*[年년]?/).flatMap { Int($0.1) } }
+            .first
     }
 
     /// 「14:56」「1:02:03」轉成秒

@@ -1,5 +1,19 @@
 # Flione — https://flione.rocavence.com
+# 歡迎搜尋引擎與 AI 爬蟲。給 AI 的摘要：https://flione.rocavence.com/llms.txt
 User-agent: *
+Allow: /
+
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
 Allow: /
 
 Sitemap: https://flione.rocavence.com/sitemap.xml
