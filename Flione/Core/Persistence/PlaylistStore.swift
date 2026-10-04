@@ -11,8 +11,9 @@ final class PlaylistStore {
     /// 編輯失敗時給使用者看的訊息
     var failureMessage: String?
     @ObservationIgnored private var repository: (any MusicRepository)?
-    /// Jellyfin 建立 playlist 後會在背景再存一次；建立後太快寫入會被蓋掉（實測），所以等一下
-    @ObservationIgnored private var createdAt: [String: Date] = [:]
+    /// Jellyfin 每次建立或更新 playlist 後都會在背景再存一次（排進 metadata 重新整理）；
+    /// 下一次寫入太快，會被這次背景存檔蓋掉或混進舊曲目（實測），所以每次寫入之間等一下
+    @ObservationIgnored private var lastWriteAt: [String: Date] = [:]
     @ObservationIgnored private var lastWrite: [String: Task<Void, Never>] = [:]
     /// 本機剛改過的名稱。Jellyfin 的清單查詢在改名後會延遲更新，重新整理時以本機為準
     @ObservationIgnored private var localNames: [String: (name: String, at: Date)] = [:]
@@ -52,14 +53,15 @@ final class PlaylistStore {
             await previous?.value
             await self?.waitUntilSettled(playlistID)
             await work()
+            self?.lastWriteAt[playlistID] = Date()
         }
         lastWrite[playlistID] = task
         await task.value
     }
 
     private func waitUntilSettled(_ playlistID: String) async {
-        guard let created = createdAt[playlistID] else { return }
-        let remaining = Self.settleDelay - Date().timeIntervalSince(created)
+        guard let last = lastWriteAt[playlistID] else { return }
+        let remaining = Self.settleDelay - Date().timeIntervalSince(last)
         if remaining > 0 { try? await Task.sleep(for: .seconds(remaining)) }
     }
 
@@ -68,7 +70,7 @@ final class PlaylistStore {
         guard let repository else { return nil }
         do {
             let id = try await repository.createPlaylist(name: name, trackIDs: tracks.map(\.id))
-            createdAt[id] = Date()
+            lastWriteAt[id] = Date()
             let playlist = Playlist(id: id, name: name, trackCount: tracks.count, duration: tracks.reduce(0) { $0 + $1.duration }, artwork: nil)
             playlists.append(playlist)
             playlists.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
