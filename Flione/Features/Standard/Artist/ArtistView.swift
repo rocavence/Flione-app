@@ -115,12 +115,17 @@ struct ArtistView: View {
         VStack(alignment: .leading, spacing: Spacing.s16) {
             HStack(alignment: .center) {
                 SectionHeader(title: "Albums")
-                Picker("Sort", selection: $sort) {
-                    ForEach(ArtistAlbumSort.allCases, id: \.self) { Text($0.title).tag($0) }
+                // macOS 原生的下拉選單：無邊框，選項打勾（與 Finder、Infinity 的排序一致）
+                Menu {
+                    Picker("Sort by", selection: $sort) {
+                        ForEach(ArtistAlbumSort.allCases, id: \.self) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.inline)
+                } label: {
+                    Text("Sort by: \(sort.title)").finifyFont(.caption)
                 }
-                .pickerStyle(.menu)
+                .menuStyle(.borderlessButton)
                 .fixedSize()
-                .finifyFont(.caption)
             }
             switch model.albums {
             case .loading:

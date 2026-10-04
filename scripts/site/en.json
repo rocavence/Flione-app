@@ -90,7 +90,7 @@
  "head.ogdesc": "A free, native macOS music player. Three ways to browse, and get lost in your album covers.",
  "head.locale": "en_US",
  "head.localealt": "zh_TW",
- "imac.aria": "Flione running on an iMac: the Infinity cover wall",
+ "imac.aria": "Flione running on a Studio Display: the Infinity cover wall",
  "faq.q9": "Is Flione a Jellyfin client for Mac?",
  "faq.a9": "Yes. Flione is a native macOS Jellyfin client built for music: connect to your own Jellyfin server and browse albums, artists, genres, and playlists, with gapless playback, synced lyrics, media keys, and Control Center.",
  "faq.q10": "Can I use YouTube Music on a Mac?",

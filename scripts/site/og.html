@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- 分享圖（og:image）的版面。重做時：複製到 docs/_og.html，用瀏覽器開 /_og.html?lang=zh 與 ?lang=en，
+     截 1200×630 存成 docs/site/og.png 與 og-en.png，再刪掉 docs/_og.html。 -->
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{width:1200px;height:630px;overflow:hidden;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang TC",sans-serif;color:#111;-webkit-font-smoothing:antialiased}
+  .photo{position:absolute;left:300px;top:-30px;width:1040px}
+  .photo img{width:100%;display:block}
+  .fade{position:absolute;inset:0;background:linear-gradient(90deg,#fff 0,#fff 300px,rgba(255,255,255,.85) 380px,rgba(255,255,255,0) 520px)}
+  .screen{position:absolute;left:0;top:0;width:1000px;height:563px;transform-origin:0 0;overflow:hidden;background:#050f1f;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(4,1fr)}
+  .screen img{width:100%;height:100%;object-fit:cover;display:block}
+  .text{position:absolute;left:64px;top:0;bottom:0;width:380px;display:flex;flex-direction:column;justify-content:center;gap:18px}
+  .mark{display:flex;align-items:center;gap:12px;font-weight:600;font-size:26px}
+  .mark img{width:52px;height:52px}
+  h1{font-size:42px;line-height:1.18;letter-spacing:-.02em;font-weight:500}
+  h1 span{display:block;color:rgba(17,17,17,.42)}
+  .meta{font-size:17px;color:rgba(17,17,17,.42)}
+</style>
+</head>
+<body>
+<div class="photo" id="photo"><img src="/site/display.jpg" alt=""><div class="screen" id="screen"></div></div>
+<div class="fade"></div>
+<div class="text">
+  <div class="mark"><img src="/site/icon.png" alt=""><span>Flione</span></div>
+  <h1 id="h1"></h1>
+  <p class="meta" id="meta"></p>
+</div>
+<script>
+const zh=new URLSearchParams(location.search).get("lang")!=="en";
+document.getElementById("h1").innerHTML=zh?"好好聽歌，<span>也要好好蒐藏。</span>":"Listen well.<span>Collect well.</span>";
+document.getElementById("meta").textContent=zh?"Mac 上的 Jellyfin 與 YouTube Music 播放器 · 免費":"Jellyfin & YouTube Music player for Mac · Free";
+const order=[3,17,9,25,0,12,28,6,20,14,1,23,8,29,11,4,19,26,15,2,22,10,27,5,13,24,7,18,21,16,0,6];
+const screen=document.getElementById("screen");
+order.forEach(i=>{const im=new Image();im.src=`/site/covers/c${String(i+1).padStart(2,"0")}.jpg`;screen.appendChild(im);});
+/* 與首頁相同的透視貼合（四角以照片 2700×1680 為準） */
+const SCREEN=[[730,233],[2133,213.5],[2146.6,1015.1],[714.4,1011.8]];
+const k=1040/2700, [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=SCREEN.map(([x,y])=>[x*k,y*k]);
+const dx1=x1-x2, dx2=x3-x2, dx3=x0-x1+x2-x3, dy1=y1-y2, dy2=y3-y2, dy3=y0-y1+y2-y3;
+const den=dx1*dy2-dx2*dy1, g=(dx3*dy2-dx2*dy3)/den, h=(dx1*dy3-dx3*dy1)/den;
+const a=x1-x0+g*x1, b=x3-x0+h*x3, d=y1-y0+g*y1, e=y3-y0+h*y3;
+screen.style.transform=`matrix3d(${a/1000},${d/1000},0,${g/1000},${b/563},${e/563},0,${h/563},0,0,1,0,${x0},${y0},0,1)`;
+</script>
+</body>
+</html>

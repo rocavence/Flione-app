@@ -152,12 +152,12 @@
   .stage{background:var(--stage);border-radius:24px;padding:56px 56px 26px;margin-top:56px}
   .stage.sm{padding:32px 32px 20px;margin-top:0}
 
-  /* 主畫面：iMac 實體機器，棚拍打光與自然陰影 */
-  .stage.studio{padding:0;background:none;max-width:960px;margin:56px auto 0}
+  /* 主畫面：Studio Display 實拍照片 */
+  .stage.studio{padding:0;background:none;margin-top:56px}
   .stage.studio .demo-stage{max-width:none}
   .imac{position:relative;margin:0;border-radius:24px;overflow:hidden}
   .imac>img{width:100%;height:auto}
-  /* App 畫面以 1000×563 排版，由 JS 用透視矩陣貼進照片裡的螢幕 */
+  /* App 畫面以 1000×563 排版，由 JS 用透視矩陣貼進照片裡 Studio Display 的螢幕 */
   .imac-display{position:absolute;left:0;top:0;width:1000px;height:563px;transform-origin:0 0;overflow:hidden;background:#000}
   .imac-display::after{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;background:linear-gradient(118deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.02) 34%,transparent 35%)}
   .imac .wall-window{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none}
@@ -261,6 +261,8 @@
   .item .ic svg{width:24px;height:24px}
   .item p{font-size:15px;color:var(--muted)}
   .item p b{color:var(--ink);font-weight:500}
+  #features .cols{gap:16px}
+  #features .item{border:.5px solid rgba(17,17,17,.16);border-radius:16px;padding:24px 22px}
   .logo{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
   .logo.jf{background:linear-gradient(135deg,#aa5cc3,#00a4dc)}
   .logo.yt{background:#ff0033}
@@ -366,8 +368,8 @@
     <!-- INFINITY LIVE DEMO -->
     <div class="stage studio">
       <div class="demo-stage">
-        <figure class="imac" data-i-aria-label="imac.aria" aria-label="Flione running on an iMac: the Infinity cover wall">
-        <img src="/site/imac.jpg" srcset="/site/imac-1200.jpg 1200w, /site/imac.jpg 2400w" sizes="(max-width: 1008px) 100vw, 960px" width="2400" height="2060" alt="" fetchpriority="high">
+        <figure class="imac" data-i-aria-label="imac.aria" aria-label="Flione running on a Studio Display: the Infinity cover wall">
+        <img src="/site/display.jpg" srcset="/site/display-1200.jpg 1200w, /site/display.jpg 2160w" sizes="(max-width: 1120px) 100vw, 1072px" width="2700" height="1680" alt="" fetchpriority="high">
         <div class="imac-display" id="imacDisplay">
         <div class="window wall-window">
           <div class="titlebar">
@@ -632,11 +634,11 @@ document.querySelectorAll(".lang a").forEach(a=>a.addEventListener("click",()=>{
   if(!saved&&!(navigator.language||"").toLowerCase().startsWith("zh")) location.replace("/en/"+location.hash);
 })();
 
-/* 主畫面：把 1000×563 的 App 畫面用透視矩陣貼進照片裡的螢幕。四角是照片（2400×2060）中螢幕的位置：左上、右上、右下、左下 */
+/* 主畫面：把 1000×563 的 App 畫面用透視矩陣貼進照片裡的螢幕。四角是照片（以 2700×1680 為準）中螢幕的位置：左上、右上、右下、左下 */
 const imac=document.querySelector(".imac"), imacDisplay=document.getElementById("imacDisplay");
-const SCREEN=[[283,184],[2134,175],[2121,1221],[291,1225]];
+const SCREEN=[[730,233],[2133,213.5],[2146.6,1015.1],[714.4,1011.8]];
 function fitScreen(){
-  const k=imac.clientWidth/2400, [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=SCREEN.map(([x,y])=>[x*k,y*k]);
+  const k=imac.clientWidth/2700, [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=SCREEN.map(([x,y])=>[x*k,y*k]);
   const dx1=x1-x2, dx2=x3-x2, dx3=x0-x1+x2-x3, dy1=y1-y2, dy2=y3-y2, dy3=y0-y1+y2-y3;
   const den=dx1*dy2-dx2*dy1, g=(dx3*dy2-dx2*dy3)/den, h=(dx1*dy3-dx3*dy1)/den;
   const a=x1-x0+g*x1, b=x3-x0+h*x3, d=y1-y0+g*y1, e=y3-y0+h*y3, W=1000, H=563;

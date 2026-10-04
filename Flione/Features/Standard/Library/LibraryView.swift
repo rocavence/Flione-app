@@ -40,12 +40,16 @@ struct LibraryView: View {
                     FinifyButton(title: "New Playlist", icon: .plus) { app.newPlaylistTracks = [] }
                 }
                 if section == .albums {
-                    Picker("Sort", selection: $sort) {
-                        ForEach(AlbumSort.allCases, id: \.self) { Text($0.title).tag($0) }
+                    Menu {
+                        Picker("Sort by", selection: $sort) {
+                            ForEach(AlbumSort.allCases, id: \.self) { Text($0.title).tag($0) }
+                        }
+                        .pickerStyle(.inline)
+                    } label: {
+                        Text("Sort by: \(sort.title)").finifyFont(.caption)
                     }
-                    .pickerStyle(.menu)
+                    .menuStyle(.borderlessButton)
                     .fixedSize()
-                    .finifyFont(.caption)
                 }
             }
             .padding(.horizontal, Spacing.s32)
