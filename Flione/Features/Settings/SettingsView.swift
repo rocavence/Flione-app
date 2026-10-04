@@ -125,10 +125,12 @@ struct SettingsCard: View {
                 content
             }
             .padding(.leading, Spacing.s24)
+            // 右側只用剩下的寬度，內容再寬也不會把整張卡片撐開、擠掉左邊的留白
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
         }
         .padding(Spacing.s32)
         // 固定大小：切換分頁時卡片不會因為內容長短而上下跳動
-        .frame(width: 820, height: 600)
+        .frame(width: 900, height: 600)
         .background {
             ZStack {
                 FinifyColor.elevated
