@@ -77,3 +77,4 @@ screencast
 screencast2
 radio
 star-sparkle
+sliders

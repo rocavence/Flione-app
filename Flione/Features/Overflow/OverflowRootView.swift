@@ -37,6 +37,8 @@ struct OverflowRootView: View {
     /// 頂部列寬度；窄視窗（最小 1040）時文字按鈕只留圖示、搜尋框縮小，避免控制項擠到視窗按鈕下或超出右邊
     @State private var barWidth: CGFloat = 1400
     private var compactBar: Bool { barWidth < 1240 }
+    /// 左上角的調整（排序、隨機、大小、正在播放、自動捲動）預設收在一顆按鈕裡，點了才展開
+    @State private var controlsOpen = false
 
     private var density: Binding<WallDensity> {
         Binding { WallDensity(rawValue: densityRaw) ?? WallDensity.auto(forHeight: browseSize.height, bottomInset: wallBottomInset) } set: { densityRaw = $0.rawValue }
@@ -84,6 +86,12 @@ struct OverflowRootView: View {
         #if DEBUG
         // -FinifyDemoFocusPlaying <秒>：幾秒後按「正在播放」（除錯用）
         .task {
+            // -FinifyDemoControlsOpen <秒>：幾秒後展開左上角的調整（截圖用）
+            let open = UserDefaults.standard.double(forKey: "FinifyDemoControlsOpen")
+            if open > 0 {
+                try? await Task.sleep(for: .seconds(open))
+                withAnimation(.spring(response: 0.42, dampingFraction: 0.82)) { controlsOpen = true }
+            }
             let delay = UserDefaults.standard.double(forKey: "FinifyDemoFocusPlaying")
             guard delay > 0 else { return }
             try? await Task.sleep(for: .seconds(delay))
@@ -183,59 +191,8 @@ struct OverflowRootView: View {
     private var topBar: some View {
         HStack(spacing: Spacing.s12) {
             Color.clear.frame(width: 64)
-            // 左上角：排序、大小、回到正在播放（Infinity 與 Cover Flow 共用）
-            Menu {
-                Picker("Sort by", selection: $sort) {
-                    ForEach(AlbumSort.allCases, id: \.self) { Text($0.title).tag($0) }
-                }
-                .pickerStyle(.inline)
-            } label: {
-                Text("Sort by: \(sort.title)")
-                    .finifyFont(.caption)
-                    .foregroundStyle(FinifyColor.Overflow.muted)
-            }
-            .menuStyle(.borderlessButton)
-            .tint(FinifyColor.Overflow.muted)
-            .fixedSize()
-            .padding(.horizontal, Spacing.s12)
-            .frame(height: ViewControls.controlHeight)
-            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
-            .accessibilityLabel(Text("Sort albums, \(sort.title)"))
-
-            MagicSortMenu(selection: magic) { choice in
-                magicRaw = choice?.rawValue ?? ""
-                resort()  // 再選一次 Shuffle 也會重洗
-            }
-
-            if layout == .wall {
-                SizeSlider(step: densityStep, count: WallDensity.allCases.count, label: "Album size",
-                           valueText: density.wrappedValue.label)
-                    .help("Album size (pinch to resize)")
-            } else {
-                SizeSlider(step: flowSizeBinding, count: AlbumFlowView.sizeSteps, label: "Cover size",
-                           valueText: "\(flowSize + 1) of \(AlbumFlowView.sizeSteps)")
-                    .help("Cover size")
-            }
-
-            Button { focusPlaying() } label: {
-                HStack(spacing: Spacing.s4) {
-                    FinifyIcon(.gps, size: .compact)
-                    // 文字放大（睫狀肌舒適）時頂部列較擠，維持一行不換行
-                    if !compactBar { Text("Now Playing").finifyFont(.caption).lineLimit(1).fixedSize() }
-                }
-                .foregroundStyle(FinifyColor.Overflow.muted)
-                .padding(.horizontal, Spacing.s12)
-                .frame(height: ViewControls.controlHeight)
-                .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
-                .contentShape(Capsule())
-            }
-            .buttonStyle(PressScaleStyle())
-            .disabled(!playingAlbumOnWall && !canSavePlayingAlbum)
-            .opacity(playingAlbumOnWall || canSavePlayingAlbum ? 1 : 0.4)
-            .help(nowPlayingHelp)
-            .accessibilityLabel("Focus on the album that's playing")
-
-            if layout == .wall { autoScrollToggle }
+            controlsToggle
+            if controlsOpen { controls }
 
             Spacer()
             SearchTrigger { app.isSearchPresented = true }
@@ -246,6 +203,100 @@ struct OverflowRootView: View {
         .frame(height: ViewControls.barHeight)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { barWidth = $0 }
         .background(LinearGradient(colors: [FinifyColor.Ocean.abyss.opacity(0.75), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
+    }
+
+    /// 收合按鈕：收起時是調整圖示，展開時變成 ✕
+    private var controlsToggle: some View {
+        Button {
+            withAnimation(reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.82)) { controlsOpen.toggle() }
+        } label: {
+            ZStack {
+                FinifyIcon(.sliders, size: .compact)
+                    .opacity(controlsOpen ? 0 : 1)
+                    .rotationEffect(.degrees(controlsOpen ? 90 : 0))
+                FinifyIcon(.x, size: .compact)
+                    .opacity(controlsOpen ? 1 : 0)
+                    .rotationEffect(.degrees(controlsOpen ? 0 : -90))
+            }
+            .foregroundStyle(controlsOpen ? FinifyColor.Overflow.ink : FinifyColor.Overflow.muted)
+            .frame(width: ViewControls.controlHeight, height: ViewControls.controlHeight)
+            .modifier(TopBarSurface(overflow: true, shape: Circle(), fallback: FinifyColor.Overflow.control))
+            .contentShape(Circle())
+        }
+        .buttonStyle(PressScaleStyle())
+        .help(controlsOpen ? "Hide controls" : "Show controls")
+        .accessibilityLabel(controlsOpen ? "Hide controls" : "Show controls")
+    }
+
+    /// 展開時依序從收合按鈕滑出（間隔 0.04 秒），收起時一起淡出
+    private static func reveal(_ index: Int) -> AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .leading).combined(with: .opacity).combined(with: .scale(scale: 0.92, anchor: .leading))
+                .animation(.spring(response: 0.42, dampingFraction: 0.82).delay(Double(index) * 0.04)),
+            removal: .opacity.combined(with: .scale(scale: 0.96, anchor: .leading)).animation(.easeOut(duration: 0.16))
+        )
+    }
+
+    @ViewBuilder
+    private var controls: some View {
+        Menu {
+            Picker("Sort by", selection: $sort) {
+                ForEach(AlbumSort.allCases, id: \.self) { Text($0.title).tag($0) }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            Text("Sort by: \(sort.title)")
+                .finifyFont(.caption)
+                .foregroundStyle(FinifyColor.Overflow.muted)
+        }
+        .menuStyle(.borderlessButton)
+        .tint(FinifyColor.Overflow.muted)
+        .fixedSize()
+        .padding(.horizontal, Spacing.s12)
+        .frame(height: ViewControls.controlHeight)
+        .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+        .accessibilityLabel(Text("Sort albums, \(sort.title)"))
+        .transition(Self.reveal(0))
+
+        MagicSortMenu(selection: magic) { choice in
+            magicRaw = choice?.rawValue ?? ""
+            resort()  // 再選一次 Shuffle 也會重洗
+        }
+        .transition(Self.reveal(1))
+
+        Group {
+            if layout == .wall {
+                SizeSlider(step: densityStep, count: WallDensity.allCases.count, label: "Album size",
+                           valueText: density.wrappedValue.label)
+                    .help("Album size (pinch to resize)")
+            } else {
+                SizeSlider(step: flowSizeBinding, count: AlbumFlowView.sizeSteps, label: "Cover size",
+                           valueText: "\(flowSize + 1) of \(AlbumFlowView.sizeSteps)")
+                    .help("Cover size")
+            }
+        }
+        .transition(Self.reveal(2))
+
+        Button { focusPlaying() } label: {
+            HStack(spacing: Spacing.s4) {
+                FinifyIcon(.gps, size: .compact)
+                // 文字放大（睫狀肌舒適）時頂部列較擠，維持一行不換行
+                if !compactBar { Text("Now Playing").finifyFont(.caption).lineLimit(1).fixedSize() }
+            }
+            .foregroundStyle(FinifyColor.Overflow.muted)
+            .padding(.horizontal, Spacing.s12)
+            .frame(height: ViewControls.controlHeight)
+            .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
+            .contentShape(Capsule())
+        }
+        .buttonStyle(PressScaleStyle())
+        .disabled(!playingAlbumOnWall && !canSavePlayingAlbum)
+        .opacity(playingAlbumOnWall || canSavePlayingAlbum ? 1 : 0.4)
+        .help(nowPlayingHelp)
+        .accessibilityLabel("Focus on the album that's playing")
+        .transition(Self.reveal(3))
+
+        if layout == .wall { autoScrollToggle.transition(Self.reveal(4)) }
     }
 
     /// Infinity：封面牆一直自動捲動（滑鼠在牆上也不停）
