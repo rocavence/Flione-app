@@ -48,6 +48,20 @@ enum Mood: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// 卡片右下角的裝飾圖示（SF Symbols；沒有符合曲風的封面時用）
+    var symbol: String {
+        switch self {
+        case .chill: "leaf.fill"
+        case .focus: "scope"
+        case .party: "party.popper.fill"
+        case .workout: "figure.run"
+        case .feelGood: "sun.max.fill"
+        case .romance: "heart.fill"
+        case .sad: "cloud.rain.fill"
+        case .sleep: "moon.stars.fill"
+        }
+    }
+
     /// 卡片的漸層（左上 → 右下），每種心情一組固定顏色
     var colors: [Color] {
         switch self {
