@@ -100,6 +100,25 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
         let json = try await InnerTube.post("search", body: ["query": query])
         var results = SearchResults()
         var seen = Set<String>()
+        // 「最佳結果」卡片（搜「pet shop」時的 Pet Shop Boys）不在一般的列表裡：放到同類的第一個
+        if let card = Parse.find("musicCardShelfRenderer", in: json) as? [String: Any],
+           let titleRun = Parse.runs(card["title"]).first, let name = titleRun["text"] as? String,
+           let target = Parse.browse(titleRun) {
+            let artwork = Parse.artwork(card["thumbnail"])
+            switch target.pageType {
+            case "MUSIC_PAGE_TYPE_ARTIST":
+                seen.insert(target.id)
+                results.artists.append(Artist(id: target.id, name: name, artwork: artwork))
+            case "MUSIC_PAGE_TYPE_ALBUM":
+                let artistRun = Parse.runs(card["subtitle"]).first { Parse.browse($0)?.pageType == "MUSIC_PAGE_TYPE_ARTIST" }
+                seen.insert(target.id)
+                results.albums.append(Album(id: target.id, name: name, artistName: artistRun?["text"] as? String ?? "",
+                                            artistID: artistRun.flatMap { Parse.browse($0)?.id }, year: Parse.year(in: Parse.runs(card["subtitle"])),
+                                            artwork: artwork, dateAdded: nil))
+            default:
+                break
+            }
+        }
         for row in Parse.all("musicResponsiveListItemRenderer", in: json) {
             switch Parse.pageType(row) {
             case "MUSIC_PAGE_TYPE_ARTIST":
