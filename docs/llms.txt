@@ -6,7 +6,7 @@
 - Download: https://github.com/rocavence/Flione-app/releases/latest
 - Source code: https://github.com/rocavence/Flione-app
 - Platform: macOS 14 (Sonoma) or later; Apple silicon and Intel builds
-- Version: 0.9.4
+- Version: 0.9.5
 - Price: Free. No in-app purchases, no Flione account.
 - Author: rocavence (https://github.com/rocavence)
 
@@ -32,7 +32,7 @@
 
 ## Other features
 
-- Radio: start from an album, artist, or song (Jellyfin also by genre); it keeps adding songs. Works with Jellyfin and YouTube Music.
+- Radio: start from an album, artist, or song (Jellyfin also by genre); it keeps adding songs. Home also has 8 mood stations (Chill, Focus, Party, Workout, Feel Good, Romance, Sad, Sleep). Works with Jellyfin and YouTube Music.
 - AI Discover (Beta): describe what you want to hear, and Apple Intelligence on the Mac picks albums from your own library, each with a one-line reason. Runs on-device; needs macOS 26.
 - Album sorting on artist pages (newest, oldest, name, recently added); remembers your choice.
 - Interface languages: English, Traditional Chinese, Japanese, Korean, Spanish, Brazilian Portuguese
