@@ -126,6 +126,7 @@ struct ArtistView: View {
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
+                .hoverBezel()
             }
             switch model.albums {
             case .loading:

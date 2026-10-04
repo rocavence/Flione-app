@@ -50,6 +50,7 @@ struct LibraryView: View {
                     }
                     .menuStyle(.borderlessButton)
                     .fixedSize()
+                    .hoverBezel()
                 }
             }
             .padding(.horizontal, Spacing.s32)

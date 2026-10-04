@@ -63,7 +63,26 @@ private struct SectionActionButton: View {
         }
         .buttonStyle(.borderless)
         .foregroundStyle(.tint)
+        .hoverBezel()
     }
+}
+
+/// 無邊框按鈕與選單的 hover：與 macOS 工具列按鈕一樣，滑過時出現淡淡的圓角底
+private struct HoverBezel: ViewModifier {
+    @State private var hovering = false
+
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal, Spacing.s8)
+            .frame(height: 26)
+            .background(hovering ? FinifyColor.surface : .clear, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .onHover { hovering = $0 }
+            .animation(Motion.micro, value: hovering)
+    }
+}
+
+extension View {
+    func hoverBezel() -> some View { modifier(HoverBezel()) }
 }
 
 /// 空狀態與錯誤狀態：說明發生什麼事，並給下一步。
