@@ -140,9 +140,9 @@ final class AppEnvironment {
         let notifier = TrackNotifier { [weak self] in self?.images }
         self.notifier = notifier
         player.onTrackChange = { notifier.trackChanged($0) }
-        player.onPlaybackStopped = { [weak self] track, position in
+        player.onPlayCounted = { [weak self] track in
             guard let self, self.session?.isYouTube == true else { return }
-            self.youtubePlays.record(track, position: position)
+            self.youtubePlays.record(track)
         }
         // YouTube：專輯頁的愛心是加入／移出收藏，寫入後重新讀取音樂庫，封面牆跟著出現或消失
         favorites.onSynced = { [weak self] id in

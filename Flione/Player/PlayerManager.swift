@@ -61,8 +61,8 @@ final class PlayerManager {
     @ObservationIgnored private var activeItem: ObjectIdentifier?
     @ObservationIgnored private var statusObservation: NSKeyValueObservation?
     @ObservationIgnored var onTrackChange: ((Track?) -> Void)?
-    /// 一首歌停止或換歌時（曲目、聽到的秒數）：YouTube Music 的本機播放次數用
-    @ObservationIgnored var onPlaybackStopped: ((Track, TimeInterval) -> Void)?
+    /// 一首歌播放超過門檻（30 秒，短歌一半）時：YouTube Music 的本機播放次數用
+    @ObservationIgnored var onPlayCounted: ((Track) -> Void)?
 
     init() {
         player.volume = volume
@@ -659,7 +659,20 @@ final class PlayerManager {
     // MARK: - 播放回報（讓 Jellyfin 記錄最近播放）
 
     @ObservationIgnored private var reportedTrack: Track?
-    @ObservationIgnored private var reportedPosition: TimeInterval = 0
+    @ObservationIgnored private var reportedPosition: TimeInterval = 0 { didSet { countPlayIfNeeded() } }
+    /// 這次播放已經算過一次的佇列項目（同一首重播是新的項目，會再算一次）
+    @ObservationIgnored private var countedEntryID: QueueEntry.ID?
+
+    /// 播放超過門檻的那一刻就算一次（不等播完或換歌），畫面上的次數立刻更新
+    private func countPlayIfNeeded() {
+        guard let entry = queue.currentEntry, countedEntryID != entry.id, !entry.track.isPlaceholder,
+              LocalPlayCounts.counts(entry.track, position: reportedPosition) else { return }
+        #if DEBUG || BENCHMARK
+        guard reportsPlayback else { return }
+        #endif
+        countedEntryID = entry.id
+        onPlayCounted?(entry.track)
+    }
 
     private func trackStarted() {
         guard let track = currentTrack else { return }
@@ -681,7 +694,6 @@ final class PlayerManager {
         #if DEBUG || BENCHMARK
         guard reportsPlayback else { return }
         #endif
-        onPlaybackStopped?(track, position)
         Task { await repository?.reportPlaybackStopped(track, position: position) }
     }
 }

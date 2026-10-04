@@ -32,8 +32,9 @@ final class LocalPlayCounts {
 
     func entry(for trackID: String) -> Entry? { entries[trackID] }
 
-    func record(_ track: Track, position: TimeInterval, at date: Date = .now) {
-        guard !track.isPlaceholder, Self.counts(track, position: position) else { return }
+    /// 播放超過門檻時由 PlayerManager 呼叫（門檻判斷在 PlayerManager，見 counts）
+    func record(_ track: Track, at date: Date = .now) {
+        guard !track.isPlaceholder else { return }
         var entry = entries[track.id] ?? Entry(count: 0, last: date)
         entry.count += 1
         entry.last = date
