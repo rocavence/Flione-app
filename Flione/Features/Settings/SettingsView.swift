@@ -116,12 +116,9 @@ struct SettingsCard: View {
             FinifyColor.hairline.frame(width: 1).padding(.vertical, -Spacing.s32)
 
             VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .center) {
-                    Text(tab.title).finifyFont(.heading).foregroundStyle(FinifyColor.ink)
-                    Spacer()
-                    CloseButton { app.isSettingsPresented = false }
-                }
-                .padding(.bottom, Spacing.s4)
+                Text(tab.title).finifyFont(.heading).foregroundStyle(FinifyColor.ink)
+                    .frame(height: 36, alignment: .leading)
+                    .padding(.bottom, Spacing.s4)
                 content
             }
             .padding(.leading, Spacing.s24)
@@ -138,6 +135,10 @@ struct SettingsCard: View {
                 RadialGradient(colors: [FinifyColor.accent.opacity(0.08), .clear], center: .top, startRadius: 0, endRadius: 420)
                 RadialGradient(colors: [FinifyColor.violet.opacity(0.08), .clear], center: .bottomTrailing, startRadius: 0, endRadius: 360)
             }
+        }
+        .overlay(alignment: .topTrailing) {
+            CloseButton { app.isSettingsPresented = false }
+                .padding(Spacing.s16)
         }
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).strokeBorder(FinifyColor.hairline, lineWidth: 1))
@@ -167,6 +168,14 @@ extension SettingsCard {
             }
         }
         .scrollBounceBehavior(.basedOnSize)
+        // 「永遠顯示捲軸」時系統會畫一條粗的捲軸貼著內容；設定的內容不長，改用底部漸隱提示還有更多
+        .scrollIndicators(.never)
+        .mask {
+            VStack(spacing: 0) {
+                Color.black
+                LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom).frame(height: 28)
+            }
+        }
         #if DEBUG
         // -FinifyDemoSettingsScroll YES：截圖用，打開後捲到最下面
         .task {
@@ -359,14 +368,17 @@ private struct CloseButton: View {
 
     var body: some View {
         Button(action: action) {
+            // 小而安靜：平常只有圖示，滑過才出現淡淡的圓底（與視窗的關閉鈕同一個份量）
             FinifyIcon(.x, size: .compact)
-                .foregroundStyle(FinifyColor.muted)
-                .frame(width: 36, height: 36)
-                .background(hovering ? FinifyColor.glassHighlight : FinifyColor.glass, in: Circle())
+                .scaleEffect(0.8)
+                .foregroundStyle(hovering ? FinifyColor.ink : FinifyColor.muted)
+                .frame(width: 28, height: 28)
+                .background(hovering ? FinifyColor.glassHighlight : .clear, in: Circle())
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
+        .animation(Motion.micro, value: hovering)
         .help("Close (Esc)")
         .accessibilityLabel("Close Settings")
     }
