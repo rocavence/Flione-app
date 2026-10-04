@@ -82,6 +82,17 @@ struct ArtworkView: View {
         }
     }
 
+    /// 沒有封面時的底色：依名稱算出固定的兩個色相（同一個名稱永遠同色，不同名稱各自不同），像一套設計過的封面
+    static func fallbackGradient(for title: String) -> LinearGradient {
+        // FNV-1a：String.hashValue 每次啟動都不同，不能用
+        var hash: UInt32 = 2_166_136_261
+        for byte in title.utf8 { hash = (hash ^ UInt32(byte)) &* 16_777_619 }
+        let hue = Double(hash % 360) / 360
+        return LinearGradient(colors: [Color(hue: hue, saturation: 0.5, brightness: 0.5),
+                                       Color(hue: (hue + 0.09).truncatingRemainder(dividingBy: 1), saturation: 0.62, brightness: 0.24)],
+                              startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+
     @ViewBuilder
     private var placeholder: some View {
         if let hash = artwork?.blurHash, let blur = BlurHash.image(hash) {
@@ -101,17 +112,17 @@ struct ArtworkView: View {
                         .tracking(-0.3 * scale)
                         .lineLimit(3)
                         .multilineTextAlignment(circular ? .center : .leading)
-                        .foregroundStyle(FinifyColor.ink.opacity(0.85))
+                        .foregroundStyle(.white.opacity(0.94))
                     if let fallbackSubtitle, geo.size.width > 64 {
                         Text(fallbackSubtitle)
                             .font(.system(size: max(8, 12 * scale)))
                             .lineLimit(1)
-                            .foregroundStyle(FinifyColor.muted)
+                            .foregroundStyle(.white.opacity(0.7))
                     }
                 }
                 .padding((circular ? 28 : 12) * scale)
                 .frame(width: geo.size.width, height: geo.size.height, alignment: circular ? .center : .bottomLeading)
-                .background(LinearGradient(colors: [FinifyColor.surface, FinifyColor.hairline], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .background(Self.fallbackGradient(for: fallbackTitle))
             }
         } else {
             ZStack {

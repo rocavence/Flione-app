@@ -14,13 +14,19 @@ final class FavoritesStore {
     /// 每次寫入成功後遞增，Favorites 頁據此重新載入
     private(set) var revision = 0
 
+    /// 每次換音樂來源加一：上一個來源晚回來的最愛清單要丟掉
+    @ObservationIgnored private var generation = 0
+
     func attach(repository: any MusicRepository) {
+        generation += 1
+        let started = generation
         self.repository = repository
         ids = []
-        Task { if let ids = try? await repository.favoriteIDs() { self.ids = ids } }
+        Task { if let ids = try? await repository.favoriteIDs(), started == generation { self.ids = ids } }
     }
 
     func reset() {
+        generation += 1
         ids = []
         repository = nil
     }

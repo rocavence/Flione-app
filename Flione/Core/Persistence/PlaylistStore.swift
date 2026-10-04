@@ -18,13 +18,18 @@ final class PlaylistStore {
     @ObservationIgnored private var localNames: [String: (name: String, at: Date)] = [:]
     private static let settleDelay: TimeInterval = 1.5
 
+    /// 每次換音樂來源加一：切換前開始讀取、切換後才回來的結果（上一個來源的清單）要丟掉
+    @ObservationIgnored private var generation = 0
+
     func attach(repository: any MusicRepository) {
+        generation += 1
         self.repository = repository
         playlists = []
         Task { await refresh() }
     }
 
     func reset() {
+        generation += 1
         playlists = []
         repository = nil
     }
@@ -32,7 +37,8 @@ final class PlaylistStore {
     func revision(of playlistID: String) -> Int { revisions[playlistID, default: 0] }
 
     func refresh() async {
-        guard let repository, let list = try? await repository.playlists() else { return }
+        let started = generation
+        guard let repository, let list = try? await repository.playlists(), started == generation else { return }
         playlists = list.map { playlist in
             guard let local = localNames[playlist.id], Date().timeIntervalSince(local.at) < 30 else { return playlist }
             return Playlist(id: playlist.id, name: local.name, trackCount: playlist.trackCount, duration: playlist.duration, artwork: playlist.artwork)
