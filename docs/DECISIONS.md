@@ -382,3 +382,9 @@
 * **Jellyfin**：曲風名稱符合心情關鍵字的（例如放鬆：ambient、chill、downtempo、lounge、bossa），隨機抽最多 6 個曲風，各取一些歌後打散。音樂庫沒有符合的曲風時提示，不隨便播。
 * **YouTube Music**：以英文讀取心情頁找到分類，從該分類的官方歌單隨機挑一個。歌單排序全球共用、前面常有特定地區的（寶萊塢、拉丁），略過標題指名地區風格的。
 * **之後**：與一般電台相同，快播完時用目前的歌補（Jellyfin 的 Instant Mix、YouTube 的歌曲電台）。
+
+## D51　YouTube Music 的播放次數
+
+* **來源**：YouTube Music 不提供每首歌的播放次數，由 Flione 在這台 Mac 記錄（`Application Support/app.finify.Finify/youtube-plays.json`）。播放超過 30 秒（短於 1 分鐘的歌聽一半）的那一刻算一次，不等播完；同一首重播算新的一次。
+* **顯示**：與 Jellyfin 的播放次數同一欄（歌曲列的愛心左邊）。從開始記錄那天起算，以前的播放不在裡面。
+* **iCloud 同步**（設定 → 音樂來源 → YouTube Music，預設關閉）：每台 Mac 只寫自己的檔案到 iCloud 雲碟 `Flione/YouTube Plays/<電腦名稱> (<id>).json`，顯示時加總（次數相加、最後播放取最新）。各寫各的，不會互相蓋掉。用 iCloud 雲碟的檔案而不是 CloudKit：CloudKit 要付費的開發者帳號，公開版的簽章也不能用。

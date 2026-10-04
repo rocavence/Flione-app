@@ -672,21 +672,33 @@ private struct AccountSettings: View {
     @Environment(AppEnvironment.self) private var app
 
     var body: some View {
-        sourceRow(.youtube)
-        sourceRow(.jellyfin)
-        if app.session != nil {
-            SettingRow(title: "Library", detail: "\(app.library.albums.count) albums. Refresh after adding music.") {
-                PillButton(title: app.library.state == .loading ? "Refreshing…" : "Refresh") { Task { await app.library.refresh() } }
-                    .disabled(app.library.state == .loading)
-            }
-            if app.source == .jellyfin {
+        // 分成 Jellyfin 與 YouTube Music 兩組，各自的設定放在自己那一組
+        group("Jellyfin") {
+            sourceRow(.jellyfin)
+            if active(.jellyfin) {
+                libraryRow
                 CastServerRow(serverURL: app.session?.serverURL)
+                signOutRow
             }
-            SettingRow(title: "Sign out of \(app.source.title)", detail: "Stops playback. Your other music source stays signed in.") {
-                PillButton(title: "Sign Out", destructive: true) {
-                    app.isSettingsPresented = false
-                    app.signOut()
+        }
+        group("YouTube Music") {
+            sourceRow(.youtube)
+            if active(.youtube) {
+                libraryRow
+            }
+            SettingRow(title: "Sync play counts with iCloud",
+                       detail: LocalPlayCounts.isCloudAvailable
+                           ? "YouTube Music doesn't keep play counts, so Flione counts them on this Mac. Turn this on to add up the counts from all your Macs through iCloud Drive."
+                           : "Turn on iCloud Drive in System Settings to sync play counts between your Macs.") {
+                Toggle(isOn: Binding(get: { app.youtubePlays.isSyncing }, set: { app.youtubePlays.setSyncing($0) })) {
+                    Text("Sync play counts with iCloud")
                 }
+                .labelsHidden()
+                .toggleStyle(PillSwitchStyle())
+                .disabled(!LocalPlayCounts.isCloudAvailable)
+            }
+            if active(.youtube) {
+                signOutRow
             }
         }
         Text("Flione connects only to the music source you choose. No Flione account, no analytics, no tracking.")
@@ -696,9 +708,42 @@ private struct AccountSettings: View {
             .padding(.top, Spacing.s16)
     }
 
+    private func active(_ source: MusicSource) -> Bool { app.session != nil && app.source == source }
+
+    @ViewBuilder
+    private func group<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        // 產品名稱不翻譯
+        Text(verbatim: title)
+            .finifyFont(.micro)
+            .textCase(.uppercase)
+            .tracking(0.6)
+            .foregroundStyle(FinifyColor.faint)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, Spacing.s24)
+            .accessibilityAddTraits(.isHeader)
+        content()
+    }
+
+    private var libraryRow: some View {
+        SettingRow(title: "Library", detail: "\(app.library.albums.count) albums. Refresh after adding music.") {
+            PillButton(title: app.library.state == .loading ? "Refreshing…" : "Refresh") { Task { await app.library.refresh() } }
+                .disabled(app.library.state == .loading)
+        }
+    }
+
+    private var signOutRow: some View {
+        SettingRow(title: "Sign out of \(app.source.title)", detail: "Stops playback. Your other music source stays signed in.") {
+            PillButton(title: "Sign Out", destructive: true) {
+                app.isSettingsPresented = false
+                app.signOut()
+            }
+        }
+    }
+
     private func sourceRow(_ source: MusicSource) -> some View {
         let active = app.session != nil && app.source == source
-        return SettingRow(title: "\(source.title)", detail: detail(for: source)) {
+        // 組標題已經是來源名稱，這一列叫「帳號」
+        return SettingRow(title: "Account", detail: detail(for: source)) {
             if active {
                 Text("In use")
                     .finifyFont(.bodyEmphasis)

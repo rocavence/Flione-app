@@ -14297,6 +14297,142 @@
           }
         }
       }
+    },
+    "Sync play counts with iCloud": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用 iCloud 同步播放次數"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再生回数を iCloud で同期"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud로 재생 횟수 동기화"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizar reproducciones con iCloud"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizar reproduções com o iCloud"
+          }
+        }
+      }
+    },
+    "YouTube Music doesn't keep play counts, so Flione counts them on this Mac. Turn this on to add up the counts from all your Macs through iCloud Drive.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Music 不提供播放次數，由 Flione 在這台 Mac 記錄。打開後會透過 iCloud 雲碟，把你每台 Mac 的次數加在一起。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Music は再生回数を記録しないため、Flione がこの Mac で記録します。オンにすると、iCloud Drive を通じてすべての Mac の回数を合計します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Music은 재생 횟수를 제공하지 않으므로 Flione이 이 Mac에서 기록합니다. 켜면 iCloud Drive를 통해 모든 Mac의 횟수를 합산합니다."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Music no guarda las reproducciones, así que Flione las cuenta en este Mac. Actívalo para sumar las de todos tus Mac mediante iCloud Drive."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O YouTube Music não guarda as reproduções, então o Flione conta neste Mac. Ative para somar as de todos os seus Macs pelo iCloud Drive."
+          }
+        }
+      }
+    },
+    "Turn on iCloud Drive in System Settings to sync play counts between your Macs.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「系統設定」打開 iCloud 雲碟，就能在你的 Mac 之間同步播放次數。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac 間で再生回数を同期するには、システム設定で iCloud Drive をオンにしてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac 간에 재생 횟수를 동기화하려면 시스템 설정에서 iCloud Drive를 켜십시오."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa iCloud Drive en Ajustes del Sistema para sincronizar las reproducciones entre tus Mac."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ative o iCloud Drive nos Ajustes do Sistema para sincronizar as reproduções entre seus Macs."
+          }
+        }
+      }
+    },
+    "Account": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帳號"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウント"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuenta"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conta"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

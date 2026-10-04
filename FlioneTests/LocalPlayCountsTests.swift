@@ -28,3 +28,37 @@ final class LocalPlayCountsTests: XCTestCase {
         XCTAssertEqual(LocalPlayCounts(file: file).entry(for: "v1")?.count, 2)
     }
 }
+
+/// iCloud 同步：每台 Mac 一個檔案，顯示時加總
+@MainActor
+final class LocalPlayCountsSyncTests: XCTestCase {
+    func testMergesOtherMacs() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: "flione-sync-\(UUID().uuidString)")
+        defer {
+            try? FileManager.default.removeItem(at: root)
+            UserDefaults.standard.removeObject(forKey: LocalPlayCounts.syncKey)
+        }
+        let cloud = root.appending(path: "cloud")
+        try FileManager.default.createDirectory(at: cloud, withIntermediateDirectories: true)
+        // 另一台 Mac 的檔案
+        let other: [String: LocalPlayCounts.Entry] = ["v1": .init(count: 3, last: Date(timeIntervalSince1970: 500)),
+                                                       "v9": .init(count: 1, last: Date(timeIntervalSince1970: 50))]
+        try JSONEncoder().encode(other).write(to: cloud.appending(path: "Other Mac (abcd1234).json"))
+
+        let counts = LocalPlayCounts(file: root.appending(path: "local.json"), cloudFolder: cloud)
+        counts.setSyncing(false)
+        let song = Track(id: "v1", name: "S", albumID: nil, albumName: "", artistName: "A", artistID: nil,
+                         trackNumber: nil, discNumber: nil, duration: 200, container: nil, artwork: nil)
+        counts.record(song, at: Date(timeIntervalSince1970: 100))
+        XCTAssertEqual(counts.entry(for: "v1")?.count, 1)        // 關閉時只算這台
+        XCTAssertNil(counts.entry(for: "v9"))
+
+        counts.setSyncing(true)
+        XCTAssertEqual(counts.entry(for: "v1")?.count, 4)        // 1 + 3
+        XCTAssertEqual(counts.entry(for: "v1")?.last, Date(timeIntervalSince1970: 500))
+        XCTAssertEqual(counts.entry(for: "v9")?.count, 1)
+        // 打開時把這台的紀錄寫上去（自己的檔案）
+        let files = try FileManager.default.contentsOfDirectory(atPath: cloud.path)
+        XCTAssertEqual(files.count, 2)
+    }
+}
