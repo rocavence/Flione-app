@@ -29,7 +29,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
-## 官網主畫面的 iMac 照片
-
-攝影：Fujiphilm，<https://unsplash.com/photos/a-desktop-computer-sitting-on-top-of-a-wooden-desk-q38wN0JuRiA>，依 [Unsplash License](https://unsplash.com/license) 使用。原圖的螢幕畫面已遮掉並裁切，存成 `docs/site/imac.jpg` 與 `docs/site/imac-1200.jpg`。

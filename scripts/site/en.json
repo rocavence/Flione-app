@@ -6,7 +6,7 @@
  "hero.h1": "Listen well. Collect well.<span class=\"dim\">A macOS music player for Jellyfin and YouTube Music.</span>",
  "hero.download": "Download Flione — free",
  "hero.modes": "See the three views",
- "hero.meta": "macOS 14 or later · v0.8.3 · Apple silicon and Intel",
+ "hero.meta": "macOS 14 or later · v0.9.0 · Apple silicon and Intel",
  "demo.sort": "Sort: Title",
  "demo.auto": "∞ Auto-scroll",
  "demo.toggle": "Auto-scroll",
@@ -48,10 +48,9 @@
  "feat.c3": "<b>At home on macOS.</b> Media keys, Control Center, menu bar, mini player.",
  "feat.c4": "<b>Synced lyrics.</b> They scroll with the song.",
  "feat.c5": "<b>No tracking.</b> No account, no analytics.",
- "feat.c6": "<b>English and Chinese.</b> Switch in Settings.",
- "feat.c7": "<b>Radio.</b> Start from an album, artist, or genre; it keeps going.",
- "feat.c8": "<b>AI Discover (Beta).</b> Say what you're in the mood for; it picks from your library.",
- "feat.soon": "Coming in the next release",
+ "feat.c6": "<b>6 languages.</b> English, Traditional Chinese, Japanese, Korean, Spanish, and Portuguese.",
+ "feat.c7": "<b>Radio.</b> Start from an album, artist, or genre; it keeps going. Jellyfin for now.",
+ "feat.c8": "<b>AI Discover (Beta).</b> Say what you're in the mood for; it picks from your library. Runs on your Mac; needs macOS 26.",
  "faq.h2": "Questions? Answers.",
  "faq.q1": "How do I install it?",
  "faq.q2": "Why paste a Terminal command?",
@@ -97,5 +96,6 @@
  "faq.a10": "Yes. Flione is also a YouTube Music desktop player for Mac: sign in with Google and browse your saved albums, liked songs, and playlists in all three views, without a browser tab.",
  "faq.q11": "Is Flione free?",
  "faq.a11": "Yes. No in-app purchases and no Flione account. Download it and go.",
- "head.ogimg": "https://flione.rocavence.com/site/og-en.png"
+ "head.ogimg": "https://flione.rocavence.com/site/og-en.png",
+ "feat.c9": "<b>Album sorting.</b> Sort an artist's albums by year, name, or date added; it remembers."
 }

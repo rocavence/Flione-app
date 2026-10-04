@@ -6,7 +6,7 @@
 - Download: https://github.com/rocavence/Flione-app/releases/latest
 - Source code: https://github.com/rocavence/Flione-app
 - Platform: macOS 14 (Sonoma) or later; Apple silicon and Intel builds
-- Version: 0.8.3
+- Version: 0.9.0
 - Price: Free. No in-app purchases, no Flione account.
 - Author: rocavence (https://github.com/rocavence)
 
@@ -32,15 +32,14 @@
 
 ## Other features
 
-- Seven color themes; English and Traditional Chinese
+- Radio (Jellyfin): start from an album, artist, or genre; it keeps adding songs.
+- AI Discover (Beta): describe what you want to hear, and Apple Intelligence on the Mac picks albums from your own library, each with a one-line reason. Runs on-device; needs macOS 26.
+- Album sorting on artist pages (newest, oldest, name, recently added); remembers your choice.
+- Interface languages: English, Traditional Chinese, Japanese, Korean, Spanish, Brazilian Portuguese
+- Seven color themes
 - Press Play and the UI responds instantly while tracks load in the background
 - Media keys, Now Playing, Dock menu, menu bar player, floating mini player
 - No Flione account, no analytics, no tracking
-
-## Coming in the next release
-
-- Radio (Jellyfin): start from an album, artist, or genre; it keeps adding songs.
-- AI Discover (Beta): describe what you want to hear, and Apple Intelligence on the Mac picks albums from your own library, each with a one-line reason. Runs on-device; needs macOS 26.
 
 ## Install
 
