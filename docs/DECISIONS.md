@@ -327,3 +327,10 @@
 * **安全取捨**：TLS 不驗證裝置憑證。Cast 裝置的 TLS 憑證是自簽的，而且會定期更換，所以「第一次記住憑證」也不可行；Google 的 sender 是另外用裝置認證（`urn:x-cast:com.google.cast.tp.deviceauth`，憑證鏈到 Google 的 Cast 根憑證）確認對方。目前沒有實作裝置認證：同一個區域網路上若有人偽裝成 Cast 裝置、使用者又選了它，對方可以拿到含 Jellyfin 存取權杖的串流網址。家用網路風險低，公共網路不建議投放。要補強時實作 deviceauth，在送出 LOAD 之前驗證。
 * **驗證**：DEBUG 參數 `-FinifyDemoCastProbe <檔案>` 只連線並詢問接收器狀態（不開啟 app、不喚醒電視）；`-FinifyDemoCastTo <秒>` 幾秒後投放到第一台裝置。
 * **怎麼改**：`Core/Cast/`、`Player/RemotePlayback.swift`、`Components/CastButton.swift`。
+
+## D44　Release 移除除錯符號
+
+* **問題**：一般建置（非 Archive）不會移除符號，Release 版執行檔 17 MB，整個 app 18 MB。
+* **選擇**：Release 開啟 `DEPLOYMENT_POSTPROCESSING`、`STRIP_INSTALLED_PRODUCT`（`STRIP_STYLE: all`），執行檔降到約 6 MB，整個 app 約 7.4 MB。符號另存 `Flione.app.dSYM`，不隨 app 出貨，查當機紀錄時仍可用。
+* **沒採用**：`-Osize` 只再少約 0.6 MB，可能影響封面牆的捲動效能；只出 Apple Silicon 版可再減半，但 Intel Mac 就不能用。
+* **怎麼改**：`project.yml` 的 Flione target `configs: Release`。

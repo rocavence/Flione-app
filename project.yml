@@ -45,6 +45,13 @@ targets:
         SWIFT_EMIT_LOC_STRINGS: YES
         LOCALIZATION_PREFERS_STRING_CATALOGS: YES
         ENABLE_HARDENED_RUNTIME: YES
+      configs:
+        # Release 移除除錯符號：執行檔 17 MB → 約 6 MB。符號另外存成 dSYM，查當機紀錄仍用得到（D44）
+        Release:
+          DEPLOYMENT_POSTPROCESSING: YES
+          STRIP_INSTALLED_PRODUCT: YES
+          STRIP_STYLE: all
+          DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
     # finify:// 網址（URLCommands.swift）；其餘 Info.plist 內容由 GENERATE_INFOPLIST_FILE 產生
     info:
       path: Flione/Info.plist
