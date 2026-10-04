@@ -313,6 +313,19 @@ final class PlayerManager {
         }
     }
 
+    /// 心情電台（D50）：開始的歌來自心情（曲風或 YouTube 的心情歌單），之後跟一般電台一樣用目前的歌補
+    func startMoodRadio(_ mood: Mood) async {
+        guard let repository else { return }
+        let name = String(localized: mood.title)
+        let mix = (try? await repository.moodTracks(mood, limit: 40)) ?? []
+        guard !mix.isEmpty else {
+            notice = PlayerNotice(message: String(localized: "Nothing in your library fits “\(name)” yet."))
+            return
+        }
+        play(mix)
+        radioName = name
+    }
+
     /// 停止電台：目前的佇列照常播完，不再自動補歌
     func stopRadio() { radioName = nil }
 

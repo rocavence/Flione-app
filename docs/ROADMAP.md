@@ -704,7 +704,7 @@ Finify 成為：
 * [x] Artist Radio（0.9.0 Jellyfin，0.9.3 YouTube Music）
 * [x] Album Radio（0.9.0 Jellyfin，0.9.3 YouTube Music）
 * [x] Genre Radio（0.9.0，Jellyfin；YouTube Music 不提供曲風）
-* [ ] Mood Radio
+* [x] Mood Radio（D50，首頁的心情電台）
 * [ ] Personal Radio
 
 例如：

@@ -43,7 +43,8 @@ enum InnerTube {
     }
 
     /// POST `youtubei/v1/<endpoint>`，回傳解析後的 JSON。網路請求與解析在背景進行
-    static func post(_ endpoint: String, body: [String: Any] = [:], continuation: String? = nil) async throws -> [String: Any] {
+    /// `language`：指定回應的語言（心情頁用英文分類名稱比對）；nil 依系統語言
+    static func post(_ endpoint: String, body: [String: Any] = [:], continuation: String? = nil, language: String? = nil) async throws -> [String: Any] {
         guard let credentials = await credentials() else { throw Failure.signedOut }
         let sapisid = credentials.sapisid
 
@@ -66,7 +67,7 @@ enum InnerTube {
             "client": [
                 "clientName": "WEB_REMIX",
                 "clientVersion": clientVersion,
-                "hl": Locale.preferredLanguages.first ?? "en",
+                "hl": language ?? Locale.preferredLanguages.first ?? "en",
                 "utcOffsetMinutes": TimeZone.current.secondsFromGMT() / 60,
             ],
         ]

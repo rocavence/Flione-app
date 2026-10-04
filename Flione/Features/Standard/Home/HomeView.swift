@@ -38,6 +38,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: Spacing.s40) {
                 HomeHero(greeting: greeting, album: heroAlbum)
                     .padding(.top, Spacing.s8)
+                MoodShelf()
 
                 if case .failed = model.recentlyAdded, case .failed = model.quickPicks {
                     MessageState(

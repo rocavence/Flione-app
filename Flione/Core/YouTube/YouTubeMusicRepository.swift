@@ -182,6 +182,25 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
     }
     var supportsRadio: Bool { true }
 
+    /// 心情電台：YouTube Music「Moods & moments」的分類 → 前幾個官方歌單隨機挑一個 → 打散
+    func moodTracks(_ mood: Mood, limit: Int) async throws -> [Track] {
+        let page = try await InnerTube.post("browse", body: ["browseId": "FEmusic_moods_and_genres"], language: "en")
+        let button = Parse.all("musicNavigationButtonRenderer", in: page).first { Parse.text($0["buttonText"]) == mood.youtubeName }
+        guard let endpoint = (button?["clickCommand"] as? [String: Any])?["browseEndpoint"] as? [String: Any],
+              let browseID = endpoint["browseId"] as? String, let params = endpoint["params"] as? String else { return [] }
+        let category = try await InnerTube.post("browse", body: ["browseId": browseID, "params": params])
+        // 分類裡的歌單是全球共用的排序，前面常有特定地區的（寶萊塢、拉丁）：略過標題指名地區風格的，其餘每次隨機挑
+        let regional = ["bollywood", "hindi", "punjabi", "desi", "tamil", "telugu", "malayalam", "bhojpuri", "chai",
+                        "latin", "cafecito", "reggaeton", "afro", "arab", "k-pop", "j-pop", "turk"]
+        let playlists = Parse.all("musicTwoRowItemRenderer", in: category).compactMap(Parse.playlist)
+            .filter { playlist in !regional.contains { playlist.name.lowercased().contains($0) } }
+        for playlist in playlists.prefix(8).shuffled() {
+            let tracks = try await playlistTracks(playlist.id)
+            if tracks.count >= 10 { return Array(tracks.shuffled().prefix(limit)) }
+        }
+        return []
+    }
+
     func randomTracks(limit: Int) async throws -> [Track] {
         Array(try await likedSongs().shuffled().prefix(limit))
     }

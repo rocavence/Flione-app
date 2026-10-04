@@ -59,6 +59,11 @@ enum DebugDemo {
             do { try await repository.setFavorite(id, saved); DiscoveryEngine.debugNote("favorite \(id) \(saved): ok") }
             catch { DiscoveryEngine.debugNote("favorite \(id) \(saved): \(error)") }
         }
+        // -FinifyDemoMood <chill|focus|…>：開始心情電台並打開佇列
+        if let raw = defaults.string(forKey: "FinifyDemoMood"), let mood = Mood(rawValue: raw) {
+            await app.player.startMoodRadio(mood)
+            app.isQueuePresented = true
+        }
         // -FinifyDemoQueue YES：先打開佇列面板（檢查窄視窗的版面；與 -FinifyDemoOpen 一起用時，2 秒後才打開專輯）
         if defaults.bool(forKey: "FinifyDemoQueue") {
             app.isQueuePresented = true

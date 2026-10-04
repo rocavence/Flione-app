@@ -35,6 +35,8 @@ protocol MusicRepository: Sendable {
     /// 電台：以專輯、藝人、曲風或歌曲為起點產生連續播放（D47）。不支援時為空陣列
     func radio(seedID: String, limit: Int) async throws -> [Track]
     var supportsRadio: Bool { get }
+    /// 心情電台的起始歌曲（D50）
+    func moodTracks(_ mood: Mood, limit: Int) async throws -> [Track]
 
     func playlists() async throws -> [Playlist]
     func playlistTracks(_ playlistID: String) async throws -> [Track]
@@ -48,6 +50,25 @@ protocol MusicRepository: Sendable {
     func favoriteIDs() async throws -> Set<String>
     func favoriteTracks() async throws -> [Track]
     func setFavorite(_ itemID: String, _ isFavorite: Bool) async throws
+}
+
+extension MusicRepository {
+    /// 預設（Jellyfin）：曲風名稱符合心情關鍵字的，隨機抽最多 6 個曲風，各取一些歌後打散
+    func moodTracks(_ mood: Mood, limit: Int) async throws -> [Track] {
+        let matched = try await genres().filter { genre in
+            let name = genre.name.lowercased()
+            return mood.genreKeywords.contains { name.contains($0) }
+        }
+        let picked = Array(matched.shuffled().prefix(6))
+        guard !picked.isEmpty else { return [] }
+        let each = max(5, limit / picked.count + 1)
+        var tracks: [Track] = []
+        for genre in picked {
+            tracks += (try? await randomTracks(inGenre: genre.id, limit: each)) ?? []
+        }
+        var seen = Set<String>()
+        return Array(tracks.shuffled().filter { seen.insert($0.id).inserted }.prefix(limit))
+    }
 }
 
 final class JellyfinRepository: MusicRepository {
