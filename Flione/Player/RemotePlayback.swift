@@ -23,4 +23,8 @@ struct RemotePlaybackUpdate {
     let ended: Bool
     /// 播放失敗（例如投放裝置連不到伺服器）
     var failed = false
+    /// 引擎正在播的歌的資訊（YouTube 網頁的 Media Session）：引擎自己換歌時，Flione 用來顯示那首歌
+    var title: String?
+    var artist: String?
+    var artworkURL: String?
 }

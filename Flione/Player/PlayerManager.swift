@@ -190,7 +190,29 @@ final class PlayerManager {
         if update.duration > 0 { duration = update.duration }
         if update.time > 1 { consecutiveFailures = 0 }
         let switchedAway = update.trackID.map { $0 != entry.track.id } ?? false
+        // 佇列播完後 YouTube 會自己接著播別首（自動播放）：跟著它，不然音樂還在播、畫面卻停在上一首
+        if settled, switchedAway, queue.nextIndex(automatic: true) == nil, let id = update.trackID {
+            // 換歌的瞬間網頁還是舊歌的資訊：等新歌開始播、歌名換掉再接手
+            guard update.playing, let title = update.title, !title.isEmpty, title != entry.track.name else { return }
+            adoptRemoteTrack(id: id, update)
+            return
+        }
         if settled, update.ended || switchedAway { remoteTrackEnded() }
+    }
+
+    /// 把引擎自己換到的歌加到佇列最後並設為目前播放；網頁已經在播，不重新載入
+    private func adoptRemoteTrack(id: String, _ update: RemotePlaybackUpdate) {
+        reportStopped()
+        let artwork = update.artworkURL.flatMap { $0.hasPrefix("http") ? ArtworkRef(itemID: $0, tag: "ytfixed", blurHash: nil) : nil }
+        let track = Track(id: id, name: update.title ?? "", albumID: nil, albumName: "", artistName: update.artist ?? "", artistID: nil,
+                          trackNumber: nil, discNumber: nil, duration: update.duration, container: nil, artwork: artwork)
+        queue.append([track])
+        guard queue.advance(automatic: true) != nil, let entry = queue.currentEntry else { return }
+        remoteLoadedEntry = entry.id
+        remoteLoadedAt = .now
+        currentTime = update.time
+        duration = update.duration
+        trackStarted()
     }
 
     /// 一首播完（或 YouTube 自己換到別首）：換成佇列的下一首；佇列播完就停下

@@ -188,7 +188,9 @@ final class YouTubeWebPlayer: NSObject, WKScriptMessageHandler, RemotePlaybackEn
             onUpdate?(RemotePlaybackUpdate(playing: body["playing"] as? Bool ?? false, time: body["time"] as? Double ?? 0,
                                            duration: body["duration"] as? Double ?? 0,
                                            trackID: (body["videoId"] as? String).flatMap { $0.isEmpty ? nil : $0 },
-                                           ended: body["ended"] as? Bool ?? false))
+                                           ended: body["ended"] as? Bool ?? false,
+                                           title: body["title"] as? String, artist: body["artist"] as? String,
+                                           artworkURL: body["artwork"] as? String))
             isPlaying = body["playing"] as? Bool ?? false
             isWireless = body["wireless"] as? Bool ?? false
             reportedVideoId = (body["videoId"] as? String).flatMap { $0.isEmpty ? nil : $0 }
