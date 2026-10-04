@@ -14,13 +14,20 @@ final class HomeViewModel {
     var recentlyPlayed: Loadable<[Album]> = .loading
     var recentlyAdded: Loadable<[Album]> = .loading
     var quickPicks: Loadable<[Album]> = .loading
+    /// Hero 介紹的專輯：最近加入的 30 張裡隨機挑一張（每次載入首頁換一張）
+    var heroAlbum: Album?
 
     func load(_ repository: (any MusicRepository)?) async {
         guard let repository else { return }
         async let played = Self.fetch { try await repository.recentlyPlayed(limit: 12) }
-        async let added = Self.fetch { try await repository.recentlyAdded(limit: 16) }
+        async let added = Self.fetch { try await repository.recentlyAdded(limit: 30) }
         async let picks = Self.fetch { try await repository.quickPicks(limit: 12) }
         (recentlyPlayed, recentlyAdded, quickPicks) = await (played, added, picks)
+        if case .loaded(let albums) = recentlyAdded {
+            heroAlbum = albums.filter { $0.artwork != nil }.randomElement()
+            // 「最近加入」那一排維持 16 張
+            recentlyAdded = .loaded(Array(albums.prefix(16)))
+        }
     }
 
     nonisolated private static func fetch(_ work: @Sendable () async throws -> [Album]) async -> Loadable<[Album]> {
@@ -65,11 +72,8 @@ struct HomeView: View {
         .onChange(of: app.reconnectCount) { Task { await reload() } }
     }
 
-    /// Hero 介紹最新加入的專輯
-    private var heroAlbum: Album? {
-        if case .loaded(let albums) = model.recentlyAdded { return albums.first { $0.artwork != nil } }
-        return nil
-    }
+    /// Hero 介紹的專輯（最近加入的 30 張隨機一張，見 HomeViewModel）
+    private var heroAlbum: Album? { model.heroAlbum }
 
     private var greeting: LocalizedStringResource {
         switch Calendar.current.component(.hour, from: .now) {
