@@ -224,18 +224,20 @@ private struct SettingToggle: View {
     }
 }
 
-/// 開關：開啟時是 Flione Blue。系統的 switch 在視窗不在前景時會變灰，這裡固定顯示顏色
+/// 開關：開啟時是主色。系統的 switch 在視窗不在前景時會變灰，這裡固定顯示顏色
 private struct PillSwitchStyle: ToggleStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func makeBody(configuration: Configuration) -> some View {
         Button { configuration.isOn.toggle() } label: {
             Capsule()
-                .fill(configuration.isOn ? FinifyColor.accent : FinifyColor.glassHighlight)
+                // 開啟時用主色（與選取的分頁、主要按鈕相同），各種配色都清楚；強調色在「寂靜」是灰色，開著也像關著
+                .fill(configuration.isOn ? FinifyColor.primary : FinifyColor.glassHighlight)
                 .overlay(Capsule().strokeBorder(FinifyColor.hairline, lineWidth: configuration.isOn ? 0 : 1))
                 .frame(width: 42, height: 24)
                 .overlay(alignment: configuration.isOn ? .trailing : .leading) {
-                    Circle().fill(.white).shadow(color: .black.opacity(0.2), radius: 1.5, y: 1).padding(3)
+                    Circle().fill(configuration.isOn ? FinifyColor.onPrimary : .white)
+                        .shadow(color: .black.opacity(0.2), radius: 1.5, y: 1).padding(3)
                 }
                 .animation(reduceMotion ? nil : Motion.micro, value: configuration.isOn)
                 .contentShape(Capsule())
