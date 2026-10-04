@@ -51,7 +51,8 @@ struct ArtworkView: View {
             }
             .frame(width: geo.size.width, height: geo.size.height)
             .clipped()
-            .task(id: key) {
+            // 網路恢復時（reconnectCount 改變）重新載入還沒出來的封面
+            .task(id: "\(key)#\(app.reconnectCount)") {
                 guard image == nil, let artwork, let images = app.images else { return }
                 guard let result = await images.image(artwork, pixelSize: pixels), !Task.isCancelled else { return }
                 withAnimation(reduceMotion ? nil : .easeOut(duration: 0.25)) {

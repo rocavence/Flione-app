@@ -32,16 +32,39 @@ final class ImagePipeline: @unchecked Sendable {
     private let lock = NSLock()
     private var inFlight: [String: Task<CGImage?, Never>] = [:]
 
-    init(urlProvider: @escaping @Sendable (ArtworkRef, Int) -> URL) {
+    /// 下載失敗後重試的等待時間（秒）：一次載入很多封面時，偶爾會有幾張逾時或被暫時拒絕
+    static let retryDelays: [Double] = [1, 3]
+
+    /// `configuration`、`diskDirectory`：測試時換成假的網路與暫存資料夾
+    init(urlProvider: @escaping @Sendable (ArtworkRef, Int) -> URL,
+         configuration: URLSessionConfiguration = .default, diskDirectory: URL = ImagePipeline.diskDirectoryURL) {
         self.urlProvider = urlProvider
         memory.totalCostLimit = Self.memoryBudgetMB * 1024 * 1024
-        diskDirectory = Self.diskDirectoryURL
+        self.diskDirectory = diskDirectory
         try? FileManager.default.createDirectory(at: diskDirectory, withIntermediateDirectories: true)
-        let config = URLSessionConfiguration.default
+        let config = configuration
         config.urlCache = nil
         config.httpMaximumConnectionsPerHost = 8
         session = URLSession(configuration: config)
         Task.detached(priority: .background) { [diskDirectory] in Self.trimDisk(diskDirectory) }
+    }
+
+    /// 下載封面；網路錯誤、逾時、伺服器忙碌（429、5xx）時等一下再試，找不到（4xx）就不再試
+    private func download(_ url: URL) async -> Data? {
+        for attempt in 0...Self.retryDelays.count {
+            if attempt > 0 {
+                try? await Task.sleep(for: .seconds(Self.retryDelays[attempt - 1]))
+            }
+            do {
+                let (data, response) = try await session.data(from: url)
+                let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                if status == 200, !data.isEmpty { return data }
+                guard status == 429 || status >= 500 else { return nil }
+            } catch {
+                // 網路錯誤、逾時：再試
+            }
+        }
+        return nil
     }
 
     /// 尺寸分級，讓相近尺寸共用快取
@@ -77,8 +100,7 @@ final class ImagePipeline: @unchecked Sendable {
         let file = diskDirectory.appendingPathComponent(Self.fileName(key))
         var data = try? Data(contentsOf: file)
         if data == nil {
-            guard let (downloaded, response) = try? await session.data(from: urlProvider(ref, bucket)),
-                  (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
+            guard let downloaded = await download(urlProvider(ref, bucket)) else { return nil }
             try? downloaded.write(to: file, options: .atomic)
             data = downloaded
             let shouldTrim = lock.withLock {
