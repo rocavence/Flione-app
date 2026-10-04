@@ -348,3 +348,11 @@
 * **給使用者的說明**：官網、README、Release 說明都寫明 Apple 晶片（M1 以後）選 AppleSilicon、Intel 處理器選 Intel，不確定時看「關於這台 Mac」。
 * **驗證**：Apple Silicon 版在本機啟動正常。這台 Mac 沒有 Rosetta，Intel 版無法在本機啟動；它是通用版裡原本的 Intel 部分，只是拆出來。
 * **本機自用版**（沒有 `FINIFY_PUBLIC`）仍產生一包通用版。
+
+## D47　Smart Radio（Jellyfin）
+
+* **入口**：專輯頁的電台按鈕、專輯的右鍵選單「開始電台」（Library 與 Infinity）、藝人頁與曲風頁的「電台」。
+* **做法**：Jellyfin 的 Instant Mix 接受任何項目當起點（專輯、藝人、曲風、歌曲），先取 50 首開始播放。之後每換一首，如果接下來剩不到 5 首，就用目前這首再取 40 首，去掉最近 300 首內出現過的，接上最多 25 首，電台可以一直播下去。
+* **狀態**：佇列面板頂端顯示「〈名稱〉電台」與「停止電台」。停止只是不再補歌，目前的佇列照常播完。播放別的專輯或歌曲時自動結束電台。
+* **限制**：YouTube Music 暫不支援（`supportsRadio` 為 false，按鈕不顯示）。電台的選歌品質取決於 Jellyfin 的 Instant Mix（主要依曲風與藝人）。心情電台、個人電台留給 V3 的 AI 探索。
+* **驗證**：DEBUG 參數 `-FinifyDemoRadio "<專輯名>"`、`-FinifyDemoRadioJump <位置>`、`-FinifyDemoRadioLog <檔案>`。

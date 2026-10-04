@@ -67,6 +67,9 @@ struct AlbumView: View {
                         FinifyButton(title: "Play", icon: .play, kind: .primary) { app.player.play(tracks) }
                     }
                     FinifyButton(title: "Shuffle", icon: .shuffle) { app.player.play(tracks, shuffled: true) }
+                    if app.repository?.supportsRadio == true {
+                        FinifyIconButton(icon: .radio, label: "Start Radio") { app.player.startRadio(seedID: album.id, name: album.name) }
+                    }
                     FinifyIconButton(icon: .playlist, label: "Add to Queue") { app.player.addToQueue(tracks) }
                     FavoriteButton(itemID: album.id, name: album.name, size: .standard)
                 }

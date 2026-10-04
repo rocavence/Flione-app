@@ -23,6 +23,10 @@ extension AppEnvironment {
             })
         }
         playlistsItem.submenu = submenu
-        return [.separator(), favorite, playlistsItem]
+        guard repository?.supportsRadio == true else { return [.separator(), favorite, playlistsItem] }
+        let radio = ClosureMenuItem("Start Radio") { [weak self] in
+            self?.player.startRadio(seedID: album.id, name: album.name)
+        }
+        return [.separator(), radio, favorite, playlistsItem]
     }
 }

@@ -51,6 +51,24 @@ enum DebugDemo {
         if let name = defaults.string(forKey: "FinifyDemoOpen"), let album = find(name, in: app) {
             openAlbum(album)
         }
+        // -FinifyDemoRadio "<專輯名>"：開始該專輯的電台並打開佇列；-FinifyDemoRadioJump <位置>：幾秒後跳到佇列該位置（驗證自動補歌）
+        if let name = defaults.string(forKey: "FinifyDemoRadio") {
+            for _ in 0..<100 where app.library.albums.isEmpty { try? await Task.sleep(for: .milliseconds(100)) }
+            if let album = find(name, in: app) {
+                app.player.startRadio(seedID: album.id, name: album.name)
+                app.isQueuePresented = true
+                let jump = defaults.integer(forKey: "FinifyDemoRadioJump")
+                if jump > 0 {
+                    try? await Task.sleep(for: .seconds(3))
+                    app.player.jump(toQueuePosition: jump)
+                    if let path = defaults.string(forKey: "FinifyDemoRadioLog") {
+                        let before = app.player.queue.entries.count
+                        try? await Task.sleep(for: .seconds(4))
+                        try? "after jump to \(jump): queue \(before) → \(app.player.queue.entries.count), upcoming \(app.player.queue.upcomingEntries.count), radio=\(app.player.radioName ?? "nil")".write(toFile: path, atomically: true, encoding: .utf8)
+                    }
+                }
+            }
+        }
         if defaults.string(forKey: "FinifyDemoSearch") != nil { app.isSearchPresented = true }
         if defaults.bool(forKey: "FinifyDemoSettings") { app.isSettingsPresented = true }
         if defaults.bool(forKey: "FinifyDumpViews") {

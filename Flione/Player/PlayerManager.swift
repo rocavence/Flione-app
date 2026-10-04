@@ -42,6 +42,9 @@ final class PlayerManager {
     var isShuffled: Bool { queue.isShuffled }
     /// Smart Shuffle：shuffle 之外，每隔幾首插入 Jellyfin Instant Mix 推薦的歌（見 D18）
     private(set) var isSmartShuffle = false
+    /// 電台名稱（專輯、藝人或曲風）；nil 表示不是電台。電台快播完時自動補歌（D47）
+    private(set) var radioName: String?
+    @ObservationIgnored private var refillingRadio = false
     @ObservationIgnored private var refillingSuggestions = false
     private static let suggestEvery = 3
     var repeatMode: RepeatMode { queue.repeatMode }
@@ -239,6 +242,7 @@ final class PlayerManager {
         reportStopped()
         let mode = queue.repeatMode
         isSmartShuffle = false
+        radioName = nil
         queue = PlayQueue(tracks: tracks, startAt: index, shuffled: shuffled)
         queue.repeatMode = mode
         consecutiveFailures = 0
@@ -271,6 +275,37 @@ final class PlayerManager {
                     : String(localized: "“\(album.name)” has no songs to play."))
             }
         }
+    }
+
+    /// 開始電台：以 Instant Mix 產生第一批歌，之後剩不到 5 首時用目前這首再補
+    func startRadio(seedID: String, name: String) {
+        guard let repository else { return }
+        Task {
+            let mix = (try? await repository.radio(seedID: seedID, limit: 50)) ?? []
+            guard !mix.isEmpty else {
+                notice = PlayerNotice(message: String(localized: "Couldn't start “\(name)” radio. Try again in a moment."))
+                return
+            }
+            play(mix)
+            radioName = name
+        }
+    }
+
+    /// 停止電台：目前的佇列照常播完，不再自動補歌
+    func stopRadio() { radioName = nil }
+
+    private func refillRadio() async {
+        guard radioName != nil, !refillingRadio, let track = currentTrack, let repository,
+              queue.upcomingEntries.count < 5 else { return }
+        refillingRadio = true
+        defer { refillingRadio = false }
+        guard let mix = try? await repository.radio(seedID: track.id, limit: 40), radioName != nil else { return }
+        // 最近播過或已在佇列的不再加入
+        let seen = Set(queue.tracks.suffix(300).map(\.id))
+        let fresh = mix.filter { !seen.contains($0.id) }
+        guard !fresh.isEmpty else { return }
+        queue.append(Array(fresh.prefix(25)))
+        refreshNextItem()
     }
 
     private func cancelPending() {
@@ -577,6 +612,7 @@ final class PlayerManager {
         itemEntries.removeAll()
         activeItem = nil
         queue = PlayQueue()
+        radioName = nil
         currentTime = 0
         duration = 0
         notice = nil
@@ -592,6 +628,7 @@ final class PlayerManager {
         reportedTrack = track
         onTrackChange?(track)
         if isSmartShuffle { Task { await refillSuggestions() } }
+        if radioName != nil { Task { await refillRadio() } }
         if let item = player.currentItem { observeFailure(of: item) }
         #if DEBUG || BENCHMARK
         guard reportsPlayback else { return }

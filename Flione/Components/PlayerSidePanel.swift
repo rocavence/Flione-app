@@ -11,6 +11,17 @@ struct PlayerSidePanel: View {
         let shape = RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
         VStack(alignment: .leading, spacing: 0) {
             header
+            if let radio = app.player.radioName, !app.isLyricsPresented {
+                // 電台：佇列會自動補歌；可以停止，目前的佇列照常播完
+                HStack(spacing: Spacing.s8) {
+                    FinifyIcon(.radio, size: .compact).foregroundStyle(FinifyColor.accent)
+                    Text("\(radio) Radio").finifyFont(.bodyEmphasis).foregroundStyle(FinifyColor.ink).lineLimit(1)
+                    Spacer(minLength: 0)
+                    FinifyButton(title: "Stop Radio", kind: .ghost) { app.player.stopRadio() }
+                }
+                .padding(.horizontal, Spacing.s16)
+                .padding(.bottom, Spacing.s8)
+            }
             Group {
                 if app.isLyricsPresented {
                     LyricsPanel()

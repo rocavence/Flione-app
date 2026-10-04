@@ -61,4 +61,5 @@ enum Reicon: String, CaseIterable, Sendable {
     case wandSparkle = "wand-sparkle"
     case screencast = "screencast"
     case screencast2 = "screencast2"
+    case radio = "radio"
 }

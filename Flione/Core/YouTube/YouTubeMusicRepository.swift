@@ -140,6 +140,8 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
     func albums(inGenre genreID: String) async throws -> [Album] { [] }
     func randomTracks(inGenre genreID: String, limit: Int) async throws -> [Track] { [] }
     func instantMix(forTrack trackID: String, limit: Int) async throws -> [Track] { [] }
+    func radio(seedID: String, limit: Int) async throws -> [Track] { [] }
+    var supportsRadio: Bool { false }
 
     func randomTracks(limit: Int) async throws -> [Track] {
         Array(try await likedSongs().shuffled().prefix(limit))

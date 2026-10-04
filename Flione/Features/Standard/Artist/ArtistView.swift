@@ -50,6 +50,9 @@ struct ArtistView: View {
                 HStack(spacing: Spacing.s8) {
                     FinifyButton(title: "Play", icon: .play, kind: .primary) { Task { await playAll(shuffled: false) } }
                     FinifyButton(title: "Shuffle", icon: .shuffle) { Task { await playAll(shuffled: true) } }
+                    if app.repository?.supportsRadio == true {
+                        FinifyButton(title: "Radio", icon: .radio) { app.player.startRadio(seedID: artistID, name: name) }
+                    }
                 }
                 .padding(.top, Spacing.s8)
             }

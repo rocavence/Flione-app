@@ -18,11 +18,16 @@ struct GenreView: View {
                         if case .loaded(let list) = albums {
                             Text("\(list.count) albums").finifyFont(.body).foregroundStyle(FinifyColor.muted)
                         }
-                        FinifyButton(title: "Shuffle", icon: .shuffle, kind: .primary) {
-                            Task {
-                                if let tracks = try? await app.repository?.randomTracks(inGenre: genre.id, limit: 200) {
-                                    app.player.play(tracks)
+                        HStack(spacing: Spacing.s8) {
+                            FinifyButton(title: "Shuffle", icon: .shuffle, kind: .primary) {
+                                Task {
+                                    if let tracks = try? await app.repository?.randomTracks(inGenre: genre.id, limit: 200) {
+                                        app.player.play(tracks)
+                                    }
                                 }
+                            }
+                            if app.repository?.supportsRadio == true {
+                                FinifyButton(title: "Radio", icon: .radio) { app.player.startRadio(seedID: genre.id, name: genre.name) }
                             }
                         }
                         .padding(.top, Spacing.s8)

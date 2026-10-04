@@ -17,6 +17,16 @@
         }
       }
     },
+    "%@ Radio": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 電台"
+          }
+        }
+      }
+    },
     "%@ on %@": {
       "localizations": {
         "zh-Hant": {
@@ -1042,6 +1052,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "無法儲存「%@」。請檢查與音樂伺服器的連線。"
+          }
+        }
+      }
+    },
+    "Couldn't start “%@” radio. Try again in a moment.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法開始「%@」電台，請稍後再試。"
           }
         }
       }
@@ -2473,6 +2493,16 @@
         }
       }
     },
+    "Radio": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "電台"
+          }
+        }
+      }
+    },
     "Rainbow": {
       "localizations": {
         "zh-Hant": {
@@ -3163,6 +3193,16 @@
         }
       }
     },
+    "Start Radio": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開始電台"
+          }
+        }
+      }
+    },
     "Start in the view you used last.": {
       "localizations": {
         "zh-Hant": {
@@ -3179,6 +3219,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "停止投放"
+          }
+        }
+      }
+    },
+    "Stop Radio": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止電台"
           }
         }
       }

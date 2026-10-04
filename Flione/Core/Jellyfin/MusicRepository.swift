@@ -32,6 +32,9 @@ protocol MusicRepository: Sendable {
     func randomTracks(limit: Int) async throws -> [Track]
     /// Jellyfin 的 Instant Mix：與這首歌相似的曲目（Smart Shuffle 用）
     func instantMix(forTrack trackID: String, limit: Int) async throws -> [Track]
+    /// 電台：以專輯、藝人、曲風或歌曲為起點產生連續播放（D47）。不支援時為空陣列
+    func radio(seedID: String, limit: Int) async throws -> [Track]
+    var supportsRadio: Bool { get }
 
     func playlists() async throws -> [Playlist]
     func playlistTracks(_ playlistID: String) async throws -> [Track]
@@ -147,6 +150,18 @@ final class JellyfinRepository: MusicRepository {
         ])
         return response.items.map { $0.toTrack() }.filter { $0.id != trackID }
     }
+
+    /// Instant Mix 接受任何項目當起點（專輯、藝人、曲風、歌曲）
+    func radio(seedID: String, limit: Int) async throws -> [Track] {
+        let response: ItemsResponse = try await client.get("/Items/\(seedID)/InstantMix", query: [
+            URLQueryItem(name: "UserId", value: session.userID),
+            URLQueryItem(name: "Limit", value: "\(limit)"),
+            URLQueryItem(name: "Fields", value: Self.trackFields),
+        ])
+        return response.items.map { $0.toTrack() }
+    }
+
+    var supportsRadio: Bool { true }
 
     func popularTracks(byArtist artistID: String, limit: Int) async throws -> [Track] {
         try await items([
