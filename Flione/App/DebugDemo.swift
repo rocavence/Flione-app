@@ -48,6 +48,11 @@ enum DebugDemo {
                 app.player.seek(to: first.duration - seconds)
             }
         }
+        // -FinifyDemoQueue YES：先打開佇列面板（檢查窄視窗的版面；與 -FinifyDemoOpen 一起用時，2 秒後才打開專輯）
+        if defaults.bool(forKey: "FinifyDemoQueue") {
+            app.isQueuePresented = true
+            try? await Task.sleep(for: .seconds(2))
+        }
         if let name = defaults.string(forKey: "FinifyDemoOpen"), let album = find(name, in: app) {
             openAlbum(album)
         }
@@ -97,6 +102,17 @@ enum DebugDemo {
     /// -FinifyDemoSwitchTo coverFlow|infinity|modern -FinifyDemoSwitchAfter <秒>：啟動後幾秒切換模式，用來重現切換時的問題
     static func scheduleModeSwitch(app: AppEnvironment) {
         scheduleSnapshot()
+        // -FinifyWindowSize 1040x680：把主視窗設成這個大小（檢查最小視窗的版面）
+        if let raw = defaults.string(forKey: "FinifyWindowSize") {
+            let parts = raw.split(separator: "x").compactMap { Double($0) }
+            if parts.count == 2 {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(300))
+                    NSApp.windows.first { $0.identifier?.rawValue.hasPrefix("main") == true || $0.title == "Flione" }?
+                        .setContentSize(NSSize(width: parts[0], height: parts[1]))
+                }
+            }
+        }
         // -FinifyDemoSwitchSource youtube|jellyfin：幾秒後切換音樂來源（-FinifyDemoSwitchAfter 秒數）
         if let raw = defaults.string(forKey: "FinifyDemoSwitchSource"), let source = MusicSource(rawValue: raw) {
             let delay = defaults.double(forKey: "FinifyDemoSwitchAfter")

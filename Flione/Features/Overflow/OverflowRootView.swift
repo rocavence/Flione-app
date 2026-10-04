@@ -34,6 +34,9 @@ struct OverflowRootView: View {
     private var magic: MagicSort? { MagicSort(rawValue: magicRaw) }
     @State private var openAlbum: Album?
     @State private var scrollToPlaying = 0
+    /// 頂部列寬度；窄視窗（最小 1040）時文字按鈕只留圖示、搜尋框縮小，避免控制項擠到視窗按鈕下或超出右邊
+    @State private var barWidth: CGFloat = 1400
+    private var compactBar: Bool { barWidth < 1240 }
 
     private var density: Binding<WallDensity> {
         Binding { WallDensity(rawValue: densityRaw) ?? WallDensity.auto(forHeight: browseSize.height, bottomInset: wallBottomInset) } set: { densityRaw = $0.rawValue }
@@ -58,6 +61,9 @@ struct OverflowRootView: View {
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: openAlbum)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isQueuePresented)
         .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.isLyricsPresented)
+        // 專輯面板與佇列／歌詞面板一次只開一個：同時開時佇列會蓋住專輯面板的按鈕與曲目（窄視窗特別明顯）
+        .onChange(of: openAlbum) { if openAlbum != nil { app.isQueuePresented = false; app.isLyricsPresented = false } }
+        .onChange(of: app.isQueuePresented || app.isLyricsPresented) { _, open in if open { openAlbum = nil } }
         .task { await app.library.refreshIfNeeded() }
         .onChange(of: app.library.albums, initial: true) { resort() }
         #if DEBUG
@@ -200,7 +206,7 @@ struct OverflowRootView: View {
                 HStack(spacing: Spacing.s4) {
                     FinifyIcon(.gps, size: .compact)
                     // 文字放大（睫狀肌舒適）時頂部列較擠，維持一行不換行
-                    Text("Now Playing").finifyFont(.caption).lineLimit(1).fixedSize()
+                    if !compactBar { Text("Now Playing").finifyFont(.caption).lineLimit(1).fixedSize() }
                 }
                 .foregroundStyle(FinifyColor.Overflow.muted)
                 .padding(.horizontal, Spacing.s12)
@@ -219,11 +225,12 @@ struct OverflowRootView: View {
 
             Spacer()
             SearchTrigger { app.isSearchPresented = true }
-                .frame(width: 260)
+                .frame(width: compactBar ? 180 : 260)
             ViewControls()
         }
         .padding(.leading, Spacing.s16)
         .frame(height: ViewControls.barHeight)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { barWidth = $0 }
         .background(LinearGradient(colors: [FinifyColor.Ocean.abyss.opacity(0.75), .clear], startPoint: .top, endPoint: .bottom).allowsHitTesting(false))
     }
 
@@ -232,7 +239,7 @@ struct OverflowRootView: View {
         Button { autoScroll.toggle() } label: {
             HStack(spacing: Spacing.s4) {
                 FinifyIcon(.infinite, weight: autoScroll ? .filled : .outline, size: .compact)
-                Text("Auto-scroll").finifyFont(.caption)
+                if !compactBar { Text("Auto-scroll").finifyFont(.caption).lineLimit(1).fixedSize() }
             }
             .foregroundStyle(autoScroll ? FinifyColor.accent : FinifyColor.Overflow.muted)
             .padding(.horizontal, Spacing.s12)

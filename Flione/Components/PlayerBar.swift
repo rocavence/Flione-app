@@ -187,7 +187,7 @@ struct QueuePanel: View {
                         TrackRow(track: current, showsArtwork: true, onPlay: { player.togglePlayPause() }, onOpenAlbum: { onOpenAlbum(current.albumID) })
                     }
                     if !player.queue.upcoming.isEmpty {
-                        label("Next").padding(.top, Spacing.s16)
+                        label("Next up").padding(.top, Spacing.s16)
                         ForEach(Array(player.queue.upcomingEntries.enumerated()), id: \.element.id) { offset, entry in
                             let track = entry.track
                             TrackRow(track: track, showsArtwork: true, suggested: entry.suggested,
@@ -241,7 +241,7 @@ struct QueuePanel: View {
         } isTargeted: { isTargeted = $0 }
     }
 
-    private func label(_ text: String) -> some View {
+    private func label(_ text: LocalizedStringResource) -> some View {
         Text(text)
             .finifyFont(.micro)
             .textCase(.uppercase)

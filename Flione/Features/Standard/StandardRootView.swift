@@ -194,6 +194,7 @@ struct SearchTrigger: View {
                 FinifyIcon(.search, size: .compact)
                 Text("Search your music")
                     .finifyFont(.body)
+                    .lineLimit(1)
                 Spacer()
                 Text("⌘K")
                     .finifyFont(.caption)
