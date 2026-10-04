@@ -93,11 +93,16 @@ final class LocalPlayCounts {
         save()
     }
 
-    /// 開關 iCloud 同步。打開時把這台的紀錄寫上去、讀回其他 Mac 的；關掉時只用這台的
+    /// 開關 iCloud 同步。打開時把這台的紀錄寫上去、讀回其他 Mac 的；
+    /// 關掉時刪除這台在 iCloud 的檔案（紀錄只留在這台），之後只用這台的
     func setSyncing(_ enabled: Bool) {
         UserDefaults.standard.set(enabled, forKey: Self.syncKey)
         isSyncing = enabled
-        if enabled { save() }
+        if enabled {
+            save()
+        } else if let cloudFolder {
+            try? FileManager.default.removeItem(at: cloudFolder.appending(path: Self.deviceFileName))
+        }
         reloadCloud()
     }
 

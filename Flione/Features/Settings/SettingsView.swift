@@ -688,7 +688,7 @@ private struct AccountSettings: View {
             }
             SettingRow(title: "Sync play counts with iCloud",
                        detail: LocalPlayCounts.isCloudAvailable
-                           ? "YouTube Music doesn't keep play counts, so Flione counts them on this Mac. Turn this on to add up the counts from all your Macs through iCloud Drive."
+                           ? "YouTube Music doesn't keep play counts, so Flione counts them on this Mac. Turn this on to add up the counts from all your Macs through iCloud Drive. Turning it off removes this Mac's copy from iCloud."
                            : "Turn on iCloud Drive in System Settings to sync play counts between your Macs.") {
                 Toggle(isOn: Binding(get: { app.youtubePlays.isSyncing }, set: { app.youtubePlays.setSyncing($0) })) {
                     Text("Sync play counts with iCloud")

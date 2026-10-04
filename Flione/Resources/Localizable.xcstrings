@@ -14332,40 +14332,6 @@
         }
       }
     },
-    "YouTube Music doesn't keep play counts, so Flione counts them on this Mac. Turn this on to add up the counts from all your Macs through iCloud Drive.": {
-      "localizations": {
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "YouTube Music 不提供播放次數，由 Flione 在這台 Mac 記錄。打開後會透過 iCloud 雲碟，把你每台 Mac 的次數加在一起。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "YouTube Music は再生回数を記録しないため、Flione がこの Mac で記録します。オンにすると、iCloud Drive を通じてすべての Mac の回数を合計します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "YouTube Music은 재생 횟수를 제공하지 않으므로 Flione이 이 Mac에서 기록합니다. 켜면 iCloud Drive를 통해 모든 Mac의 횟수를 합산합니다."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "YouTube Music no guarda las reproducciones, así que Flione las cuenta en este Mac. Actívalo para sumar las de todos tus Mac mediante iCloud Drive."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O YouTube Music não guarda as reproduções, então o Flione conta neste Mac. Ative para somar as de todos os seus Macs pelo iCloud Drive."
-          }
-        }
-      }
-    },
     "Turn on iCloud Drive in System Settings to sync play counts between your Macs.": {
       "localizations": {
         "zh-Hant": {
@@ -14430,6 +14396,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conta"
+          }
+        }
+      }
+    },
+    "YouTube Music doesn't keep play counts, so Flione counts them on this Mac. Turn this on to add up the counts from all your Macs through iCloud Drive. Turning it off removes this Mac's copy from iCloud.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Music 不提供播放次數，由 Flione 在這台 Mac 記錄。打開後會透過 iCloud 雲碟，把你每台 Mac 的次數加在一起；關掉時會刪除這台在 iCloud 上的紀錄。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Music は再生回数を記録しないため、Flione がこの Mac で記録します。オンにすると、iCloud Drive を通じてすべての Mac の回数を合計します。オフにすると、この Mac の記録は iCloud から削除されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Music은 재생 횟수를 제공하지 않으므로 Flione이 이 Mac에서 기록합니다. 켜면 iCloud Drive를 통해 모든 Mac의 횟수를 합산합니다. 끄면 이 Mac의 기록이 iCloud에서 삭제됩니다."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Music no guarda las reproducciones, así que Flione las cuenta en este Mac. Actívalo para sumar las de todos tus Mac mediante iCloud Drive. Al desactivarlo, se borra de iCloud la copia de este Mac."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O YouTube Music não guarda as reproduções, então o Flione conta neste Mac. Ative para somar as de todos os seus Macs pelo iCloud Drive. Ao desativar, a cópia deste Mac é removida do iCloud."
           }
         }
       }

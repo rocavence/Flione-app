@@ -387,4 +387,4 @@
 
 * **來源**：YouTube Music 不提供每首歌的播放次數，由 Flione 在這台 Mac 記錄（`Application Support/app.finify.Finify/youtube-plays.json`）。播放超過 30 秒（短於 1 分鐘的歌聽一半）的那一刻算一次，不等播完；同一首重播算新的一次。
 * **顯示**：與 Jellyfin 的播放次數同一欄（歌曲列的愛心左邊）。從開始記錄那天起算，以前的播放不在裡面。
-* **iCloud 同步**（設定 → 音樂來源 → YouTube Music，預設關閉）：每台 Mac 只寫自己的檔案到 iCloud 雲碟 `Flione/YouTube Plays/<電腦名稱> (<id>).json`，顯示時加總（次數相加、最後播放取最新）。各寫各的，不會互相蓋掉。用 iCloud 雲碟的檔案而不是 CloudKit：CloudKit 要付費的開發者帳號，公開版的簽章也不能用。
+* **iCloud 同步**（設定 → 音樂來源 → YouTube Music，預設關閉）：每台 Mac 只寫自己的檔案到 iCloud 雲碟 `Flione/YouTube Plays/<電腦名稱> (<id>).json`，顯示時加總（次數相加、最後播放取最新）。各寫各的，不會互相蓋掉。關掉時刪除這台在 iCloud 的檔案，紀錄只留在本機。用 iCloud 雲碟的檔案而不是 CloudKit：CloudKit 要付費的開發者帳號，公開版的簽章也不能用。

@@ -60,5 +60,10 @@ final class LocalPlayCountsSyncTests: XCTestCase {
         // 打開時把這台的紀錄寫上去（自己的檔案）
         let files = try FileManager.default.contentsOfDirectory(atPath: cloud.path)
         XCTAssertEqual(files.count, 2)
+
+        // 關掉時刪除這台的檔案，其他 Mac 的留著；這台的紀錄仍在本機
+        counts.setSyncing(false)
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: cloud.path), ["Other Mac (abcd1234).json"])
+        XCTAssertEqual(counts.entry(for: "v1")?.count, 1)
     }
 }
