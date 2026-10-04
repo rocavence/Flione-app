@@ -249,12 +249,12 @@ struct OverflowRootView: View {
                 .finifyFont(.caption)
                 .foregroundStyle(FinifyColor.Overflow.muted)
         }
+        // 與 Modern 的排序同一套：macOS 原生的無邊框下拉選單，滑過才有淡淡的圓角底
         .menuStyle(.borderlessButton)
         .tint(FinifyColor.Overflow.muted)
         .fixedSize()
-        .padding(.horizontal, Spacing.s12)
+        .hoverBezel()
         .frame(height: ViewControls.controlHeight)
-        .modifier(TopBarSurface(overflow: true, shape: Capsule(), fallback: FinifyColor.Overflow.control))
         .accessibilityLabel(Text("Sort albums, \(sort.title)"))
         .transition(Self.reveal(0))
 

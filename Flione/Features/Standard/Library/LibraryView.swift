@@ -64,7 +64,8 @@ struct LibraryView: View {
             }
             .padding(.horizontal, Spacing.s32)
             .padding(.top, Spacing.s32)
-            .padding(.bottom, Spacing.s16)
+            // 標題列與內容之間多留一點：右側有切換鈕時不會貼著第一排頭像
+            .padding(.bottom, Spacing.s32)
 
             if app.library.state == .failed && app.library.albums.isEmpty {
                 MessageState(title: "Can't reach your music server.", message: "Your library will appear as soon as the connection is back.",

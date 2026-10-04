@@ -70,12 +70,14 @@ private struct SectionActionButton: View {
 /// 無邊框按鈕與選單的 hover：與 macOS 工具列按鈕一樣，滑過時出現淡淡的圓角底
 private struct HoverBezel: ViewModifier {
     @State private var hovering = false
+    @Environment(\.overflowStyle) private var overflow
 
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, Spacing.s8)
             .frame(height: 26)
-            .background(hovering ? FinifyColor.surface : .clear, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .background(hovering ? (overflow ? FinifyColor.Overflow.controlHover : FinifyColor.surface) : .clear,
+                        in: RoundedRectangle(cornerRadius: 6, style: .continuous))
             .onHover { hovering = $0 }
             .animation(Motion.micro, value: hovering)
     }
