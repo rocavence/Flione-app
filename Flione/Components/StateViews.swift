@@ -47,27 +47,22 @@ struct SkeletonBlock: View {
 
 /// 區塊標題右側的動作（例如「重新推薦」「顯示全部」）：與旁邊的左右箭頭（FinifyIconButton）同一套樣式，
 /// 平常沒有框也沒有底，只有圖示與文字；hover 時出現同樣的圓角底色
+/// 段落標題右側的動作（例如「重新推薦」）：macOS 原生的無邊框按鈕，與排序選單同一種樣式
 private struct SectionActionButton: View {
     let title: LocalizedStringResource
     let icon: Reicon?
     let action: () -> Void
-    @State private var hovering = false
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
-                if let icon { FinifyIcon(icon, size: .compact) }
-                Text(title).finifyFont(.bodyEmphasis)
+            HStack(spacing: Spacing.s4) {
+                if let icon { FinifyIcon(icon, size: .compact).scaleEffect(0.85) }
+                Text(title)
             }
-            .foregroundStyle(FinifyColor.ink.opacity(hovering ? 1 : 0.72))
-            .padding(.horizontal, Spacing.s8)
-            .frame(height: 28)
-            .background(hovering ? FinifyColor.surface : .clear, in: RoundedRectangle(cornerRadius: Radius.ui, style: .continuous))
-            .contentShape(Rectangle())
+            .finifyFont(.caption)
         }
-        .buttonStyle(PressScaleStyle())
-        .onHover { hovering = $0 }
-        .animation(Motion.micro, value: hovering)
+        .buttonStyle(.borderless)
+        .foregroundStyle(.tint)
     }
 }
 

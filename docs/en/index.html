@@ -269,12 +269,16 @@
   .item p{font-size:15px;color:var(--muted)}
   .item p b{color:var(--ink);font-weight:500}
   #features .cols{gap:16px}
+  #sources .cols{gap:16px}
+  #sources .item{background:var(--stage);border-radius:16px;padding:28px 26px}
   #features .item{border:.5px solid rgba(17,17,17,.16);border-radius:16px;padding:24px 22px}
   .logo{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
   .logo.jf{background:linear-gradient(135deg,#aa5cc3,#00a4dc)}
   .logo.yt{background:#ff0033}
-  .swatches{display:flex;gap:5px;margin-top:12px}
-  .swatches i{width:14px;height:14px;border-radius:50%;display:block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}
+  /* 配色預覽：色碼取自 ColorTheme.swift，深色底＋互動色圓點 */
+  .swatches{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+  .swatches i{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--bg),var(--bg2));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12)}
+  .swatches i::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac)}
   .badge{display:inline-block;margin-top:10px;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--orange);border:1px solid currentColor;border-radius:5px;padding:1px 7px}
 
   /* FAQ */
@@ -514,7 +518,7 @@
   <div class="wrap">
     <h2 class="statement" data-i="feat.h2">Sounds good, looks good.<span class="dim">A native Mac app. 1,400+ albums scroll smoothly.</span></h2>
     <div class="cols">
-      <div class="item"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5S14 15 15.5 15H18a3 3 0 0 0 3-3 9 9 0 0 0-9-9Z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg></div><p data-i="feat.c1"><b>7 color themes.</b> Across all three views, light and dark.</p><div class="swatches"><i style="background:#0a2a67"></i><i style="background:#1a1c20"></i><i style="background:#141a3a"></i><i style="background:#1f2f5c"></i><i style="background:#0f3b33"></i><i style="background:#3d1422"></i><i style="background:#cfe3f5"></i></div></div>
+      <div class="item"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5S14 15 15.5 15H18a3 3 0 0 0 3-3 9 9 0 0 0-9-9Z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg></div><p data-i="feat.c1"><b>7 color themes.</b> Across all three views, light and dark.</p><div class="swatches"><i title="Deep Ocean" style="--bg:#0A2A67;--bg2:#061426;--ac:#2F6BFF"></i><i title="Silence" style="--bg:#1A1A1D;--bg2:#0E0E10;--ac:#8E8E93"></i><i title="Midnight" style="--bg:#181C25;--bg2:#0B0D12;--ac:#7C9CFF"></i><i title="Aurora" style="--bg:#21175A;--bg2:#0D0A1E;--ac:#8B6CFF"></i><i title="Emerald" style="--bg:#0A3328;--bg2:#041410;--ac:#22B07D"></i><i title="Bordeaux" style="--bg:#3A1124;--bg2:#16080F;--ac:#E14F7B"></i><i title="Glacier" style="--bg:#0E3440;--bg2:#081418;--ac:#2BA9D6"></i></div></div>
       <div class="item"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M7 4.5v15l12-7.5-12-7.5Z"/></svg></div><p data-i="feat.c2"><b>Press play, it plays.</b> Instant response; tracks load in the background.</p></div>
       <div class="item"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><p data-i="feat.c3"><b>At home on macOS.</b> Media keys, Control Center, menu bar, mini player.</p></div>
       <div class="item"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 18V6l11-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></div><p data-i="feat.c4"><b>Synced lyrics.</b> They scroll with the song.</p></div>
