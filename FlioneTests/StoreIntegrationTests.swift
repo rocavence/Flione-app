@@ -18,9 +18,7 @@ final class StoreIntegrationTests: XCTestCase {
         for leftover in try await repository.playlists() where leftover.name.hasPrefix("Finify Test") {
             try await repository.deletePlaylist(leftover.id)
         }
-        let albums = try await repository.allAlbums()
-        let album = try XCTUnwrap(albums.first { $0.name == "The Dark Side of the Moon" })
-        let t = try await repository.tracks(inAlbum: album.id)
+        let t = try await IntegrationFixture.album(from: repository).tracks
         let created = try await store.create(name: "Finify Test (order)", tracks: Array(t.prefix(4)))
         let playlist = try XCTUnwrap(created)
 
@@ -39,7 +37,7 @@ final class StoreIntegrationTests: XCTestCase {
         let store = FavoritesStore()
         store.attach(repository: repository)
         try await Task.sleep(for: .seconds(1))
-        let trackID = "5e272fb46db8b120c59ecb607517fc6d"
+        let trackID = try await IntegrationFixture.album(from: repository).tracks[0].id
         let original = store.contains(trackID)
 
         store.toggle(trackID); store.toggle(trackID); store.toggle(trackID)

@@ -15,18 +15,19 @@ final class RepositoryIntegrationTests: XCTestCase {
 
     func testLoadsAlbumsAndTracks() async throws {
         let albums = try await repository.allAlbums()
-        XCTAssertGreaterThan(albums.count, 100)
-        let dsotm = try XCTUnwrap(albums.first { $0.name == "The Dark Side of the Moon" })
-        XCTAssertEqual(dsotm.artistName, "Pink Floyd")
-        let tracks = try await repository.tracks(inAlbum: dsotm.id)
-        XCTAssertEqual(tracks.first?.name, "Speak to Me/Breathe")
-        XCTAssertEqual(tracks.count, 9)
+        XCTAssertGreaterThan(albums.count, 0)
+        let pick = try await IntegrationFixture.album(from: repository)
+        // 曲目都屬於這張專輯、有名稱與長度；有音軌編號時依序排列
+        XCTAssertTrue(pick.tracks.allSatisfy { $0.albumID == pick.album.id })
+        XCTAssertTrue(pick.tracks.allSatisfy { !$0.name.isEmpty && $0.duration > 0 })
+        let numbers = pick.tracks.compactMap { track in track.trackNumber.map { (track.discNumber ?? 1) * 1000 + $0 } }
+        XCTAssertEqual(numbers, numbers.sorted())
     }
 
     func testSearchGroupsResults() async throws {
-        let results = try await repository.search("Radiohead")
-        XCTAssertFalse(results.albums.isEmpty)
-        XCTAssertTrue(results.albums.contains { $0.name == "OK Computer" })
+        let pick = try await IntegrationFixture.album(from: repository)
+        let results = try await repository.search(pick.album.name)
+        XCTAssertTrue(results.albums.contains { $0.id == pick.album.id })
     }
 
     func testHomeShelves() async throws {
@@ -38,20 +39,23 @@ final class RepositoryIntegrationTests: XCTestCase {
     }
 
     func testArtistPage() async throws {
-        let artists = try await repository.allArtists()
-        let floyd = try XCTUnwrap(artists.first { $0.name == "Pink Floyd" })
-        let albums = try await repository.albums(byArtist: floyd.id)
-        XCTAssertTrue(albums.contains { $0.name == "The Dark Side of the Moon" })
-        let popular = try await repository.popularTracks(byArtist: floyd.id, limit: 5)
+        let pick = try await IntegrationFixture.album(from: repository)
+        let artistID = try XCTUnwrap(pick.album.artistID)
+        let albums = try await repository.albums(byArtist: artistID)
+        XCTAssertTrue(albums.contains { $0.id == pick.album.id })
+        let popular = try await repository.popularTracks(byArtist: artistID, limit: 5)
         XCTAssertFalse(popular.isEmpty)
     }
 
     func testReadsExistingPlaylists() async throws {
-        let playlists = try await repository.playlists()
-        let jazz = try XCTUnwrap(playlists.first { $0.name == "Jazz Masters" })
-        let tracks = try await repository.playlistTracks(jazz.id)
-        XCTAssertFalse(tracks.isEmpty)
-        XCTAssertNotNil(tracks.first?.playlistItemID)
+        let playlists = try await repository.playlists().filter { !$0.name.hasPrefix("Finify Test") }
+        for playlist in playlists {
+            let tracks = try await repository.playlistTracks(playlist.id)
+            guard !tracks.isEmpty else { continue }
+            XCTAssertNotNil(tracks.first?.playlistItemID)
+            return
+        }
+        throw XCTSkip("沒有含歌曲的播放清單")
     }
 
     /// 只在暫時建立的 playlist 上測試寫入，結束時一定刪除，不動使用者原有的 playlist
@@ -61,9 +65,7 @@ final class RepositoryIntegrationTests: XCTestCase {
         for leftover in try await repository.playlists() where leftover.name.hasPrefix("Finify Test") {
             try await repository.deletePlaylist(leftover.id)
         }
-        let albums = try await repository.allAlbums()
-        let dsotm = try XCTUnwrap(albums.first { $0.name == "The Dark Side of the Moon" })
-        let t = try await repository.tracks(inAlbum: dsotm.id).map(\.id)
+        let t = try await IntegrationFixture.album(from: repository).tracks.map(\.id)
 
         let id = try await repository.createPlaylist(name: "Finify Test (temporary)", trackIDs: [t[0], t[1]])
         defer { Task { try? await repository.deletePlaylist(id) } }
