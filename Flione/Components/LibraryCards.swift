@@ -226,8 +226,11 @@ struct PlaylistCard: View {
             ArtworkView(artwork: playlist.artwork, interactive: true, fallbackTitle: playlist.name)
             VStack(alignment: .leading, spacing: 2) {
                 Text(playlist.name).finifyFont(.subheading).foregroundStyle(FinifyColor.ink).lineLimit(1)
-                Text("\(playlist.trackCount) songs")
-                    .finifyFont(.caption).foregroundStyle(FinifyColor.muted)
+                // YouTube 的清單列表不提供曲目數：不知道時不顯示，避免寫成「0 首歌」
+                if playlist.trackCount > 0 {
+                    Text("\(playlist.trackCount) songs")
+                        .finifyFont(.caption).foregroundStyle(FinifyColor.muted)
+                }
             }
         }
         .contentShape(Rectangle())

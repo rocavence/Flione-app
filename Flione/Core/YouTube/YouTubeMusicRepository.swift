@@ -8,6 +8,7 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
 
     /// 喜歡的歌曲：歌曲列表、最愛、隨機播放共用，載入一次
     private let likedCache = LikedCache()
+    private let librarySongsCache = LikedCache()
 
     // MARK: - 音樂庫
 
@@ -91,7 +92,7 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
     // MARK: - 歌曲、搜尋
 
     func songs(offset: Int, limit: Int) async throws -> (tracks: [Track], total: Int) {
-        let all = try await likedSongs()
+        let all = try await librarySongs()
         return (Array(all.dropFirst(offset).prefix(limit)), all.count)
     }
 
@@ -210,10 +211,22 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
 
     // MARK: - 共用
 
+    /// 「喜歡的音樂」（按讚的歌）：最愛與愛心用這個。
+    /// 不能用音樂庫的「歌曲」（FEmusic_liked_videos）：那是收藏的專輯裡所有的歌，會讓整張專輯都變成最愛
     private func likedSongs() async throws -> [Track] {
         if let cached = await likedCache.tracks { return cached }
-        let tracks = try await pages(browseId: "FEmusic_liked_videos", item: "musicResponsiveListItemRenderer").compactMap { Parse.track($0) }
+        // 已下架的影片沒有標題，留在清單裡會是一列空白
+        let tracks = try await pages(browseId: "VLLM", item: "musicResponsiveListItemRenderer").compactMap { Parse.track($0) }
+            .filter { !$0.name.trimmingCharacters(in: .whitespaces).isEmpty }
         await likedCache.set(tracks)
+        return tracks
+    }
+
+    /// 音樂庫的「歌曲」：收藏的專輯與按讚的歌裡所有的歌（「歌曲」頁）
+    private func librarySongs() async throws -> [Track] {
+        if let cached = await librarySongsCache.tracks { return cached }
+        let tracks = try await pages(browseId: "FEmusic_liked_videos", item: "musicResponsiveListItemRenderer").compactMap { Parse.track($0) }
+        await librarySongsCache.set(tracks)
         return tracks
     }
 
@@ -222,9 +235,16 @@ final class YouTubeMusicRepository: MusicRepository, @unchecked Sendable {
         var json = try await InnerTube.post("browse", body: ["browseId": browseId])
         var items = Parse.all(item, in: json)
         for _ in 0..<20 {
-            guard let token = Parse.continuation(json) else { break }
-            json = try await InnerTube.post("browse", continuation: token)
-            items += Parse.all(item, in: json["continuationContents"] ?? [:])
+            if let token = Parse.continuation(json) {
+                json = try await InnerTube.post("browse", continuation: token)
+                items += Parse.all(item, in: json["continuationContents"] ?? [:])
+            } else if let token = Parse.continuationCommand(json) {
+                // 較新的分頁格式（播放清單，例如「喜歡的音樂」）：token 放在 body，下一頁在 onResponseReceivedActions
+                json = try await InnerTube.post("browse", body: ["continuation": token])
+                items += Parse.all(item, in: json["onResponseReceivedActions"] ?? [:])
+            } else {
+                break
+            }
         }
         return items
     }
@@ -367,6 +387,10 @@ enum Parse {
 
     static func continuation(_ json: [String: Any]) -> String? {
         (find("nextContinuationData", in: json) as? [String: Any])?["continuation"] as? String
+    }
+
+    static func continuationCommand(_ json: [String: Any]) -> String? {
+        (find("continuationCommand", in: json) as? [String: Any])?["token"] as? String
     }
 
     /// 年份單獨一段：英文是「2024」，中文、日文是「2024年」，韓文是「2024년」

@@ -13609,6 +13609,74 @@
           }
         }
       }
+    },
+    "No genres yet.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "還沒有曲風"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ジャンルはまだありません"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 장르가 없습니다"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay géneros"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ainda não há gêneros"
+          }
+        }
+      }
+    },
+    "Genres come from your music server's tags. YouTube Music doesn't share them.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "曲風來自音樂伺服器上的標籤，YouTube Music 不提供。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ジャンルは音楽サーバのタグから取得します。YouTube Music では提供されていません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장르는 음악 서버의 태그에서 가져옵니다. YouTube Music은 장르를 제공하지 않습니다."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los géneros vienen de las etiquetas de tu servidor de música. YouTube Music no los comparte."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os gêneros vêm das tags do seu servidor de música. O YouTube Music não os fornece."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

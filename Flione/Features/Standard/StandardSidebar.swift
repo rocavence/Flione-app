@@ -34,7 +34,8 @@ struct StandardSidebar: View {
                 item("Albums", icon: .cd, tab: .library(.albums))
                 item("Artists", icon: .user, tab: .library(.artists))
                 item("Songs", icon: .musicNote, tab: .library(.songs))
-                item("Genres", icon: .layers, tab: .library(.genres))
+                // YouTube Music 不提供曲風
+                if app.source != .youtube { item("Genres", icon: .layers, tab: .library(.genres)) }
                 item("Playlists", icon: .playlist2, tab: .library(.playlists))
 
                 header("Smart")

@@ -225,6 +225,9 @@ private struct GenreGrid: View {
                 MessageState(title: "Can't load genres.", message: "Check your connection to the music server.", icon: .wifiOff,
                              primary: ("Retry", { Task { await load() } }))
                 Spacer()
+            case .loaded(let list) where list.isEmpty:
+                MessageState(title: "No genres yet.", message: "Genres come from your music server's tags. YouTube Music doesn't share them.", icon: .layers)
+                Spacer()
             case .loaded(let list):
                 CollectionGrid(items: list, captionHeight: 28) { genre in
                     GenreCard(genre: genre) { router.open(.genre(genre)) }
