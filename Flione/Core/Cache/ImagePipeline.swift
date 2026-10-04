@@ -14,7 +14,16 @@ final class CGImageBox: @unchecked Sendable {
 final class ImagePipeline: @unchecked Sendable {
     /// S3 建議值：捲動萬張專輯時記憶體穩定在可接受範圍
     static let memoryBudgetMB = 100
-    static let diskBudgetMB = 500
+    /// 磁碟快取上限（設定 → 一般 → 封面快取），預設 400 MB（D45）
+    static let diskLimitKey = "FinifyArtworkCacheMB"
+    static let diskLimitOptions = [200, 400, 800, 1500]
+    static var diskBudgetMB: Int {
+        let value = UserDefaults.standard.integer(forKey: diskLimitKey)
+        return value > 0 ? value : 400
+    }
+    /// 每新下載這麼多張就檢查一次上限，不只在啟動時
+    private static let trimEvery = 100
+    private var writesSinceTrim = 0
 
     private let memory = NSCache<NSString, CGImageBox>()
     private let diskDirectory: URL
@@ -72,6 +81,13 @@ final class ImagePipeline: @unchecked Sendable {
                   (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
             try? downloaded.write(to: file, options: .atomic)
             data = downloaded
+            let shouldTrim = lock.withLock {
+                writesSinceTrim += 1
+                guard writesSinceTrim >= Self.trimEvery else { return false }
+                writesSinceTrim = 0
+                return true
+            }
+            if shouldTrim { Self.trimDiskNow() }
         }
         guard let data else { return nil }
         guard let image = Self.decode(data, maxPixelSize: bucket) else {
@@ -142,6 +158,11 @@ final class ImagePipeline: @unchecked Sendable {
         try? FileManager.default.createDirectory(at: diskDirectoryURL, withIntermediateDirectories: true)
     }
 
+    /// 在背景依目前的上限清理（改了上限、或累積下載一批封面後）
+    static func trimDiskNow() {
+        Task.detached(priority: .background) { trimDisk(diskDirectoryURL) }
+    }
+
     /// 超過 disk 上限時，刪除最久沒用的檔案
     private static func trimDisk(_ directory: URL) {
         let keys: [URLResourceKey] = [.contentAccessDateKey, .fileSizeKey]
@@ -151,7 +172,8 @@ final class ImagePipeline: @unchecked Sendable {
             return (url, values.contentAccessDate ?? .distantPast, values.fileSize ?? 0)
         }
         var total = entries.reduce(0) { $0 + $1.2 }
-        let budget = diskBudgetMB * 1024 * 1024
+        // 十進位 MB，與設定裡顯示的大小（ByteCountFormatter .file）一致
+        let budget = diskBudgetMB * 1_000_000
         guard total > budget else { return }
         entries.sort { $0.1 < $1.1 }
         for (url, _, size) in entries where total > budget {

@@ -334,3 +334,10 @@
 * **選擇**：Release 開啟 `DEPLOYMENT_POSTPROCESSING`、`STRIP_INSTALLED_PRODUCT`（`STRIP_STYLE: all`），執行檔降到約 6 MB，整個 app 約 7.4 MB。符號另存 `Flione.app.dSYM`，不隨 app 出貨，查當機紀錄時仍可用。
 * **沒採用**：`-Osize` 只再少約 0.6 MB，可能影響封面牆的捲動效能；只出 Apple Silicon 版可再減半，但 Intel Mac 就不能用。
 * **怎麼改**：`project.yml` 的 Flione target `configs: Release`。
+
+## D45　封面快取上限可設定
+
+* **選擇**：設定 → 一般 →「封面快取」可選上限 200 MB、400 MB（預設）、800 MB、1.5 GB，記在 `FinifyArtworkCacheMB`。原本是寫死的 500 MB、只在啟動時清理。
+* **清理時機**：啟動時、每新下載 100 張封面、改了上限之後，都在背景依「最久沒用」刪除到上限以內。
+* **單位**：上限用十進位 MB（1 MB = 1,000,000 位元組），與設定裡顯示的用量（`ByteCountFormatter .file`）一致，避免顯示超過上限。
+* **怎麼改**：`ImagePipeline` 的 `diskLimitOptions`、`diskBudgetMB`、`trimEvery`。

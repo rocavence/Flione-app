@@ -305,10 +305,16 @@ private struct GeneralSettings: View {
     @AppStorage(SettingsKey.menuBar) private var showsMenuBar = true
     @AppStorage(SettingsKey.trackNotifications) private var trackNotifications = true
     @AppStorage(SettingsKey.onlineLyrics) private var onlineLyrics = false
+    @AppStorage(ImagePipeline.diskLimitKey) private var cacheLimit = 400
 
     @State private var language = AppLanguage.saved
     @AppStorage(SettingsKey.textComfort) private var comfort = TextComfort.standard
 
+
+    /// 200 → 200 MB、1500 → 1.5 GB
+    private static func megabytes(_ value: Int) -> String {
+        value >= 1000 ? String(format: "%g GB", Double(value) / 1000) : "\(value) MB"
+    }
     var body: some View {
         @Bindable var app = app
         ThemePicker(selection: $app.colorTheme)
@@ -334,13 +340,30 @@ private struct GeneralSettings: View {
         SettingToggle(title: "Find missing lyrics online",
                       detail: "Searches LRCLIB when your server has no lyrics. Sends the song title and artist to lrclib.net.",
                       isOn: $onlineLyrics)
-        SettingRow(title: "Artwork cache", detail: "\(cacheSize) on this Mac. Covers download again when needed.") {
-            PillButton(title: "Clear") {
-                ImagePipeline.clearDiskCache()
+        SettingRow(title: "Artwork cache", detail: "\(cacheSize) on this Mac. When it reaches the limit, the covers you haven't seen in a while are removed and download again when needed.") {
+            HStack(spacing: Spacing.s8) {
+                PillMenu(title: "Cache limit", selection: $cacheLimit,
+                         options: ImagePipeline.diskLimitOptions.map { ($0, LocalizedStringResource(stringLiteral: Self.megabytes($0))) })
+                PillButton(title: "Clear") {
+                    ImagePipeline.clearDiskCache()
+                    cacheSize = ImagePipeline.diskCacheSizeDescription()
+                }
+            }
+        }
+        .task {
+            // 背景清理可能還在進行，稍後再更新一次
+            cacheSize = ImagePipeline.diskCacheSizeDescription()
+            try? await Task.sleep(for: .seconds(2))
+            cacheSize = ImagePipeline.diskCacheSizeDescription()
+        }
+        .onChange(of: cacheLimit) {
+            ImagePipeline.trimDiskNow()
+            // 清理在背景進行，稍後再更新顯示的大小
+            Task {
+                try? await Task.sleep(for: .seconds(1.5))
                 cacheSize = ImagePipeline.diskCacheSizeDescription()
             }
         }
-        .onAppear { cacheSize = ImagePipeline.diskCacheSizeDescription() }
     }
 }
 

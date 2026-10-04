@@ -37,12 +37,12 @@
         }
       }
     },
-    "%@ on this Mac. Covers download again when needed.": {
+    "%@ on this Mac. When it reaches the limit, the covers you haven't seen in a while are removed and download again when needed.": {
       "localizations": {
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "這台 Mac 上占用 %@，需要時會重新下載封面。"
+            "value": "這台 Mac 上占用 %@。達到上限時，會刪掉最久沒看到的封面，需要時再重新下載。"
           }
         }
       }
@@ -642,6 +642,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "依曲風"
+          }
+        }
+      }
+    },
+    "Cache limit": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快取上限"
           }
         }
       }
