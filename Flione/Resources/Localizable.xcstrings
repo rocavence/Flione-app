@@ -326,6 +326,16 @@
         }
       }
     },
+    "90s albums I haven't heard in a while": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "很久沒聽的 90 年代專輯"
+          }
+        }
+      }
+    },
     "A fresh random order every time": {
       "localizations": {
         "zh-Hant": {
@@ -512,6 +522,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "也要找回最早 OS X 的 Cover Flow，一張一張翻過封面的那種沉浸感。這是 Cover Flow。"
+          }
+        }
+      }
+    },
+    "Apple Intelligence couldn't answer this time. Try again, or describe it another way.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Intelligence 這次沒有回應，請再試一次，或換個說法。"
           }
         }
       }
@@ -1016,6 +1036,16 @@
         }
       }
     },
+    "Couldn't find anything.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有找到適合的專輯。"
+          }
+        }
+      }
+    },
     "Couldn't play “%@”. Check that your music server is reachable.": {
       "localizations": {
         "zh-Hant": {
@@ -1257,6 +1287,16 @@
         }
       }
     },
+    "Describe what you feel like hearing, and Flione picks albums from your own library. It all happens on this Mac.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "說說你現在想聽什麼，Flione 會從你自己的音樂庫裡挑專輯。全部在這台 Mac 上完成。"
+          }
+        }
+      }
+    },
     "Dim side covers": {
       "localizations": {
         "zh-Hant": {
@@ -1273,6 +1313,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "第 %lld 片"
+          }
+        }
+      }
+    },
+    "Discover": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "探索"
+          }
+        }
+      }
+    },
+    "Discover needs Apple Intelligence.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "探索需要 Apple Intelligence。"
           }
         }
       }
@@ -1452,6 +1512,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "移到正在播放的專輯"
+          }
+        }
+      }
+    },
+    "For “%@”": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」"
           }
         }
       }
@@ -1709,6 +1779,16 @@
         }
       }
     },
+    "Jazz for a rainy day": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下雨天的爵士"
+          }
+        }
+      }
+    },
     "Keep on top": {
       "localizations": {
         "zh-Hant": {
@@ -1755,6 +1835,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "深夜聽歌時間"
+          }
+        }
+      }
+    },
+    "Late-night electronic": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深夜的電子樂"
           }
         }
       }
@@ -2125,6 +2215,26 @@
         }
       }
     },
+    "Not played in a while": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "很久沒聽"
+          }
+        }
+      }
+    },
+    "Nothing in your library fits that. Try describing it another way.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音樂庫裡沒有符合的專輯，換個說法試試。"
+          }
+        }
+      }
+    },
     "Nothing playing": {
       "localizations": {
         "zh-Hant": {
@@ -2285,6 +2395,16 @@
         }
       }
     },
+    "Picking from your library…": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在從你的音樂庫挑選…"
+          }
+        }
+      }
+    },
     "Play": {
       "localizations": {
         "zh-Hant": {
@@ -2311,6 +2431,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "播放（空白鍵）"
+          }
+        }
+      }
+    },
+    "Play All": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部播放"
           }
         }
       }
@@ -3113,6 +3243,16 @@
         }
       }
     },
+    "Something calm to focus on work": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "專心工作時的安靜音樂"
+          }
+        }
+      }
+    },
     "Song notifications": {
       "localizations": {
         "zh-Hant": {
@@ -3603,6 +3743,26 @@
         }
       }
     },
+    "Upbeat music for a weekend morning": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "週末早晨的輕快音樂"
+          }
+        }
+      }
+    },
+    "Use macOS 26 or later and turn on Apple Intelligence in System Settings. Discover runs entirely on this Mac.": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請使用 macOS 26 以上，並在系統設定開啟 Apple Intelligence。探索完全在這台 Mac 上執行。"
+          }
+        }
+      }
+    },
     "Username": {
       "localizations": {
         "zh-Hant": {
@@ -3659,6 +3819,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "提高音量"
+          }
+        }
+      }
+    },
+    "What do you feel like hearing?": {
+      "localizations": {
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在想聽什麼？"
           }
         }
       }

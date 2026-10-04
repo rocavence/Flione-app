@@ -5,6 +5,8 @@ enum StandardTab: Hashable, Sendable {
     case library(LibrarySection)
     /// 依加入時間排序的專輯
     case recentlyAdded
+    /// AI 探索（D48）
+    case discover
 }
 
 enum StandardRoute: Hashable, Sendable {

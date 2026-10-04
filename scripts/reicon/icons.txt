@@ -76,3 +76,4 @@ wand-sparkle
 screencast
 screencast2
 radio
+star-sparkle

@@ -59,6 +59,8 @@ struct StandardRootView: View {
         }
         #if DEBUG || BENCHMARK
         .task {
+            // -FinifyDemoDiscover "<需求>"：打開探索並送出（DiscoverView 讀取）
+            if UserDefaults.standard.string(forKey: "FinifyDemoDiscover") != nil { router.tab = .discover }
             if UserDefaults.standard.string(forKey: "FinifyDemoTab") == "library" {
                 let raw = UserDefaults.standard.string(forKey: "FinifyDemoSection") ?? "Albums"
                 router.tab = .library(LibrarySection(rawValue: raw) ?? .albums)
@@ -79,6 +81,7 @@ struct StandardRootView: View {
                 case .home: EmptyView()
                 case .library(let section): LibraryView(section: section).id(section)
                 case .recentlyAdded: LibraryView(section: .albums, title: "Recently Added", sort: .recentlyAdded).id("recent")
+                case .discover: DiscoverView()
                 }
             }
             .opacity(router.path.isEmpty ? 1 : 0)

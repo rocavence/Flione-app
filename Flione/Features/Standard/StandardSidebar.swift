@@ -38,6 +38,7 @@ struct StandardSidebar: View {
                 item("Playlists", icon: .playlist2, tab: .library(.playlists))
 
                 header("Smart")
+                item("Discover", icon: .starSparkle, tab: .discover)
                 item("Recently Added", icon: .clock, tab: .recentlyAdded)
                 item("Favorites", icon: .heart, tab: .library(.favorites))
 
