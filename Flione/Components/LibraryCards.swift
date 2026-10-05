@@ -106,6 +106,8 @@ struct TrackRow: View {
     var showsArtist = true
     /// Smart Shuffle 加入的推薦曲目（佇列中顯示「Suggested」）
     var suggested = false
+    /// 播放次數那一欄（約 128pt）：窄的地方（佇列、歌詞旁的面板）關掉，不然歌名會被擠到看不見
+    var showsPlayHistory = true
     let onPlay: () -> Void
     var onOpenAlbum: (() -> Void)?
     var onOpenArtist: (() -> Void)?
@@ -204,7 +206,7 @@ struct TrackRow: View {
             }
 
             // 播放次數與最後一次播放（Jellyfin 的紀錄，或 Flione 在這台 Mac 記的 YouTube Music 播放）；沒播過留空，欄位仍對齊
-            if let history {
+            if showsPlayHistory, let history {
                 playHistory(history.count, last: history.last)
                     .frame(width: 128, alignment: .trailing)
             }

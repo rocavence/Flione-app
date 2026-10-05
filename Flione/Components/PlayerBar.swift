@@ -184,13 +184,13 @@ struct QueuePanel: View {
                 VStack(alignment: .leading, spacing: Spacing.s4) {
                     if let current = player.currentTrack {
                         label("Now playing")
-                        TrackRow(track: current, showsArtwork: true, onPlay: { player.togglePlayPause() }, onOpenAlbum: { onOpenAlbum(current.albumID) })
+                        TrackRow(track: current, showsArtwork: true, showsPlayHistory: false, onPlay: { player.togglePlayPause() }, onOpenAlbum: { onOpenAlbum(current.albumID) })
                     }
                     if !player.queue.upcoming.isEmpty {
                         label("Next up").padding(.top, Spacing.s16)
                         ForEach(Array(player.queue.upcomingEntries.enumerated()), id: \.element.id) { offset, entry in
                             let track = entry.track
-                            TrackRow(track: track, showsArtwork: true, suggested: entry.suggested,
+                            TrackRow(track: track, showsArtwork: true, suggested: entry.suggested, showsPlayHistory: false,
                                      onPlay: { player.jump(toQueuePosition: player.queue.index + 1 + offset) })
                                 .opacity(dragging == offset ? 0.4 : 1)
                                 .onDrag {
