@@ -8,7 +8,8 @@ struct PlayerSidePanel: View {
     @Environment(\.overflowStyle) private var overflow
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
+        // 與首頁 Hero 同樣的大圓角（24pt）
+        let shape = RoundedRectangle(cornerRadius: Radius.hero, style: .continuous)
         VStack(alignment: .leading, spacing: 0) {
             header
             if let radio = app.player.radioName, !app.isLyricsPresented {
