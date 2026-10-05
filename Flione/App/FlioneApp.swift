@@ -96,6 +96,28 @@ struct RootView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        // 新版提示：右下角，播放列上方
+        .overlay(alignment: .bottomTrailing) {
+            if let release = app.updates.prompt, !app.isSettingsPresented {
+                UpdatePrompt(release: release, onSkip: { withAnimation(Motion.ui) { app.updates.skip(release) } },
+                             onClose: { withAnimation(Motion.ui) { app.updates.prompt = nil } })
+                    .padding(.trailing, Spacing.s16)
+                    .padding(.bottom, 104)
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+            }
+        }
+        .animation(Motion.respecting(reduceMotion, Motion.ui), value: app.updates.prompt)
+        .task {
+            #if DEBUG
+            // -FlioneDemoUpdate YES：顯示假的新版提示（截圖用）；DEBUG 不查 GitHub，避免測試啟動改到「上次檢查」的時間
+            if UserDefaults.standard.bool(forKey: "FlioneDemoUpdate") {
+                app.updates.prompt = .init(version: "9.9.9", notes: "• New app icon: a gradient F.\n• Play count and last played for every song.\n• Sync YouTube Music play counts with iCloud.",
+                                           pageURL: URL(string: "https://github.com/rocavence/Flione-app/releases/latest")!, downloadURL: nil)
+            }
+            #else
+            app.updates.checkIfDue()
+            #endif
+        }
         .overlay {
             if app.isSettingsPresented {
                 ZStack {

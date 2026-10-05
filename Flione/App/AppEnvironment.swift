@@ -64,6 +64,8 @@ final class AppEnvironment {
     let youtubePlayer = YouTubeWebPlayer()
     /// Chromecast 投放（D43）
     let cast = CastManager()
+    /// 新版通知（D53）
+    let updates = UpdateChecker()
     /// YouTube Music 的播放次數（YouTube 不提供，Flione 自己記）
     let youtubePlays = LocalPlayCounts()
 

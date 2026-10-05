@@ -605,9 +605,44 @@ private struct CoverFlowSettings: View {
 /// 音樂來源（D39）：YouTube Music 與 Jellyfin 各一列，目前使用的標「使用中」，另一邊可切換；登入都保留
 /// 關於：版本、開發與命名的故事、特別感謝與用到的開源專案
 private struct AboutSettings: View {
+    @Environment(AppEnvironment.self) private var app
+
     private var version: String {
         let info = Bundle.main.infoDictionary
         return "\(info?["CFBundleShortVersionString"] as? String ?? "") (\(info?["CFBundleVersion"] as? String ?? ""))"
+    }
+
+    /// 檢查更新：按鈕與結果（新版通知 D53，使用者自己下載安裝）
+    @ViewBuilder
+    private var updateRow: some View {
+        HStack(spacing: Spacing.s8) {
+            switch app.updates.state {
+            case .checking:
+                ProgressView().controlSize(.small)
+                Text("Checking for updates…").flioneFont(.caption).foregroundStyle(FlioneColor.muted)
+            case .available(let release):
+                Text("Flione \(release.version) is available").flioneFont(.caption).foregroundStyle(FlioneColor.ink)
+                Button("Download") { NSWorkspace.shared.open(release.downloadURL ?? release.pageURL) }
+                    .buttonStyle(.borderless).flioneFont(.caption).hoverBezel()
+            case .upToDate:
+                Text("Flione is up to date.").flioneFont(.caption).foregroundStyle(FlioneColor.muted)
+                checkButton
+            case .failed:
+                Text("Couldn't check for updates.").flioneFont(.caption).foregroundStyle(FlioneColor.muted)
+                checkButton
+            case .idle:
+                checkButton
+                    // 只有按鈕時，讓按鈕的文字（不是滑過的底）和上面的版本對齊
+                    .padding(.leading, -Spacing.s8)
+            }
+        }
+    }
+
+    private var checkButton: some View {
+        Button("Check for Updates") { Task { await app.updates.check(manual: true) } }
+            .buttonStyle(.borderless)
+            .flioneFont(.caption)
+            .hoverBezel()
     }
 
     var body: some View {
@@ -623,6 +658,7 @@ private struct AboutSettings: View {
                     Text(verbatim: "Flione").flioneFont(.subheading).foregroundStyle(FlioneColor.ink)
                     Text("Listen well. Collect well.").flioneFont(.body).foregroundStyle(FlioneColor.muted)
                     Text("Version \(version)").flioneFont(.caption).foregroundStyle(FlioneColor.faint)
+                    updateRow.padding(.top, 2)
                 }
             }
 
