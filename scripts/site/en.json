@@ -3,7 +3,7 @@
  "nav.sources": "Music sources",
  "nav.faq": "FAQ",
  "nav.dl": "Download",
- "hero.h1": "Listen well. Collect well<span class=\"dim\">A macOS music player for Jellyfin and YouTube Music</span>",
+ "hero.h1": "Listen well<br>Collect well<span class=\"dim\">A macOS music player for Jellyfin and YouTube Music</span>",
  "hero.download": "Download Flione — free",
  "hero.modes": "See the three views",
  "hero.meta": "macOS 14 or later · v0.9.83 · Apple silicon and Intel",
