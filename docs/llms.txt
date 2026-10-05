@@ -6,7 +6,7 @@
 - Download: https://github.com/rocavence/Flione-app/releases/latest
 - Source code: https://github.com/rocavence/Flione-app
 - Platform: macOS 14 (Sonoma) or later; Apple silicon and Intel builds
-- Version: 0.9.7
+- Version: 0.9.8
 - Price: Free. No in-app purchases, no Flione account.
 - Author: rocavence (https://github.com/rocavence)
 
