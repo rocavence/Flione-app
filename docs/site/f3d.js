@@ -3,7 +3,7 @@
 // 進場：四塊從散開的位置彈回組成 F。互動：跟著游標轉、滑過時四塊沿深度拆開、拖曳旋轉後彈回、點一下拆開再合起來。
 // 只在區塊出現在畫面上時繪製；減少動態效果時保持靜止。
 import * as THREE from "three";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { RoomEnvironment } from "./vendor/three/RoomEnvironment.js";
 
 const stage = document.getElementById("f3d");
 const canvas = stage.querySelector("canvas");
