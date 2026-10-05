@@ -23,5 +23,6 @@ def make(bg, shadow_alpha):
     body.alpha_composite(f.resize((w,h),Image.LANCZOS),((side-w)//2+int(side*0.015),(side-h)//2))
     canvas.paste(body,(off,off),Image.fromarray((m*255).astype(np.uint8)))
     return canvas.resize((1024,1024),Image.LANCZOS)
-make((250,250,252),0.30).save(sys.argv[1] if len(sys.argv) > 1 else "appicon.png")
+# 底色 #F3E9D9（暖米色）
+make((0xF3,0xE9,0xD9),0.30).save(sys.argv[1] if len(sys.argv) > 1 else "appicon.png")
 
