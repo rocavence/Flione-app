@@ -146,7 +146,7 @@ func menuBarIcon(svg: String, scale: Int, playing: Bool) -> CGImage {
     ctx.scaleBy(x: CGFloat(scale), y: CGFloat(scale))
     ctx.addPath(glyph(svg: svg, in: CGRect(x: 2.5, y: 2.5, width: 13, height: 13)))
     if playing { ctx.addEllipse(in: CGRect(x: 13.8, y: 0.6, width: 3.2, height: 3.2)) }
-    ctx.setFillColor(playing ? color(0xFF8A3D) : color(0x111827))
+    ctx.setFillColor(playing ? color(0xED3F1C) : color(0x111827))
     ctx.fillPath()
     return ctx.makeImage()!
 }

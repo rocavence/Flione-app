@@ -62,12 +62,12 @@ enum FlioneColor {
     static let violet = Color(hex: 0xA78BFF)
     /// Light：重點文字
     static let ice = themed { $0.ice }
-    /// Bright Coral Orange：播放進度、正在播放、重要互動。不可成為主要 UI 色
-    static let orange = Color(hex: 0xFF8A3D)
-    /// Orange Highlight：光暈中心、柔和過渡（少量使用）
-    static let orangeHighlight = Color(hex: 0xFFB36B)
+    /// Flione Orange #ED3F1C：播放進度、正在播放、重要互動。不可成為主要 UI 色
+    static let orange = Color(hex: 0xED3F1C)
+    /// Orange Highlight：光暈中心、柔和過渡（少量使用）；主色混 30% 白
+    static let orangeHighlight = Color(hex: 0xF27960)
     /// Orange Glow
-    static let orangeGlow = Color(hex: 0xFF8A3D).opacity(0.24)
+    static let orangeGlow = Color(hex: 0xED3F1C).opacity(0.24)
 
     // 系統狀態（只用在真正的狀態）
     static let success = Color(hex: 0x55D6A6)
