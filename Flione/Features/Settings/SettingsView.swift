@@ -167,7 +167,8 @@ extension SettingsCard {
                 case .ai: AISettings()
                 case .about: AboutSettings()
                 }
-                Color.clear.frame(height: 0).id("bottom")
+                // 底部留出漸隱的高度：捲到最底時，最後一列不會被漸隱蓋住
+                Color.clear.frame(height: 28).id("bottom")
             }
         }
         .scrollBounceBehavior(.basedOnSize)
@@ -175,6 +176,8 @@ extension SettingsCard {
         .scrollIndicators(.never)
         .mask {
             VStack(spacing: 0) {
+                // 上緣也淡出，捲上去的文字不會被切成一半；12pt 比每一列上方的留白小，捲到最上面時不會蓋到內容
+                LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom).frame(height: 12)
                 Color.black
                 LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom).frame(height: 28)
             }
