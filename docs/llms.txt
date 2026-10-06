@@ -34,6 +34,7 @@
 
 - Radio: start from an album, artist, or song (Jellyfin also by genre); it keeps adding songs. Home also has 8 mood stations (Chill, Focus, Party, Workout, Feel Good, Romance, Sad, Sleep). Works with Jellyfin and YouTube Music.
 - AI Discover (Beta): describe what you want to hear, and Apple Intelligence on the Mac picks albums from your own library, each with a one-line reason. Runs on-device; needs macOS 26.
+- AI control (MCP): Flione is an MCP server, so Claude, Cursor, and other MCP clients can control playback, search the library, start radio, manage the queue, create and edit playlists, and set favorites. Off by default; turn it on in Settings → AI Control. Local only (stdio, no network port); deleting a playlist always asks the user to confirm in Flione.
 - Album sorting on artist pages (newest, oldest, name, recently added); remembers your choice.
 - Interface languages: English, Traditional Chinese, Japanese, Korean, Spanish, Brazilian Portuguese
 - Seven color themes

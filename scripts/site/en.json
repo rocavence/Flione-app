@@ -98,6 +98,7 @@
  "faq.a11": "Yes. No in-app purchases and no Flione account. Download it and go.",
  "head.ogimg": "https://flione.rocavence.com/site/og-en.png",
  "feat.c9": "<b>Album sorting.</b> Sort an artist's albums by year, name, or date added; it remembers.",
+ "feat.c10": "<b>AI control (MCP).</b> Supports the Model Context Protocol, so Claude, Cursor, and other AI apps can play music, search your library, and manage the queue and playlists. Turn it on in Settings. Only apps on this Mac can connect, and deleting a playlist always asks you first.",
  "skip": "Skip to content",
  "outro.alt": "The Flione F logo",
  "outro.h2": "Listen well<span>Collect well</span>",
