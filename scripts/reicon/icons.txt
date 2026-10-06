@@ -78,3 +78,6 @@ screencast2
 radio
 star-sparkle
 sliders
+
+# 自己畫的（scripts/reicon/custom）
+robot

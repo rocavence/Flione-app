@@ -78,7 +78,7 @@ struct SettingsCard: View {
             case .coverFlow: ViewMode.coverFlow.icon
             case .jellyfin: .server
             case .youtube: .music
-            case .ai: .starSparkle
+            case .ai: .robot
             case .about: .infoCircle
             }
         }

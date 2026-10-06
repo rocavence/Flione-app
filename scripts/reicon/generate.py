@@ -16,6 +16,8 @@ DATA_URL = f"https://raw.githubusercontent.com/dqev/reicon/{REICON_COMMIT}/data/
 
 ROOT = Path(__file__).resolve().parents[2]
 ICON_LIST = ROOT / "scripts/reicon/icons.txt"
+# Reicon 沒有的 icon 自己畫，照 Reicon 的格線與粗細：custom/<名稱>.outline.svg、custom/<名稱>.filled.svg
+CUSTOM = ROOT / "scripts/reicon/custom"
 CACHE = ROOT / ".cache/reicon" / f"icon-data-{REICON_COMMIT[:12]}.json"
 CATALOG = ROOT / "Flione/Resources/Assets.xcassets/Reicon"
 SWIFT_OUT = ROOT / "Flione/DesignSystem/Icons/Reicon+Generated.swift"
@@ -60,8 +62,9 @@ def main() -> int:
     data = load_data()
     icons = {n: v for c in data["categories"].values() for n, v in c["icons"].items()}
     names = load_names()
+    custom = {p.name.split(".")[0] for p in CUSTOM.glob("*.svg")}
 
-    missing = [n for n in names if n not in icons]
+    missing = [n for n in names if n not in icons and n not in custom]
     if missing:
         print(f"Reicon 沒有這些 icon：{', '.join(missing)}", file=sys.stderr)
         return 1
@@ -75,14 +78,22 @@ def main() -> int:
     })
 
     for name in names:
-        weights = icons[name]["weights"]
         for weight, suffix in WEIGHTS.items():
-            if weight not in weights:
-                print(f"{name} 缺少 {weight}", file=sys.stderr)
-                return 1
+            if name in custom:
+                source = CUSTOM / f"{name}.{suffix}.svg"
+                if not source.exists():
+                    print(f"{name} 缺少 {source.name}", file=sys.stderr)
+                    return 1
+                svg = source.read_text()
+            else:
+                weights = icons[name]["weights"]
+                if weight not in weights:
+                    print(f"{name} 缺少 {weight}", file=sys.stderr)
+                    return 1
+                svg = to_svg(weights[weight]["code"])
             imageset = CATALOG / f"{name}.{suffix}.imageset"
             imageset.mkdir()
-            (imageset / f"{name}.{suffix}.svg").write_text(to_svg(weights[weight]["code"]))
+            (imageset / f"{name}.{suffix}.svg").write_text(svg)
             write_json(imageset / "Contents.json", {
                 "images": [{"filename": f"{name}.{suffix}.svg", "idiom": "universal"}],
                 "info": {"author": "xcode", "version": 1},
