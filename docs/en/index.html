@@ -376,7 +376,10 @@
     .sd{width:86cqw}
     #features .cols{grid-template-columns:1fr 1fr;gap:10px}
     #features .item{padding:18px 16px}
+    #features .item.wide{grid-column:auto} /* 兩欄時 10 張剛好排滿，不用跨整排 */
     #features .item p{font-size:14px}
+    /* 兩欄的卡片很窄：keep-all 塞不下時會被 overflow-wrap 硬切，忽略「逗號不放行首」；改回一般斷行，照標點規則換行 */
+    :lang(zh-Hant) #features .item p{word-break:normal}
     .faq{grid-template-columns:1fr;gap:20px}
     .faq>h2{position:static}
     .mode p.desc{font-size:16px}
