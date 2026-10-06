@@ -68,6 +68,8 @@ final class AppEnvironment {
     let updates = UpdateChecker()
     /// YouTube Music 的播放次數（YouTube 不提供，Flione 自己記）
     let youtubePlays = LocalPlayCounts()
+    /// AI 控制：讓支援 MCP 的 AI app 操作 Flione（D54）
+    let mcp = MCPController()
 
     /// nil = 尚未選擇（首次登入後顯示 mode picker）
     var mode: AppMode? {
@@ -180,6 +182,7 @@ final class AppEnvironment {
                 self?.savePlayback()
             }
         }
+        mcp.attach(self)
     }
 
     private func networkChanged(online: Bool) {

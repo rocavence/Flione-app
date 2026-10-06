@@ -404,3 +404,12 @@
 * **不自動更新**：沒有經過 Apple 公證，自動安裝後 macOS 可能還是會擋；使用者自己拖進「應用程式」取代舊版。之後要做自動更新再評估 Sparkle。
 * **隱私**：只連 api.github.com，不送任何使用資料；DEBUG 不檢查（測試啟動不改到上次檢查的時間）。
 * **版號**：新版通知逐段比數字，0.9.81 比 0.9.9 大。發布 0.9.81 之後，下一版要大於它（0.9.82、0.10.0…），不能用 0.9.9，否則 0.9.81 的使用者收不到通知。
+
+## D54　AI 控制（MCP）
+
+* **用途**：讓 Claude、Cursor 等支援 MCP 的 AI app 操作 Flione：播放控制、搜尋音樂庫、列出專輯／藝人／播放清單、播放、電台、佇列、建立與編輯播放清單、最愛。設定 → AI 控制，預設關閉。
+* **連線方式**：AI app 用 stdio 啟動 `Flione.app/Contents/MacOS/Flione --mcp`（`MCPProxy`），它只轉送訊息到正在執行的 Flione；Flione 在 `Application Support/com.rocavence.Flione/mcp.sock` 開 Unix socket（權限 600，開發版用 `mcp-debug.sock`）。不開網路連接埠，只有這台 Mac 上同一個使用者的程式能連。Flione 沒開時轉送程式會在背景打開它；設定裡沒打開時直接回錯誤，告訴使用者去哪裡打開。
+* **為什麼不另做 helper 程式**：同一個執行檔加參數，不用多一個 target、簽章與公證；`--mcp` 時不建立 NSApplication，不會出現在 Dock。
+* **協定**：自己處理 JSON-RPC（initialize、ping、tools/list、tools/call），不加 SDK 相依。工具只呼叫 Flione 既有的動作（PlayerManager、PlaylistStore、FavoritesStore、MusicRepository）。
+* **歌曲 id**：音樂來源沒有「用 id 取一首歌」的 API，`track_ids` 只接受 Flione 回傳過的歌（搜尋、專輯、播放清單、佇列），不認得的 id 回錯誤，AI 不能亂猜。
+* **刪除播放清單**：一定先在 Flione 跳對話框（寫出是哪個 AI app 要求的），使用者按「刪除播放清單」才刪；拒絕時回報 AI「使用者選擇不刪除」。

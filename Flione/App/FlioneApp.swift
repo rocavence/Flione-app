@@ -1,6 +1,6 @@
 import SwiftUI
 
-@main
+/// 進入點在 Main.swift（`--mcp` 時不開 app）
 struct FlioneApp: App {
     @NSApplicationDelegateAdaptor private var delegate: AppDelegate
     @State private var app = AppEnvironment.bootstrap()

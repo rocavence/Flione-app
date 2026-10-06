@@ -54,7 +54,7 @@ enum SettingsKey {
 /// 版面：標題、分頁膠囊、關閉鈕；每一列左邊是名稱與說明，右邊是控制項。
 struct SettingsCard: View {
     enum Tab: String, CaseIterable {
-        case general, modern, infinity, coverFlow, jellyfin, youtube, about
+        case general, modern, infinity, coverFlow, jellyfin, youtube, ai, about
 
         var title: LocalizedStringResource {
             switch self {
@@ -65,6 +65,7 @@ struct SettingsCard: View {
             case .coverFlow: LocalizedStringResource(stringLiteral: ViewMode.coverFlow.title)
             case .jellyfin: LocalizedStringResource(stringLiteral: MusicSource.jellyfin.title)
             case .youtube: LocalizedStringResource(stringLiteral: MusicSource.youtube.title)
+            case .ai: "AI Control"
             case .about: "About"
             }
         }
@@ -77,16 +78,17 @@ struct SettingsCard: View {
             case .coverFlow: ViewMode.coverFlow.icon
             case .jellyfin: .server
             case .youtube: .music
+            case .ai: .starSparkle
             case .about: .infoCircle
             }
         }
 
-        /// 側欄的分組：一般／顯示模式／音樂來源／關於
+        /// 側欄的分組：一般／顯示模式／音樂來源／AI 控制與關於
         static let groups: [(title: LocalizedStringResource?, tabs: [Tab])] = [
             (nil, [.general]),
             ("View Modes", [.modern, .infinity, .coverFlow]),
             ("Music Sources", [.jellyfin, .youtube]),
-            (nil, [.about]),
+            (nil, [.ai, .about]),
         ]
     }
 
@@ -162,6 +164,7 @@ extension SettingsCard {
                 case .coverFlow: CoverFlowSettings()
                 case .jellyfin: SourceSettings(source: .jellyfin)
                 case .youtube: SourceSettings(source: .youtube)
+                case .ai: AISettings()
                 case .about: AboutSettings()
                 }
                 Color.clear.frame(height: 0).id("bottom")
@@ -875,5 +878,88 @@ private struct SourceSettings: View {
         case .jellyfin:
             return app.hasJellyfinAccount ? "Signed in. Switch to play from your server." : "Connect your own Jellyfin server."
         }
+    }
+}
+
+/// AI 控制（D54）：開關，以及給 Claude、Cursor 等 AI app 的設定（複製貼上即可）
+private struct AISettings: View {
+    @Environment(AppEnvironment.self) private var app
+    @State private var copied: String?
+
+    private var executable: String { Bundle.main.executablePath ?? "/Applications/Flione.app/Contents/MacOS/Flione" }
+
+    private var desktopConfig: String {
+        """
+        {
+          "mcpServers": {
+            "flione": {
+              "command": "\(executable)",
+              "args": ["--mcp"]
+            }
+          }
+        }
+        """
+    }
+
+    private var claudeCodeCommand: String { "claude mcp add flione -- \"\(executable)\" --mcp" }
+
+    var body: some View {
+        SettingToggle(title: "Let AI apps control Flione",
+                      detail: "Claude, Cursor, and other apps that support MCP can play music, search your library, and manage the queue, playlists, and favorites.",
+                      isOn: Binding(get: { app.mcp.isEnabled }, set: { app.mcp.setEnabled($0) }))
+        if app.mcp.isEnabled {
+            SettingRow(title: "Status", detail: status) { EmptyView() }
+            setup("Claude Desktop, Cursor, and other apps",
+                  detail: "Add this to the app's MCP servers. In Claude Desktop: Settings → Developer → Edit Config.",
+                  code: desktopConfig, id: "json")
+            setup("Claude Code", detail: "Run this in Terminal.", code: claudeCodeCommand, id: "cli")
+        }
+        Text("Deleting a playlist always asks you first. Only apps on this Mac can connect.")
+            .flioneFont(.caption)
+            .foregroundStyle(FlioneColor.faint)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, Spacing.s16)
+    }
+
+    private var status: LocalizedStringResource {
+        if let error = app.mcp.startError { return "Couldn't turn on: \(error)" }
+        if app.mcp.connectedClients > 0 {
+            if let name = app.mcp.clientName { return "Connected to \(name)." }
+            return "Connected."
+        }
+        return "Waiting for an AI app to connect. The AI app opens Flione if it isn't running."
+    }
+
+    private func setup(_ title: LocalizedStringResource, detail: LocalizedStringResource, code: String, id: String) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.s12) {
+            HStack(alignment: .center, spacing: Spacing.s24) {
+                VStack(alignment: .leading, spacing: Spacing.s4) {
+                    Text(title).flioneFont(.subheading).foregroundStyle(FlioneColor.ink)
+                    Text(detail).flioneFont(.body).foregroundStyle(FlioneColor.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                PillButton(title: copied == id ? "Copied" : "Copy") {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(code, forType: .string)
+                    copied = id
+                    Task {
+                        try? await Task.sleep(for: .seconds(1.5))
+                        if copied == id { copied = nil }
+                    }
+                }
+            }
+            Text(verbatim: code)
+                .font(.system(size: 12, design: .monospaced))
+                .foregroundStyle(FlioneColor.ink.opacity(0.85))
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(Spacing.s12)
+                .background(FlioneColor.glass, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(FlioneColor.hairline, lineWidth: 1))
+        }
+        .padding(.vertical, Spacing.s16)
+        .overlay(alignment: .bottom) { FlioneColor.hairline.frame(height: 1) }
     }
 }
