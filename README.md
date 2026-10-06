@@ -55,6 +55,12 @@ Flione 連線到你自己的 Jellyfin 伺服器或 YouTube Music，把音樂庫�
 xattr -dr com.apple.quarantine /Applications/Flione.app && open /Applications/Flione.app
 ```
 
+有裝 Homebrew 的話，一行就裝好（會自動處理上面那一步）：
+
+```sh
+brew install --cask rocavence/tap/flione
+```
+
 ### 從原始碼建置
 
 需求：

@@ -413,3 +413,9 @@
 * **協定**：自己處理 JSON-RPC（initialize、ping、tools/list、tools/call），不加 SDK 相依。工具只呼叫 Flione 既有的動作（PlayerManager、PlaylistStore、FavoritesStore、MusicRepository）。
 * **歌曲 id**：音樂來源沒有「用 id 取一首歌」的 API，`track_ids` 只接受 Flione 回傳過的歌（搜尋、專輯、播放清單、佇列），不認得的 id 回錯誤，AI 不能亂猜。
 * **刪除播放清單**：一定先在 Flione 跳對話框（寫出是哪個 AI app 要求的），使用者按「刪除播放清單」才刪；拒絕時回報 AI「使用者選擇不刪除」。
+
+## D55　Homebrew 安裝
+
+* **做法**：自己的 tap `rocavence/homebrew-tap`（與 Wunder 共用），`brew install --cask rocavence/tap/flione`。官方的 homebrew/cask 要求經過 Apple 公證，Flione 沒有，所以不送官方。
+* **隔離標記**：cask 的 `postflight_steps` 執行 `xattr -dr com.apple.quarantine`，用 brew 安裝不用再貼終端機指令。
+* **發版**：GitHub release 建好後執行 `python3 scripts/update-cask.py`，從最新 release 取版本與兩個 dmg 的 sha256，更新 `Casks/flione.rb` 並 push。cask 照 Homebrew 7 的寫法（`depends_on macos: :sonoma`、`postflight_steps`、`url` 不加 `verified:`），`brew style`、`brew audit --strict` 都要通過。

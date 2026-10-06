@@ -48,6 +48,8 @@ Download the .dmg (AppleSilicon for M1 or later, Intel for Intel Macs) and drag 
 
 `xattr -dr com.apple.quarantine /Applications/Flione.app && open /Applications/Flione.app`
 
+Or with Homebrew (handles the quarantine step too): `brew install --cask rocavence/tap/flione`
+
 ## Name
 
 Flione = Jellyfin + Infinity + Clione (the sea angel). Jellyfin and Infinity share "fin", which gives the F; "lione" comes from Clione.

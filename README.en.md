@@ -55,6 +55,12 @@ Download the `.dmg` from [Releases](https://github.com/rocavence/Flione-app/rele
 xattr -dr com.apple.quarantine /Applications/Flione.app && open /Applications/Flione.app
 ```
 
+Or with Homebrew, in one line (it takes care of the step above):
+
+```sh
+brew install --cask rocavence/tap/flione
+```
+
 ### Build from source
 
 Requirements:
