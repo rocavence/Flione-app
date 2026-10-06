@@ -22,9 +22,10 @@ function arc(points, cx, cy, r, a0, a1, n = 48) {
 
 const PIECES = [
   { // 左上角的紅橘色：往下延伸到藍色直條後面、稍微往後放，由直條蓋住。
-    // 照 icon 剪成弧形的話，左下會剩一個尖角，圓邊做不出來，會從直條左邊凸出去
+    // 照 icon 剪成弧形的話，左下會剩一個尖角，圓邊做不出來，會從直條左邊凸出去。
+    // 藏在直條後面的部分往內收（左下斜切、右緣 541 → 521），側面不和直條的側面重疊在同一個平面，轉動時不會閃
     name: "corner",
-    points: (() => { const p = [[209, 720], [209, 381]]; arc(p, 483, 381, 274, 180, 270); p.push([541, 107], [541, 720]); return p; })(),
+    points: (() => { const p = [[235, 720], [209, 692], [209, 381]]; arc(p, 483, 381, 274, 180, 270); p.push([541, 107], [541, 402], [521, 422], [521, 720]); return p; })(),
     gradient: [[320, 180], "#fc4500", [228, 560], "#fc6302"],
     burst: [-0.9, 0.7], layer: -110, back: 10,
   },
@@ -96,7 +97,8 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.03).texture;
 scene.environmentIntensity = 0.45; // 太強會把橘與藍洗成粉色
 
-const camera = new THREE.PerspectiveCamera(26, 1, 10, 20000);
+// near 放遠一點（相機約在 4000 外，最近的色塊也在 2000 外）：深度的精度高很多，前後很接近的面不會互相閃爍
+const camera = new THREE.PerspectiveCamera(26, 1, 300, 20000);
 const key = new THREE.DirectionalLight(0xffffff, 1.25);
 key.position.set(-700, 900, 1400);
 scene.add(key);
