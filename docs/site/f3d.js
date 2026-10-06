@@ -84,8 +84,8 @@ function buildMesh(piece, material) {
 }
 
 // ---- 場景 ----
-// 沒有 WebGL 時這裡會丟出錯誤，載入失敗，頁面留著平面的 F 圖
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+// 用 GPU 算圖。沒有 WebGL，或瀏覽器沒有 GPU、只能用 CPU 模擬時，這裡會丟出錯誤，頁面留著平面的 F 圖（f-logo.png）
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance", failIfMajorPerformanceCaveat: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.NeutralToneMapping; // 不會把飽和的橘與藍洗淡
