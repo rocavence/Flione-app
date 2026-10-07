@@ -2,6 +2,8 @@
 # 建置 Release 版 Flione.app 並打包成 dmg（未公證）。公開版分成 Apple Silicon 與 Intel 兩包。
 # 這是測試版：本機有 repo 的 .secrets 時自動登入（DEV_LOGIN）。要給別人的正式版用 FLIONE_PUBLIC=1 建置。
 # 用法：FLIONE_PUBLIC=1 scripts/build-release.sh   輸出：dist/Flione-<版本>-AppleSilicon.dmg、dist/Flione-<版本>-Intel.dmg
+#   另有不含版本的 dist/Flione-AppleSilicon.dmg、dist/Flione-Intel.dmg：發版時一起上傳，官網用
+#   releases/latest/download/Flione-AppleSilicon.dmg 固定連到最新版（D58）。發版：gh release create v<版本> dist/*.dmg
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -38,8 +40,9 @@ if [[ "${FLIONE_PUBLIC:-${FINIFY_PUBLIC:-0}}" == 1 ]]; then
     # 拆架構後原本的簽章失效，重新 ad-hoc 簽章（保留 hardened runtime）
     codesign --force --sign - --options runtime "dist/$label/Flione.app" 2>/dev/null
     make_dmg "dist/$label/Flione.app" "Flione-$VERSION-$label.dmg"
+    cp "dist/Flione-$VERSION-$label.dmg" "dist/Flione-$label.dmg"
   done
-  echo "完成：dist/Flione-$VERSION-AppleSilicon.dmg、dist/Flione-$VERSION-Intel.dmg"
+  echo "完成：dist/Flione-$VERSION-AppleSilicon.dmg、dist/Flione-$VERSION-Intel.dmg（與不含版本的同一份）"
 else
   cp -R "$APP" dist/
   make_dmg dist/Flione.app "Flione-$VERSION.dmg"

@@ -435,3 +435,9 @@
 * **登出**：請 server 作廢 token（`POST /Sessions/Logout`），並一併刪掉鑰匙圈裡可能留下的舊項目。
 * **代價**：擋不住以使用者身分在這台 Mac 上執行的程式（Flione 是開源的，金鑰的推導方式公開）。要擋這個只能用鑰匙圈，而 ad-hoc 簽章下鑰匙圈每次更新都會問密碼；把鑰匙圈項目設成「任何 App 都可讀取」也一樣會被 partition 擋下（2026-10-07 實測）。
 * **搬移**：第一次啟動時檔案不存在，讀一次舊的鑰匙圈項目（可能是最後一次跳出密碼視窗），存成檔案後刪掉鑰匙圈的。只讀一次（`FlioneSessionMovedToFile`）：使用者拒絕的話不會每次啟動都問，重新登入 Jellyfin 即可。
+
+## D58　官網的下載按鈕直接連到最新版的 dmg
+
+* **連結**：`releases/latest/download/Flione-AppleSilicon.dmg`、`…/Flione-Intel.dmg`。GitHub 會導到最新 release 裡同名的檔案，所以每次發版都要上傳這兩個不含版本的檔案（`build-release.sh` 會複製一份，`gh release create v<版本> dist/*.dmg` 一起上傳）。含版本的檔案也保留：Homebrew cask 用它們。
+* **按鈕**：Hero 兩顆（Apple 晶片、Intel）；導覽列、收尾、頁尾各一顆，連到猜到的晶片。安裝說明第一步是兩個直接下載的連結。
+* **猜晶片**：瀏覽器不直接說是哪種晶片，看 WebGL 回報的 GPU：Intel／AMD／NVIDIA 顯示卡就是 Intel Mac，Hero 改成 Intel 為主要按鈕。看不出來（Safari 一律回報「Apple GPU」）時預設 Apple 晶片，Intel 按鈕一直都在旁邊。

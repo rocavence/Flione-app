@@ -96,7 +96,7 @@
   ]
 }
 </script>
-<script type="application/ld+json" id="ld-faq">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I install it?","acceptedAnswer":{"@type":"Answer","text":"Four steps, about a minute. Step 3 uses Terminal — don't worry, it's just copy and paste. Click Download latest and download the .dmg: AppleSilicon for Macs with Apple chips (M1 or later), Intel for Intel Macs. Not sure? Choose → About This Mac and look for “Chip” or “Processor”. Double-click the dmg to open it, then drag Flione into the Applications folder next to it. Open Terminal: press ⌘ + Space for Spotlight, type Terminal, and press Return. Click Copy at the top right of the black box below, go back to Terminal, press ⌘ + V to paste, then press Return. Flione opens; after that, open it from Applications as usual. xattr -dr com.apple.quarantine /Applications/Flione.app && open /Applications/Flione.app Have Homebrew? Paste this one line instead of the four steps above: brew install --cask rocavence/tap/flione"}},{"@type":"Question","name":"Is Flione a Jellyfin client for Mac?","acceptedAnswer":{"@type":"Answer","text":"Yes. Flione is a native macOS Jellyfin client built for music: connect to your own Jellyfin server and browse albums, artists, genres, and playlists, with gapless playback, synced lyrics, media keys, and Control Center."}},{"@type":"Question","name":"Can I use YouTube Music on a Mac?","acceptedAnswer":{"@type":"Answer","text":"Yes. Flione is also a YouTube Music desktop player for Mac: sign in with Google and browse your saved albums, liked songs, and playlists in all three views, without a browser tab."}},{"@type":"Question","name":"Is Flione free?","acceptedAnswer":{"@type":"Answer","text":"Yes. No in-app purchases and no Flione account. Download it and go."}},{"@type":"Question","name":"Why paste a Terminal command?","acceptedAnswer":{"@type":"Answer","text":"Flione is a free, self-signed app that isn't notarized by Apple. I don't make apps for a living; I just build small things I find useful and good-looking, and Apple's yearly developer fee isn't in the budget… So macOS blocks the first launch. This line only removes the quarantine flag added when you downloaded it, then opens Flione. It changes nothing else, and you only need to do it once."}},{"@type":"Question","name":"What do I need?","acceptedAnswer":{"@type":"Answer","text":"macOS 14 or later (Liquid Glass needs macOS 26), and a Jellyfin server or a YouTube Music account. Pick a music source on the sign-in screen the first time you open it."}},{"@type":"Question","name":"Anything to know about YouTube Music?","acceptedAnswer":{"@type":"Answer","text":"YouTube Premium is recommended: free accounts may hear ads during playback. Flione uses the unofficial InnerTube API, which can break for a while when Google changes it."}},{"@type":"Question","name":"Does Flione collect my data?","acceptedAnswer":{"@type":"Answer","text":"No. No Flione account, no analytics, no tracking; it only connects to the music source you choose. Jellyfin sign-in stays on your Mac, with no password stored, and YouTube Music signs in with Google without storing a password either. AI Discover runs entirely on your Mac too."}},{"@type":"Question","name":"Why make Flione?","acceptedAnswer":{"@type":"Answer","text":"Flione began with a self-hosted Jellyfin server. An iTunes library built over twenty-some years was re-imported and became a private music stream. The music was back, but the players that worked with it looked plain and dated. So Flione was made: a sidebar like Spotify's, a wall of covers that drifts slowly and lays out years of taste, and the original Cover Flow from early Mac OS X. Flione is a renaissance for collecting music: truly owning your music, not just streaming it."}},{"@type":"Question","name":"Where does the name come from?","acceptedAnswer":{"@type":"Answer","text":"Jellyfin+Infinity+Clione=Flione Jellyfin and Infinity share \"fin\", which gives the F; \"lione\" comes from Clione, the sea angel. The three views are three ways a sea angel moves through an ocean of music: Modern is everyday drifting, Infinity heads into the deep, and Cover Flow glides through a floating swarm."}},{"@type":"Question","name":"Can I build it from source?","acceptedAnswer":{"@type":"Answer","text":"Yes. Follow the README and build it with Xcode."}}]}</script>
+<script type="application/ld+json" id="ld-faq">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I install it?","acceptedAnswer":{"@type":"Answer","text":"Four steps, about a minute. Step 3 uses Terminal — don't worry, it's just copy and paste. Download the .dmg: the Apple silicon version for Macs with Apple chips (M1 or later), or the Intel version for Intel Macs. Not sure? Choose → About This Mac and look for “Chip” or “Processor”. Double-click the dmg to open it, then drag Flione into the Applications folder next to it. Open Terminal: press ⌘ + Space for Spotlight, type Terminal, and press Return. Click Copy at the top right of the black box below, go back to Terminal, press ⌘ + V to paste, then press Return. Flione opens; after that, open it from Applications as usual. xattr -dr com.apple.quarantine /Applications/Flione.app && open /Applications/Flione.app Have Homebrew? Paste this one line instead of the four steps above: brew install --cask rocavence/tap/flione"}},{"@type":"Question","name":"Is Flione a Jellyfin client for Mac?","acceptedAnswer":{"@type":"Answer","text":"Yes. Flione is a native macOS Jellyfin client built for music: connect to your own Jellyfin server and browse albums, artists, genres, and playlists, with gapless playback, synced lyrics, media keys, and Control Center."}},{"@type":"Question","name":"Can I use YouTube Music on a Mac?","acceptedAnswer":{"@type":"Answer","text":"Yes. Flione is also a YouTube Music desktop player for Mac: sign in with Google and browse your saved albums, liked songs, and playlists in all three views, without a browser tab."}},{"@type":"Question","name":"Is Flione free?","acceptedAnswer":{"@type":"Answer","text":"Yes. No in-app purchases and no Flione account. Download it and go."}},{"@type":"Question","name":"Why paste a Terminal command?","acceptedAnswer":{"@type":"Answer","text":"Flione is a free, self-signed app that isn't notarized by Apple. I don't make apps for a living; I just build small things I find useful and good-looking, and Apple's yearly developer fee isn't in the budget… So macOS blocks the first launch. This line only removes the quarantine flag added when you downloaded it, then opens Flione. It changes nothing else, and you only need to do it once."}},{"@type":"Question","name":"What do I need?","acceptedAnswer":{"@type":"Answer","text":"macOS 14 or later (Liquid Glass needs macOS 26), and a Jellyfin server or a YouTube Music account. Pick a music source on the sign-in screen the first time you open it."}},{"@type":"Question","name":"Anything to know about YouTube Music?","acceptedAnswer":{"@type":"Answer","text":"YouTube Premium is recommended: free accounts may hear ads during playback. Flione uses the unofficial InnerTube API, which can break for a while when Google changes it."}},{"@type":"Question","name":"Does Flione collect my data?","acceptedAnswer":{"@type":"Answer","text":"No. No Flione account, no analytics, no tracking; it only connects to the music source you choose. Jellyfin sign-in stays on your Mac, with no password stored, and YouTube Music signs in with Google without storing a password either. AI Discover runs entirely on your Mac too."}},{"@type":"Question","name":"Why make Flione?","acceptedAnswer":{"@type":"Answer","text":"Flione began with a self-hosted Jellyfin server. An iTunes library built over twenty-some years was re-imported and became a private music stream. The music was back, but the players that worked with it looked plain and dated. So Flione was made: a sidebar like Spotify's, a wall of covers that drifts slowly and lays out years of taste, and the original Cover Flow from early Mac OS X. Flione is a renaissance for collecting music: truly owning your music, not just streaming it."}},{"@type":"Question","name":"Where does the name come from?","acceptedAnswer":{"@type":"Answer","text":"Jellyfin+Infinity+Clione=Flione Jellyfin and Infinity share \"fin\", which gives the F; \"lione\" comes from Clione, the sea angel. The three views are three ways a sea angel moves through an ocean of music: Modern is everyday drifting, Infinity heads into the deep, and Cover Flow glides through a floating swarm."}},{"@type":"Question","name":"Can I build it from source?","acceptedAnswer":{"@type":"Answer","text":"Yes. Follow the README and build it with Xcode."}}]}</script>
 <script type="importmap">{"imports":{"three":"/site/vendor/three/three.module.min.js"}}</script>
 <script>document.documentElement.classList.add("js")</script>
 <style>
@@ -159,6 +159,8 @@
   .hero .mark{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;margin-bottom:22px}
   .hero .mark img{width:36px;height:36px}
   .cta{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap}
+  /* 下載按鈕：主要按鈕寫完整的「下載 Flione — 晶片」，次要的只寫晶片；換成另一種晶片時跟著換 */
+  .btn-primary .as-alt,.btn-ghost .as-main{display:none}
   .meta{margin-top:16px;font-size:13px;color:var(--muted)}
 
   .stage{background:var(--stage);border-radius:24px;padding:56px 56px 26px;margin-top:56px}
@@ -420,7 +422,7 @@
         <a href="/" hreflang="zh-Hant" data-lang="zh">中</a>
         <a href="/en/" hreflang="en" data-lang="en" class="on">EN</a>
       </div>
-      <a class="btn btn-primary" href="https://github.com/rocavence/Flione-app/releases/latest" target="_blank" rel="noopener" data-i="nav.dl">Download</a>
+      <a class="btn btn-primary" href="https://github.com/rocavence/Flione-app/releases/latest/download/Flione-AppleSilicon.dmg" data-dl="auto" data-i="nav.dl">Download</a>
     </div>
   </div>
 </nav>
@@ -430,7 +432,8 @@
     <div class="mark rv"><img src="/site/icon.png" alt="Flione app icon"><span>Flione</span></div>
     <h1 class="statement rv" style="--d:.08s" data-i="hero.h1">Listen well<br>Collect well<span class="dim">A macOS music player for Jellyfin and YouTube Music</span></h1>
     <div class="cta rv" style="--d:.18s">
-      <a class="btn btn-primary" href="https://github.com/rocavence/Flione-app/releases/latest" target="_blank" rel="noopener"><span data-i="hero.download">Download Flione — free</span></a>
+      <a class="btn btn-primary" href="https://github.com/rocavence/Flione-app/releases/latest/download/Flione-AppleSilicon.dmg" data-dl="arm"><span class="as-main" data-i="hero.download">Download Flione — Apple silicon</span><span class="as-alt" data-i="hero.arm">Apple silicon version</span></a>
+      <a class="btn btn-ghost" href="https://github.com/rocavence/Flione-app/releases/latest/download/Flione-Intel.dmg" data-dl="intel"><span class="as-main" data-i="hero.download.intel">Download Flione — Intel</span><span class="as-alt" data-i="hero.intel">Intel version</span></a>
       <a class="btn btn-ghost" href="#modes"><span data-i="hero.modes">See the three views</span></a>
     </div>
     <p class="meta rv" style="--d:.24s" data-i="hero.meta">macOS 14 or later · v0.9.84 · Apple silicon and Intel</p>
@@ -599,7 +602,7 @@
         <div class="ans">
           <p data-i="inst.lead">Four steps, about a minute. Step 3 uses Terminal — don't worry, it's just copy and paste.</p>
           <ol class="how-steps">
-            <li data-i="inst.s1">Click <a href="https://github.com/rocavence/Flione-app/releases/latest" target="_blank" rel="noopener"><b>Download latest</b></a> and download the <b>.dmg</b>: <b>AppleSilicon</b> for Macs with Apple chips (M1 or later), <b>Intel</b> for Intel Macs. Not sure? Choose  → About This Mac and look for “Chip” or “Processor”.</li>
+            <li data-i="inst.s1">Download the <b>.dmg</b>: the <a href="https://github.com/rocavence/Flione-app/releases/latest/download/Flione-AppleSilicon.dmg"><b>Apple silicon version</b></a> for Macs with Apple chips (M1 or later), or the <a href="https://github.com/rocavence/Flione-app/releases/latest/download/Flione-Intel.dmg"><b>Intel version</b></a> for Intel Macs. Not sure? Choose  → About This Mac and look for “Chip” or “Processor”.</li>
             <li data-i="inst.s2">Double-click the dmg to open it, then drag <b>Flione</b> into the Applications folder next to it.</li>
             <li data-i="inst.s3">Open <b>Terminal</b>: press <kbd>⌘</kbd> + <kbd>Space</kbd> for Spotlight, type <b>Terminal</b>, and press <kbd>Return</kbd>.</li>
             <li data-i="inst.s4">Click <b>Copy</b> at the top right of the black box below, go back to Terminal, press <kbd>⌘</kbd> + <kbd>V</kbd> to paste, then press <kbd>Return</kbd>. Flione opens; after that, open it from Applications as usual.</li>
@@ -688,7 +691,7 @@
   <div class="outro-copy wrap">
     <h2 id="outro-title" class="rv" data-i="outro.h2">Listen well<span>Collect well</span></h2>
     <p class="hint"><span class="mouse" data-i="outro.hint">Move your pointer. Drag to spin, click to take it apart.</span><span class="touch" data-i="outro.hint.touch">Drag to spin, tap to take it apart.</span></p>
-    <div class="cta rv" style="--d:.1s"><a class="btn btn-primary" href="https://github.com/rocavence/Flione-app/releases/latest" target="_blank" rel="noopener" data-i="outro.dl">Download Flione</a></div>
+    <div class="cta rv" style="--d:.1s"><a class="btn btn-primary" href="https://github.com/rocavence/Flione-app/releases/latest/download/Flione-AppleSilicon.dmg" data-dl="auto" data-i="outro.dl">Download Flione</a></div>
   </div>
 </section>
 
@@ -702,7 +705,7 @@
     </div>
     <div class="foot-col">
       <b>Flione</b>
-      <a href="https://github.com/rocavence/Flione-app/releases/latest" target="_blank" rel="noopener" data-i="foot.dl">Download</a>
+      <a href="https://github.com/rocavence/Flione-app/releases/latest/download/Flione-AppleSilicon.dmg" data-dl="auto" data-i="foot.dl">Download</a>
       <a href="https://github.com/rocavence/Flione-app" target="_blank" rel="noopener">GitHub</a>
       <a href="https://github.com/rocavence/Flione-app/blob/main/README.md" target="_blank" rel="noopener" data-i="foot.docs">Docs</a>
     </div>
@@ -738,6 +741,18 @@ if(matchMedia("(hover:hover) and (prefers-reduced-motion:no-preference)").matche
       sdGlass.style.setProperty("--gy",((e.clientY-r.top)/r.height*100).toFixed(1)+"%")})});
 }
 // 3D 的 F：接近頁尾時才載入 three.js
+// 下載按鈕：依晶片連到最新版的 dmg（releases/latest/download 固定連到最新版，D58）。
+// 瀏覽器不直接告訴我們是哪種晶片：看 WebGL 回報的 GPU，Intel／AMD 顯示卡就是 Intel Mac；看不出來（Safari 一律回報 Apple GPU）時預設 Apple 晶片
+(()=>{
+  let intel=false;
+  try{const gl=document.createElement("canvas").getContext("webgl");const ext=gl&&gl.getExtension("WEBGL_debug_renderer_info");
+    const gpu=ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)):"";intel=/Intel|AMD|Radeon|NVIDIA/i.test(gpu)&&!/Apple/i.test(gpu)}catch(e){}
+  if(!intel)return;
+  const arm=document.querySelector('[data-dl="arm"]'),x86=document.querySelector('[data-dl="intel"]');
+  document.querySelectorAll('[data-dl="auto"]').forEach(a=>a.href=x86.href);
+  // Hero：Intel 版換成主要按鈕、排到前面（按鈕上的字由 CSS 依主要／次要切換）
+  if(arm&&x86){arm.classList.replace("btn-primary","btn-ghost");x86.classList.replace("btn-ghost","btn-primary");arm.before(x86)}
+})();
 const f3d=document.getElementById("f3d");
 if(f3d&&"IntersectionObserver" in window){
   const f3dIO=new IntersectionObserver(([e])=>{if(e.isIntersecting){f3dIO.disconnect();import("/site/f3d.js").catch(()=>{})}},{rootMargin:"900px 0px"});
