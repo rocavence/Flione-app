@@ -419,3 +419,9 @@
 * **做法**：自己的 tap `rocavence/homebrew-tap`（與 Wunder 共用），`brew install --cask rocavence/tap/flione`。官方的 homebrew/cask 要求經過 Apple 公證，Flione 沒有，所以不送官方。
 * **隔離標記**：cask 的 `postflight_steps` 執行 `xattr -dr com.apple.quarantine`，用 brew 安裝不用再貼終端機指令。
 * **發版**：GitHub release 建好後執行 `python3 scripts/update-cask.py`，從最新 release 取版本與兩個 dmg 的 sha256，更新 `Casks/flione.rb` 並 push。cask 照 Homebrew 7 的寫法（`depends_on macos: :sonoma`、`postflight_steps`、`url` 不加 `verified:`），`brew style`、`brew audit --strict` 都要通過。
+
+## D56　公開版更新後的鑰匙圈提示：維持現狀
+
+* **現象**：公開版是 ad-hoc 簽章，鑰匙圈以每個版本的 cdhash 記錄可以讀取的 App（partition `cdhash:…`）。Jellyfin 使用者每次更新後第一次開啟，會被問一次鑰匙圈密碼，按「永遠允許」之後這一版就不會再問。YouTube Music 的登入不在鑰匙圈，不受影響。
+* **試過不可行**：自己做的簽章憑證（不需 Apple 帳號）沒有 Apple 的 Team ID，partition 一樣是 `cdhash:…`，每版還是會問（2026-10-07 實測）；而且 codesign 不接受未信任的自簽憑證。
+* **可行但沒採用**：把 Jellyfin 的登入改存成檔案（保護比鑰匙圈弱）；加入 Apple Developer Program 用 Team ID 簽章（`teamid:…` 固定不變，同時解決公證與 Homebrew 官方）。使用者選擇維持現狀。
