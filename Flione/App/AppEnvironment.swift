@@ -215,7 +215,7 @@ final class AppEnvironment {
             return AppEnvironment(sessionStore: DevelopmentSessionStore(directory: secrets))
         }
         #endif
-        return AppEnvironment(sessionStore: KeychainSessionStore())
+        return AppEnvironment(sessionStore: FileSessionStore())
     }
 
     func signIn(_ session: JellyfinSession) throws {

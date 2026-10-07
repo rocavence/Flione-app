@@ -60,7 +60,7 @@
  "faq.q6": "Why make Flione?",
  "faq.q7": "Where does the name come from?",
  "faq.q8": "Can I build it from source?",
- "faq.a5": "No. No Flione account, no analytics, no tracking; it only connects to the music source you choose. Jellyfin sign-in lives in the Keychain, and YouTube Music signs in with Google without storing a password. AI Discover runs entirely on your Mac too.",
+ "faq.a5": "No. No Flione account, no analytics, no tracking; it only connects to the music source you choose. Jellyfin sign-in stays on your Mac, with no password stored, and YouTube Music signs in with Google without storing a password either. AI Discover runs entirely on your Mac too.",
  "faq.a8": "Yes. Follow the <a href=\"https://github.com/rocavence/Flione-app#readme\" target=\"_blank\" rel=\"noopener\">README</a> and build it with Xcode.",
  "inst.lead": "Four steps, about a minute. Step 3 uses Terminal — don't worry, it's just copy and paste.",
  "inst.s1": "Click <a href=\"https://github.com/rocavence/Flione-app/releases/latest\" target=\"_blank\" rel=\"noopener\"><b>Download latest</b></a> and download the <b>.dmg</b>: <b>AppleSilicon</b> for Macs with Apple chips (M1 or later), <b>Intel</b> for Intel Macs. Not sure? Choose  → About This Mac and look for “Chip” or “Processor”.",

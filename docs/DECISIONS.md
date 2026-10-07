@@ -424,4 +424,11 @@
 
 * **現象**：公開版是 ad-hoc 簽章，鑰匙圈以每個版本的 cdhash 記錄可以讀取的 App（partition `cdhash:…`）。Jellyfin 使用者每次更新後第一次開啟，會被問一次鑰匙圈密碼，按「永遠允許」之後這一版就不會再問。YouTube Music 的登入不在鑰匙圈，不受影響。
 * **試過不可行**：自己做的簽章憑證（不需 Apple 帳號）沒有 Apple 的 Team ID，partition 一樣是 `cdhash:…`，每版還是會問（2026-10-07 實測）；而且 codesign 不接受未信任的自簽憑證。
-* **可行但沒採用**：把 Jellyfin 的登入改存成檔案（保護比鑰匙圈弱）；加入 Apple Developer Program 用 Team ID 簽章（`teamid:…` 固定不變，同時解決公證與 Homebrew 官方）。使用者選擇維持現狀。
+* **可行但沒採用**：把 Jellyfin 的登入改存成檔案（保護比鑰匙圈弱）；加入 Apple Developer Program 用 Team ID 簽章（`teamid:…` 固定不變，同時解決公證與 Homebrew 官方）。使用者先選維持現狀，同一天改選存成檔案（D57）。
+
+## D57　Jellyfin 的登入改存成檔案
+
+* **做法**：`FileSessionStore` 存在 `Application Support/com.rocavence.Flione/jellyfin-session.json`（權限 600），內容與以前的鑰匙圈項目相同（server URL、user ID、access token，不含密碼）。開發版與公開版都用，同一套程式。
+* **原因**：公開版每次更新後鑰匙圈都會要使用者輸入一次密碼（D56）；存成檔案就不會再問。
+* **代價**：保護比鑰匙圈弱：以使用者身分執行的其他程式讀得到。與 YouTube Music 的登入（WebKit 的 cookie）同一個等級。
+* **搬移**：第一次啟動時檔案不存在，讀一次舊的鑰匙圈項目（可能是最後一次跳出密碼視窗），存成檔案後刪掉鑰匙圈的。只讀一次（`FlioneSessionMovedToFile`）：使用者拒絕的話不會每次啟動都問，重新登入 Jellyfin 即可。

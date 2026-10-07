@@ -41,7 +41,7 @@ Flione 連線到你自己的 Jellyfin 伺服器或 YouTube Music，把音樂庫�
 
 ## 為什麼是這個樣子
 
-- **只連線到你選的音樂來源**：不需要 Flione 帳號，沒有分析，不追蹤。Jellyfin 的登入資訊存在鑰匙圈，YouTube Music 的登入是 app 內 WebKit 的 cookie。
+- **只連線到你選的音樂來源**：不需要 Flione 帳號，沒有分析，不追蹤。Jellyfin 的登入資訊（不含密碼）存在 Application Support 的檔案，只有你的 Mac 帳號讀得到；YouTube Music 的登入是 app 內 WebKit 的 cookie。
 - **原生**：SwiftUI 搭配 AppKit。封面牆與音樂庫格線用 `NSCollectionView` 重用 cell，1,400 張以上的專輯也能順暢捲動。
 - **封面是主角**：顏色取自封面的 BlurHash，不需要額外下載圖片就能做光暈與 Magic 排序。
 
@@ -106,7 +106,7 @@ Flione/
 │   ├── YouTube/      InnerTube、YouTubeMusicRepository、網頁播放器、帳號
 │   ├── Cache/        ImagePipeline（記憶體＋磁碟）、BlurHash
 │   ├── Localization/ AppLanguage（介面語言）
-│   ├── Persistence/  鑰匙圈、音樂庫快照、最愛、播放清單
+│   ├── Persistence/  登入資訊、音樂庫快照、最愛、播放清單
 │   └── Platform/     Now Playing、媒體鍵、鍵盤
 ├── DesignSystem/     色彩與配色、字級、間距、圓角、動態、陰影、Reicon
 ├── Components/       ArtworkView、按鈕、播放列、佇列與歌詞面板、Toast

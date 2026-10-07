@@ -1,13 +1,57 @@
 import Foundation
 import Security
 
-/// 登入資訊存在 macOS Keychain（server URL、user ID、access token）。不存密碼，不用 UserDefaults。
+/// Jellyfin 的登入資訊（server URL、user ID、access token），不存密碼。
+/// 存成檔案（FileSessionStore，D57）；以前存在鑰匙圈（KeychainSessionStore），第一次讀取時搬過來。
 protocol SessionStore: Sendable {
     func load() -> JellyfinSession?
     func save(_ session: JellyfinSession) throws
     func clear()
 }
 
+/// 存成 Application Support 裡的檔案，只有這個 Mac 帳號能讀（權限 600）。
+/// 不用鑰匙圈：公開版是 ad-hoc 簽章，鑰匙圈以每一版的 cdhash 認 App，每次更新都要使用者輸入一次密碼（D56、D57）
+struct FileSessionStore: SessionStore {
+    var file: URL = FileSessionStore.defaultFile
+    /// 搬移用：以前存在鑰匙圈的登入；測試時換掉
+    var legacy: any SessionStore = KeychainSessionStore()
+    var movedKey = "FlioneSessionMovedToFile"
+
+    static var defaultFile: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("com.rocavence.Flione/jellyfin-session.json")
+    }
+
+    func load() -> JellyfinSession? {
+        if let data = try? Data(contentsOf: file) {
+            return try? JSONDecoder().decode(JellyfinSession.self, from: data)
+        }
+        // 只搬一次：讀鑰匙圈可能跳出密碼視窗，使用者拒絕的話不要每次啟動都問（重新登入即可）
+        guard !UserDefaults.standard.bool(forKey: movedKey) else { return nil }
+        UserDefaults.standard.set(true, forKey: movedKey)
+        guard let session = legacy.load() else { return nil }
+        do {
+            try save(session)
+            legacy.clear()
+        } catch {}
+        return session
+    }
+
+    func save(_ session: JellyfinSession) throws {
+        let data = try JSONEncoder().encode(session)
+        try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try data.write(to: file, options: .atomic)
+        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: file.path)
+    }
+
+    func clear() {
+        try? FileManager.default.removeItem(at: file)
+        // 還沒搬過的話，鑰匙圈裡可能還有舊的；登出時一起清掉
+        if !UserDefaults.standard.bool(forKey: movedKey) { legacy.clear() }
+    }
+}
+
+/// 以前的存法（0.9.84 以前），只在搬到 FileSessionStore 時讀取
 struct KeychainSessionStore: SessionStore {
     private let service = "com.rocavence.Flione.session"
     private let account = "jellyfin"

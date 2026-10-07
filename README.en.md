@@ -41,7 +41,7 @@ Flione connects to your own Jellyfin server or to YouTube Music and gives you th
 
 ## Why it's built this way
 
-- **Connects only to the music source you choose**: no Flione account, no analytics, no tracking. Jellyfin sign-in lives in the Keychain; YouTube Music sign-in is the app's WebKit cookies.
+- **Connects only to the music source you choose**: no Flione account, no analytics, no tracking. Jellyfin sign-in (no password) is a file in Application Support that only your Mac account can read; YouTube Music sign-in is the app's WebKit cookies.
 - **Native**: SwiftUI with AppKit where it matters. The cover wall and library grid reuse cells with `NSCollectionView`, so libraries with 1,400+ albums scroll smoothly.
 - **Covers come first**: colors come from each cover's BlurHash, so glows and Magic sort work without downloading extra images.
 
@@ -106,7 +106,7 @@ Flione/
 │   ├── YouTube/      InnerTube, YouTubeMusicRepository, web player, account
 │   ├── Cache/        ImagePipeline (memory + disk), BlurHash
 │   ├── Localization/ AppLanguage (interface language)
-│   ├── Persistence/  Keychain, library snapshot, favorites, playlists
+│   ├── Persistence/  Sign-in, library snapshot, favorites, playlists
 │   └── Platform/     Now Playing, media keys, keyboard
 ├── DesignSystem/     colors and themes, type, spacing, radius, motion, shadows, Reicon
 ├── Components/       ArtworkView, buttons, player bar, queue and lyrics panel, Toast
