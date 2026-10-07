@@ -256,9 +256,16 @@ final class AppEnvironment {
         }
         switch target {
         case .youtube: Task { await youtube.signOut() }
-        case .jellyfin: sessionStore.clear()
+        case .jellyfin: revokeJellyfin(); sessionStore.clear()
         }
         accountsRevision += 1
+    }
+
+    /// 登出 Jellyfin 時請 server 作廢這個 token，留在別處的副本（舊的鑰匙圈項目、備份）也不能再用。失敗不影響登出
+    private func revokeJellyfin() {
+        guard let stored = sessionStore.load(), !stored.isYouTube else { return }
+        let client = JellyfinClient(serverURL: stored.serverURL, accessToken: stored.accessToken)
+        Task.detached { try? await client.send("POST", "/Sessions/Logout") }
     }
 
     /// 切換音樂來源：暫停目前這一邊（不登出），已登入過的那一邊直接連線，沒登入過就顯示它的登入畫面
@@ -295,7 +302,7 @@ final class AppEnvironment {
     /// 登出目前的音樂來源；另一邊的登入保留
     func signOut(reason: String? = nil) {
         signOutReason = reason
-        if session?.isYouTube == true { Task { await youtube.signOut() } } else { sessionStore.clear() }
+        if session?.isYouTube == true { Task { await youtube.signOut() } } else { revokeJellyfin(); sessionStore.clear() }
         try? FileManager.default.removeItem(at: playbackFile)
         deactivate()
     }

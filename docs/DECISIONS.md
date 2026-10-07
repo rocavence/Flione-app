@@ -430,5 +430,8 @@
 
 * **做法**：`FileSessionStore` 存在 `Application Support/com.rocavence.Flione/jellyfin-session.json`（權限 600），內容與以前的鑰匙圈項目相同（server URL、user ID、access token，不含密碼）。開發版與公開版都用，同一套程式。
 * **原因**：公開版每次更新後鑰匙圈都會要使用者輸入一次密碼（D56）；存成檔案就不會再問。
-* **代價**：保護比鑰匙圈弱：以使用者身分執行的其他程式讀得到。與 YouTube Music 的登入（WebKit 的 cookie）同一個等級。
+* **加密**：AES-GCM（CryptoKit），金鑰由這台 Mac 的硬體 UUID 以 HKDF 推導，不存在任何地方。檔案被複製到別處（備份、誤傳）解不開，被改過也會發現（都當作沒登入）。換 Mac 或從備份還原到別台，要重新登入 Jellyfin。
+* **寫入**：暫存檔以 `O_CREAT | O_EXCL` 權限 600 建立、寫完再 rename，沒有權限還沒改好的空檔。
+* **登出**：請 server 作廢 token（`POST /Sessions/Logout`），並一併刪掉鑰匙圈裡可能留下的舊項目。
+* **代價**：擋不住以使用者身分在這台 Mac 上執行的程式（Flione 是開源的，金鑰的推導方式公開）。要擋這個只能用鑰匙圈，而 ad-hoc 簽章下鑰匙圈每次更新都會問密碼；把鑰匙圈項目設成「任何 App 都可讀取」也一樣會被 partition 擋下（2026-10-07 實測）。
 * **搬移**：第一次啟動時檔案不存在，讀一次舊的鑰匙圈項目（可能是最後一次跳出密碼視窗），存成檔案後刪掉鑰匙圈的。只讀一次（`FlioneSessionMovedToFile`）：使用者拒絕的話不會每次啟動都問，重新登入 Jellyfin 即可。

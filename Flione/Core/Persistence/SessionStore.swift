@@ -1,4 +1,6 @@
+import CryptoKit
 import Foundation
+import IOKit
 import Security
 
 /// Jellyfin 的登入資訊（server URL、user ID、access token），不存密碼。
@@ -9,10 +11,13 @@ protocol SessionStore: Sendable {
     func clear()
 }
 
-/// 存成 Application Support 裡的檔案，只有這個 Mac 帳號能讀（權限 600）。
-/// 不用鑰匙圈：公開版是 ad-hoc 簽章，鑰匙圈以每一版的 cdhash 認 App，每次更新都要使用者輸入一次密碼（D56、D57）
+/// 存成 Application Support 裡的檔案，只有這個 Mac 帳號能讀（權限 600），內容以 AES-GCM 加密。
+/// 金鑰由這台 Mac 的硬體 UUID 推導，不存在任何地方：檔案被複製到別處（備份、誤傳）就解不開，被改過也會發現。
+/// 擋不住以使用者身分在這台 Mac 上執行的程式。不用鑰匙圈：公開版是 ad-hoc 簽章，鑰匙圈以每一版的 cdhash 認 App，
+/// 每次更新都要使用者輸入一次密碼；設成「任何 App 都可讀取」也一樣會被擋（D56、D57）
 struct FileSessionStore: SessionStore {
     var file: URL = FileSessionStore.defaultFile
+    var key: SymmetricKey = FileSessionStore.deviceKey
     /// 搬移用：以前存在鑰匙圈的登入；測試時換掉
     var legacy: any SessionStore = KeychainSessionStore()
     var movedKey = "FlioneSessionMovedToFile"
@@ -22,9 +27,30 @@ struct FileSessionStore: SessionStore {
             .appendingPathComponent("com.rocavence.Flione/jellyfin-session.json")
     }
 
+    /// 檔案開頭的標記與版本；之後改格式時用得到
+    private static let magic = Data("FLS1".utf8)
+
+    /// 這台 Mac 的硬體 UUID 推導出的 256 位元金鑰。換一台 Mac（或還原到別台）就解不開，要重新登入 Jellyfin
+    static let deviceKey = deriveDeviceKey()
+
+    static var platformUUID: String {
+        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPlatformExpertDevice"))
+        defer { IOObjectRelease(service) }
+        return IORegistryEntryCreateCFProperty(service, "IOPlatformUUID" as CFString, kCFAllocatorDefault, 0)?
+            .takeRetainedValue() as? String ?? ""
+    }
+
+    static func deriveDeviceKey() -> SymmetricKey {
+        HKDF<SHA256>.deriveKey(inputKeyMaterial: SymmetricKey(data: Data(platformUUID.utf8)),
+                               salt: Data("com.rocavence.Flione".utf8), info: Data("jellyfin-session v1".utf8), outputByteCount: 32)
+    }
+
     func load() -> JellyfinSession? {
         if let data = try? Data(contentsOf: file) {
-            return try? JSONDecoder().decode(JellyfinSession.self, from: data)
+            // 解不開（別台 Mac 的檔案、被改過）就當沒登入
+            guard data.starts(with: Self.magic), let box = try? AES.GCM.SealedBox(combined: data.dropFirst(Self.magic.count)),
+                  let plain = try? AES.GCM.open(box, using: key) else { return nil }
+            return try? JSONDecoder().decode(JellyfinSession.self, from: plain)
         }
         // 只搬一次：讀鑰匙圈可能跳出密碼視窗，使用者拒絕的話不要每次啟動都問（重新登入即可）
         guard !UserDefaults.standard.bool(forKey: movedKey) else { return nil }
@@ -38,16 +64,26 @@ struct FileSessionStore: SessionStore {
     }
 
     func save(_ session: JellyfinSession) throws {
-        let data = try JSONEncoder().encode(session)
+        let plain = try JSONEncoder().encode(session)
+        guard let sealed = try AES.GCM.seal(plain, using: key).combined else { throw CocoaError(.fileWriteUnknown) }
+        let data = Self.magic + sealed
         try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try data.write(to: file, options: .atomic)
-        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: file.path)
+        // 暫存檔一建立就是 600（不是先寫再改權限，中間不會有別人讀得到的空檔），寫完再換上
+        let temp = file.deletingLastPathComponent().appendingPathComponent(".\(file.lastPathComponent).\(UUID().uuidString)")
+        let fd = open(temp.path, O_WRONLY | O_CREAT | O_EXCL, 0o600)
+        guard fd >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        let written = data.withUnsafeBytes { write(fd, $0.baseAddress, $0.count) }
+        close(fd)
+        guard written == data.count, rename(temp.path, file.path) == 0 else {
+            unlink(temp.path)
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
     }
 
     func clear() {
         try? FileManager.default.removeItem(at: file)
-        // 還沒搬過的話，鑰匙圈裡可能還有舊的；登出時一起清掉
-        if !UserDefaults.standard.bool(forKey: movedKey) { legacy.clear() }
+        // 鑰匙圈裡可能還有舊的（還沒搬，或搬的時候沒刪成功）：登出時一起清掉
+        legacy.clear()
     }
 }
 
