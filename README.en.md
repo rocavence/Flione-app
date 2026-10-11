@@ -179,3 +179,7 @@ Performance and stability (build Release with `SWIFT_ACTIVE_COMPILATION_CONDITIO
 - [`docs/spikes/`](docs/spikes/): spike results
 
 Flione was formerly called Finify; internal type prefixes, the bundle id, settings keys, and launch arguments still use Finify.
+
+## License
+
+CC BY-NC-SA 4.0 (Attribution-NonCommercial-ShareAlike). See [LICENSE](LICENSE).

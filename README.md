@@ -179,3 +179,7 @@ App icon 與選單列 icon 由 `scripts/icon/make-icon.swift` 依 macOS icon 格
 - [`docs/spikes/`](docs/spikes/)：技術驗證結果
 
 Flione 舊名 Finify；程式內部的型別前綴、bundle id、設定鍵與啟動參數仍沿用 Finify。
+
+## 授權
+
+CC BY-NC-SA 4.0（姓名標示—非商業性—相同方式分享），詳見 [LICENSE](LICENSE)。
